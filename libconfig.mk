@@ -9,7 +9,7 @@ LIBOUT:=        libxbee
 
 LIBS:=          rt pthread dl
 
-SRCS:=          ver
+SRCS:=          ll ver
 
 SYS_HEADERS:=   xbee.h
 RELEASE_FILES:= HISTORY
