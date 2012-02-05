@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "internal.h"
+#include "conn.h"
 #include "pkt.h"
 #include "ll.h"
 
@@ -86,6 +87,23 @@ EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
 EXPORT xbee_err xbee_pktValidate(struct xbee_pkt *pkt) {
 	if (ll_get_item(pktList, pkt) != XBEE_ENONE) return XBEE_EINVAL;
 	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+xbee_err xbee_pktLink(struct xbee_con *con, struct xbee_pkt *pkt) {
+	if (!con || !pkt) return XBEE_EMISSINGPARAM;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
+	if (ll_get_item(con->pktList, pkt) == XBEE_ENONE) return XBEE_ENONE;
+	return ll_add_tail(con->pktList, pkt);
+}
+
+xbee_err xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt) {
+	if (!con || !pkt) return XBEE_EMISSINGPARAM;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
+	return ll_ext_item(con->pktList, pkt);
 }
 
 /* ########################################################################## */

@@ -29,13 +29,13 @@
 /* structs that aren't exposed to the developers */
 
 struct xbee {
-	
+	struct ll_head *conList;
 };
 
 /* ######################################################################### */
 
 struct xbee_con {
-	
+	struct ll_head *pktList;
 };
 
 /* ######################################################################### */
