@@ -41,12 +41,13 @@ struct pkt_dataKey {
 
 /* ########################################################################## */
 
-xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt *oPkt, int dataLen) {
+xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLen) {
 	size_t memSize;
 	struct xbee_pkt *pkt;
 	xbee_err ret;
 	
-	if (!xbee || xbee_validate(xbee)) return XBEE_EINVAL;
+	if (!xbee || !nPkt) return XBEE_EMISSINGPARAM;
+	if (xbee_validate(xbee)) return XBEE_EINVAL;
 	
 	if (oPkt) {
 		if ((ret = ll_ext_item(pktList, oPkt)) != XBEE_ENONE) {
@@ -70,6 +71,7 @@ xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt *oPkt, int dataLen) {
 		ret = XBEE_ELINKEDLIST;
 	}
 	
+	*nPkt = pkt;
 	return ret;
 }
 
