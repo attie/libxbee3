@@ -1,5 +1,5 @@
-#ifndef __XBEE_INTERNAL_H
-#define __XBEE_INTERNAL_H
+#ifndef __XBEE_PKT_H
+#define __XBEE_PKT_H
 
 /*
 	libxbee - a C library to aid the use of Digi's XBee wireless modules
@@ -21,23 +21,8 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "xbee.h"
-#include "xsys.h"
+extern struct ll_head *pktList;
 
-/* ######################################################################### */
-/* ######################################################################### */
-/* structs that aren't exposed to the developers */
+xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt *oPkt, int dataLen);
 
-struct xbee {
-	struct ll_head *pktList;
-};
-
-/* ######################################################################### */
-
-struct xbee_con {
-	struct ll_head *pktList;
-};
-
-/* ######################################################################### */
-
-#endif /* __XBEE_INTERNAL_H */
+#endif /* __XBEE_PKT_H */
