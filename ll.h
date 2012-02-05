@@ -42,38 +42,48 @@ struct ll_head {
 	xsys_mutex mutex;
 };
 
-/* DO NOT RE-ORDER! */
-struct ll_info {
-	struct ll_info *next;
-	struct ll_info *prev;
-	int is_head;
-	struct ll_head *head;
-	void *item;
-};
-
 int ll_init(struct ll_head *list);
 void ll_destroy(struct ll_head *list, void (*freeCallback)(void*));
 
 void *ll_alloc(void);
 void ll_free(void *list, void (*freeCallback)(void *));
 
-int ll_add_head(void *list, void *item);
-int ll_add_tail(void *list, void *item);
-int ll_add_after(void *list, void *ref, void *item);
-int ll_add_before(void *list, void *ref, void *item);
+#define ll_add_head(list, item)        _ll_add_head((list),(item),1)
+int _ll_add_head(void *list, void *item, int needMutex);
+/* - */
+#define ll_add_tail(list, item)        _ll_add_tail((list),(item),1)
+int _ll_add_tail(void *list, void *item, int needMutex);
+/* - */
+#define ll_add_after(list, ref, item)  _ll_add_after((list),(ref),(item),1)
+int _ll_add_after(void *list, void *ref, void *item, int needMutex);
+/* - */
+#define ll_add_before(list, ref, item) _ll_add_before((list),(ref),(item),1)
+int _ll_add_before(void *list, void *ref, void *item, int needMutex);
 
 void *ll_get_head(void *list);
 void *ll_get_tail(void *list);
 
 /* returns struct ll_info* or NULL - don't touch the pointer ;) */
-void *ll_get_item(void *list, void *item);
-void *ll_get_next(void *list, void *ref);
-void *ll_get_prev(void *list, void *ref);
-void *ll_get_index(void *list, int index);
+#define ll_get_item(list, item) _ll_get_item((list),(item),1)
+void *_ll_get_item(void *list, void *item, int needMutex);
 
-void *ll_ext_head(void *list);
-void *ll_ext_tail(void *list);
-int ll_ext_item(void *list, void *item);
+#define ll_get_next(list, ref) _ll_get_next((list),(ref),1)
+void *_ll_get_next(void *list, void *ref, int needMutex);
+/* - */
+#define ll_get_prev(list, ref) _ll_get_prev((list),(ref),1)
+void *_ll_get_prev(void *list, void *ref, int needMutex);
+/* - */
+#define ll_get_index(list, index) _ll_get_index((list),(index),1)
+void *_ll_get_index(void *list, unsigned int index, int needMutex);
+
+#define ll_ext_head(list)       _ll_ext_head((list),1)
+void *_ll_ext_head(void *list, int needMutex);
+/* - */
+#define ll_ext_tail(list)       _ll_ext_tail((list),1)
+void *_ll_ext_tail(void *list, int needMutex);
+/* - */
+#define ll_ext_item(list, item) _ll_ext_item((list),(item),1)
+int _ll_ext_item(void *list, void *item, int needMutex);
 
 int ll_count_items(void *list);
 int ll_combine(void *head, void *tail);

@@ -23,6 +23,15 @@
 
 #include "ll.h"
 
+/* DO NOT RE-ORDER! */
+struct ll_info {
+	struct ll_info *next;
+	struct ll_info *prev;
+	int is_head;
+	struct ll_head *head;
+	void *item;
+};
+
 /* this file is scary, sorry it isn't commented... i nearly broke myself writing it
    maybe oneday soon i'll be brave and put some commends down */
 
@@ -63,7 +72,7 @@ void ll_free(void *list, void (*freeCallback)(void *)) {
 
 /* ################################################################ */
 
-int ll_add_head(void *list, void *item) {
+int _ll_add_head(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
 	int ret;
@@ -71,8 +80,8 @@ int ll_add_head(void *list, void *item) {
 	if (!list || !item) return XBEE_EINVAL;
 	i = list;
 	h = i->head;
-	if (!(h && h->is_head && h->self == h)) return -1;
-	xsys_mutex_lock(&h->mutex);
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	p = h->head;
 	if (!(h->head = calloc(1, sizeof(struct ll_info)))) {
 		h->head = p;
@@ -90,11 +99,11 @@ int ll_add_head(void *list, void *item) {
 	}
 	h->head->item = item;
 out:
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
-int ll_add_tail(void *list, void *item) {
+int _ll_add_tail(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
 	int ret;
@@ -102,8 +111,8 @@ int ll_add_tail(void *list, void *item) {
 	if (!list || !item) return XBEE_EINVAL;
 	i = list;
 	h = i->head;
-	if (!(h && h->is_head && h->self == h)) return -1;
-	xsys_mutex_lock(&h->mutex);
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	p = h->tail;
 	if (!(h->tail = calloc(1, sizeof(struct ll_info)))) {
 		h->tail = p;
@@ -121,12 +130,12 @@ int ll_add_tail(void *list, void *item) {
 	}
 	h->tail->item = item;
 out:
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
 /* NULL ref will add to tail */
-int ll_add_after(void *list, void *ref, void *item) {
+int _ll_add_after(void *list, void *ref, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *t;
 	int ret;
@@ -135,8 +144,8 @@ int ll_add_after(void *list, void *ref, void *item) {
 	if (!ref) return ll_add_tail(list, item);
 	i = list;
 	h = i->head;
-	if (!(h && h->is_head && h->self == h)) return -1;
-	xsys_mutex_lock(&h->mutex);
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	i = h->head;
 	while (i) {
 		if (i->item == ref) break;
@@ -162,12 +171,12 @@ int ll_add_after(void *list, void *ref, void *item) {
 	t->prev = i;
 	t->item = item;
 out:
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
 /* NULL ref will add to head */
-int ll_add_before(void *list, void *ref, void *item) {
+int _ll_add_before(void *list, void *ref, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *t;
 	int ret;
@@ -176,8 +185,8 @@ int ll_add_before(void *list, void *ref, void *item) {
 	if (!ref) return ll_add_tail(list, item);
 	i = list;
 	h = i->head;
-	if (!(h && h->is_head && h->self == h)) return -1;
-	xsys_mutex_lock(&h->mutex);
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	i = h->head;
 	while (i) {
 		if (i->item == ref) break;
@@ -203,7 +212,7 @@ int ll_add_before(void *list, void *ref, void *item) {
 	t->next = i;
 	t->item = item;
 out:
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -236,53 +245,81 @@ void *ll_get_tail(void *list) {
 }
 
 /* returns struct ll_info* or NULL - don't touch the pointer if you don't know what you're doing ;) */
-void *ll_get_item(void *list, void *item) {
+void *_ll_get_item(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i;
 	if (!list || !item) return NULL;
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return NULL;
-	xsys_mutex_lock(&h->mutex);
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	i = h->head;
 	while (i) {
 		if (i->item == item) break;
 		i = i->next;
 	}
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return i;
 }
 
-void *ll_get_next(void *list, void *ref) {
-#warning TODO - fill mutex gaps
+void *_ll_get_next(void *list, void *ref, int needMutex) {
+	struct ll_head *h;
 	struct ll_info *i;
-	if (!ref) return ll_get_head(list);
-	if (!(i = ll_get_item(list, ref))) return NULL;
-	i = i->next;
-	if (!i) return NULL;
-	return i->item;
-}
-
-void *ll_get_prev(void *list, void *ref) {
-#warning TODO - fill mutex gaps
-	struct ll_info *i;
-	if (!ref) return ll_get_tail(list);
-	if (!(i = ll_get_item(list, ref))) return NULL;
-	i = i->prev;
-	if (!i) return NULL;
-	return i->item;
-}
-
-void *ll_get_index(void *list, int index) {
-#warning TODO - fill mutex gaps
 	void *ret;
-	for (ret = NULL; (ret = ll_get_next(list, ret)) != NULL && index; index--);
+	ret = NULL;
+	if (!list) return NULL;
+	if (!ref) return ll_get_head(list);
+	i = list;
+	h = i->head;
+	if (!(h && h->is_head && h->self == h)) return NULL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
+	i = h->head;
+	if (!(i = _ll_get_item(list, ref, 0))) goto out;
+	i = i->next;
+	if (i) ret = i->item;
+out:
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	return ret;
+}
+
+void *_ll_get_prev(void *list, void *ref, int needMutex) {
+	struct ll_head *h;
+	struct ll_info *i;
+	void *ret;
+	ret = NULL;
+	if (!list) return NULL;
+	if (!ref) return ll_get_tail(list);
+	i = list;
+	h = i->head;
+	if (!(h && h->is_head && h->self == h)) return NULL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
+	i = h->head;
+	if (!(i = _ll_get_item(list, ref, 0))) goto out;
+	i = i->prev;
+	if (i) ret = i->item;
+out:
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	return i->item;
+}
+
+void *_ll_get_index(void *list, unsigned int index, int needMutex) {
+	struct ll_head *h;
+	struct ll_info *i;
+	void *ret;
+	if (!list) return NULL;
+	i = list;
+	h = i->head;
+	if (!(h && h->is_head && h->self == h)) return NULL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
+	i = h->head;
+	for (ret = NULL; (ret = _ll_get_next(list, ret, 0)) != NULL && index; index--);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
 /* ################################################################ */
 
-void *ll_ext_head(void *list) {
+void *_ll_ext_head(void *list, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
 	void *ret;
@@ -291,7 +328,7 @@ void *ll_ext_head(void *list) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return NULL;
-	xsys_mutex_lock(&h->mutex);
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	p = h->head;
 	if (!p) goto out;
 	ret = p->item;
@@ -300,11 +337,11 @@ void *ll_ext_head(void *list) {
 	if (h->tail == p) h->tail = NULL;
 	free(p);
 out:
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
-void *ll_ext_tail(void *list) {
+void *_ll_ext_tail(void *list, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
 	void *ret;
@@ -313,7 +350,7 @@ void *ll_ext_tail(void *list) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return NULL;
-	xsys_mutex_lock(&h->mutex);
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	p = h->tail;
 	if (!p) goto out;
 	ret = p->item;
@@ -322,11 +359,11 @@ void *ll_ext_tail(void *list) {
 	if (h->head == p) h->head = NULL;
 	free(p);
 out:
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
-int ll_ext_item(void *list, void *item) {
+int _ll_ext_item(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
 	int ret;
@@ -334,8 +371,8 @@ int ll_ext_item(void *list, void *item) {
 	if (!list || !item) return XBEE_EINVAL;
 	i = list;
 	h = i->head;
-	if (!(h && h->is_head && h->self == h)) return -1;
-	xsys_mutex_lock(&h->mutex);
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	p = h->head;
 	while (p) {
 		if (p->is_head) {
@@ -358,7 +395,7 @@ int ll_ext_item(void *list, void *item) {
 		}
 		p = p->next;
 	}
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -379,7 +416,7 @@ int ll_count_items(void *list) {
 	if (!list) return XBEE_EINVAL;
 	i = list;
 	h = i->head;
-	if (!(h && h->is_head && h->self == h)) return -1;
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
 	xsys_mutex_lock(&h->mutex);
 	for (p = h->head, ret = 0; p; p = p->next, ret++);
 	xsys_mutex_unlock(&h->mutex);
@@ -389,10 +426,27 @@ int ll_count_items(void *list) {
 /* ################################################################ */
 
 int ll_combine(void *head, void *tail) {
-#warning TODO - fill mutex gaps
-	void *p;
-	while ((p = ll_ext_head(tail)) != NULL) {
-		ll_add_tail(head, p);
+	struct ll_head *hH, *hT;
+	struct ll_info *iH, *iT;
+	void *v;
+	int ret;
+	ret = 0;
+	if (!head || !tail) return XBEE_EINVAL;
+	iH = head;
+	hH = iH->head;
+	if (!(hH && hH->is_head && hH->self == hH)) return XBEE_EINVAL;
+	xsys_mutex_lock(&hH->mutex);
+	
+	iT = tail;
+	hT = iT->head;
+	if (!(hT && hT->is_head && hT->self == hT)) { ret = XBEE_EINVAL; goto out; }
+	xsys_mutex_lock(&hT->mutex);
+	
+	while ((v = _ll_ext_head(tail, 0)) != NULL) {
+		_ll_add_tail(head, v, 0);
 	}
-	return 0;
+	xsys_mutex_unlock(&hH->mutex);
+out:
+	xsys_mutex_unlock(&hT->mutex);
+	return ret;
 }
