@@ -25,6 +25,7 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
 #include <stdarg.h>
 
 /* structs that will be defined/used later */
@@ -146,6 +147,9 @@ struct xbee_conSettings {
 /* ######################################################################### */
 
 struct xbee_pkt {
+	struct xbee *xbee;
+	struct xbee_con *con;
+
 	unsigned char status;
 	unsigned char settings;
 	unsigned char rssi; /* print as "RSSI: -%d\n" */

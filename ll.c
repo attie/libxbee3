@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "xbee.h"
+#include "internal.h"
 #include "ll.h"
 
 /* DO NOT RE-ORDER! */

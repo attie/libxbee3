@@ -21,15 +21,6 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <pthread.h>
-
-typedef pthread_mutex_t   xsys_mutex;
-#define xsys_mutex_init(mutex)                pthread_mutex_init((pthread_mutex_t*)(mutex), NULL)
-#define xsys_mutex_destroy(mutex)             pthread_mutex_destroy((pthread_mutex_t*)(mutex))
-#define xsys_mutex_lock(mutex)                pthread_mutex_lock((pthread_mutex_t*)(mutex))
-#define xsys_mutex_trylock(mutex)             pthread_mutex_trylock((pthread_mutex_t*)(mutex))
-#define xsys_mutex_unlock(mutex)              pthread_mutex_unlock((pthread_mutex_t*)(mutex))
-
 /* DO NOT RE-ORDER! */
 struct ll_head {
 	struct ll_info *head;
