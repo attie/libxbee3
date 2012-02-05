@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "xbee.h"
 #include "ll.h"
 
 /* DO NOT RE-ORDER! */
@@ -35,7 +36,7 @@ struct ll_info {
 /* this file is scary, sorry it isn't commented... i nearly broke myself writing it
    maybe oneday soon i'll be brave and put some commends down */
 
-int ll_init(struct ll_head *list) {
+xbee_err ll_init(struct ll_head *list) {
 	if (!list) return XBEE_EINVAL;
 	list->is_head = 1;
 	list->head = NULL;
@@ -72,10 +73,10 @@ void ll_free(void *list, void (*freeCallback)(void *)) {
 
 /* ################################################################ */
 
-int _ll_add_head(void *list, void *item, int needMutex) {
+xbee_err _ll_add_head(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
-	int ret;
+	xbee_err ret;
 	ret = 0;
 	if (!list || !item) return XBEE_EINVAL;
 	i = list;
@@ -103,10 +104,10 @@ out:
 	return ret;
 }
 
-int _ll_add_tail(void *list, void *item, int needMutex) {
+xbee_err _ll_add_tail(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
-	int ret;
+	xbee_err ret;
 	ret = 0;
 	if (!list || !item) return XBEE_EINVAL;
 	i = list;
@@ -135,10 +136,10 @@ out:
 }
 
 /* NULL ref will add to tail */
-int _ll_add_after(void *list, void *ref, void *item, int needMutex) {
+xbee_err _ll_add_after(void *list, void *ref, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *t;
-	int ret;
+	xbee_err ret;
 	ret = 0;
 	if (!list || !item) return XBEE_EINVAL;
 	if (!ref) return ll_add_tail(list, item);
@@ -176,10 +177,10 @@ out:
 }
 
 /* NULL ref will add to head */
-int _ll_add_before(void *list, void *ref, void *item, int needMutex) {
+xbee_err _ll_add_before(void *list, void *ref, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *t;
-	int ret;
+	xbee_err ret;
 	ret = 0;
 	if (!list || !item) return XBEE_EINVAL;
 	if (!ref) return ll_add_tail(list, item);
@@ -363,10 +364,10 @@ out:
 	return ret;
 }
 
-int _ll_ext_item(void *list, void *item, int needMutex) {
+xbee_err _ll_ext_item(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
-	int ret;
+	xbee_err ret;
 	ret = 0;
 	if (!list || !item) return XBEE_EINVAL;
 	i = list;
@@ -408,10 +409,10 @@ void *ll_ext_index(void *list, int index) {
 
 /* ################################################################ */
 
-int ll_count_items(void *list) {
+xbee_err ll_count_items(void *list) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
-	int ret;
+	xbee_err ret;
 	ret = -1;
 	if (!list) return XBEE_EINVAL;
 	i = list;
@@ -425,11 +426,11 @@ int ll_count_items(void *list) {
 
 /* ################################################################ */
 
-int ll_combine(void *head, void *tail) {
+xbee_err ll_combine(void *head, void *tail) {
 	struct ll_head *hH, *hT;
 	struct ll_info *iH, *iT;
 	void *v;
-	int ret;
+	xbee_err ret;
 	ret = 0;
 	if (!head || !tail) return XBEE_EINVAL;
 	iH = head;

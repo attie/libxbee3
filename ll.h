@@ -23,9 +23,6 @@
 
 #include <pthread.h>
 
-#define XBEE_EINVAL                                        -17
-#define XBEE_EMUTEX                                        -26
-
 typedef pthread_mutex_t   xsys_mutex;
 #define xsys_mutex_init(mutex)                pthread_mutex_init((pthread_mutex_t*)(mutex), NULL)
 #define xsys_mutex_destroy(mutex)             pthread_mutex_destroy((pthread_mutex_t*)(mutex))
@@ -42,23 +39,23 @@ struct ll_head {
 	xsys_mutex mutex;
 };
 
-int ll_init(struct ll_head *list);
+xbee_err ll_init(struct ll_head *list);
 void ll_destroy(struct ll_head *list, void (*freeCallback)(void*));
 
 void *ll_alloc(void);
 void ll_free(void *list, void (*freeCallback)(void *));
 
 #define ll_add_head(list, item)        _ll_add_head((list),(item),1)
-int _ll_add_head(void *list, void *item, int needMutex);
+xbee_err _ll_add_head(void *list, void *item, int needMutex);
 /* - */
 #define ll_add_tail(list, item)        _ll_add_tail((list),(item),1)
-int _ll_add_tail(void *list, void *item, int needMutex);
+xbee_err _ll_add_tail(void *list, void *item, int needMutex);
 /* - */
 #define ll_add_after(list, ref, item)  _ll_add_after((list),(ref),(item),1)
-int _ll_add_after(void *list, void *ref, void *item, int needMutex);
+xbee_err _ll_add_after(void *list, void *ref, void *item, int needMutex);
 /* - */
 #define ll_add_before(list, ref, item) _ll_add_before((list),(ref),(item),1)
-int _ll_add_before(void *list, void *ref, void *item, int needMutex);
+xbee_err _ll_add_before(void *list, void *ref, void *item, int needMutex);
 
 void *ll_get_head(void *list);
 void *ll_get_tail(void *list);
@@ -83,9 +80,9 @@ void *_ll_ext_head(void *list, int needMutex);
 void *_ll_ext_tail(void *list, int needMutex);
 /* - */
 #define ll_ext_item(list, item) _ll_ext_item((list),(item),1)
-int _ll_ext_item(void *list, void *item, int needMutex);
+xbee_err _ll_ext_item(void *list, void *item, int needMutex);
 
-int ll_count_items(void *list);
-int ll_combine(void *head, void *tail);
+xbee_err ll_count_items(void *list);
+xbee_err ll_combine(void *head, void *tail);
 
 #endif /* __XBEE_LL_H */
