@@ -1,3 +1,6 @@
+#ifndef __XBEE_INT_H
+#define __XBEE_INT_H
+
 /*
 	libxbee - a C library to aid the use of Digi's XBee wireless modules
 	          running in API mode (AP=2).
@@ -18,28 +21,6 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+extern struct ll_head *xbeeList;
 
-#include "internal.h"
-#include "ll.h"
-#include "xbee_int.h"
-#include "pkt.h"
-
-EXPORT INIT void xbee_init(void) {
-	if ((xbeeList = ll_alloc()) == NULL) {
-		fprintf(stderr, "libxbee: failed to initialize xbeeList...\n");
-	}
-	if ((pktList = ll_alloc()) == NULL) {
-		fprintf(stderr, "libxbee: failed to initialize xbeeList...\n");
-	}
-}
-
-EXPORT FINI void xbee_fini(void) {
-	if (xbeeList) {
-		ll_free(xbeeList, (void(*)(void*))xbee_shutdown);
-	}
-	if (pktList) {
-		ll_free(pktList, (void(*)(void*))xbee_pktFree);
-	}
-}
+#endif /* __XBEE_INT_H */
