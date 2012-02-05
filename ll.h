@@ -82,6 +82,7 @@ void *_ll_ext_tail(void *list, int needMutex);
 #define ll_ext_item(list, item) _ll_ext_item((list),(item),1)
 xbee_err _ll_ext_item(void *list, void *item, int needMutex);
 
+xbee_err ll_modify_item(void *list, void *oldItem, void *newItem);
 xbee_err ll_count_items(void *list);
 xbee_err ll_combine(void *head, void *tail);
 
