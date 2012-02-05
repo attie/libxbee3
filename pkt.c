@@ -28,6 +28,18 @@
 
 struct ll_head *pktList;
 
+/* ########################################################################## */
+
+#define PKT_DATAKEY_MAXLEN 20
+struct pkt_dataKey {
+	char name[PKT_DATAKEY_MAXLEN]; /* eg: 'analog' */
+	int id; /* eg: (channel) 3 */
+	struct ll_head *items; /* this contains a list of data, which CAN be raw data cast to a void*, eg: 524 */
+	void (*freeCallback)(void*); /* can only be assigned once for each key */
+};
+
+/* ########################################################################## */
+
 xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt *oPkt, int dataLen) {
 	size_t memSize;
 	struct xbee_pkt *pkt;
@@ -60,30 +72,161 @@ xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt *oPkt, int dataLen) {
 	return ret;
 }
 
-/* ########################################################################## */
-
-EXPORT xbee_err xbee_pktValidate(struct xbee_pkt *pkt) {
-	if (ll_get_item(pktList, pkt) == NULL) return XBEE_EINVAL;
-	return XBEE_ENONE;
-}
-
-/* ########################################################################## */
-
-EXPORT xbee_err xbee_pktGetDigital(struct xbee_pkt *pkt, int channel, int index, int *retVal) {
-	return XBEE_ENOTIMPLEMENTED;
-}
-
-EXPORT xbee_err xbee_pktGetAnalog(struct xbee_pkt *pkt, int channel, int index, int *retVal) {
-	return XBEE_ENOTIMPLEMENTED;
-}
-
-/* ########################################################################## */
-
 EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
 	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
 	
 	ll_ext_item(pktList, pkt);
 	free(pkt);
+	
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+EXPORT xbee_err xbee_pktValidate(struct xbee_pkt *pkt) {
+	if (ll_get_item(pktList, pkt) != XBEE_ENONE) return XBEE_EINVAL;
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey, void (*freeCallback)(void*)) {
+	struct pkt_dataKey *k;
+	xbee_err ret;
+	
+	if (!pkt || !key) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	if (xbee_pktDataKeyGet(pkt, key, id, &k) == XBEE_ENONE) {
+		if (retKey) *retKey = k;
+		return XBEE_EEXISTS;
+	}
+	
+	if ((k = calloc(1, sizeof(*k))) == NULL) {
+		return XBEE_ENOMEM;
+	}
+	
+	ret = XBEE_ENONE;
+	snprintf(k->name, PKT_DATAKEY_MAXLEN, "%s", key);
+	k->id = id;
+	k->freeCallback = freeCallback;
+	if ((k->items = ll_alloc()) == NULL) {
+		ret = XBEE_ENOMEM;
+		goto die1;
+	}
+	
+	if (ll_add_tail(pkt->dataItems, k) != XBEE_ENONE) {
+		ret = XBEE_ELINKEDLIST;
+		goto die2;
+	}
+	
+	goto done;
+die2:
+	ll_free(k->items, NULL);
+die1:
+	free(k);
+done:
+	return ret;
+}
+
+xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey) {
+	struct pkt_dataKey *k;
+	
+	if (!pkt || !key) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	ll_lock(pkt->dataItems);
+	for (k = NULL; (_ll_get_next(pkt->dataItems, k, (void**)&k, 0) == XBEE_ENONE) && k; ) {
+		if (!strncasecmp(key, k->name, PKT_DATAKEY_MAXLEN)) {
+			if (id == -1 || id == k->id) {
+				if (retKey) *retKey = k;
+				return XBEE_ENONE;
+			}
+		}
+	}
+	
+	return XBEE_EFAILED;
+}
+
+/* ########################################################################## */
+
+xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, char *key, int id, void *data, void (*freeCallback)(void*)) {
+	struct pkt_dataKey *k;
+	xbee_err ret;
+	
+	if (!pkt || !key || !data) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	if ((ret = xbee_pktDataKeyAdd(pkt, key, id, &k, freeCallback)) != XBEE_ENONE && ret != XBEE_EEXISTS) {
+		return XBEE_EFAILED;
+	}
+	
+	if (ll_add_tail(k->items, data)) {
+		return XBEE_ELINKEDLIST;
+	}
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData) {
+	struct pkt_dataKey *k;
+	xbee_err ret;
+	
+	if (!pkt || !key || !retData) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	if ((ret = xbee_pktDataKeyGet(pkt, key, id, &k)) != XBEE_ENONE) return ret;
+	
+	if (index >= ll_count_items(k->items)) return XBEE_ERANGE;
+	
+	if (ll_get_index(k->items, index, retData) != XBEE_ENONE) return XBEE_EINVAL;
+	
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, int value) {
+	if (!pkt) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	return xbee_pktDataAdd(pkt, "analog", channel, (void*)&value, NULL);
+}
+
+EXPORT xbee_err xbee_pktAnalogGet(struct xbee_pkt *pkt, int channel, int index, int *retVal) {
+	xbee_err ret;
+	
+	if (!pkt || !retVal) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	if ((ret = xbee_pktDataGet(pkt, "analog", channel, index, (void*)retVal)) != XBEE_ENONE) return ret;
+	
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, int value) {
+	if (!pkt) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	value = !!value;
+	value += 1;
+	
+	return xbee_pktDataAdd(pkt, "digital", channel, (void*)&value, NULL);
+}
+
+EXPORT xbee_err xbee_pktDigitalGet(struct xbee_pkt *pkt, int channel, int index, int *retVal) {
+	int value;
+	xbee_err ret;
+	
+	if (!pkt || !retVal) return XBEE_EMISSINGPARAM;
+	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
+	
+	if ((ret = xbee_pktDataGet(pkt, "digital", channel, index, (void*)&value)) != XBEE_ENONE) return ret;
+	value -= 1;
+	value = !!value;
+	*retVal = value;
 	
 	return XBEE_ENONE;
 }
