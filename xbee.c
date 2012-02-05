@@ -26,6 +26,6 @@
 struct ll_head *xbeeList;
 
 EXPORT xbee_err xbee_validate(struct xbee *xbee) {
-	if (ll_get_item(xbeeList, xbee) == NULL) return XBEE_EINVAL;
+	if (ll_get_item(xbeeList, xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	return XBEE_ENONE;
 }
