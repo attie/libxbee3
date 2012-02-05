@@ -36,7 +36,7 @@ xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt *oPkt, int dataLen) {
 	if (!xbee || xbee_validate(xbee)) return XBEE_EINVAL;
 	
 	if (oPkt) {
-		if ((ret = ll_ext_item(xbee->pktList, oPkt)) != XBEE_ENONE) {
+		if ((ret = ll_ext_item(pktList, oPkt)) != XBEE_ENONE) {
 			return ret;
 		}
 	}
@@ -52,7 +52,7 @@ xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt *oPkt, int dataLen) {
 	}
 	pkt->xbee = xbee;
 	
-	if ((ret = ll_add_tail(xbee->pktList, pkt)) != XBEE_ENONE) {
+	if ((ret = ll_add_tail(pktList, pkt)) != XBEE_ENONE) {
 		free(pkt);
 		ret = XBEE_ELINKEDLIST;
 	}
@@ -82,9 +82,8 @@ EXPORT xbee_err xbee_pktGetAnalog(struct xbee_pkt *pkt, int channel, int index, 
 EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
 	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
 	
-	if (pkt->xbee) ll_ext_item(pkt->xbee->pktList, pkt);
-	if (pkt->con)  ll_ext_item(pkt->con->pktList, pkt);
-	               ll_ext_item(pktList, pkt);
+	ll_ext_item(pktList, pkt);
+	free(pkt);
 	
 	return XBEE_ENONE;
 }
