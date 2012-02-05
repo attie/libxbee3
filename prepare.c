@@ -24,20 +24,27 @@
 #include "internal.h"
 #include "ll.h"
 #include "xbee_int.h"
+#include "conn.h"
 #include "pkt.h"
 
 EXPORT INIT void xbee_init(void) {
 	if ((xbeeList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize xbeeList...\n");
 	}
+	if ((conList = ll_alloc()) == NULL) {
+		fprintf(stderr, "libxbee: failed to initialize conList...\n");
+	}
 	if ((pktList = ll_alloc()) == NULL) {
-		fprintf(stderr, "libxbee: failed to initialize xbeeList...\n");
+		fprintf(stderr, "libxbee: failed to initialize pktList...\n");
 	}
 }
 
 EXPORT FINI void xbee_fini(void) {
 	if (xbeeList) {
 		ll_free(xbeeList, (void(*)(void*))xbee_shutdown);
+	}
+	if (conList) {
+		ll_free(conList, (void(*)(void*))xbee_conEnd);
 	}
 	if (pktList) {
 		ll_free(pktList, (void(*)(void*))xbee_pktFree);

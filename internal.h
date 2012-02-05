@@ -35,7 +35,15 @@ struct xbee {
 /* ######################################################################### */
 
 struct xbee_con {
+	struct xbee *xbee;
 	struct ll_head *pktList;
+	
+	void *userData;
+	
+	enum xbee_conSleepStates sleepState;
+	struct xbee_conAddress address;
+	struct xbee_conInfo info;
+	struct xbee_conSettings settings;
 };
 
 /* ######################################################################### */

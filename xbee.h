@@ -31,7 +31,9 @@ extern "C" {
 /* structs that will be defined/used later */
 struct xbee;
 struct xbee_con;
+enum xbee_conSleepStates;
 struct xbee_conAddress;
+struct xbee_conInfo;
 struct xbee_conSettings;
 struct xbee_pkt;
 typedef enum xbee_errors xbee_err;
@@ -72,11 +74,13 @@ xbee_err xbee_convTx(struct xbee_con *con, va_list args);
 xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len);
 xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt);
 /* - */
-xbee_err xbee_conSleep(struct xbee_con *con, int wakeOnRx);
-xbee_err xbee_conWake(struct xbee_con *con);
+xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state);
+xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state);
 /* - */
 xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData);
 xbee_err xbee_conDataGet(struct xbee_con *con, void **curData);
+/* - */
+xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info);
 /* - */
 xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback newCallback, xbee_t_conCallback *oldCallback);
 xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *curCallback);
@@ -123,6 +127,12 @@ xbee_err xbee_errorToStr(xbee_err error, char **str);
 /* ######################################################################### */
 /* tasty structs 'n stuff */
 
+enum xbee_conSleepStates {
+	CON_AWAKE,
+	CON_SNOOZE,
+	CON_SLEEP,
+};
+
 struct xbee_conAddress {
 	unsigned char addr16_enabled;
 	unsigned char addr16[2];
@@ -133,6 +143,15 @@ struct xbee_conAddress {
 	unsigned char endpoints_enabled;
 	unsigned char endpoint_local;
 	unsigned char endpoint_remote;
+};
+
+struct xbee_conInfo {
+	int countRx;
+	int countTx;
+	int failedTx;
+	
+	int lastRssi;
+	int lastRxTime;
 };
 
 struct xbee_conSettings {
