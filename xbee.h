@@ -120,7 +120,7 @@ xbee_err _xbee_logDev(const char *file, int line, const char *function, struct x
 
 /* ########################################################################## */
 /* --- error.c --- */
-xbee_err xbee_errorToStr(xbee_err error, char **str);
+char *xbee_errorToStr(xbee_err error);
 
 
 /* ######################################################################### */
@@ -214,7 +214,7 @@ enum xbee_errors {
 	XBEE_EINUSE                = -27,
 	XBEE_ERANGE                = -28,
 	XBEE_EEXISTS               = -29,
-	XBEE_ENULL                 = -30,
+	XBEE_E________FREE         = -30,
 	XBEE_ESOCKET               = -31,
 	XBEE_ENOTIMPLEMENTED       = -32,
 	XBEE_ESTALE                = -33,
