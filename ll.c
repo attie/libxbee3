@@ -73,6 +73,30 @@ void ll_free(void *list, void (*freeCallback)(void *)) {
 
 /* ################################################################ */
 
+xbee_err ll_lock(void *list) {
+	struct ll_head *h;
+	struct ll_info *i;
+	if (!list) return XBEE_EINVAL;
+	i = list;
+	h = i->head;
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
+	xsys_mutex_lock(&h->mutex);
+	return XBEE_ENONE;
+}
+
+xbee_err ll_unlock(void *list) {
+	struct ll_head *h;
+	struct ll_info *i;
+	if (!list) return XBEE_EINVAL;
+	i = list;
+	h = i->head;
+	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
+	xsys_mutex_unlock(&h->mutex);
+	return XBEE_ENONE;
+}
+
+/* ################################################################ */
+
 xbee_err _ll_add_head(void *list, void *item, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;

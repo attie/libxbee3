@@ -36,6 +36,9 @@ void ll_destroy(struct ll_head *list, void (*freeCallback)(void*));
 void *ll_alloc(void);
 void ll_free(void *list, void (*freeCallback)(void *));
 
+xbee_err ll_lock(void *list);
+xbee_err ll_unlock(void *list);
+
 #define ll_add_head(list, item)        _ll_add_head((list),(item),1)
 xbee_err _ll_add_head(void *list, void *item, int needMutex);
 /* - */
