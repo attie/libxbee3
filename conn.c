@@ -96,16 +96,19 @@ xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_con *con) {
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
+#warning INFO - needs info from remote, this info should be retrieved at setup
 	return XBEE_ENOTIMPLEMENTED;
 }
 
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con *ret_con, char *type, struct xbee_conAddress *address) {
+#warning INFO - needs remote
 	return XBEE_ENOTIMPLEMENTED;
 }
 
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
+#warning INFO - needs remote (if remote fails/contradicts, is XBEE_ESTALE)
 	if (ll_get_item(conList, con) != XBEE_ENONE) return XBEE_EINVAL;
 	return XBEE_ENONE;
 }
@@ -151,6 +154,7 @@ die:
 }
 
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len) {
+#warning INFO - needs remote, can return XBEE_ESTALE
 	return XBEE_ENOTIMPLEMENTED;
 }
 
@@ -163,6 +167,7 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt) {
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state) {
+#warning INFO - needs remote, can return XBEE_ESTALE
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	con->sleepState = state;
@@ -170,6 +175,7 @@ EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates 
 }
 
 EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state) {
+#warning INFO - needs remote (if remote fails/contradicts, update local or is XBEE_ESTALE)
 	if (!con || !state) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	*state = con->sleepState;
@@ -218,6 +224,7 @@ EXPORT xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *cu
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings, struct xbee_conSettings *oldSettings) {
+#warning INFO - needs remote, can return XBEE_ESTALE
 	if (!con || (!newSettings && !oldSettings)) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	if (oldSettings) memcpy(oldSettings, &con->settings, sizeof(con->settings));
@@ -228,5 +235,6 @@ EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conEnd(struct xbee_con *con) {
+#warning INFO - needs remote, can return XBEE_ESTALE
 	return XBEE_ENOTIMPLEMENTED;
 }
