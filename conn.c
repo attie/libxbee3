@@ -24,6 +24,7 @@
 
 #include "internal.h"
 #include "conn.h"
+#include "pkt.h"
 #include "ll.h"
 
 struct ll_head *conList;
@@ -160,8 +161,32 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len) {
 
 /* ########################################################################## */
 
-EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt) {
-	return XBEE_ENOTIMPLEMENTED;
+EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets) {
+	xbee_err ret;
+	unsigned int remain;
+	struct xbee_pkt *pkt;
+	if (!con || !retPkt) return XBEE_EMISSINGPARAM;
+	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (con->callback != NULL) return XBEE_EINVAL;
+	
+	ret = XBEE_ENONE;
+	remain = 0;
+	
+	ll_lock(con->pktList);
+	if ((ret = _ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
+	if (remain == 0) {
+		*retPkt = NULL;
+		goto die;
+	}
+	_ll_ext_head(con->pktList, (void**)&pkt, 0);
+	xbee_pktUnlink(con, pkt);
+	*retPkt = pkt;
+die:
+	ll_unlock(con->pktList);
+
+	if (remainingPackets) *remainingPackets = (remain > 0 ? remain - 1 : 0);
+	
+	return ret;
 }
 
 /* ########################################################################## */

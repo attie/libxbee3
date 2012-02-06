@@ -72,7 +72,7 @@ xbee_err xbee_conValidate(struct xbee_con *con);
 xbee_err xbee_conTx(struct xbee_con *con, char *format, ...);
 xbee_err xbee_convTx(struct xbee_con *con, char *format, va_list args);
 xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len);
-xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt);
+xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
 /* - */
 xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state);
 xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state);
