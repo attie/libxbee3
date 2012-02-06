@@ -76,6 +76,7 @@ xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt **nPkt, struct xbee_pk
 }
 
 EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
+	if (!pkt) return XBEE_EMISSINGPARAM;
 	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
 	
 	ll_ext_item(pktList, pkt);
@@ -94,18 +95,28 @@ EXPORT xbee_err xbee_pktValidate(struct xbee_pkt *pkt) {
 /* ########################################################################## */
 
 xbee_err xbee_pktLink(struct xbee_con *con, struct xbee_pkt *pkt) {
+	xbee_err ret;
 	if (!con || !pkt) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
-	if (ll_get_item(con->pktList, pkt) == XBEE_ENONE) return XBEE_ENONE;
-	return ll_add_tail(con->pktList, pkt);
+	if (ll_get_item(con->pktList, pkt) == XBEE_ENONE) return XBEE_EEXISTS;
+	if ((ret = ll_add_tail(con->pktList, pkt)) == XBEE_ENONE) {
+		pkt->xbee = con->xbee;
+		pkt->con = con;
+	}
+	return ret;
 }
 
 xbee_err xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt) {
+	xbee_err ret;
 	if (!con || !pkt) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
-	return ll_ext_item(con->pktList, pkt);
+	if ((ret = ll_ext_item(con->pktList, pkt)) == XBEE_ENONE) {
+		pkt->xbee = NULL;
+		pkt->con = NULL;
+	}
+	return ret;
 }
 
 /* ########################################################################## */

@@ -25,27 +25,15 @@
 #include "xsys.h"
 
 /* ######################################################################### */
+
+struct xbee;
+struct xbee_con;
+
 /* ######################################################################### */
 /* structs that aren't exposed to the developers */
 
 struct xbee {
 	struct ll_head *conList;
-};
-
-/* ######################################################################### */
-
-struct xbee_con {
-	struct xbee *xbee;
-	struct ll_head *pktList;
-	
-	void *userData;
-	
-	xbee_t_conCallback callback;
-	
-	enum xbee_conSleepStates sleepState;
-	struct xbee_conAddress address;
-	struct xbee_conInfo info;
-	struct xbee_conSettings settings;
 };
 
 /* ######################################################################### */

@@ -23,7 +23,24 @@
 
 extern struct ll_head *conList;
 
+struct xbee_con {
+	struct xbee *xbee;
+	struct ll_head *pktList;
+	
+	void *userData;
+	
+	xbee_t_conCallback callback;
+	
+	enum xbee_conSleepStates sleepState;
+	struct xbee_conAddress address;
+	struct xbee_conInfo info;
+	struct xbee_conSettings settings;
+};
+
 xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon);
 xbee_err xbee_conFree(struct xbee_con *con);
+
+xbee_err xbee_conLink(struct xbee *xbee, struct xbee_con *con);
+xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_con *con);
 
 #endif /* __XBEE_CONN_H */

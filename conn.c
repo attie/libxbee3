@@ -70,6 +70,31 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 
 /* ########################################################################## */
 
+xbee_err xbee_conLink(struct xbee *xbee, struct xbee_con *con) {
+	xbee_err ret;
+	if (!xbee || !con) return XBEE_EMISSINGPARAM;
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+	if (ll_get_item(xbee->conList, con) == XBEE_ENONE) return XBEE_EEXISTS;
+	if ((ret = ll_add_tail(xbee->conList, con)) == XBEE_ENONE) {
+		con->xbee = xbee;
+	}
+	return ret;
+}
+
+xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_con *con) {
+	xbee_err ret;
+	if (!xbee || !con) return XBEE_EMISSINGPARAM;
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+	if ((ret = ll_ext_item(xbee->conList, con)) == XBEE_ENONE) {
+		con->xbee = NULL;
+	}
+	return ret;
+}
+
+/* ########################################################################## */
+
 EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 	return XBEE_ENOTIMPLEMENTED;
 }
