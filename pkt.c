@@ -201,6 +201,7 @@ xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, char *key, int id, void *data, vo
 
 xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData) {
 	struct pkt_dataKey *k;
+	unsigned int count;
 	xbee_err ret;
 	
 	if (!pkt || !key || !retData) return XBEE_EMISSINGPARAM;
@@ -208,7 +209,8 @@ xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, voi
 	
 	if ((ret = xbee_pktDataKeyGet(pkt, key, id, &k)) != XBEE_ENONE) return ret;
 	
-	if (index >= ll_count_items(k->items)) return XBEE_ERANGE;
+	if (ll_count_items(k->items, &count) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+	if (index >= count) return XBEE_ERANGE;
 	
 	if (ll_get_index(k->items, index, retData) != XBEE_ENONE) return XBEE_EINVAL;
 	

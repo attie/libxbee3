@@ -245,32 +245,42 @@ out:
 
 /* ################################################################ */
 
-xbee_err ll_get_head(void *list, void **retItem) {
+xbee_err _ll_get_head(void *list, void **retItem, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i;
-	void *ret;
-	ret = NULL;
+	xbee_err ret;
 	if (!list || !retItem) return XBEE_EMISSINGPARAM;
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (!h->head) return XBEE_ERANGE;
-	*retItem = h->head->item;
-	return XBEE_ENONE;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (h->head) {
+		*retItem = h->head->item;
+		ret = XBEE_ENONE;
+	} else {
+		ret = XBEE_ERANGE;
+	}
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	return ret;
 }
 
-xbee_err ll_get_tail(void *list, void **retItem) {
+xbee_err _ll_get_tail(void *list, void **retItem, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i;
-	void *ret;
-	ret = NULL;
-	if (!list) return XBEE_EMISSINGPARAM;
+	xbee_err ret;
+	if (!list || !retItem) return XBEE_EMISSINGPARAM;
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (!h->tail) return XBEE_ERANGE;
-	*retItem = h->tail->item;
-	return XBEE_ENONE;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (h->tail) {
+		*retItem = h->tail->item;
+		ret = XBEE_ENONE;
+	} else {
+		ret = XBEE_ERANGE;
+	}
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	return ret;
 }
 
 /* returns struct ll_info* or NULL - don't touch the pointer if you don't know what you're doing ;) */
@@ -303,7 +313,7 @@ xbee_err _ll_get_next(void *list, void *ref, void **retItem, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (!ref) return ll_get_head(h, retItem);
+	if (!ref) return _ll_get_head(h, retItem, needMutex);
 	if (needMutex) xsys_mutex_lock(&h->mutex);
 	i = h->head;
 	if (__ll_get_item(h, ref, &i, 0) != XBEE_ENONE) goto out;
@@ -324,7 +334,7 @@ xbee_err _ll_get_prev(void *list, void *ref, void **retItem, int needMutex) {
 	struct ll_info *i;
 	void *ret;
 	if (!list | !retItem) return XBEE_EMISSINGPARAM;
-	if (!ref) return ll_get_tail(list, retItem);
+	if (!ref) return _ll_get_tail(list, retItem, needMutex);
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
@@ -461,7 +471,7 @@ xbee_err _ll_ext_index(void *list, unsigned int index, void **retItem, int needM
 
 /* ################################################################ */
 
-xbee_err ll_modify_item(void *list, void *oldItem, void *newItem) {
+xbee_err _ll_modify_item(void *list, void *oldItem, void *newItem, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
 	xbee_err ret;
@@ -469,28 +479,29 @@ xbee_err ll_modify_item(void *list, void *oldItem, void *newItem) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	xsys_mutex_lock(&h->mutex);
+	if (needMutex) xsys_mutex_lock(&h->mutex);
 	if ((ret = __ll_get_item(h, oldItem, &p, 0)) == XBEE_ENONE) {
 		p->item = newItem;
 	}
-	xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	return ret;
 }
 
 /* ################################################################ */
 
-xbee_err ll_count_items(void *list) {
+xbee_err _ll_count_items(void *list, unsigned int *retCount, int needMutex) {
 	struct ll_head *h;
 	struct ll_info *i, *p;
-	xbee_err ret;
-	if (!list) return XBEE_EMISSINGPARAM;
+	int count;
+	if (!list || !retCount) return XBEE_EMISSINGPARAM;
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	xsys_mutex_lock(&h->mutex);
-	for (p = h->head, ret = 0; p; p = p->next, ret++);
-	xsys_mutex_unlock(&h->mutex);
-	return ret;
+	if (needMutex) xsys_mutex_lock(&h->mutex);
+	for (p = h->head, count = 0; p; p = p->next, count++);
+	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	*retCount = count;
+	return XBEE_ENONE;
 }
 
 /* ################################################################ */

@@ -40,14 +40,12 @@ xbee_err ll_lock(void *list);
 xbee_err ll_unlock(void *list);
 
 
-xbee_err ll_get_head(void *list, void **retItem);
-xbee_err ll_get_tail(void *list, void **retItem);
 
 
-#define ll_add_head(list, item)        _ll_add_head((list),(item),1)
-#define ll_add_tail(list, item)        _ll_add_tail((list),(item),1)
-#define ll_add_after(list, ref, item)  _ll_add_after((list),(ref),(item),1)
-#define ll_add_before(list, ref, item) _ll_add_before((list),(ref),(item),1)
+#define ll_add_head(list, item)         _ll_add_head((list),(item),1)
+#define ll_add_tail(list, item)         _ll_add_tail((list),(item),1)
+#define ll_add_after(list, ref, item)   _ll_add_after((list),(ref),(item),1)
+#define ll_add_before(list, ref, item)  _ll_add_before((list),(ref),(item),1)
 
 xbee_err _ll_add_head(void *list, void *item, int needMutex);
 xbee_err _ll_add_tail(void *list, void *item, int needMutex);
@@ -55,28 +53,37 @@ xbee_err _ll_add_after(void *list, void *ref, void *item, int needMutex);
 xbee_err _ll_add_before(void *list, void *ref, void *item, int needMutex);
 
 
-#define ll_get_item(list, item) _ll_get_item((list),(item),1)
-#define ll_get_next(list, ref, item) _ll_get_next((list),(ref),(item),1)
-#define ll_get_prev(list, ref, item) _ll_get_prev((list),(ref),(item),1)
+#define ll_get_head(list, item)         _ll_get_head((list),(item),1)
+#define ll_get_tail(list, item)         _ll_get_tail((list),(item),1)
+#define ll_get_item(list, item)         _ll_get_item((list),(item),1)
+#define ll_get_next(list, ref, item)    _ll_get_next((list),(ref),(item),1)
+#define ll_get_prev(list, ref, item)    _ll_get_prev((list),(ref),(item),1)
 #define ll_get_index(list, index, item) _ll_get_index((list),(index),(item),1)
-#define ll_ext_head(list, item)       _ll_ext_head((list),(item),1)
-#define ll_ext_tail(list, item)       _ll_ext_tail((list),(item),1)
-#define ll_ext_item(list, item) _ll_ext_item((list),(item),1)
+
+#define ll_ext_head(list, item)         _ll_ext_head((list),(item),1)
+#define ll_ext_tail(list, item)         _ll_ext_tail((list),(item),1)
+#define ll_ext_item(list, item)         _ll_ext_item((list),(item),1)
 #define ll_ext_index(list, index, item) _ll_ext_index((list),(index),(item),1)
 
-/* returns struct ll_info* or NULL - don't touch the pointer ;) */
+xbee_err _ll_get_head(void *list, void **retItem, int needMutex);
+xbee_err _ll_get_tail(void *list, void **retItem, int needMutex);
 xbee_err _ll_get_item(void *list, void *item, int needMutex);
 xbee_err _ll_get_next(void *list, void *ref, void **retItem, int needMutex);
 xbee_err _ll_get_prev(void *list, void *ref, void **retItem, int needMutex);
 xbee_err _ll_get_index(void *list, unsigned int index, void **retItem, int needMutex);
+
 xbee_err _ll_ext_head(void *list, void **retItem, int needMutex);
 xbee_err _ll_ext_tail(void *list, void **retItem, int needMutex);
 xbee_err _ll_ext_item(void *list, void *item, int needMutex);
 xbee_err _ll_ext_index(void *list, unsigned int index, void **retItem, int needMutex);
 
 
-xbee_err ll_modify_item(void *list, void *oldItem, void *newItem);
-xbee_err ll_count_items(void *list);
+#define ll_modify_items(list, oldItem, newItem) \
+                                        _ll_modify_item((list), (oldItem), (newItem), 1)
+#define ll_count_items(list, retCount)  _ll_count_items((list), (retCount), 1)
+
+xbee_err _ll_modify_item(void *list, void *oldItem, void *newItem, int needMutex);
+xbee_err _ll_count_items(void *list, unsigned int *retCount, int needMutex);
 xbee_err ll_combine(void *head, void *tail);
 
 #endif /* __XBEE_LL_H */
