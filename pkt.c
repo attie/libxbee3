@@ -31,7 +31,7 @@ struct ll_head *pktList;
 
 /* ########################################################################## */
 
-#define PKT_DATAKEY_MAXLEN 20
+#define PKT_DATAKEY_MAXLEN 32
 struct pkt_dataKey {
 	char name[PKT_DATAKEY_MAXLEN]; /* eg: 'analog' */
 	int id; /* eg: (channel) 3 */

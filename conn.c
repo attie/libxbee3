@@ -26,6 +26,10 @@
 #include "conn.h"
 #include "ll.h"
 
+struct ll_head *conList;
+
+/* ########################################################################## */
+
 xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon) {
 	size_t memSize;
 	struct xbee_con *con;
@@ -51,7 +55,30 @@ xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon) {
 	return ret;
 }
 
+xbee_err xbee_conFree(struct xbee_con *con) {
+	if (!con) return XBEE_EMISSINGPARAM;
+	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	
+	ll_ext_item(conList, con);
+	
+	ll_free(con->pktList, (void(*)(void*))xbee_pktFree);
+	
+	free(con);
+	
+	return XBEE_ENONE;
+}
+
 /* ########################################################################## */
+
+EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+/* ########################################################################## */
+
+EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con *ret_con, char *type, struct xbee_conAddress *address) {
+	return XBEE_ENOTIMPLEMENTED;
+}
 
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 	if (ll_get_item(conList, con) != XBEE_ENONE) return XBEE_EINVAL;
@@ -60,14 +87,64 @@ EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 
 /* ########################################################################## */
 
-xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state) {
+EXPORT xbee_err xbee_conTx(struct xbee_con *con, char *format, ...) {
+	xbee_err ret;
+	va_list ap;
+	
+	va_start(ap, format);
+	ret = xbee_convTx(con, format, ap);
+	va_end(ap);
+	
+	return ret;
+}
+
+EXPORT xbee_err xbee_convTx(struct xbee_con *con, char *format, va_list args) {
+	xbee_err ret;
+	int bufLen, outLen;
+	char *buf;
+	
+	if ((bufLen = vsnprintf(NULL, 0, format, args)) > 0) {
+		bufLen += 1; /* make space for the terminating '\0' */
+		if (!(buf = malloc(bufLen))) {
+			return XBEE_ENOMEM;
+		}
+		outLen = vsnprintf(buf, bufLen, format, args) + 1;
+		if (outLen > bufLen) {
+			ret = XBEE_ERANGE;
+			goto die;
+		}
+	} else {
+		buf = NULL;
+		outLen = 0;
+	}
+	
+	ret = xbee_connTx(con, (unsigned char*)buf, outLen);
+	
+die:
+	if (buf) free(buf);
+	return ret;
+}
+
+EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+/* ########################################################################## */
+
+EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+/* ########################################################################## */
+
+EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state) {
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	con->sleepState = state;
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state) {
+EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state) {
 	if (!con || !state) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	*state = con->sleepState;
@@ -76,7 +153,7 @@ xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state)
 
 /* ########################################################################## */
 
-xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData) {
+EXPORT xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData) {
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	if (oldData) *oldData = con->userData;
@@ -84,7 +161,7 @@ xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData) {
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
+EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 	if (!con || !curData) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	*curData = con->userData;
@@ -93,7 +170,7 @@ xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 
 /* ########################################################################## */
 
-xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info) {
+EXPORT xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info) {
 	if (!con || !info) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	memcpy(info, &con->info, sizeof(con->info));
@@ -102,10 +179,29 @@ xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info) {
 
 /* ########################################################################## */
 
-xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings, struct xbee_conSettings *oldSettings) {
+EXPORT xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback newCallback, xbee_t_conCallback *oldCallback) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+EXPORT xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *curCallback) {
+	if (!con || !curCallback) return XBEE_EMISSINGPARAM;
+	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	*curCallback = con->callback;
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings, struct xbee_conSettings *oldSettings) {
 	if (!con || (!newSettings && !oldSettings)) return XBEE_EMISSINGPARAM;
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 	if (oldSettings) memcpy(oldSettings, &con->settings, sizeof(con->settings));
 	if (newSettings) memcpy(&con->settings, newSettings, sizeof(con->settings));
 	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+EXPORT xbee_err xbee_conEnd(struct xbee_con *con) {
+	return XBEE_ENOTIMPLEMENTED;
 }

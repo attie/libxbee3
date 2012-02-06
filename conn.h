@@ -24,5 +24,6 @@
 extern struct ll_head *conList;
 
 xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon);
+xbee_err xbee_conFree(struct xbee_con *con);
 
 #endif /* __XBEE_CONN_H */

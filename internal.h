@@ -40,6 +40,8 @@ struct xbee_con {
 	
 	void *userData;
 	
+	xbee_t_conCallback callback;
+	
 	enum xbee_conSleepStates sleepState;
 	struct xbee_conAddress address;
 	struct xbee_conInfo info;

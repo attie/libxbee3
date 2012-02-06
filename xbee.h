@@ -70,7 +70,7 @@ xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con *ret_con, char *type, st
 xbee_err xbee_conValidate(struct xbee_con *con);
 /* - */
 xbee_err xbee_conTx(struct xbee_con *con, char *format, ...);
-xbee_err xbee_convTx(struct xbee_con *con, va_list args);
+xbee_err xbee_convTx(struct xbee_con *con, char *format, va_list args);
 xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len);
 xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt);
 /* - */
