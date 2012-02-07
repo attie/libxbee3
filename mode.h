@@ -24,7 +24,11 @@
 struct xbee_mode {
 	const char *name;
 	
+	xbee_err (*init)(struct xbee *xbee, va_list ap);
+	xbee_err (*shutdown)(struct xbee *xbee);
 	
+	xbee_err (*rx)(struct xbee *xbee);
+	xbee_err (*tx)(struct xbee *xbee);
 };
 
 xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode);

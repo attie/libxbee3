@@ -49,7 +49,7 @@ extern const char libxbee_buildtime[];
 /* ######################################################################### */
 /* --- xbee.c --- */
 xbee_err xbee_validate(struct xbee *xbee);
-xbee_err xbee_setup(struct xbee *ret_xbee, char *mode, ...);
+xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...);
 xbee_err xbee_shutdown(struct xbee *xbee);
 
 

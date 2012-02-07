@@ -26,7 +26,10 @@ extern struct ll_head *xbeeList;
 struct xbee {
 	struct ll_head *conList;
 	struct xbee_frameBlock *fBlock;
-	struct xbee_mode *mode;
+	const struct xbee_mode *mode;
 };
+
+xbee_err xbee_alloc(struct xbee **nXbee);
+xbee_err xbee_free(struct xbee *xbee);
 
 #endif /* __XBEE_INT_H */
