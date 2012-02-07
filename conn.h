@@ -37,7 +37,7 @@ struct xbee_con {
 	struct xbee_conSettings settings;
 };
 
-xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon);
+xbee_err xbee_conAlloc(struct xbee_con **nCon);
 xbee_err xbee_conFree(struct xbee_con *con);
 
 xbee_err xbee_conLink(struct xbee *xbee, struct xbee_con *con);

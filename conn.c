@@ -30,16 +30,14 @@
 struct ll_head *conList = NULL;
 
 /* ########################################################################## */
+static inline xbee_err _xbee_conFree(struct xbee_con *con);
 
-xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon) {
+xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 	size_t memSize;
 	struct xbee_con *con;
 	xbee_err ret;
 	
-	if (!xbee || !nCon) return XBEE_EMISSINGPARAM;
-#ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_validate(xbee)) return XBEE_EINVAL;
-#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!nCon) return XBEE_EMISSINGPARAM;
 	
 	memSize = sizeof(*con);
 	
@@ -47,14 +45,14 @@ xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon) {
 	
 	memset(con, 0, memSize);
 	con->pktList = ll_alloc();
-	con->xbee = xbee;
 	
 	if ((ret = ll_add_tail(conList, con)) != XBEE_ENONE) {
-		free(con);
+		_xbee_conFree(con);
 		ret = XBEE_ELINKEDLIST;
+	} else {
+		*nCon = con;
 	}
 	
-	*nCon = con;
 	return ret;
 }
 
@@ -63,7 +61,10 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	return _xbee_conFree(con);
+}
 	
+static inline xbee_err _xbee_conFree(struct xbee_con *con) {
 	ll_ext_item(conList, con);
 	
 	ll_free(con->pktList, (void(*)(void*))xbee_pktFree);

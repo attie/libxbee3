@@ -40,16 +40,14 @@ struct pkt_dataKey {
 };
 
 /* ########################################################################## */
+static inline xbee_err _xbee_pktFree(struct xbee_pkt *pkt);
 
-xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLen) {
+xbee_err xbee_pktAlloc(struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLen) {
 	size_t memSize;
 	struct xbee_pkt *pkt;
 	xbee_err ret;
 	
-	if (!xbee || !nPkt) return XBEE_EMISSINGPARAM;
-#ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_validate(xbee)) return XBEE_EINVAL;
-#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!nPkt) return XBEE_EMISSINGPARAM;
 	
 	if (oPkt) {
 		if ((ret = ll_ext_item(pktList, oPkt)) != XBEE_ENONE) {
@@ -66,14 +64,15 @@ xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt **nPkt, struct xbee_pk
 		memset(pkt, 0, memSize);
 		pkt->dataItems = ll_alloc();
 	}
-	pkt->xbee = xbee;
 	
 	if ((ret = ll_add_tail(pktList, pkt)) != XBEE_ENONE) {
+#warning TODO - needs to call xbee_pktFree() not just free()
 		free(pkt);
 		ret = XBEE_ELINKEDLIST;
+	} else {
+		*nPkt = pkt;
 	}
 	
-	*nPkt = pkt;
 	return ret;
 }
 
@@ -82,7 +81,10 @@ EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_pktValidate(pkt)) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	return _xbee_pktFree(pkt);
+}
 	
+static inline xbee_err _xbee_pktFree(struct xbee_pkt *pkt) {
 	ll_ext_item(pktList, pkt);
 	free(pkt);
 	

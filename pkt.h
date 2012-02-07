@@ -25,7 +25,7 @@ struct pkt_dataKey;
 
 extern struct ll_head *pktList;
 
-xbee_err xbee_pktAlloc(struct xbee *xbee, struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLen);
+xbee_err xbee_pktAlloc(struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLen);
 
 xbee_err xbee_pktLink(struct xbee_con *con, struct xbee_pkt *pkt);
 xbee_err xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt);
