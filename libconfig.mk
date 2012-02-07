@@ -9,7 +9,7 @@ LIBOUT:=        libxbee
 
 LIBS:=          rt pthread dl
 
-SRCS:=          ll ver prepare xbee pkt conn error frame
+SRCS:=          ll ver prepare xbee pkt conn error frame mode
 
 SYS_HEADERS:=   xbee.h
 RELEASE_FILES:= HISTORY
