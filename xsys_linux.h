@@ -44,7 +44,7 @@ typedef sem_t             xsys_sem;
 typedef size_t            xsys_size_t;
 typedef ssize_t           xsys_ssize_t;
 
-#define EXPORT __attribute__((visibility ("default")))
+#define EXPORT __attribute__((visibility("default")))
 #define INIT   __attribute__((constructor))
 #define FINI   __attribute__((destructor))
 
@@ -100,7 +100,7 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 #define xsys_sem_init(sem)                    sem_init((sem_t*)(sem), 0, 0)
 #define xsys_sem_destroy(sem)                 sem_destroy((sem_t*)(sem))
 #define xsys_sem_wait(sem)                    sem_wait((sem_t*)(sem))
-int xsys_sem_timedwait(xsys_sem *sem, time_t sec, long nsec);
+#define xsys_sem_timedwait(sem, timeout)      sem_timedwait((sem_t*)(sem), (timeout))
 #define xsys_sem_post(sem)                    sem_post((sem_t*)(sem))
 #define xsys_sem_getvalue(sem, value)         sem_getvalue((sem), (value))
 
