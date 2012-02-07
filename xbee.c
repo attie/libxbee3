@@ -21,6 +21,7 @@
 #include <stdio.h>
 
 #include "internal.h"
+#include "xbee_int.h"
 #include "ll.h"
 
 struct ll_head *xbeeList = NULL;

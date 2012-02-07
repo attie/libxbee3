@@ -24,6 +24,7 @@
 
 #include "internal.h"
 #include "conn.h"
+#include "xbee_int.h"
 #include "pkt.h"
 #include "ll.h"
 

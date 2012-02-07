@@ -25,16 +25,12 @@
 #include "xsys.h"
 
 /* ######################################################################### */
+/* just to keep the compiler happy when pointers are used, but not dereferenced... */
 
 struct xbee;
 struct xbee_con;
-
-/* ######################################################################### */
-/* structs that aren't exposed to the developers */
-
-struct xbee {
-	struct ll_head *conList;
-};
+struct xbee_frameBlock;
+struct xbee_mode;
 
 /* ######################################################################### */
 
