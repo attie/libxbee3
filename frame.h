@@ -1,5 +1,5 @@
-#ifndef __XBEE_CONN_H
-#define __XBEE_CONN_H
+#ifndef __XBEE_FRAME_H
+#define __XBEE_FRAME_H
 
 /*
   libxbee - a C library to aid the use of Digi's XBee wireless modules
@@ -21,28 +21,25 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern struct ll_head *conList;
-
-struct xbee_con {
-	struct xbee *xbee;
-	struct ll_head *pktList;
-	
-	void *userData;
-	
-	xbee_t_conCallback callback;
-	
-	unsigned char frameId;
-	
-	enum xbee_conSleepStates sleepState;
-	struct xbee_conAddress address;
-	struct xbee_conInfo info;
-	struct xbee_conSettings settings;
+struct xbee_frame {
+	xsys_sem sem;
+	struct xbee_con *con;
+	unsigned char id;
+	int retVal;
 };
 
-xbee_err xbee_conAlloc(struct xbee_con **nCon);
-xbee_err xbee_conFree(struct xbee_con *con);
+struct xbee_frameBlock {
+	xsys_mutex mutex;
+	int numFrames;
+	int lastFrame;
+	struct xbee_frame frame[0x100]; /* 0x00 - 0xFF */
+};
 
-xbee_err xbee_conLink(struct xbee *xbee, struct xbee_con *con);
-xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_con *con);
+xbee_err xbee_frameBlockAlloc(struct xbee_frameBlock **nfBlock);
+xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock);
 
-#endif /* __XBEE_CONN_H */
+xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con);
+xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, int *retVal, struct timespec *timeout);
+xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, int retVal);
+
+#endif /* __XBEE_FRAME_H */

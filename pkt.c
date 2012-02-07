@@ -66,8 +66,7 @@ xbee_err xbee_pktAlloc(struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLe
 	}
 	
 	if ((ret = ll_add_tail(pktList, pkt)) != XBEE_ENONE) {
-#warning TODO - needs to call xbee_pktFree() not just free()
-		free(pkt);
+		_xbee_pktFree(pkt);
 		ret = XBEE_ELINKEDLIST;
 	} else {
 		*nPkt = pkt;
