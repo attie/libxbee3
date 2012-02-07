@@ -27,7 +27,7 @@
 #include "pkt.h"
 #include "ll.h"
 
-struct ll_head *conList;
+struct ll_head *conList = NULL;
 
 /* ########################################################################## */
 
@@ -37,7 +37,9 @@ xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon) {
 	xbee_err ret;
 	
 	if (!xbee || !nCon) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	memSize = sizeof(*con);
 	
@@ -58,7 +60,9 @@ xbee_err xbee_conAlloc(struct xbee *xbee, struct xbee_con **nCon) {
 
 xbee_err xbee_conFree(struct xbee_con *con) {
 	if (!con) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	ll_ext_item(conList, con);
 	
@@ -74,8 +78,10 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 xbee_err xbee_conLink(struct xbee *xbee, struct xbee_con *con) {
 	xbee_err ret;
 	if (!xbee || !con) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (ll_get_item(xbee->conList, con) == XBEE_ENONE) return XBEE_EEXISTS;
 	if ((ret = ll_add_tail(xbee->conList, con)) == XBEE_ENONE) {
 		con->xbee = xbee;
@@ -86,8 +92,10 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_con *con) {
 xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_con *con) {
 	xbee_err ret;
 	if (!xbee || !con) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if ((ret = ll_ext_item(xbee->conList, con)) == XBEE_ENONE) {
 		con->xbee = NULL;
 	}
@@ -166,7 +174,9 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *
 	unsigned int remain;
 	struct xbee_pkt *pkt;
 	if (!con || !retPkt) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (con->callback != NULL) return XBEE_EINVAL;
 	
 	ret = XBEE_ENONE;
@@ -194,7 +204,9 @@ die:
 EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state) {
 #warning INFO - needs remote, can return XBEE_ESTALE
 	if (!con) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	con->sleepState = state;
 	return XBEE_ENONE;
 }
@@ -202,7 +214,9 @@ EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates 
 EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state) {
 #warning INFO - needs remote (if remote fails/contradicts, update local or is XBEE_ESTALE)
 	if (!con || !state) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*state = con->sleepState;
 	return XBEE_ENONE;
 }
@@ -211,7 +225,9 @@ EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates 
 
 EXPORT xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData) {
 	if (!con) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (oldData) *oldData = con->userData;
 	con->userData = newData;
 	return XBEE_ENONE;
@@ -219,7 +235,9 @@ EXPORT xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldD
 
 EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 	if (!con || !curData) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*curData = con->userData;
 	return XBEE_ENONE;
 }
@@ -228,7 +246,9 @@ EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 
 EXPORT xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info) {
 	if (!con || !info) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	memcpy(info, &con->info, sizeof(con->info));
 	return XBEE_ENONE;
 }
@@ -241,7 +261,9 @@ EXPORT xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback new
 
 EXPORT xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *curCallback) {
 	if (!con || !curCallback) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*curCallback = con->callback;
 	return XBEE_ENONE;
 }
@@ -251,7 +273,9 @@ EXPORT xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *cu
 EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings, struct xbee_conSettings *oldSettings) {
 #warning INFO - needs remote, can return XBEE_ESTALE
 	if (!con || (!newSettings && !oldSettings)) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con)) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (oldSettings) memcpy(oldSettings, &con->settings, sizeof(con->settings));
 	if (newSettings) memcpy(&con->settings, newSettings, sizeof(con->settings));
 	return XBEE_ENONE;

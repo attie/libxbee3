@@ -23,7 +23,7 @@
 #include "internal.h"
 #include "ll.h"
 
-struct ll_head *xbeeList;
+struct ll_head *xbeeList = NULL;
 
 EXPORT xbee_err xbee_validate(struct xbee *xbee) {
 	if (ll_get_item(xbeeList, xbee) != XBEE_ENONE) return XBEE_EINVAL;

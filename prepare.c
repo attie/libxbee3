@@ -28,13 +28,13 @@
 #include "pkt.h"
 
 EXPORT INIT void xbee_init(void) {
-	if ((xbeeList = ll_alloc()) == NULL) {
+	if (!xbeeList && (xbeeList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize xbeeList...\n");
 	}
-	if ((conList = ll_alloc()) == NULL) {
+	if (!conList && (conList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize conList...\n");
 	}
-	if ((pktList = ll_alloc()) == NULL) {
+	if (!pktList && (pktList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize pktList...\n");
 	}
 }
