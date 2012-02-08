@@ -25,10 +25,14 @@ extern struct ll_head *threadList;
 
 struct xbee_threadInfo;
 
-xbee_err xbee_threadStart(struct xbee *xbee, int monitored, xsys_thread *retThread, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg);
+#define xbee_threadStart(xbee, retThread, restartDelay, func, arg) \
+	_xbee_threadStart(xbee, retThread, restartDelay, #func, func, arg)
+xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restartDelay, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg);
 xbee_err xbee_threadKill(struct xbee *xbee, xsys_thread thread);
 xbee_err xbee_threadJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
 xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
 void xbee_threadDestroy(struct xbee_threadInfo *info);
+
+xbee_err xbee_threadDestroyMine(struct xbee *xbee);
 
 #endif /* __XBEE_THREAD_H */
