@@ -60,7 +60,7 @@ xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 xbee_err xbee_conFree(struct xbee_con *con) {
 	if (!con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	return _xbee_conFree(con);
 }
@@ -177,7 +177,7 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *
 	struct xbee_pkt *pkt;
 	if (!con || !retPkt) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (con->callback != NULL) return XBEE_EINVAL;
 	
@@ -207,7 +207,7 @@ EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates 
 #warning INFO - needs remote, can return XBEE_ESTALE
 	if (!con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	con->sleepState = state;
 	return XBEE_ENONE;
@@ -217,7 +217,7 @@ EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates 
 #warning INFO - needs remote (if remote fails/contradicts, update local or is XBEE_ESTALE)
 	if (!con || !state) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*state = con->sleepState;
 	return XBEE_ENONE;
@@ -228,7 +228,7 @@ EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates 
 EXPORT xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData) {
 	if (!con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (oldData) *oldData = con->userData;
 	con->userData = newData;
@@ -238,7 +238,7 @@ EXPORT xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldD
 EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 	if (!con || !curData) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*curData = con->userData;
 	return XBEE_ENONE;
@@ -249,7 +249,7 @@ EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 EXPORT xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info) {
 	if (!con || !info) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	memcpy(info, &con->info, sizeof(con->info));
 	return XBEE_ENONE;
@@ -264,7 +264,7 @@ EXPORT xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback new
 EXPORT xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *curCallback) {
 	if (!con || !curCallback) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*curCallback = con->callback;
 	return XBEE_ENONE;
@@ -276,7 +276,7 @@ EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *
 #warning INFO - needs remote, can return XBEE_ESTALE
 	if (!con || (!newSettings && !oldSettings)) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con)) return XBEE_EINVAL;
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (oldSettings) memcpy(oldSettings, &con->settings, sizeof(con->settings));
 	if (newSettings) memcpy(&con->settings, newSettings, sizeof(con->settings));

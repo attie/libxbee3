@@ -87,7 +87,7 @@ EXPORT xbee_err xbee_modeGetList(char ***retList) {
 EXPORT xbee_err xbee_modeGet(struct xbee *xbee, const char **mode) {
 	if (!xbee || !mode) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_validate(xbee)) return XBEE_EINVAL;
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*mode = xbee->mode->name;
 	return XBEE_ENONE;
