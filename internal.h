@@ -31,6 +31,7 @@ struct xbee;
 struct xbee_con;
 struct xbee_frameBlock;
 struct xbee_mode;
+struct xbee_log;
 
 /* ######################################################################### */
 
