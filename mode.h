@@ -27,8 +27,9 @@ struct xbee_mode {
 	xbee_err (*init)(struct xbee *xbee, va_list ap);
 	xbee_err (*shutdown)(struct xbee *xbee);
 	
-	xbee_err (*rx)(struct xbee *xbee);
-	xbee_err (*tx)(struct xbee *xbee);
+	xbee_err (*rx)(struct xbee *xbee, struct xbee_buf **buf);
+	xbee_err (*tx)(struct xbee *xbee, struct xbee_buf *buf);
+	xbee_err (*thread)(struct xbee *xbee, int *restart, void *arg);
 };
 
 xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode);

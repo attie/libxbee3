@@ -1,6 +1,3 @@
-#ifndef __XBEE_INTERNAL_H
-#define __XBEE_INTERNAL_H
-
 /*
 	libxbee - a C library to aid the use of Digi's XBee wireless modules
 	          running in API mode (AP=2).
@@ -21,19 +18,9 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "xbee.h"
-#include "xsys.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-/* ######################################################################### */
-/* just to keep the compiler happy when pointers are used, but not dereferenced... */
-
-struct xbee;
-struct xbee_con;
-struct xbee_frameBlock;
-struct xbee_mode;
-struct xbee_log;
-struct xbee_buf;
-
-/* ######################################################################### */
-
-#endif /* __XBEE_INTERNAL_H */
+#include "internal.h"
+#include "tx.h"

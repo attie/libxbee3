@@ -27,6 +27,7 @@ struct xbee {
 	struct ll_head *conList;
 	struct xbee_frameBlock *fBlock;
 	const struct xbee_mode *mode;
+	void *modeData;
 	struct xbee_log *log;
 };
 

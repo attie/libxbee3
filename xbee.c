@@ -27,8 +27,11 @@
 #include "xbee_int.h"
 #include "conn.h"
 #include "frame.h"
+#include "thread.h"
 #include "log.h"
 #include "mode.h"
+#include "rx.h"
+#include "tx.h"
 #include "ll.h"
 
 struct ll_head *xbeeList = NULL;
@@ -70,9 +73,13 @@ die1:
 xbee_err xbee_free(struct xbee *xbee) {
 	ll_ext_item(xbeeList, xbee);
 	
+	xbee_threadDestroyMine(xbee);
+	
 	xbee_logFree(xbee->log);
 	xbee_frameBlockFree(xbee->fBlock);
 	ll_free(xbee->conList, (void(*)(void*))xbee_conFree);
+	
+	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
 	
 	free(xbee);
 	
@@ -91,6 +98,8 @@ EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
 	
 	if ((ret = xbee_modeRetrieve(mode, &xbeeMode)) != XBEE_ENONE) return ret;
 	if (!xbeeMode->init) return XBEE_EINVAL;
+	if (!xbeeMode->rx) return XBEE_EINVAL;
+	if (!xbeeMode->tx) return XBEE_EINVAL;
 	
 	if ((ret = xbee_alloc(&xbee)) != XBEE_ENONE) return ret;
 	
@@ -100,9 +109,26 @@ EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
 	xbee->mode->init(xbee, ap);
 	va_end(ap);
 	
-	return XBEE_ENOTIMPLEMENTED;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rx, xbee->mode->rx)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_tx, xbee->mode->tx)) != XBEE_ENONE) goto die;
+	if (xbee->mode->thread) if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee->mode->thread, NULL)) != XBEE_ENONE) goto die;
+	
+	ll_add_tail(xbeeList, xbee);
+	
+	return XBEE_ENONE;
+
+die:
+	xbee_free(xbee);
+	return ret;
 }
 
 EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
-	return XBEE_ENOTIMPLEMENTED;
+	if (!xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+
+	xbee_free(xbee);
+
+	return XBEE_ENONE;
 }
