@@ -30,9 +30,15 @@
 struct xbee;
 struct xbee_con;
 struct xbee_frameBlock;
-struct xbee_mode;
 struct xbee_log;
-struct xbee_buf;
+struct xbee_mode;
+struct xbee_txInfo;
+struct xbee_rxInfo;
+
+struct xbee_buf {
+	size_t len;
+	unsigned char data[1];
+};
 
 /* ######################################################################### */
 

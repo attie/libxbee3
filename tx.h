@@ -21,6 +21,14 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
+struct xbee_txInfo {
+	struct ll_head *bufList;
+	xsys_sem sem;
+};
+
+xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo);
+xbee_err xbee_txFree(struct xbee_txInfo *info);
+
 xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg);
 
 #endif /* __XBEE_TX_H */

@@ -33,14 +33,23 @@ const struct xbee_mode * const modeList[] = {
 /* ######################################################################### */
 
 xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode) {
+	const struct xbee_mode *mode;
 	int i;
 	if (!name || !retMode) return XBEE_EMISSINGPARAM;
 	
 	for (i = 0; modeList[i]; i++) {
 		if (!modeList[i]->name) continue;
 		if (strcasecmp(modeList[i]->name, name)) continue;
+		mode = modeList[i];
 		
-		*retMode = modeList[i];
+		/* check compulsory functionality */
+		if (!mode->init) return XBEE_EINVAL;
+		if (!mode->rx_io) return XBEE_EINVAL;
+		if (!mode->rx_pkt) return XBEE_EINVAL;
+		if (!mode->tx_io) return XBEE_EINVAL;
+		if (!mode->tx_pkt) return XBEE_EINVAL;
+		
+		*retMode = mode;
 		return XBEE_ENONE;
 	}
 	

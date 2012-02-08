@@ -24,11 +24,17 @@
 extern struct ll_head *xbeeList;
 
 struct xbee {
+	int die;
+	
 	struct ll_head *conList;
 	struct xbee_frameBlock *fBlock;
+	struct xbee_log *log;
+	
 	const struct xbee_mode *mode;
 	void *modeData;
-	struct xbee_log *log;
+	
+	struct xbee_txInfo *tx;
+	struct xbee_rxInfo *rx;
 };
 
 xbee_err xbee_alloc(struct xbee **nXbee);

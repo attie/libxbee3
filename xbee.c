@@ -56,10 +56,12 @@ xbee_err xbee_alloc(struct xbee **nXbee) {
 	
 	memset(xbee, 0, memSize);
 	xbee->conList = ll_alloc();
-	if ((ret = xbee_frameBlockAlloc(&xbee->fBlock)) != XBEE_ENONE) goto die1;
+	if ((ret = xbee_frameBlockAlloc(&xbee->fBlock)) != XBEE_ENONE)  goto die1;
 	if ((ret = xbee_logAlloc(&xbee->log, 0, stderr)) != XBEE_ENONE) goto die1;
+	if ((ret = xbee_txAlloc(&xbee->tx)) != XBEE_ENONE)              goto die1;
+	if ((ret = xbee_rxAlloc(&xbee->rx)) != XBEE_ENONE)              goto die1;
 	
-	if ((ret = ll_add_tail(xbeeList, xbee)) != XBEE_ENONE) goto die1;
+	if ((ret = ll_add_tail(xbeeList, xbee)) != XBEE_ENONE)          goto die1;
 	
 	*nXbee = xbee;
 	
@@ -75,6 +77,8 @@ xbee_err xbee_free(struct xbee *xbee) {
 	
 	xbee_threadDestroyMine(xbee);
 	
+	xbee_rxFree(xbee->rx);
+	xbee_txFree(xbee->tx);
 	xbee_logFree(xbee->log);
 	xbee_frameBlockFree(xbee->fBlock);
 	ll_free(xbee->conList, (void(*)(void*))xbee_conFree);
@@ -97,9 +101,6 @@ EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
 	if (!ret_xbee || !mode) return XBEE_EMISSINGPARAM;
 	
 	if ((ret = xbee_modeRetrieve(mode, &xbeeMode)) != XBEE_ENONE) return ret;
-	if (!xbeeMode->init) return XBEE_EINVAL;
-	if (!xbeeMode->rx) return XBEE_EINVAL;
-	if (!xbeeMode->tx) return XBEE_EINVAL;
 	
 	if ((ret = xbee_alloc(&xbee)) != XBEE_ENONE) return ret;
 	
@@ -109,8 +110,8 @@ EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
 	xbee->mode->init(xbee, ap);
 	va_end(ap);
 	
-	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rx, xbee->mode->rx)) != XBEE_ENONE) goto die;
-	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_tx, xbee->mode->tx)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rx, xbee->mode->rx_io)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_tx, xbee->mode->tx_io)) != XBEE_ENONE) goto die;
 	if (xbee->mode->thread) if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee->mode->thread, NULL)) != XBEE_ENONE) goto die;
 	
 	ll_add_tail(xbeeList, xbee);

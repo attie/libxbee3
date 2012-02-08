@@ -24,3 +24,60 @@
 
 #include "internal.h"
 #include "tx.h"
+#include "xbee_int.h"
+#include "log.h"
+#include "ll.h"
+
+xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo) {
+	size_t memSize;
+	struct xbee_txInfo *info;
+	
+	if (!nInfo) return XBEE_EMISSINGPARAM;
+	
+	memSize = sizeof(*info);
+	
+	if (!(info = malloc(memSize))) return XBEE_ENOMEM;
+	
+	memset(info, 0, memSize);
+	info->bufList = ll_alloc();
+	xsys_sem_init(&info->sem);
+	
+	*nInfo = info;
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_txFree(struct xbee_txInfo *info) {
+	if (!info) return XBEE_EMISSINGPARAM;
+	
+	ll_free(info->bufList, (void(*)(void*))xbee_pktFree);
+	xsys_sem_destroy(&info->sem);
+	free(info);
+	
+	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
+	xbee_err ret;
+	struct xbee_txInfo *info;
+	struct xbee_buf *buf;
+	xbee_err (*tx)(struct xbee *xbee, struct xbee_buf *buf);
+	
+	info = xbee->tx;
+	tx = arg;
+	
+	while (!xbee->die) {
+		xsys_sem_wait(&info->sem);
+		ll_ext_head(info->bufList, (void**)&buf);
+		
+		if ((ret = tx(xbee, buf)) != XBEE_ENONE) {
+			xbee_log(1, "tx() returned %d... buffer was lost", ret);
+			continue;
+		}
+		free(buf);
+	}
+	
+	return XBEE_ENONE;
+}
