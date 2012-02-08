@@ -79,7 +79,6 @@ int xsys_select(FILE *stream, struct timeval *timeout);
                                               pthread_create((pthread_t*)(thread), NULL, (start_routine), (arg))
 #define xsys_thread_cancel(thread)            pthread_cancel((pthread_t)(thread))
 #define xsys_thread_join(thread, retval)      pthread_join((pthread_t)(thread), (retval))
-#define xsys_thread_tryjoin(thread, retval)   pthread_tryjoin_np((pthread_t)(thread), (retval))
 #define xsys_thread_detach_self()             pthread_detach(pthread_self())
 #define xsys_thread_iAm(thread)               pthread_equal(pthread_self(), (thread))
 

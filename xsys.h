@@ -64,7 +64,6 @@ int xsys_setupSerial(struct xbee *xbee);
 int xsys_thread_create(xsys_thread *thread, void*(*start_routine)(void*), void *arg);
 int xsys_thread_cancel(xsys_thread thread);
 int xsys_thread_join(xsys_thread thread, void **retval);
-int xsys_thread_tryjoin(xsys_thread thread, void **retval);
 int xsys_thread_detach_self(void);
 int xsys_thread_iAm(xsys_thread thread);
 */
