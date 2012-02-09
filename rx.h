@@ -30,5 +30,6 @@ xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo);
 xbee_err xbee_rxFree(struct xbee_rxInfo *info);
 
 xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg);
+xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg);
 
 #endif /* __XBEE_RX_H */

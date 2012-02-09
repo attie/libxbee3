@@ -30,8 +30,9 @@ struct xbee {
 	struct xbee_frameBlock *fBlock;
 	struct xbee_log *log;
 	
+	struct xbee_modeConType *conTypes; /* copied in from the mode */
 	const struct xbee_mode *mode;
-	void *modeData;
+	void *modeData; /* for use by the mode */
 	
 	struct xbee_txInfo *tx;
 	struct xbee_rxInfo *rx;

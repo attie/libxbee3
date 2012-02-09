@@ -85,6 +85,8 @@ xbee_err xbee_free(struct xbee *xbee) {
 	
 	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
 	
+#warning TODO - free conTypes
+	
 	free(xbee);
 	
 	return XBEE_ENONE;
@@ -106,12 +108,15 @@ EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
 	
 	xbee->mode = xbeeMode;
 	
+	if ((ret = xbee_modeImport(xbee->mode, &xbee->conTypes)) != XBEE_ENONE) goto die;
+	
 	va_start(ap, mode);
 	xbee->mode->init(xbee, ap);
 	va_end(ap);
 	
-	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rx, xbee->mode->rx_io)) != XBEE_ENONE) goto die;
-	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_tx, xbee->mode->tx_io)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rx, xbee->mode->rx_io)) != XBEE_ENONE)                       goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rxHandler, NULL)) != XBEE_ENONE)                             goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_tx, xbee->mode->tx_io)) != XBEE_ENONE)                       goto die;
 	if (xbee->mode->thread) if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee->mode->thread, NULL)) != XBEE_ENONE) goto die;
 	
 	ll_add_tail(xbeeList, xbee);

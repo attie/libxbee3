@@ -25,6 +25,7 @@
 #include "internal.h"
 #include "rx.h"
 #include "xbee_int.h"
+#include "mode.h"
 #include "log.h"
 #include "ll.h"
 
@@ -61,11 +62,9 @@ xbee_err xbee_rxFree(struct xbee_rxInfo *info) {
 
 xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
-	struct xbee_rxInfo *info;
 	struct xbee_buf *buf;
 	xbee_err (*rx)(struct xbee *xbee, struct xbee_buf **buf);
 	
-	info = xbee->rx;
 	rx = arg;
 	
 	while (!xbee->die) {
@@ -75,10 +74,47 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 			continue;
 		}
 		
-		ll_add_tail(info->bufList, buf);
+		if (ll_add_tail(xbee->rx->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		buf = NULL;
-		xsys_sem_post(&info->sem);
+		if (xsys_sem_post(&xbee->rx->sem) != 0) return XBEE_ESEMAPHORE;
 	}
 	
 	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
+	xbee_err ret;
+	struct xbee_buf *buf;
+	struct xbee_modeConType *conType;
+	struct xbee_conAddress address;
+	struct xbee_pkt *pkt;
+	
+	ret = XBEE_ENONE;
+	buf = NULL;
+	
+	while (!xbee->die) {
+		xsys_sem_wait(&xbee->rx->sem);
+		
+		if (ll_ext_head(xbee->rx->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if (!buf) continue;
+		
+		if (buf->len < 1) goto done;
+		
+		if ((ret - xbee_modeLocateConType(xbee->mode, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS) goto done;
+		if (ret != XBEE_ENONE) break;
+		
+		if ((ret = conType->rxHandler->func(xbee, buf, &address, &pkt)) != XBEE_ENONE) break;
+		
+#warning TODO - match connection & add packet to list
+		
+done:
+		free(buf);
+		buf = NULL;
+	}
+	
+	if (buf) free(buf);
+	
+	return ret;
 }

@@ -26,6 +26,7 @@ extern struct ll_head *conList;
 struct xbee_con {
 	struct xbee *xbee;
 	struct ll_head *pktList;
+	struct xbee_modeConType *conType;
 	
 	void *userData;
 	

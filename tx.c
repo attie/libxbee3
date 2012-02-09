@@ -26,6 +26,8 @@
 #include "tx.h"
 #include "xbee_int.h"
 #include "log.h"
+#include "conn.h"
+#include "mode.h"
 #include "ll.h"
 
 xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo) {
@@ -61,23 +63,37 @@ xbee_err xbee_txFree(struct xbee_txInfo *info) {
 
 xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
-	struct xbee_txInfo *info;
 	struct xbee_buf *buf;
 	xbee_err (*tx)(struct xbee *xbee, struct xbee_buf *buf);
 	
-	info = xbee->tx;
 	tx = arg;
 	
 	while (!xbee->die) {
-		xsys_sem_wait(&info->sem);
-		ll_ext_head(info->bufList, (void**)&buf);
+		if (xsys_sem_wait(&xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
+		if (ll_ext_head(xbee->tx->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if (!buf) continue;
 		
 		if ((ret = tx(xbee, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);
 			continue;
 		}
+		
 		free(buf);
 	}
+	
+	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_txHandler(struct xbee *xbee, struct xbee_con *con, struct xbee_buf *iBuf) {
+	xbee_err ret;
+	struct xbee_buf *oBuf;
+	
+	if ((ret = con->conType->txHandler->func(xbee, &con->address, iBuf, &oBuf)) != XBEE_ENONE) return ret;
+	
+	if (ll_add_tail(xbee->tx->bufList, oBuf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+	if (xsys_sem_post(&xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
 	
 	return XBEE_ENONE;
 }
