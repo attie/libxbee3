@@ -213,7 +213,7 @@ enum xbee_errors {
 	XBEE_EINUSE                = -27,
 	XBEE_ERANGE                = -28,
 	XBEE_EEXISTS               = -29,
-	XBEE_E________FREE         = -30,
+	XBEE_ENOTEXISTS            = -30,
 	XBEE_ESOCKET               = -31,
 	XBEE_ENOTIMPLEMENTED       = -32,
 	XBEE_ESTALE                = -33,

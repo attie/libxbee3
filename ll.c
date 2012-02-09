@@ -179,7 +179,7 @@ xbee_err _ll_add_after(void *list, void *ref, void *item, int needMutex) {
 		i = i->next;
 	}
 	if (!i) {
-		ret = XBEE_EINVAL;
+		ret = XBEE_ENOTEXISTS;
 		goto out;
 	}
 	if (!(t = calloc(1, sizeof(struct ll_info)))) {
@@ -220,7 +220,7 @@ xbee_err _ll_add_before(void *list, void *ref, void *item, int needMutex) {
 		i = i->next;
 	}
 	if (!i) {
-		ret = XBEE_EINVAL;
+		ret = XBEE_ENOTEXISTS;
 		goto out;
 	}
 	if (!(t = calloc(1, sizeof(struct ll_info)))) {
@@ -513,6 +513,7 @@ xbee_err ll_combine(void *head, void *tail) {
 	xbee_err ret;
 	ret = XBEE_ENONE;
 	if (!head || !tail) return XBEE_EMISSINGPARAM;
+	if (head == tail) return XBEE_EINVAL;
 	iH = head;
 	hH = iH->head;
 	if (!(hH && hH->is_head && hH->self == hH)) return XBEE_EINVAL;

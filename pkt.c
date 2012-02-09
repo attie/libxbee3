@@ -229,7 +229,8 @@ xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, voi
 	if (ll_count_items(k->items, &count) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 	if (index >= count) return XBEE_ERANGE;
 	
-	if (ll_get_index(k->items, index, retData) != XBEE_ENONE) return XBEE_EINVAL;
+	if ((ret = ll_get_index(k->items, index, retData)) == XBEE_ENOTEXISTS) return ret;
+	if (ret != XBEE_ENONE) return XBEE_EINVAL;
 	
 	return XBEE_ENONE;
 }
