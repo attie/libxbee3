@@ -162,7 +162,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	
 	xsys_mutex_unlock(&log->mutex);
 	
-	return XBEE_ENOTIMPLEMENTED;
+	return XBEE_ENONE;
 }
 
 

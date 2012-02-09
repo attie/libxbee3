@@ -155,7 +155,7 @@ xbee_err xbee_threadJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal
 	ll_ext_item(threadList, info);
 	free(info);
 
-	return XBEE_ENOTIMPLEMENTED;
+	return XBEE_ENONE;
 }
 
 xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal) {
@@ -172,7 +172,7 @@ xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *re
 	ll_ext_item(threadList, info);
 	free(info);
 
-	return XBEE_ENOTIMPLEMENTED;
+	return XBEE_ENONE;
 }
 
 void xbee_threadDestroy(struct xbee_threadInfo *info) {
