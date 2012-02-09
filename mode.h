@@ -23,14 +23,22 @@
 
 struct xbee_modeDataHandlerRx {
 	unsigned char identifier;
-	/* -------------------------------------------->     IN                           OUT                        OUT  */
-	xbee_err (*func)(struct xbee *xbee, struct xbee_buf *buf, struct xbee_conAddress *address, struct xbee_pkt **pkt);
+	xbee_err (*func)(struct xbee *xbee,
+	                 unsigned char identifier,
+	                 struct xbee_frameInfo *frameInfo,
+	     /* IN */    struct xbee_buf *buf,
+	     /* OUT */   struct xbee_conAddress *address,
+	     /* OUT */   struct xbee_pkt **pkt);
 };
 
 struct xbee_modeDataHandlerTx {
 	unsigned char identifier;
-	/* -------------------------------------------->            IN                        IN                      OUT  */
-	xbee_err (*func)(struct xbee *xbee, struct xbee_conAddress *address, struct xbee_buf *iBuf, struct xbee_buf **oBuf);
+	xbee_err (*func)(struct xbee *xbee,
+	                 unsigned char identifier,
+	                 unsigned char frameId,
+	     /* IN */    struct xbee_conAddress *address,
+	     /* IN */    struct xbee_buf *iBuf,
+	     /* OUT */   struct xbee_buf **oBuf);
 };
 
 struct xbee_modeConType {

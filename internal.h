@@ -30,6 +30,7 @@
 struct xbee;
 struct xbee_con;
 struct xbee_frameBlock;
+struct xbee_frameInfo;
 struct xbee_log;
 struct xbee_mode;
 struct xbee_txInfo;

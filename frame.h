@@ -21,6 +21,12 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+struct xbee_frameInfo {
+	char active;
+	unsigned char id;
+	int retVal;
+};
+
 struct xbee_frame {
 	xsys_sem sem;
 	struct xbee_con *con;

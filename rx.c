@@ -26,6 +26,7 @@
 #include "rx.h"
 #include "xbee_int.h"
 #include "mode.h"
+#include "frame.h"
 #include "log.h"
 #include "ll.h"
 
@@ -90,8 +91,11 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 	struct xbee_modeConType *conType;
 	struct xbee_conAddress address;
 	struct xbee_pkt *pkt;
+	struct xbee_frameInfo frameInfo;
+	struct xbee_frameBlock *fBlock;
 	
 	ret = XBEE_ENONE;
+	fBlock = arg;
 	buf = NULL;
 	
 	while (!xbee->die) {
@@ -105,7 +109,14 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		if ((ret - xbee_modeLocateConType(xbee->mode, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS) goto done;
 		if (ret != XBEE_ENONE) break;
 		
-		if ((ret = conType->rxHandler->func(xbee, buf, &address, &pkt)) != XBEE_ENONE) break;
+		frameInfo.active = 0;
+		if ((ret = conType->rxHandler->func(xbee, conType->rxHandler->identifier, &frameInfo, buf, &address, &pkt)) != XBEE_ENONE) break;
+		if (frameInfo.active != 0) {
+			if ((ret = xbee_framePost(fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
+				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", fBlock, frameInfo.id, ret);
+				ret = XBEE_ENONE;
+			}
+		}
 		
 #warning TODO - match connection & add packet to list
 		

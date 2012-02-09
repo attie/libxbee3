@@ -90,7 +90,7 @@ xbee_err xbee_txHandler(struct xbee *xbee, struct xbee_con *con, struct xbee_buf
 	xbee_err ret;
 	struct xbee_buf *oBuf;
 	
-	if ((ret = con->conType->txHandler->func(xbee, &con->address, iBuf, &oBuf)) != XBEE_ENONE) return ret;
+	if ((ret = con->conType->txHandler->func(xbee, con->conType->txHandler->identifier, con->frameId, &con->address, iBuf, &oBuf)) != XBEE_ENONE) return ret;
 	
 	if (ll_add_tail(xbee->tx->bufList, oBuf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 	if (xsys_sem_post(&xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
