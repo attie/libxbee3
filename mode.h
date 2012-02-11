@@ -63,8 +63,11 @@ struct xbee_mode {
 };
 
 xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode);
+
 xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbee_mode *mode);
 xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const char *name, const struct xbee_modeDataHandlerRx *rxHandler, const struct xbee_modeDataHandlerTx *txHandler);
+xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes);
+
 xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType);
 
 #endif /* __XBEE_MODE_H */

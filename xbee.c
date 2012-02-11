@@ -77,15 +77,14 @@ xbee_err xbee_free(struct xbee *xbee) {
 	
 	xbee_threadDestroyMine(xbee);
 	
+	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
+	
+	ll_free(xbee->conList, (void(*)(void*))xbee_conFree);
+	xbee_modeCleanup(xbee->conTypes);
 	xbee_rxFree(xbee->rx);
 	xbee_txFree(xbee->tx);
 	xbee_logFree(xbee->log);
 	xbee_frameBlockFree(xbee->fBlock);
-	ll_free(xbee->conList, (void(*)(void*))xbee_conFree);
-	
-	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
-	
-#warning TODO - free conTypes
 	
 	free(xbee);
 	

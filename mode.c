@@ -101,6 +101,12 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const char *
 	return XBEE_ENONE;
 }
 
+xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
+	if (!conTypes) return XBEE_EMISSINGPARAM;
+	free(conTypes);
+	return XBEE_ENONE;
+}
+
 /* ######################################################################### */
 
 xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType) {
