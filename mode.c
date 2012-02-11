@@ -56,6 +56,83 @@ xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode) {
 
 /* ######################################################################### */
 
+/* pull the given mode information into the given xbee instance */
+xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbee_mode *mode) {
+	int i, n;
+	struct xbee_modeConType *conTypes;
+	
+	if (!retConTypes || !mode) return XBEE_EMISSINGPARAM;
+	if (*retConTypes) return XBEE_EINVAL;
+	
+	for (n = 0; mode->conTypes[n].name; n++);
+	
+	if ((conTypes = malloc(sizeof(*conTypes) * (n + 1))) == NULL) return XBEE_ENOMEM;
+	memset(&conTypes[n], 0, sizeof(*conTypes));
+	
+	for (i = 0; i < n; i++) {
+		/* keep the pointers (they are const after all) */
+		conTypes[i].name = mode->conTypes[i].name;
+		conTypes[i].rxHandler = mode->conTypes[i].rxHandler;
+		conTypes[i].txHandler = mode->conTypes[i].txHandler;
+	}
+	
+	*retConTypes = conTypes;
+	
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const char *name, const struct xbee_modeDataHandlerRx *rxHandler, const struct xbee_modeDataHandlerTx *txHandler) {
+	int n;
+	struct xbee_modeConType *conTypes;
+	
+	if (!extConTypes || !name || (!rxHandler && !txHandler)) return XBEE_EMISSINGPARAM;
+	if (!*extConTypes) return XBEE_EINVAL;
+	
+	for (n = 0; (*extConTypes)[n].name; n++);
+	
+	if ((conTypes = realloc(*extConTypes, sizeof(*conTypes) * (n + 2))) == NULL) return XBEE_ENOMEM;
+	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
+	*extConTypes = conTypes;
+	
+	conTypes[n].rxHandler = rxHandler;
+	conTypes[n].txHandler = txHandler;
+	conTypes[n].name = name; /* add the name last so that it doesn't get activated before it is completely ready */
+	
+	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType) {
+	int i;
+	
+	if (!retType) return XBEE_EMISSINGPARAM;
+	if (!name && !rxId && !txId) return XBEE_EMISSINGPARAM;
+	
+	for (i = 0; conTypes[i].name; i++) {
+		if (name) {
+			if (strcasecmp(conTypes[i].name, name)) continue;
+		}
+		if (rxId) {
+			if (!conTypes[i].rxHandler) continue;
+			if (conTypes[i].rxHandler->identifier != *rxId) continue;
+			if (!conTypes[i].rxHandler->func) continue;
+		}
+		if (txId) {
+			if (!conTypes[i].txHandler) continue;
+			if (conTypes[i].txHandler->identifier != *txId) continue;
+			if (!conTypes[i].txHandler->func) continue;
+		}
+		
+		*retType = &conTypes[i];
+		return XBEE_ENONE;
+	}
+	
+	return XBEE_EFAILED;
+}
+
+/* ######################################################################### */
+
 EXPORT xbee_err xbee_modeGetList(char ***retList) {
 	int i, o;
 	size_t memSize;

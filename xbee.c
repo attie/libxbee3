@@ -106,9 +106,7 @@ EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
 	
 	if ((ret = xbee_alloc(&xbee)) != XBEE_ENONE) return ret;
 	
-	xbee->mode = xbeeMode;
-	
-	if ((ret = xbee_modeImport(xbee->mode, &xbee->conTypes)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_modeImport(&xbee->conTypes, xbeeMode)) != XBEE_ENONE) goto die;
 	
 	va_start(ap, mode);
 	xbee->mode->init(xbee, ap);

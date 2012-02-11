@@ -106,7 +106,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		if (buf->len < 1) goto done;
 		
-		if ((ret - xbee_modeLocateConType(xbee->mode, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS) goto done;
+		if ((ret - xbee_modeLocateConType(xbee->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS) goto done;
 		if (ret != XBEE_ENONE) break;
 		
 		frameInfo.active = 0;
