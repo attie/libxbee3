@@ -70,7 +70,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	
 	while (!xbee->die) {
 		if ((ret = rx(xbee, &buf)) != XBEE_ENONE) {
-			xbee_log(1, "rx() returned %d... retrying in 10 ms", ret);
+			xbee_log(1, "rx() returned %d (%s)... retrying in 10 ms", ret, xbee_errorToStr(ret));
 			usleep(10000); /* 10 ms */
 			continue;
 		}
@@ -106,7 +106,10 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		if (buf->len < 1) goto done;
 		
-		if ((ret - xbee_modeLocateConType(xbee->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS) goto done;
+		if ((ret - xbee_modeLocateConType(xbee->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
+			xbee_log(4, "Unknown message type recieved... (0x%02X)", buf->data[0]);
+			goto done;
+		}
 		if (ret != XBEE_ENONE) break;
 		
 		frameInfo.active = 0;

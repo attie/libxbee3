@@ -9,7 +9,8 @@ LIBOUT:=        libxbee
 
 LIBS:=          rt pthread dl
 
-SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx
+SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx \
+                xsys
 
 MODELIST:=      xbee1
 

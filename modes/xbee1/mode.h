@@ -22,7 +22,7 @@
 */
 
 struct xbee_modeData {
-	struct xbee_serialInfo serialInfo;
+	struct xbee_serialInfo serialInfo; /* keep serialInfo first, otherwise xbee_xbeeRxIo() and xbee_xbeeTxIo() will break */
 };
 
 #endif /* __XBEE_MODE_TYPE_H */

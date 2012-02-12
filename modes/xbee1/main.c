@@ -31,9 +31,6 @@
 
 static xbee_err shutdown(struct xbee *xbee);
 static xbee_err init(struct xbee *xbee, va_list ap);
-static xbee_err rx_io(struct xbee *xbee, struct xbee_buf **buf);
-static xbee_err tx_io(struct xbee *xbee, struct xbee_buf *buf);
-static xbee_err thread(struct xbee *xbee, int *restart, void *arg);
 
 /* ######################################################################### */
 
@@ -54,9 +51,10 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	strcpy(data->serialInfo.device, t);
 	
 	data->serialInfo.baudrate = va_arg(ap, int);
-
+	
 	if ((ret = xbee_serialSetup(&data->serialInfo)) != XBEE_ENONE) goto die;
 	
+	xbee->modeData = data;
 	return XBEE_ENONE;
 die:
 	shutdown(xbee);
@@ -81,22 +79,6 @@ static xbee_err shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-static xbee_err rx_io(struct xbee *xbee, struct xbee_buf **buf) {
-	return XBEE_ENOTIMPLEMENTED;
-}
-
-static xbee_err tx_io(struct xbee *xbee, struct xbee_buf *buf) {
-	return XBEE_ENOTIMPLEMENTED;
-}
-
-/* ######################################################################### */
-
-static xbee_err thread(struct xbee *xbee, int *restart, void *arg) {
-	return XBEE_ENOTIMPLEMENTED;
-}
-
-/* ######################################################################### */
-
 static struct xbee_modeConType conTypes[] = {
 	{
 		.name = NULL,
@@ -113,9 +95,9 @@ struct xbee_mode mode_xbee1 = {
 	.init = init,
 	.shutdown = shutdown,
 	
-	.rx_io = rx_io,
-	.tx_io = tx_io,
+	.rx_io = xbee_xbeeRxIo,
+	.tx_io = xbee_xbeeTxIo,
 	
-	.thread = thread,
+	.thread = NULL,
 };
 
