@@ -62,16 +62,16 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 	if (!retConTypes || !mode) return XBEE_EMISSINGPARAM;
 	if (*retConTypes) return XBEE_EINVAL;
 	
-	for (n = 0; mode->conTypes[n].name; n++);
+	for (n = 0; mode->conTypes[n] && mode->conTypes[n]->name; n++);
 	
 	if ((conTypes = malloc(sizeof(*conTypes) * (n + 1))) == NULL) return XBEE_ENOMEM;
 	memset(&conTypes[n], 0, sizeof(*conTypes));
 	
 	for (i = 0; i < n; i++) {
 		/* keep the pointers (they are const after all) */
-		conTypes[i].name = mode->conTypes[i].name;
-		conTypes[i].rxHandler = mode->conTypes[i].rxHandler;
-		conTypes[i].txHandler = mode->conTypes[i].txHandler;
+		conTypes[i].name = mode->conTypes[i]->name;
+		conTypes[i].rxHandler = mode->conTypes[i]->rxHandler;
+		conTypes[i].txHandler = mode->conTypes[i]->txHandler;
 	}
 	
 	*retConTypes = conTypes;
@@ -119,13 +119,13 @@ xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, u
 		}
 		if (rxId) {
 			if (!conTypes[i].rxHandler) continue;
-			if (conTypes[i].rxHandler->identifier != *rxId) continue;
 			if (!conTypes[i].rxHandler->func) continue;
+			if (conTypes[i].rxHandler->identifier != *rxId) continue;
 		}
 		if (txId) {
 			if (!conTypes[i].txHandler) continue;
-			if (conTypes[i].txHandler->identifier != *txId) continue;
 			if (!conTypes[i].txHandler->func) continue;
+			if (conTypes[i].txHandler->identifier != *txId) continue;
 		}
 		
 		*retType = &conTypes[i];

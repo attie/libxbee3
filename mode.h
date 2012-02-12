@@ -51,7 +51,7 @@ struct xbee_modeConType {
 struct xbee_mode {
 	const char * const name;
 	
-	const struct xbee_modeConType * const conTypes;
+	const struct xbee_modeConType ** const conTypes;
 	
 	xbee_err (* const init)(struct xbee *xbee, va_list ap);
 	xbee_err (* const shutdown)(struct xbee *xbee);

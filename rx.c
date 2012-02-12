@@ -113,6 +113,8 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		if (ret != XBEE_ENONE) break;
 		
 		frameInfo.active = 0;
+		memset(&address, 0, sizeof(address));
+		pkt = NULL;
 		if ((ret = conType->rxHandler->func(xbee, conType->rxHandler->identifier, &frameInfo, buf, &address, &pkt)) != XBEE_ENONE) break;
 		if (frameInfo.active != 0) {
 			if ((ret = xbee_framePost(fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
@@ -120,6 +122,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 				ret = XBEE_ENONE;
 			}
 		}
+		if (!pkt) goto done;
 		
 #warning TODO - match connection & add packet to list
 		

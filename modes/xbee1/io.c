@@ -1,6 +1,3 @@
-#ifndef __XBEE_MODE_MODE_H
-#define __XBEE_MODE_MODE_H
-
 /*
   libxbee - a C library to aid the use of Digi's XBee wireless modules
             running in API mode (AP=2).
@@ -21,9 +18,36 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-struct xbee_modeData {
-	struct xbee_serialInfo serialInfo; /* keep serialInfo first, otherwise xbee_xbeeRxIo() and xbee_xbeeTxIo() will break */
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "../../internal.h"
+#include "../../xbee_int.h"
+#include "../../mode.h"
+#include "../common.h"
+#include "io.h"
+
+
+/* ######################################################################### */
+
+const struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
+	.identifier = 0x83,
+	.func = NULL,
+};
+const struct xbee_modeConType xbee_s1_16bitIo = {
+	.name = "16-bit I/O",
+	.rxHandler = &xbee_s1_16bitIo_rx,
+	.txHandler = NULL,
 };
 
-#endif /* __XBEE_MODE_MODE_H */
+/* ######################################################################### */
 
+const struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
+	.identifier = 0x82,
+	.func = NULL,
+};
+const struct xbee_modeConType xbee_s1_64bitIo = {
+	.name = "64-bit I/O",
+	.rxHandler = &xbee_s1_64bitIo_rx,
+	.txHandler = NULL,
+};

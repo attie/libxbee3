@@ -28,6 +28,9 @@
 #include "../../mode.h"
 #include "../common.h"
 #include "mode.h"
+#include "at.h"
+#include "data.h"
+#include "io.h"
 
 static xbee_err shutdown(struct xbee *xbee);
 static xbee_err init(struct xbee *xbee, va_list ap);
@@ -79,12 +82,15 @@ static xbee_err shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-static struct xbee_modeConType conTypes[] = {
-	{
-		.name = NULL,
-		.rxHandler = NULL,
-		.txHandler = NULL,
-	}
+static const struct xbee_modeConType *conTypes[] = {
+	&xbee_s1_localAt,
+	&xbee_s1_localAtQueued,
+	&xbee_s1_remoteAt,
+	&xbee_s1_16bitData,
+	&xbee_s1_64bitData,
+	&xbee_s1_16bitIo,
+	&xbee_s1_64bitIo,
+	NULL
 };
 
 struct xbee_mode mode_xbee1 = {
