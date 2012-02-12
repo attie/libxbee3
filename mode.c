@@ -26,9 +26,7 @@
 #include "xbee_int.h"
 #include "mode.h"
 
-const struct xbee_mode * const modeList[] = {
-	NULL,
-};
+const struct xbee_mode * const modeList[] = { MODELIST };
 
 /* ######################################################################### */
 

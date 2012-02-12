@@ -1,9 +1,6 @@
 include config.mk
 include libconfig.mk
-
-BUILDDIR:=.build
-DESTDIR:=lib
-LIBFULLREV:=$(LIBMAJ).$(LIBMIN).$(LIBREV)
+include buildconfig.mk
 
 RELEASE_ITEMS:=$(DESTDIR)/$(LIBOUT).so.$(LIBFULLREV)       \
                $(DESTDIR)/$(LIBOUT).so                     \
@@ -13,23 +10,12 @@ RELEASE_ITEMS:=$(DESTDIR)/$(LIBOUT).so.$(LIBFULLREV)       \
                $(SYS_HEADERS)                              \
                $(RELEASE_FILES)
 
-AR:=$(CROSS_COMPILE)ar
-LD:=$(CROSS_COMPILE)ld
-GCC:=$(CROSS_COMPILE)gcc
-OBJCOPY:=$(CROSS_COMPILE)objcopy
-
-DEBUG:=-g
-CFLAGS+=-Wall -Wstrict-prototypes -Wno-variadic-macros -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
-CFLAGS+=-fvisibility=hidden
-#CFLAGS+=-pedantic
-CLINKS+=$(addprefix -l,$(LIBS)) $(DEBUG)
-
-PDEPS:=makefile config.mk libconfig.mk
+PDEPS:=makefile config.mk libconfig.mk buildconfig.mk
 
 ###############################################################################
 
 .PHONY: all install install_dbg install_sudo install_dbg_sudo help clean distclean new release .%.dir
-.PRECIOUS: .%.dir $(BUILDDIR)/%.d
+.PHONY: ALWAYS
 
 OBJS:=$(addprefix $(BUILDDIR)/,$(addsuffix .o,$(SRCS)))
 
@@ -79,15 +65,20 @@ $(SYS_INCDIR)/%.h: %.h
 
 
 new: clean
-	@$(MAKE) --no-print-directory all
+	@$(MAKE) all
 
 clean:
-	rm -rdf $(BUILDDIR)/*.o
+	rm -f $(BUILDDIR)/*.o
 	rm -rdf $(DESTDIR)/*
+	$(MAKE) -C modes clean
 
-distclean: clean
+distclean:
 	rm -rdf $(BUILDDIR) .$(BUILDDIR).dir
 	rm -rdf $(DESTDIR) .$(DESTDIR).dir
+	$(MAKE) -C modes distclean
+
+tidy:
+	rm -f `find . -name '*~'`
 
 
 release: all
@@ -114,15 +105,21 @@ $(DESTDIR)/$(LIBOUT).a: $(DESTDIR)/$(LIBOUT).a.$(LIBFULLREV)
 $(DESTDIR)/$(LIBOUT).a.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBOUT).o
 	$(AR) rcs $@ $(filter %.o,$^)
 
-$(DESTDIR)/$(LIBOUT).o: .$(DESTDIR).dir $(OBJS)
+$(DESTDIR)/$(LIBOUT).o: .$(DESTDIR).dir $(OBJS) modes/modes.o
 	$(LD) -r $(filter %.o,$^) -o $@
 
+
+modes/modes.o: .$(BUILDDIR).dir modes ALWAYS
+	@$(MAKE) -C modes MODELIST=$(MODELIST)
 
 $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.c $(PDEPS)
 	$(GCC) -MM -MT $(addprefix $(BUILDDIR)/,$*.o) $*.c -o $@
 
 $(BUILDDIR)/ver.o: $(BUILDDIR)/ver.d $(wildcard %.c) $(wildcard %.h) $(PDEPS)
 	$(GCC) $(CFLAGS) $(VER_DEFINES) ver.c -o $@
+
+$(BUILDDIR)/mode.o: $(BUILDDIR)/mode.d $(PDEPS)
+	$(GCC) $(CFLAGS) -DMODELIST='$(addsuffix $(COMMA),$(addprefix &mode_,$(MODELIST))) NULL' mode.c -o $@
 
 $(BUILDDIR)/%.o: $(BUILDDIR)/%.d $(PDEPS)
 	$(GCC) $(CFLAGS) $*.c -o $@
