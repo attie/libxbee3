@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-char *xbee_errorToStr(xbee_err error) {
+EXPORT char *xbee_errorToStr(xbee_err error) {
 	char *str;
 	
 	switch (error) {
