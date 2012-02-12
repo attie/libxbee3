@@ -20,3 +20,14 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+int xsys_select(FILE *stream, struct timeval *timeout) {
+	fd_set fds;
+	int fd;
+
+	fd = fileno(stream);
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
+
+	return select(fd + 1, &fds, NULL, NULL, timeout);
+}
