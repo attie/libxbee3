@@ -299,6 +299,7 @@ xbee_err __ll_get_item(void *list, void *item, struct ll_info **retItem, int nee
 	}
 	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	if (retItem) *retItem = (void*)i;
+	if (!i) return XBEE_ENOTEXISTS;
 	return XBEE_ENONE;
 }
 xbee_err _ll_get_item(void *list, void *item, int needMutex) {
@@ -330,6 +331,7 @@ xbee_err _ll_get_next(void *list, void *ref, void **retItem, int needMutex) {
 out:
 	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	*retItem = ret;
+	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
 }
 
@@ -358,6 +360,7 @@ xbee_err _ll_get_prev(void *list, void *ref, void **retItem, int needMutex) {
 out:
 	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	*retItem = ret;
+	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
 }
 
@@ -376,6 +379,7 @@ xbee_err _ll_get_index(void *list, unsigned int index, void **retItem, int needM
 	if (ret != XBEE_ENONE) q = NULL;
 	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	*retItem = q;
+	if (!q) return XBEE_ERANGE;
 	return XBEE_ENONE;
 }
 
@@ -403,6 +407,7 @@ xbee_err _ll_ext_head(void *list, void **retItem, int needMutex) {
 out:
 	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	*retItem = ret;
+	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
 }
 
@@ -428,6 +433,7 @@ xbee_err _ll_ext_tail(void *list, void **retItem, int needMutex) {
 out:
 	if (needMutex) xsys_mutex_unlock(&h->mutex);
 	*retItem = ret;
+	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
 }
 
@@ -464,6 +470,7 @@ xbee_err _ll_ext_item(void *list, void *item, int needMutex) {
 		p = p->next;
 	}
 	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (!p) return XBEE_ENOTEXISTS;
 	return ret;
 }
 
