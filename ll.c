@@ -317,6 +317,10 @@ xbee_err _ll_get_next(void *list, void *ref, void **retItem, int needMutex) {
 	if (needMutex) xsys_mutex_lock(&h->mutex);
 	i = h->head;
 	if (__ll_get_item(h, ref, &i, 0) != XBEE_ENONE) goto out;
+	if (!i) {
+		ret = NULL;
+		goto out;
+	}
 	i = i->next;
 	if (i) {
 		ret = i->item;
@@ -341,6 +345,10 @@ xbee_err _ll_get_prev(void *list, void *ref, void **retItem, int needMutex) {
 	if (needMutex) xsys_mutex_lock(&h->mutex);
 	i = h->head;
 	if (__ll_get_item(h, ref, &i, 0) != XBEE_ENONE) goto out;
+	if (!i) {
+		ret = NULL;
+		goto out;
+	}
 	i = i->prev;
 	if (i) {
 		ret = i->item;

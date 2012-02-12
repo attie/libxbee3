@@ -192,6 +192,7 @@ xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 
 	ll_lock(threadList);
 	for (info = NULL; _ll_get_next(threadList, info, (void**)&info, 0) == XBEE_ENONE; ) {
+		if (!info) break;
 		if (info->xbee != xbee) continue;
 	
 		if (xsys_thread_cancel(info->thread)) return XBEE_ETHREAD;

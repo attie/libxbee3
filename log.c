@@ -154,7 +154,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	
 	if (!xbee) {
 		fprintf(log->f, "%s%3d#[%s:%d] %s(): %s\n",      preStr, minLevel, file, line, function,       tBuf);
-	} else if (xbee_validate(xbee) != XBEE_ENONE) {
+	} else if (xbee_validate(xbee) == XBEE_ENONE) {
 		fprintf(log->f, "%s%3d#[%s:%d] %s() %p: %s\n",   preStr, minLevel, file, line, function, xbee, tBuf);
 	} else {
 		fprintf(log->f, "%s%3d#[%s:%d] %s() !%p!: %s\n", preStr, minLevel, file, line, function, xbee, tBuf);

@@ -76,7 +76,7 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 	
 	*retConTypes = conTypes;
 	
-	return XBEE_ENOTIMPLEMENTED;
+	return XBEE_ENONE;
 }
 
 xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const char *name, const struct xbee_modeDataHandlerRx *rxHandler, const struct xbee_modeDataHandlerTx *txHandler) {

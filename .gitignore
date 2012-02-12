@@ -6,3 +6,5 @@
 /modes/*/.build
 /modes/*/.*.dir
 *~
+*.o
+*.d
