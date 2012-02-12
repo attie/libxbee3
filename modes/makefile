@@ -1,8 +1,11 @@
 include ../config.mk
 include ../buildconfig.mk
 
+
 SRCS:=common
 
+
+PDEPS:=makefile ../config.mk ../buildconfig.mk
 OBJS:=$(addsuffix /$(DESTDIR)/_mode.o,$(MODELIST)) $(addprefix $(BUILDDIR)/,$(addsuffix .o,$(SRCS)))
 
 .PHONY: ALWAYS

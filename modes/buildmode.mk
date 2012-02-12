@@ -1,5 +1,5 @@
 OBJS:=$(addprefix $(BUILDDIR)/,$(addsuffix .o,$(SRCS)))
-PDEPS:=makefile ../../buildconfig.mk
+PDEPS:=makefile ../buildmode.mk ../../config.mk ../../buildconfig.mk
 
 all: $(DESTDIR)/_mode.o
 
@@ -30,4 +30,3 @@ $(BUILDDIR)/%.o: $(BUILDDIR)/%.d $(PDEPS)
 	$(GCC) $(CFLAGS) $*.c -o $@
 
 include $(wildcard $(BUILDDIR)/*.d)
-
