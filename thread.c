@@ -95,6 +95,7 @@ xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restar
 	info->funcName = funcName;
 	info->func = func;
 	info->arg = arg;
+	info->run = 1;
 	info->restartDelay = restartDelay;
 
 	if ((xsys_thread_create(&info->thread, (void*(*)(void *))threadFunc, info)) != 0) {
