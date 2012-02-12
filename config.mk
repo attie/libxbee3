@@ -11,6 +11,7 @@ SYS_INCDIR:=    /usr/include
 
 ### un-comment to remove ALL logging (smaller & faster binary)
 #OPTIONS+=       XBEE_DISABLE_LOGGING
+#OPTIONS+=       XBEE_LOG_LEVEL=100
 
 ### un-comment to disable strict objects (xbee/con/pkt pointers are usually checked inside functions)
 ### this may give increased execution speed, but will be more suseptible to incorrect parameters
