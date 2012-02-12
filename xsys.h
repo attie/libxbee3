@@ -56,10 +56,6 @@ int xsys_disableBuffer(FILE *stream);
 */
 
 
-/* configuration */
-int xsys_setupSerial(struct xbee *xbee);
-
-
 /* threads --- needs the following functions:
 int xsys_thread_create(xsys_thread *thread, void*(*start_routine)(void*), void *arg);
 int xsys_thread_cancel(xsys_thread thread);

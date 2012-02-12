@@ -1,7 +1,9 @@
 include ../config.mk
 include ../buildconfig.mk
 
-OBJS:=$(addsuffix /lib/mode.o,$(MODELIST))
+SRCS:=common
+
+OBJS:=$(addsuffix /lib/mode.o,$(MODELIST)) $(addsuffix .o,$(SRCS))
 
 .PHONY: ALWAYS
 
