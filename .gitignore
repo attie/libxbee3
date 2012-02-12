@@ -1,10 +1,7 @@
-/lib
-/.build
-/.*.dir
+lib
+.build
+.*.dir
 /modes/modes.o
-/modes/*/lib
-/modes/*/.build
-/modes/*/.*.dir
 *~
 *.o
 *.d

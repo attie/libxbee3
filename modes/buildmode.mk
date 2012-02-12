@@ -1,14 +1,14 @@
 OBJS:=$(addprefix $(BUILDDIR)/,$(addsuffix .o,$(SRCS)))
 PDEPS:=makefile ../../buildconfig.mk
 
-all: $(DESTDIR)/mode.o
+all: $(DESTDIR)/_mode.o
 
 
 clean:
 	rm -f $(BUILDDIR)/*.o
 	rm -rdf $(DESTDIR)/*
 
-distclean: clean
+distclean:
 	rm -rdf $(BUILDDIR) .$(BUILDDIR).dir
 	rm -rdf $(DESTDIR) .$(DESTDIR).dir
 
@@ -19,7 +19,7 @@ distclean: clean
 
 
 
-$(DESTDIR)/mode.o: .$(DESTDIR).dir $(OBJS)
+$(DESTDIR)/_mode.o: .$(DESTDIR).dir $(OBJS)
 	$(LD) -r $(filter %.o,$^) -o $@
 
 

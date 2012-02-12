@@ -105,12 +105,12 @@ $(DESTDIR)/$(LIBOUT).a: $(DESTDIR)/$(LIBOUT).a.$(LIBFULLREV)
 $(DESTDIR)/$(LIBOUT).a.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBOUT).o
 	$(AR) rcs $@ $(filter %.o,$^)
 
-$(DESTDIR)/$(LIBOUT).o: .$(DESTDIR).dir $(OBJS) modes/modes.o
+$(DESTDIR)/$(LIBOUT).o: .$(DESTDIR).dir $(OBJS) modes/$(DESTDIR)/_modes.o
 	$(LD) -r $(filter %.o,$^) -o $@
 
 
-modes/modes.o: .$(BUILDDIR).dir modes ALWAYS
-	@$(MAKE) -C modes MODELIST=$(MODELIST)
+modes/$(DESTDIR)/_modes.o: .$(BUILDDIR).dir modes ALWAYS
+	$(MAKE) -C modes MODELIST=$(MODELIST)
 
 $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.c $(PDEPS)
 	$(GCC) -MM -MT $(addprefix $(BUILDDIR)/,$*.o) $*.c -o $@
