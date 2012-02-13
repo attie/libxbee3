@@ -27,6 +27,7 @@
 #include "xbee_int.h"
 #include "mode.h"
 #include "frame.h"
+#include "conn.h"
 #include "log.h"
 #include "ll.h"
 
@@ -88,10 +89,15 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
 	struct xbee_buf *buf;
+	
 	struct xbee_modeConType *conType;
+	
+	struct xbee_frameInfo frameInfo;
 	struct xbee_conAddress address;
 	struct xbee_pkt *pkt;
-	struct xbee_frameInfo frameInfo;
+	
+	struct xbee_con *con;
+	
 	struct xbee_frameBlock *fBlock;
 	
 	ret = XBEE_ENONE;
@@ -101,30 +107,55 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 	while (!xbee->die) {
 		xsys_sem_wait(&xbee->rx->sem);
 		
+		/* get the next buffer */
 		if (ll_ext_head(xbee->rx->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
+		/* check we actually have some data to work with... */
 		if (buf->len < 1) goto done;
 		
-		if ((ret - xbee_modeLocateConType(xbee->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
+		/* locate the connection type of this buffer */
+		if ((ret = xbee_modeLocateConType(xbee->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
 			xbee_log(4, "Unknown message type recieved... (0x%02X)", buf->data[0]);
 			goto done;
+		} else if (ret != XBEE_ENONE) {
+			/* some other error occured */
+			break;
 		}
-		if (ret != XBEE_ENONE) break;
 		
+		/* prepare the buckets */
 		frameInfo.active = 0;
 		memset(&address, 0, sizeof(address));
 		pkt = NULL;
-		if ((ret = conType->rxHandler->func(xbee, conType->rxHandler->identifier, &frameInfo, buf, &address, &pkt)) != XBEE_ENONE) break;
+		
+		/* process the buffer into the buckets */
+		if ((ret = conType->rxHandler->func(xbee, conType->rxHandler->identifier, buf, &frameInfo, &address, &pkt)) != XBEE_ENONE) break;
+		
+		/* handle any frame info (prod someone who may be waiting for ACK/NAK/etc...) */
 		if (frameInfo.active != 0) {
 			if ((ret = xbee_framePost(fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
 				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", fBlock, frameInfo.id, ret);
 				ret = XBEE_ENONE;
 			}
 		}
+		
+		/* its possible that the buffer ONLY contained frame information... if so, were done! */
 		if (!pkt) goto done;
 		
-#warning TODO - match connection & add packet to list
+		/* match the address to a connection */
+		if ((ret = xbee_conMatchAddress(conType->conList, &address, &con)) != XBEE_ENONE || !con) {
+			if (ret == XBEE_ENOTEXISTS) {
+				xbee_log(5, "connectionless packet (%d bytes)...", buf->len);
+				xbee_conLogAddress(xbee, 10, &address);
+				goto done;
+			}
+			xbee_log(1, "xbee_conMatchAddress() returned %d...", ret);
+			break;
+		}
+		
+		/* add the packet to the connection's tail! */
+#warning TODO - put this behind a function?
+		ll_add_tail(con->pktList, pkt);
 		
 done:
 		free(buf);
