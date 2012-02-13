@@ -52,15 +52,6 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
 	}
 	
 	if ((info->fd = xsys_open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) return XBEE_EIO;
-	/* purge buffer */
-	{
-		char buf[1024];
-		int n;
-		do {
-			n = read(info->fd, buf, sizeof(buf));
-		} while (n > 0);
-	}
-	fcntl(info->fd, F_SETFL, 0); /* disable blocking */
 	
 	if ((info->f = xsys_fdopen(info->fd, "r+")) == NULL) return XBEE_EIO;
 	
@@ -124,6 +115,17 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
 		perror("tcflow()");
 		return XBEE_ESETUP;
 	}
+	
+	/* purge buffer */
+	{
+		char buf[1024];
+		int n;
+		do {
+			usleep(5000); /* 5ms */
+			n = read(info->fd, buf, sizeof(buf));
+		} while (n > 0);
+	}
+	fcntl(info->fd, F_SETFL, 0); /* disable blocking */
 	
 	return XBEE_ENONE;
 }
