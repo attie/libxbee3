@@ -137,10 +137,12 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
 static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) {
 	int pos;
 	int ret;
+	int nextIsEscaped;
 	
 	if (!f || len == 0 || !dest) return XBEE_EMISSINGPARAM;
 	
 	pos = 0;
+	nextIsEscaped = 0;
 	do {
 		if ((ret = xsys_select(f, NULL)) == -1) {
 			perror("xbee_select()");
@@ -156,6 +158,10 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 			}
 			continue;
 		}
+		if (nextIsEscaped) {
+			dest[pos] ^= 0x20;
+			nextIsEscaped = 0;
+		}
 		
 		/* process the escape characters out */
 		if (escaped) {
@@ -165,7 +171,7 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 			if (pos > 0) {
 				i = pos - 1;
 			} else {
-				i = pos;
+				i = 0;
 			}
 			
 			/* yes this bit is complex... */
@@ -178,6 +184,10 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 					dest[i] = dest[i + d + 1] ^ 0x20;
 					d++;
 				}
+			}
+			if (dest[i] == 0x7D) {
+				nextIsEscaped = 1;
+				d++;
 			}
 			
 			ret -= d;
@@ -208,7 +218,7 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, struct xbee_buf **buf) {
 	if ((iBuf = malloc(sizeof(*iBuf) + XBEE_MAX_BUFFERLEN)) == NULL) return XBEE_ENOMEM;
 	
 	while (1) {
-		/* get the start delimiter (0x7F) */
+		/* get the start delimiter (0x7E) */
 		do {
 			if ((ret = xbee_ioRead(data->f, 1, &c, 0)) != XBEE_ENONE) return ret;
 		} while (c != 0x7E);
