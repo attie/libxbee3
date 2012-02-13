@@ -112,6 +112,30 @@ xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_modeConType *conType, str
 
 /* ########################################################################## */
 
+xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon) {
+	struct xbee_con *con;
+	xbee_err ret;
+	
+	if (!conList || !address) return XBEE_EMISSINGPARAM;
+	
+	ll_lock(conList);
+	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
+		printf("%p\n", con);
+		if (!memcmp(&con->address, address, sizeof(*address))) {
+			if (retCon) *retCon = con;
+			break;
+		}
+	}
+	ll_unlock(conList);
+	
+	printf("con = %p\n", con);
+	if (!con) return XBEE_ENOTEXISTS;
+	
+	return ret;
+}
+
+/* ########################################################################## */
+
 EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 #warning INFO - needs info from remote, this info should be retrieved at setup
 	return XBEE_ENOTIMPLEMENTED;
@@ -121,7 +145,28 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 
 EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
 #warning INFO - needs remote
-	return XBEE_ENOTIMPLEMENTED;
+	xbee_err ret;
+	struct xbee_con *con;
+	struct xbee_modeConType *conType;
+	if (!xbee || !retCon || !type) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	
+	if ((ret = xbee_modeLocateConType(xbee->conTypes, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
+
+#warning INFO - potential bug between call to xbee_conMatchAddress() and xbee_conLink()
+	if ((ret = xbee_conMatchAddress(conType->conList, address, NULL)) != XBEE_ENOTEXISTS) {
+		if (ret == XBEE_ENONE) return XBEE_EEXISTS;
+		return ret;
+	}
+	
+	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
+	memcpy(&con->address, address, sizeof(*address));
+	
+	if ((ret = xbee_conLink(xbee, conType, con)) != XBEE_ENONE) return ret;
+	
+	return XBEE_ENONE;
 }
 
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
