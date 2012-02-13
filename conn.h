@@ -43,9 +43,11 @@ struct xbee_con {
 xbee_err xbee_conAlloc(struct xbee_con **nCon);
 xbee_err xbee_conFree(struct xbee_con *con);
 
-xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_con *con);
+xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_conAddress *address, struct xbee_con *con);
 xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_con *con);
 
+xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address);
 xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon);
+xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, int needsLLLock);
 
 #endif /* __XBEE_CONN_H */

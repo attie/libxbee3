@@ -27,6 +27,7 @@
 #include "xbee_int.h"
 #include "pkt.h"
 #include "mode.h"
+#include "log.h"
 #include "ll.h"
 
 struct ll_head *conList = NULL;
@@ -78,19 +79,41 @@ static inline xbee_err _xbee_conFree(struct xbee_con *con) {
 
 /* ########################################################################## */
 
-xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_con *con) {
+xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_conAddress *address, struct xbee_con *con) {
 	xbee_err ret;
 	if (!xbee || !conType || !con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if (ll_get_item(conType->conList, con) == XBEE_ENONE) return XBEE_EEXISTS;
 	
-	if ((ret = ll_add_tail(conType->conList, con)) != XBEE_ENONE) return ret;
+	ret = XBEE_ENONE;
+	ll_lock(conType->conList);
 	
-	con->xbee = xbee;
-	con->conType = conType;
+	do {
+		if ((ret = _ll_get_item(conType->conList, con, 0)) != XBEE_ENOTEXISTS) {
+			if (ret == XBEE_ENONE) {
+				ret = XBEE_EEXISTS;
+			}
+			break;
+		}
+		
+		if ((ret = _xbee_conMatchAddress(conType->conList, address, NULL, 0)) != XBEE_ENOTEXISTS) {
+			if (ret == XBEE_ENONE) {
+				ret = XBEE_EEXISTS;
+			}
+			break;
+		}
+	
+		if ((ret = _ll_add_tail(conType->conList, con, 0)) != XBEE_ENONE) {
+			break;
+		}
+		
+		con->xbee = xbee;
+		con->conType = conType;
+	} while (0);
+	
+	ll_unlock(conType->conList);
 	
 	return ret;
 }
@@ -112,26 +135,49 @@ xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_modeConType *conType, str
 
 /* ########################################################################## */
 
-xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon) {
+xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address) {
+	xbee_log(minLogLevel, "address @ %p...", address);
+	if (address->addr16_enabled) {
+		xbee_log(minLogLevel, "   16-bit address:  0x%02X%02X", address->addr16[0], address->addr16[1]);
+	} else {
+		xbee_log(minLogLevel, "   16-bit address:  --");
+	}
+	if (address->addr64_enabled) {
+		xbee_log(minLogLevel, "   64-bit address:  0x%02X%02X%02X%02X 0x%02X%02X%02X%02X",
+		                      address->addr64[0], address->addr64[1], address->addr64[2], address->addr64[3],
+		                      address->addr64[4], address->addr64[5], address->addr64[6], address->addr64[7]);
+	} else {
+		xbee_log(minLogLevel, "   64-bit address:  --");
+	}
+	if (address->endpoints_enabled) {
+		xbee_log(minLogLevel, "   endpoints:       local(0x%02X) remote(0x%02X)", address->endpoint_local, address->endpoint_remote);
+	} else {
+		xbee_log(minLogLevel, "   endpoints:       --");
+	}
+	return XBEE_ENONE;
+}
+
+xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, int needsLLLock) {
 	struct xbee_con *con;
 	xbee_err ret;
 	
 	if (!conList || !address) return XBEE_EMISSINGPARAM;
 	
-	ll_lock(conList);
+	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
-		printf("%p\n", con);
 		if (!memcmp(&con->address, address, sizeof(*address))) {
 			if (retCon) *retCon = con;
 			break;
 		}
 	}
-	ll_unlock(conList);
+	if (needsLLLock) ll_unlock(conList);
 	
-	printf("con = %p\n", con);
 	if (!con) return XBEE_ENOTEXISTS;
 	
 	return ret;
+}
+xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon) {
+	return _xbee_conMatchAddress(conList, address, retCon, 1);
 }
 
 /* ########################################################################## */
@@ -154,17 +200,17 @@ EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *t
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	if ((ret = xbee_modeLocateConType(xbee->conTypes, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
-
-#warning INFO - potential bug between call to xbee_conMatchAddress() and xbee_conLink()
-	if ((ret = xbee_conMatchAddress(conType->conList, address, NULL)) != XBEE_ENOTEXISTS) {
-		if (ret == XBEE_ENONE) return XBEE_EEXISTS;
+	
+	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
+	
+	memcpy(&con->address, address, sizeof(*address));
+	
+	if ((ret = xbee_conLink(xbee, conType, &con->address, con)) != XBEE_ENONE) {
+		xbee_conFree(con);
 		return ret;
 	}
 	
-	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
-	memcpy(&con->address, address, sizeof(*address));
-	
-	if ((ret = xbee_conLink(xbee, conType, con)) != XBEE_ENONE) return ret;
+	*retCon = con;
 	
 	return XBEE_ENONE;
 }
