@@ -49,7 +49,7 @@ extern const char libxbee_buildtime[];
 /* ######################################################################### */
 /* --- xbee.c --- */
 xbee_err xbee_validate(struct xbee *xbee);
-xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...);
+xbee_err xbee_setup(struct xbee **retXbee, char *mode, ...);
 xbee_err xbee_shutdown(struct xbee *xbee);
 
 
@@ -65,7 +65,7 @@ typedef void(*xbee_t_conCallback)(struct xbee *xbee, struct xbee_con *con, struc
 
 xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList);
 /* - */
-xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con *ret_con, char *type, struct xbee_conAddress *address);
+xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address);
 xbee_err xbee_conValidate(struct xbee_con *con);
 /* - */
 xbee_err xbee_conTx(struct xbee_con *con, char *format, ...);

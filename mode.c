@@ -25,6 +25,8 @@
 #include "internal.h"
 #include "xbee_int.h"
 #include "mode.h"
+#include "conn.h"
+#include "ll.h"
 
 const struct xbee_mode * const modeList[] = { MODELIST };
 
@@ -70,6 +72,7 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 	for (i = 0; i < n; i++) {
 		/* keep the pointers (they are const after all) */
 		conTypes[i].name = mode->conTypes[i]->name;
+		conTypes[i].conList = ll_alloc();
 		conTypes[i].rxHandler = mode->conTypes[i]->rxHandler;
 		conTypes[i].txHandler = mode->conTypes[i]->txHandler;
 	}
@@ -92,6 +95,7 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const char *
 	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
 	*extConTypes = conTypes;
 	
+	conTypes[n].conList = ll_alloc();
 	conTypes[n].rxHandler = rxHandler;
 	conTypes[n].txHandler = txHandler;
 	conTypes[n].name = name; /* add the name last so that it doesn't get activated before it is completely ready */
@@ -100,7 +104,13 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const char *
 }
 
 xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
+	int i;
 	if (!conTypes) return XBEE_EMISSINGPARAM;
+	
+	for (i = 0; conTypes[i].name; i++) {
+		ll_destroy(conTypes[i].conList, (void(*)(void*))xbee_conFree);
+	}
+	
 	free(conTypes);
 	return XBEE_ENONE;
 }

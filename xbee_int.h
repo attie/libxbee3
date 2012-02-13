@@ -26,7 +26,6 @@ extern struct ll_head *xbeeList;
 struct xbee {
 	int die;
 	
-	struct ll_head *conList;
 	struct xbee_frameBlock *fBlock;
 	struct xbee_log *log;
 	

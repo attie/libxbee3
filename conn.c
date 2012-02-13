@@ -26,6 +26,7 @@
 #include "conn.h"
 #include "xbee_int.h"
 #include "pkt.h"
+#include "mode.h"
 #include "ll.h"
 
 struct ll_head *conList = NULL;
@@ -77,30 +78,35 @@ static inline xbee_err _xbee_conFree(struct xbee_con *con) {
 
 /* ########################################################################## */
 
-xbee_err xbee_conLink(struct xbee *xbee, struct xbee_con *con) {
+xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_con *con) {
 	xbee_err ret;
-	if (!xbee || !con) return XBEE_EMISSINGPARAM;
+	if (!xbee || !conType || !con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if (ll_get_item(xbee->conList, con) == XBEE_ENONE) return XBEE_EEXISTS;
-	if ((ret = ll_add_tail(xbee->conList, con)) == XBEE_ENONE) {
-		con->xbee = xbee;
-	}
+	if (ll_get_item(conType->conList, con) == XBEE_ENONE) return XBEE_EEXISTS;
+	
+	if ((ret = ll_add_tail(conType->conList, con)) != XBEE_ENONE) return ret;
+	
+	con->xbee = xbee;
+	con->conType = conType;
+	
 	return ret;
 }
 
-xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_con *con) {
+xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_con *con) {
 	xbee_err ret;
-	if (!xbee || !con) return XBEE_EMISSINGPARAM;
+	if (!xbee || !conType || !con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if ((ret = ll_ext_item(xbee->conList, con)) == XBEE_ENONE) {
-		con->xbee = NULL;
-	}
+	if ((ret = ll_ext_item(conType->conList, con)) != XBEE_ENONE) return ret;
+	
+	con->xbee = NULL;
+	con->conType = NULL;
+	
 	return ret;
 }
 
@@ -113,7 +119,7 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 
 /* ########################################################################## */
 
-EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con *ret_con, char *type, struct xbee_conAddress *address) {
+EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
 #warning INFO - needs remote
 	return XBEE_ENOTIMPLEMENTED;
 }

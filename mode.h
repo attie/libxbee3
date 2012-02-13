@@ -43,6 +43,7 @@ struct xbee_modeDataHandlerTx {
 
 struct xbee_modeConType {
 	const char *name;
+	struct ll_head *conList;
 	
 	const struct xbee_modeDataHandlerRx *rxHandler;
 	const struct xbee_modeDataHandlerTx *txHandler;

@@ -72,7 +72,6 @@ xbee_err xbee_alloc(struct xbee **nXbee) {
 	if (!(xbee = malloc(memSize))) return XBEE_ENOMEM;
 	
 	memset(xbee, 0, memSize);
-	xbee->conList = ll_alloc();
 	if ((ret = xbee_frameBlockAlloc(&xbee->fBlock)) != XBEE_ENONE)         goto die1;
 	if ((ret = xbee_logAlloc(&xbee->log, logLevel, stderr)) != XBEE_ENONE) goto die1;
 	if ((ret = xbee_txAlloc(&xbee->tx)) != XBEE_ENONE)                     goto die1;
@@ -96,7 +95,6 @@ xbee_err xbee_free(struct xbee *xbee) {
 	
 	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
 	
-	ll_free(xbee->conList, (void(*)(void*))xbee_conFree);
 	xbee_modeCleanup(xbee->conTypes);
 	xbee_rxFree(xbee->rx);
 	xbee_txFree(xbee->tx);
@@ -110,13 +108,13 @@ xbee_err xbee_free(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
+EXPORT xbee_err xbee_setup(struct xbee **retXbee, char *mode, ...) {
 	xbee_err ret;
 	const struct xbee_mode *xbeeMode;
 	struct xbee *xbee;
 	va_list ap;
 	
-	if (!ret_xbee || !mode) return XBEE_EMISSINGPARAM;
+	if (!retXbee || !mode) return XBEE_EMISSINGPARAM;
 	
 	if ((ret = xbee_modeRetrieve(mode, &xbeeMode)) != XBEE_ENONE) return ret;
 	
@@ -135,6 +133,8 @@ EXPORT xbee_err xbee_setup(struct xbee **ret_xbee, char *mode, ...) {
 	if (xbee->mode->thread) if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee->mode->thread, NULL)) != XBEE_ENONE) goto die;
 	
 	ll_add_tail(xbeeList, xbee);
+	
+	*retXbee = xbee;
 	
 	return XBEE_ENONE;
 
