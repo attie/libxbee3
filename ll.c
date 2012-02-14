@@ -311,6 +311,7 @@ xbee_err _ll_get_next(void *list, void *ref, void **retItem, int needMutex) {
 	struct ll_info *i;
 	void *ret;
 	if (!list || !retItem) return XBEE_EMISSINGPARAM;
+	ret = NULL;
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;

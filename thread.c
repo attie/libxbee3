@@ -188,13 +188,18 @@ void xbee_threadDestroy(struct xbee_threadInfo *info) {
 
 xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 	struct xbee_threadInfo *info;
+	struct xbee_threadInfo *pInfo;
 
 	if (!xbee) return XBEE_EMISSINGPARAM;
 
+	pInfo = NULL;
 	ll_lock(threadList);
 	for (info = NULL; _ll_get_next(threadList, info, (void**)&info, 0) == XBEE_ENONE; ) {
 		if (!info) break;
-		if (info->xbee != xbee) continue;
+		if (info->xbee != xbee) {
+			pInfo = info;
+			continue;
+		}
 	
 		if (xsys_thread_cancel(info->thread)) return XBEE_ETHREAD;
 		if (xsys_thread_join(info->thread, NULL)) return XBEE_ETHREAD;
@@ -202,6 +207,7 @@ xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 		_ll_ext_item(threadList, info, 0);
 		
 		free(info);
+		info = pInfo;
 	}
 	ll_unlock(threadList);
 	
