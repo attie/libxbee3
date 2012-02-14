@@ -98,7 +98,7 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 			break;
 		}
 		
-		if ((ret = _xbee_conMatchAddress(conType->conList, address, NULL, 0)) != XBEE_ENOTEXISTS) {
+		if ((ret = _xbee_conMatchAddress(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS) {
 			if (ret == XBEE_ENONE) {
 				ret = XBEE_EEXISTS;
 			}
@@ -157,27 +157,42 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 	return XBEE_ENONE;
 }
 
-xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, int needsLLLock) {
+xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	struct xbee_con *con;
+	struct xbee_con *sCon;
 	xbee_err ret;
+	xbee_err sRet;
 	
 	if (!conList || !address) return XBEE_EMISSINGPARAM;
+	
+	sCon = NULL;
 	
 	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
 		if (!memcmp(&con->address, address, sizeof(*address))) {
-			if (retCon) *retCon = con;
+			if (con->sleepState > alertLevel) continue;
+			if (con->sleepState != CON_AWAKE) {
+				sCon = con;
+				sRet = ret;
+				continue;
+			}
 			break;
 		}
 	}
 	if (needsLLLock) ll_unlock(conList);
 	
+	if (!con && sCon) {
+		con = sCon;
+		ret = sRet;
+	}
+	if (con && retCon) *retCon = con;
+
 	if (!con) return XBEE_ENOTEXISTS;
 	
 	return ret;
 }
-xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon) {
-	return _xbee_conMatchAddress(conList, address, retCon, 1);
+xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel) {
+	return _xbee_conMatchAddress(conList, address, retCon, alertLevel, 1);
 }
 
 /* ########################################################################## */
@@ -285,10 +300,11 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *
 	if ((ret = _ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
 	if (remain == 0) {
 		*retPkt = NULL;
+		ret = XBEE_ENOTEXISTS;
 		goto die;
 	}
 	_ll_ext_head(con->pktList, (void**)&pkt, 0);
-	xbee_pktUnlink(con, pkt);
+	_xbee_pktUnlink(con, pkt, 0);
 	*retPkt = pkt;
 die:
 	ll_unlock(con->pktList);

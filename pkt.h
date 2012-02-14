@@ -29,6 +29,7 @@ xbee_err xbee_pktAlloc(struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLe
 
 xbee_err xbee_pktLink(struct xbee_con *con, struct xbee_pkt *pkt);
 xbee_err xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt);
+xbee_err _xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt, int needsLLLock);
 
 xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey, void (*freeCallback)(void*));
 xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey);

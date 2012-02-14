@@ -118,18 +118,21 @@ xbee_err xbee_pktLink(struct xbee_con *con, struct xbee_pkt *pkt) {
 	return ret;
 }
 
-xbee_err xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt) {
+xbee_err _xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt, int needsLLLock) {
 	xbee_err ret;
 	if (!con || !pkt) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if ((ret = ll_ext_item(con->pktList, pkt)) == XBEE_ENONE) {
+	if ((ret = _ll_ext_item(con->pktList, pkt, needsLLLock)) == XBEE_ENONE) {
 		pkt->xbee = NULL;
 		pkt->con = NULL;
 	}
 	return ret;
+}
+xbee_err xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt) {
+	return _xbee_pktUnlink(con, pkt, 1);
 }
 
 /* ########################################################################## */
