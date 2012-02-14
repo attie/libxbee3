@@ -199,7 +199,43 @@ xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *a
 
 EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 #warning INFO - needs info from remote, this info should be retrieved at setup
-	return XBEE_ENOTIMPLEMENTED;
+	int i, o;
+	size_t memSize;
+	char **tList;
+	char *tName;
+	struct xbee_modeConType *conTypes;
+	if (!xbee || !retList) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+
+	if (!xbee->conTypes) return XBEE_EINVAL;
+
+	conTypes = xbee->conTypes;
+
+	memSize = 0;
+	for (i = 0; conTypes[i].name; i++) {
+		memSize += sizeof(char *);
+		memSize += sizeof(char) * (strlen(conTypes[i].name) + 1);
+	}
+	memSize += sizeof(char *);
+
+	if ((tList = malloc(memSize)) == NULL) {
+		return XBEE_ENOMEM;
+	}
+
+	tName = (char *)&(tList[i+1]);
+	o = i;
+	for (i = 0; conTypes[i].name && i < o; i++) {
+		tList[i] = tName;
+		strcpy(tName, conTypes[i].name);
+		tName += strlen(tName) + 1;
+	}
+	tList[i] = NULL;
+
+	*retList = tList;
+
+	return XBEE_ENONE;
 }
 
 /* ########################################################################## */
