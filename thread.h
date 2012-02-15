@@ -31,7 +31,9 @@ xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restar
 xbee_err xbee_threadKill(struct xbee *xbee, xsys_thread thread);
 xbee_err xbee_threadJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
 xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
-void xbee_threadDestroy(struct xbee_threadInfo *info);
+xbee_err xbee_threadDestroy(struct xbee_threadInfo *info);
+
+xbee_err xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active);
 
 xbee_err xbee_threadDestroyMine(struct xbee *xbee);
 
