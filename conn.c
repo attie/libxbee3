@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "internal.h"
 #include "conn.h"
@@ -28,6 +29,7 @@
 #include "pkt.h"
 #include "mode.h"
 #include "log.h"
+#include "thread.h"
 #include "ll.h"
 
 struct ll_head *conList = NULL;
@@ -48,6 +50,7 @@ xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 	
 	memset(con, 0, memSize);
 	con->pktList = ll_alloc();
+	xsys_sem_init(&con->callbackSem);
 	
 	if ((ret = ll_add_tail(conList, con)) != XBEE_ENONE) {
 		_xbee_conFree(con);
@@ -70,6 +73,7 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 static inline xbee_err _xbee_conFree(struct xbee_con *con) {
 	ll_ext_item(conList, con);
 	
+	xsys_sem_destroy(&con->callbackSem);
 	ll_free(con->pktList, (void(*)(void*))xbee_pktFree);
 	
 	free(con);
@@ -319,6 +323,14 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len) {
 
 /* ########################################################################## */
 
+xbee_err xbee_conLinkPacket(struct xbee_con *con, struct xbee_pkt *pkt) {
+	xbee_err ret;
+	if (!con || !pkt) return XBEE_EMISSINGPARAM;
+	if ((ret = ll_add_tail(con->pktList, pkt)) != XBEE_ENONE) return ret;
+	if (con->callback) return xbee_conCallbackProd(con);
+	return XBEE_ENONE;
+}
+
 EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets) {
 	xbee_err ret;
 	unsigned int remain;
@@ -406,8 +418,92 @@ EXPORT xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info)
 
 /* ########################################################################## */
 
+xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
+	struct xbee_con *con;
+	struct xbee_pkt *pkt, *oPkt;
+	xbee_err ret;
+	xbee_t_conCallback callback;
+
+	con = arg;
+
+	do {
+		callback = con->callback;
+		if (!callback) break;
+		if ((ret = ll_ext_head(con->pktList, (void**)&pkt)) == XBEE_ERANGE) {
+			struct timespec to;
+			clock_gettime(CLOCK_REALTIME, &to);
+			to.tv_sec += 5; /* 5 second timeout */
+			if (xsys_sem_timedwait(&con->callbackSem, &to)) {
+				if (errno == ETIMEDOUT) break;
+				return XBEE_ESEMAPHORE;
+			}
+			continue;
+		} else if (ret != XBEE_ENONE) {
+			return ret;
+		}
+
+		xbee_log(8, "connection @ %p got packet @ %p, about to hand to callback function @ %p...", con, pkt, callback);
+
+		oPkt = pkt;
+		callback(xbee, con, &pkt);
+
+		if (pkt) {
+			if (pkt == oPkt) {
+				xbee_pktFree(pkt);
+			} else {
+				xbee_log(-1, "callback for connection @ %p returned a different packet to what it was provided...");
+			}
+		}
+	} while (1);
+
+	*restart = 0;
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_conCallbackProd(struct xbee_con *con) {
+	struct xbee *xbee;
+	xbee_err ret;
+	int active;
+	unsigned int count;
+
+	if (!con) return XBEE_EMISSINGPARAM;
+	if (!con->callback) return XBEE_ENONE;
+
+	if (ll_count_items(con->pktList, &count) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+	if (count == 0) return XBEE_ENONE;
+
+	xbee = con->xbee;
+
+	xsys_sem_post(&con->callbackSem);
+
+	if (con->callbackStarted) {
+		xbee_err ret2;
+
+		if ((ret = xbee_threadGetState(con->xbee, con->callbackThread, NULL, &active)) != XBEE_ENONE) return ret;
+		if (active) return XBEE_ENONE;
+
+		if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, &ret2)) != XBEE_ENONE) return ret;
+		if (ret2 != XBEE_ENONE) {
+			xbee_log(3, "dead callback for con @ %p returned %d...", con, ret2);
+		}
+	}
+
+	if (!con->callbackStarted || !active) {
+		con->callbackStarted = 1;
+		if ((ret = xbee_threadStart(con->xbee, &con->callbackThread, 0, xbee_conCallbackHandler, con)) != XBEE_ENONE) return ret;
+	}
+
+	return XBEE_ENONE;
+}
+
 EXPORT xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback newCallback, xbee_t_conCallback *oldCallback) {
-	return XBEE_ENOTIMPLEMENTED;
+	if (!con) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (oldCallback) *oldCallback = con->callback;
+	con->callback = newCallback;
+	return xbee_conCallbackProd(con);
 }
 
 EXPORT xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *curCallback) {

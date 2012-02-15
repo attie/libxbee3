@@ -31,6 +31,9 @@ struct xbee_con {
 	void *userData;
 	
 	xbee_t_conCallback callback;
+	int callbackStarted;
+	xsys_thread callbackThread;
+	xsys_sem callbackSem;
 	
 	unsigned char frameId;
 	
@@ -49,5 +52,8 @@ xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_modeConType *conType, str
 xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address);
 xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel);
 xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock);
+
+xbee_err xbee_conLinkPacket(struct xbee_con *con, struct xbee_pkt *pkt);
+xbee_err xbee_conCallbackProd(struct xbee_con *con);
 
 #endif /* __XBEE_CONN_H */
