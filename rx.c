@@ -160,8 +160,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		}
 		
 		/* add the packet to the connection's tail! */
-#warning TODO - put this behind a function?
-		ll_add_tail(con->pktList, pkt);
+		if ((ret = xbee_conLinkPacket(con, pkt)) != XBEE_ENONE) break;
 		
 done:
 		free(buf);
