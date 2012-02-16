@@ -532,5 +532,5 @@ EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *
 
 EXPORT xbee_err xbee_conEnd(struct xbee_con *con) {
 #warning INFO - needs remote, can return XBEE_ESTALE
-	return XBEE_ENOTIMPLEMENTED;
+	return xbee_conFree(con);
 }
