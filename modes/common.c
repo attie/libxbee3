@@ -29,6 +29,7 @@
 
 #include "../internal.h"
 #include "../xbee_int.h"
+#include "../ll.h"
 #include "../log.h"
 #include "common.h"
 
@@ -216,6 +217,7 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, struct xbee_buf **buf) {
 	data = xbee->modeData;
 	
 	if ((iBuf = malloc(sizeof(*iBuf) + XBEE_MAX_BUFFERLEN)) == NULL) return XBEE_ENOMEM;
+	ll_add_tail(needsFree, iBuf);
 	
 	while (1) {
 		/* get the start delimiter (0x7E) */
@@ -253,7 +255,14 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, struct xbee_buf **buf) {
 	}
 	
 	/* resize the memory, and ignore failure */
-	if ((p = realloc(iBuf, sizeof(*iBuf) + iBuf->len)) != NULL) iBuf = p;
+	ll_lock(needsFree);
+	if ((p = realloc(iBuf, sizeof(*iBuf) + iBuf->len)) != NULL) {
+		_ll_ext_item(needsFree, iBuf, 0);
+		_ll_add_tail(needsFree, p, 0);
+		iBuf = p;
+	}
+	ll_unlock(needsFree);
+
 	iBuf->data[iBuf->len] = '\0'; /* null terminate the data */
 	
 	*buf = iBuf;

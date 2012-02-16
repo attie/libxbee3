@@ -163,11 +163,15 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		if ((ret = xbee_conLinkPacket(con, pkt)) != XBEE_ENONE) break;
 		
 done:
+		ll_ext_item(needsFree, buf);
 		free(buf);
 		buf = NULL;
 	}
 	
-	if (buf) free(buf);
+	if (buf) {
+		ll_ext_item(needsFree, buf);
+		free(buf);
+	}
 	
 	return ret;
 }

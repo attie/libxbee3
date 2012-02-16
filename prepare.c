@@ -41,6 +41,9 @@ EXPORT INIT void xbee_init(void) {
 	if (!threadList && (threadList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize threadList...\n");
 	}
+	if (!needsFree && (needsFree = ll_alloc()) == NULL) {
+		fprintf(stderr, "libxbee: failed to initialize needsFree...\n");
+	}
 }
 
 EXPORT FINI void xbee_fini(void) {
@@ -55,5 +58,8 @@ EXPORT FINI void xbee_fini(void) {
 	}
 	if (threadList) {
 		ll_free(threadList, (void(*)(void*))xbee_threadDestroy);
+	}
+	if (needsFree) {
+		ll_free(needsFree, (void(*)(void*))free);
 	}
 }

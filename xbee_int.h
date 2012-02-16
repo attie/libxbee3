@@ -22,6 +22,7 @@
 */
 
 extern struct ll_head *xbeeList;
+extern struct ll_head *needsFree;
 
 struct xbee {
 	int die;
