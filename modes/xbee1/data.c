@@ -70,6 +70,55 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, unsigned char identifier, struc
 	return XBEE_ENONE;
 }
 
+xbee_err xbee_s1_data_tx_func(struct xbee *xbee, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
+	struct xbee_buf *iBuf;
+	unsigned char *addr;
+	int addrLen;
+	int pos;
+	size_t memSize;
+	
+	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
+	
+	switch (identifier) {
+		case 0x00:
+			if (!address->addr64_enabled) return XBEE_EINVAL;
+			addr = &(address->addr64[0]);
+			addrLen = 8;
+			break;
+		case 0x01:
+			if (!address->addr16_enabled) return XBEE_EINVAL;
+			addr = &(address->addr16[0]);
+			addrLen = 2;
+			break;
+		default: return XBEE_EINVAL;
+	}
+	
+	/* API Identifier + Frame ID + Address + Options + Payload */
+	memSize = 3 + addrLen + len;
+	
+	memSize += sizeof(*iBuf);
+	
+	if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
+	
+	pos = 0;
+	iBuf->len = 3 + addrLen + len;
+	iBuf->data[pos] = identifier;                         pos++;
+	iBuf->data[pos] = frameId;                            pos++;
+	memcpy(&(iBuf->data[pos]), addr, addrLen);            pos += addrLen;
+	
+	iBuf->data[pos] = 0;
+	if (settings->disableAck)   iBuf->data[pos] |= 0x01;
+	if (settings->broadcastPAN) iBuf->data[pos] |= 0x04;
+	                                                      pos++;
+
+	memcpy(&(iBuf->data[pos]), buf, len);                 pos += len;
+	iBuf->data[pos] = '\0';
+	
+	*oBuf = iBuf;
+	
+	return XBEE_ENONE;
+}
+
 /* ######################################################################### */
 
 const struct xbee_modeDataHandlerRx xbee_s1_16bitData_rx  = {
@@ -78,10 +127,10 @@ const struct xbee_modeDataHandlerRx xbee_s1_16bitData_rx  = {
 };
 const struct xbee_modeDataHandlerTx xbee_s1_16bitData_tx  = {
 	.identifier = 0x01,
-	.func = NULL,
+	.func = xbee_s1_data_tx_func,
 };
 const struct xbee_modeConType xbee_s1_16bitData = {
-	.name = "Local AT",
+	.name = "16-bit Data",
 	.rxHandler = &xbee_s1_16bitData_rx,
 	.txHandler = &xbee_s1_16bitData_tx,
 };
@@ -94,7 +143,7 @@ const struct xbee_modeDataHandlerRx xbee_s1_64bitData_rx  = {
 };
 const struct xbee_modeDataHandlerTx xbee_s1_64bitData_tx  = {
 	.identifier = 0x00,
-	.func = NULL,
+	.func = xbee_s1_data_tx_func,
 };
 const struct xbee_modeConType xbee_s1_64bitData = {
 	.name = "64-bit Data",

@@ -45,6 +45,7 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	if (!xbee) return XBEE_EMISSINGPARAM;
 	
 	if ((data = malloc(sizeof(*data))) == NULL) return XBEE_ENOMEM;
+	memset(data, 0, sizeof(*data));
 	
 	ret = XBEE_ENONE;
 	
@@ -75,6 +76,7 @@ static xbee_err shutdown(struct xbee *xbee) {
 	if (data->serialInfo.f) fclose(data->serialInfo.f);
 	if (data->serialInfo.fd != -1) close(data->serialInfo.fd);
 	if (data->serialInfo.device) free(data->serialInfo.device);
+	if (data->serialInfo.txBuf) free(data->serialInfo.txBuf);
 	free(xbee->modeData);
 	
 	return XBEE_ENONE;

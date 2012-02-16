@@ -26,6 +26,9 @@ struct xbee_serialInfo {
 	int baudrate;
 	int fd;
 	FILE *f;
+	
+	size_t txBufSize;
+	struct xbee_buf *txBuf;
 };
 
 xbee_err xbee_serialSetup(struct xbee_serialInfo *info);
