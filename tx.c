@@ -52,7 +52,7 @@ xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo) {
 xbee_err xbee_txFree(struct xbee_txInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
 	
-	ll_free(info->bufList, (void(*)(void*))xbee_pktFree);
+	ll_free(info->bufList, (void(*)(void*))free);
 	xsys_sem_destroy(&info->sem);
 	free(info);
 	
@@ -86,14 +86,24 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 
 /* ######################################################################### */
 
-xbee_err xbee_txHandler(struct xbee *xbee, struct xbee_con *con, struct xbee_buf *iBuf) {
+xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len) {
 	xbee_err ret;
 	struct xbee_buf *oBuf;
 	
-	if ((ret = con->conType->txHandler->func(xbee, con->conType->txHandler->identifier, con->frameId, &con->address, iBuf, &oBuf)) != XBEE_ENONE) return ret;
+	if (!con) return XBEE_EMISSINGPARAM;
+	if (!con->conType) return XBEE_EINVAL;
+	if (!con->conType->txHandler || !con->conType->txHandler->func) return XBEE_ENOTIMPLEMENTED;
 	
-	if (ll_add_tail(xbee->tx->bufList, oBuf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
-	if (xsys_sem_post(&xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
+#warning TODO - handle frameId
+	
+	if ((ret = con->conType->txHandler->func(con->xbee, con->conType->txHandler->identifier, con->frameId, &con->address, &con->settings, buf, len, &oBuf)) != XBEE_ENONE) return ret;
+	
+	if (!oBuf) return XBEE_EUNKNOWN;
+	
+	if (ll_add_tail(con->xbee->tx->bufList, oBuf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+	if (xsys_sem_post(&con->xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
+
+#warning TODO - wait for ack?
 	
 	return XBEE_ENONE;
 }

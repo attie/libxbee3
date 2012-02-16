@@ -37,7 +37,9 @@ struct xbee_modeDataHandlerTx {
 	                 unsigned char identifier,
 	     /* IN */    unsigned char frameId,
 	     /* IN */    struct xbee_conAddress *address,
-	     /* IN */    struct xbee_buf *iBuf,
+	     /* IN */    struct xbee_conSettings *settings,
+	     /* IN */    unsigned char *buf,
+	     /* IN */    int len,
 	     /* OUT */   struct xbee_buf **oBuf);
 };
 

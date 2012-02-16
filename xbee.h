@@ -68,9 +68,9 @@ xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList);
 xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address);
 xbee_err xbee_conValidate(struct xbee_con *con);
 /* - */
-xbee_err xbee_conTx(struct xbee_con *con, char *format, ...);
-xbee_err xbee_convTx(struct xbee_con *con, char *format, va_list args);
-xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len);
+xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, char *format, ...);
+xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, char *format, va_list args);
+xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len);
 xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
 /* - */
 xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state);

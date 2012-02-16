@@ -30,6 +30,7 @@
 #include "mode.h"
 #include "log.h"
 #include "thread.h"
+#include "tx.h"
 #include "ll.h"
 
 struct ll_head *conList = NULL;
@@ -278,18 +279,18 @@ EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 
 /* ########################################################################## */
 
-EXPORT xbee_err xbee_conTx(struct xbee_con *con, char *format, ...) {
+EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, char *format, ...) {
 	xbee_err ret;
 	va_list ap;
 	
 	va_start(ap, format);
-	ret = xbee_convTx(con, format, ap);
+	ret = xbee_convTx(con, retVal, format, ap);
 	va_end(ap);
 	
 	return ret;
 }
 
-EXPORT xbee_err xbee_convTx(struct xbee_con *con, char *format, va_list args) {
+EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, char *format, va_list args) {
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
@@ -309,16 +310,16 @@ EXPORT xbee_err xbee_convTx(struct xbee_con *con, char *format, va_list args) {
 		outLen = 0;
 	}
 	
-	ret = xbee_connTx(con, (unsigned char*)buf, outLen);
+	ret = xbee_connTx(con, retVal, (unsigned char*)buf, outLen);
 	
 die:
 	if (buf) free(buf);
 	return ret;
 }
 
-EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *buf, int len) {
+EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len) {
 #warning INFO - needs remote, can return XBEE_ESTALE
-	return XBEE_ENOTIMPLEMENTED;
+	return xbee_txHandler(con, retVal, buf, len);
 }
 
 /* ########################################################################## */
