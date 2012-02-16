@@ -44,6 +44,10 @@ struct xbee_threadInfo {
 	void *arg;
 };
 
+xbee_err _xbee_threadGetInfo(struct xbee *xbee, xsys_thread thread, struct xbee_threadInfo **retInfo, int needsLLLock);
+xbee_err _xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active, int needsLLLock);
+xbee_err _xbee_threadDestroy(struct xbee_threadInfo *info, int needsLLLock);
+
 /* ########################################################################## */
 
 void *threadFunc(struct xbee_threadInfo *info) {
@@ -109,37 +113,43 @@ xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restar
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_threadGetInfo(struct xbee *xbee, xsys_thread thread, struct xbee_threadInfo **retInfo) {
+xbee_err _xbee_threadGetInfo(struct xbee *xbee, xsys_thread thread, struct xbee_threadInfo **retInfo, int needsLLLock) {
 	struct xbee_threadInfo *info;
 
-	if (!xbee || !retInfo) return XBEE_EMISSINGPARAM;
+	if (!retInfo) return XBEE_EMISSINGPARAM;
 
-	ll_lock(threadList);
+	if (needsLLLock) ll_lock(threadList);
 	for (info = NULL; _ll_get_next(threadList, info, (void**)&info, 0) == XBEE_ENONE; ) {
 		if (xbee && info->xbee != xbee) continue;
 		if (info->thread != thread) continue;
 		break;
 	}
-	ll_unlock(threadList);
+	if (needsLLLock) ll_unlock(threadList);
 
 	if (!info) return XBEE_ENOTEXISTS;
 
 	*retInfo = info;
 	return XBEE_ENONE;
 }
+xbee_err xbee_threadGetInfo(struct xbee *xbee, xsys_thread thread, struct xbee_threadInfo **retInfo) {
+	return _xbee_threadGetInfo(xbee, thread, retInfo, 1);
+}
 
-xbee_err xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active) {
+xbee_err _xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active, int needsLLLock) {
 	xbee_err ret;
 	struct xbee_threadInfo *info;
 
-	if (!xbee || (!running && !active)) return XBEE_EMISSINGPARAM;
+	if (!running && !active) return XBEE_EMISSINGPARAM;
 
-	if ((ret = xbee_threadGetInfo(xbee, thread, &info)) != XBEE_ENONE) return ret;
+	if ((ret = _xbee_threadGetInfo(xbee, thread, &info, needsLLLock)) != XBEE_ENONE) return ret;
 
 	if (running) *running = info->running;
 	if (active)  *active  = info->active;
 
 	return XBEE_ENONE;
+}
+xbee_err xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active) {
+	return _xbee_threadGetState(xbee, thread, running, active, 1);
 }
 
 xbee_err xbee_threadKill(struct xbee *xbee, xsys_thread thread) {
@@ -186,21 +196,24 @@ xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *re
 	return xbee_threadDestroy(info);
 }
 
-xbee_err xbee_threadDestroy(struct xbee_threadInfo *info) {
+xbee_err _xbee_threadDestroy(struct xbee_threadInfo *info, int needsLLLock) {
 	int active;
 	xbee_err ret;
 
 	if (!info) return XBEE_EMISSINGPARAM;
 
-	if ((ret = xbee_threadGetState(NULL, info->thread, NULL, &active)) != XBEE_ENONE) return ret;
+	if ((ret = _xbee_threadGetState(NULL, info->thread, NULL, &active, needsLLLock)) != XBEE_ENONE) return ret;
 	if (active) if (xsys_thread_cancel(info->thread)) return XBEE_ETHREAD;
 
 	if (xsys_thread_join(info->thread, NULL)) return XBEE_ETHREAD;
 
-	ll_ext_item(threadList, info);
+	_ll_ext_item(threadList, info, needsLLLock);
 	free(info);
 
 	return XBEE_ENONE;
+}
+xbee_err xbee_threadDestroy(struct xbee_threadInfo *info) {
+	return _xbee_threadDestroy(info, 1);
 }
 
 xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
@@ -220,7 +233,9 @@ xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 			continue;
 		}
 
-		if ((ret = xbee_threadDestroy(info)) != XBEE_ENONE) break;
+		if ((ret = _xbee_threadDestroy(info, 0)) != XBEE_ENONE) {
+			xbee_log(1, "failed to destroy thread %p...", info->thread);
+		}
 
 		info = pInfo;
 	}
