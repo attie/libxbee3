@@ -87,7 +87,7 @@ EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
 static inline xbee_err _xbee_pktFree(struct xbee_pkt *pkt) {
 	ll_ext_item(pktList, pkt);
 	
-	ll_destroy(pkt->dataItems, (void(*)(void *))_xbee_pktDataKeyDestroy);
+	ll_free(pkt->dataItems, (void(*)(void *))_xbee_pktDataKeyDestroy);
 	
 	free(pkt);
 	
@@ -200,7 +200,7 @@ xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, char *key, int id, struct pkt_
 }
 
 static inline xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key) {
-	ll_destroy(key->items, key->freeCallback);
+	ll_free(key->items, key->freeCallback);
 	free(key);
 	return XBEE_ENONE;
 }

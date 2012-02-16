@@ -108,7 +108,7 @@ xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
 	if (!conTypes) return XBEE_EMISSINGPARAM;
 	
 	for (i = 0; conTypes[i].name; i++) {
-		ll_destroy(conTypes[i].conList, (void(*)(void*))xbee_conFree);
+		ll_free(conTypes[i].conList, (void(*)(void*))xbee_conFree);
 	}
 	
 	free(conTypes);
