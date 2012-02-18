@@ -30,6 +30,7 @@
 #include "mode.h"
 #include "log.h"
 #include "thread.h"
+#include "frame.h"
 #include "tx.h"
 #include "ll.h"
 
@@ -52,6 +53,7 @@ xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 	memset(con, 0, memSize);
 	con->pktList = ll_alloc();
 	xsys_sem_init(&con->callbackSem);
+	xsys_mutex_init(&con->txMutex);
 	
 	if ((ret = ll_add_tail(conList, con)) != XBEE_ENONE) {
 		_xbee_conFree(con);
@@ -74,6 +76,7 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 static inline xbee_err _xbee_conFree(struct xbee_con *con) {
 	ll_ext_item(conList, con);
 	
+	xsys_mutex_destroy(&con->txMutex);
 	xsys_sem_destroy(&con->callbackSem);
 	ll_free(con->pktList, (void(*)(void*))xbee_pktFree);
 	
@@ -283,6 +286,11 @@ EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, char *fo
 	xbee_err ret;
 	va_list ap;
 	
+	if (!con || !format) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	
 	va_start(ap, format);
 	ret = xbee_convTx(con, retVal, format, ap);
 	va_end(ap);
@@ -294,6 +302,11 @@ EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, char *f
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
+	
+	if (!con || !format) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	if ((bufLen = vsnprintf(NULL, 0, format, args)) > 0) {
 		bufLen += 1; /* make space for the terminating '\0' */
@@ -319,7 +332,48 @@ die:
 
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len) {
 #warning INFO - needs remote, can return XBEE_ESTALE
-	return xbee_txHandler(con, retVal, buf, len);
+	int waitForAck;
+	xbee_err ret;
+	
+	if (!con || !buf) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+
+	if (con->settings.noBlock) {
+		if (xsys_mutex_trylock(&con->txMutex)) return XBEE_EWOULDBLOCK;
+	} else {
+		xsys_mutex_lock(&con->txMutex);
+	}
+
+	if (!con->conType->usesFrameId) {
+		waitForAck = 0;
+		con->frameId = 0;
+	} else {
+		waitForAck = !con->settings.disableAck; /* cache it, incase it changes */
+		if (waitForAck) {
+			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con)) != XBEE_ENONE) {
+				ret = XBEE_ENOFREEFRAMEID;
+				goto done;
+			}
+		} else {
+			con->frameId = 0; /* status response disabled */
+		}
+	}
+	
+	ret = xbee_txHandler(con, buf, len);
+
+	if (waitForAck) {
+		struct timespec to;
+		clock_gettime(CLOCK_REALTIME, &to);
+		to.tv_sec += 5; /* 5 second timeout */
+		if (xbee_frameWait(con->xbee->fBlock, con, retVal, &to) != XBEE_ENONE) ret = XBEE_ETX;
+	}
+	
+done:
+	xsys_mutex_unlock(&con->txMutex);
+	
+	return ret;
 }
 
 /* ########################################################################## */

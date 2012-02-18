@@ -25,7 +25,9 @@
 
 #include "../../internal.h"
 #include "../../xbee_int.h"
+#include "../../log.h"
 #include "../../mode.h"
+#include "../../frame.h"
 #include "../common.h"
 #include "mode.h"
 #include "at.h"
@@ -84,7 +86,48 @@ static xbee_err shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
+xbee_err xbee_s1_transmitStatus_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+	xbee_err ret;
+
+	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
+	
+	ret	= XBEE_ENONE;
+	
+	if (buf->len != 3) {
+		ret = XBEE_ELENGTH;
+		goto die1;
+	}
+	
+	frameInfo->active = 1;
+	frameInfo->id = buf->data[1];
+	frameInfo->retVal = buf->data[2];
+	
+	memset(address, 0, sizeof(*address));
+	
+	goto done;
+die1:
+done:
+	return 0;
+}
+
+/* ######################################################################### */
+
+const struct xbee_modeDataHandlerRx xbee_s1_transmitStatus_rx  = {
+	.identifier = 0x89,
+	.func = xbee_s1_transmitStatus_rx_func,
+};
+const struct xbee_modeConType xbee_s1_transmitStatus = {
+	.name = "Transmit Status",
+	.usesFrameId = 0,
+	.rxHandler = &xbee_s1_transmitStatus_rx,
+	.txHandler = NULL,
+};
+
+/* ######################################################################### */
+
 static const struct xbee_modeConType *conTypes[] = {
+/*&xbee_s1_modemStatus,*/
+  &xbee_s1_transmitStatus,
 	&xbee_s1_localAt,
 	&xbee_s1_localAtQueued,
 	&xbee_s1_remoteAt,

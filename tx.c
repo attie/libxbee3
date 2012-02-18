@@ -86,7 +86,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 
 /* ######################################################################### */
 
-xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len) {
+xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *buf, int len) {
 	xbee_err ret;
 	struct xbee_buf *oBuf;
 	
@@ -94,16 +94,12 @@ xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *retVal, unsigned ch
 	if (!con->conType) return XBEE_EINVAL;
 	if (!con->conType->txHandler || !con->conType->txHandler->func) return XBEE_ENOTIMPLEMENTED;
 	
-#warning TODO - handle frameId
-	
 	if ((ret = con->conType->txHandler->func(con->xbee, con->conType->txHandler->identifier, con->frameId, &con->address, &con->settings, buf, len, &oBuf)) != XBEE_ENONE) return ret;
 	
 	if (!oBuf) return XBEE_EUNKNOWN;
 	
 	if (ll_add_tail(con->xbee->tx->bufList, oBuf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 	if (xsys_sem_post(&con->xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
-
-#warning TODO - wait for ack?
 	
 	return XBEE_ENONE;
 }

@@ -90,13 +90,12 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 	return ret;
 }
 
-xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, int *retVal, struct timespec *timeout) {
+xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, unsigned char *retVal, struct timespec *timeout) {
 	xbee_err ret;
 	struct xbee_frame *frame;
 	int i;
 	
-	if (!fBlock || !con || !retVal) return XBEE_EMISSINGPARAM;
-	
+	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
 	ret = XBEE_EINVAL;
 	xsys_mutex_lock(&fBlock->mutex);
 	frame = NULL;
@@ -129,15 +128,19 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, in
 	
 	xsys_mutex_lock(&fBlock->mutex);
 	frame->con = NULL;
-	if (ret == XBEE_ENONE) {
-		*retVal = frame->retVal;
+	if (retVal) {
+		if (ret == XBEE_ENONE) {
+			*retVal = frame->retVal;
+		} else if (ret == XBEE_ETIMEOUT) {
+			*retVal = XBEE_ETIMEOUT;
+		}
 	}
 	xsys_mutex_unlock(&fBlock->mutex);
 	
 	return ret;
 }
 
-xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, int retVal) {
+xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, unsigned char retVal) {
 	struct xbee_frame *frame;
 	int i;
 	

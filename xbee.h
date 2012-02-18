@@ -157,9 +157,9 @@ struct xbee_conSettings {
 	unsigned char disableAck       : 1;
 	unsigned char broadcastPAN     : 1;
 	unsigned char queueChanges     : 1;
-	unsigned char waitForAck       : 1;
 	unsigned char multicast        : 1;
 	unsigned char broadcastRadius  : 1;
+	unsigned char noBlock          : 1;
 };
 
 /* ######################################################################### */
@@ -217,6 +217,9 @@ enum xbee_errors {
 	XBEE_ESOCKET               = -31,
 	XBEE_ENOTIMPLEMENTED       = -32,
 	XBEE_ESTALE                = -33,
+	XBEE_ETX                   = -34,
+	XBEE_EWOULDBLOCK           = -35,
+	XBEE_ENOFREEFRAMEID        = -36,
 };
 
 /* ######################################################################### */

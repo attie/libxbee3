@@ -124,7 +124,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		}
 		
 		/* prepare the buckets */
-		frameInfo.active = 0;
+		memset(&frameInfo, 0, sizeof(frameInfo));
 		memset(&address, 0, sizeof(address));
 		pkt = NULL;
 		
@@ -133,6 +133,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		/* handle any frame info (prod someone who may be waiting for ACK/NAK/etc...) */
 		if (frameInfo.active != 0) {
+			xbee_log(20, "received Tx status (block: %p, frame: 0x%02X, status: 0x%02X)", fBlock, frameInfo.id, frameInfo.retVal);
 			if ((ret = xbee_framePost(fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
 				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", fBlock, frameInfo.id, ret);
 				ret = XBEE_ENONE;

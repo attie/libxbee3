@@ -35,6 +35,7 @@ struct xbee_con {
 	xsys_thread callbackThread;
 	xsys_sem callbackSem;
 	
+	xsys_mutex txMutex;
 	unsigned char frameId;
 	
 	enum xbee_conSleepStates sleepState;
