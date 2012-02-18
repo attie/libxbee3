@@ -131,6 +131,7 @@ const struct xbee_modeDataHandlerTx xbee_s1_16bitData_tx  = {
 };
 const struct xbee_modeConType xbee_s1_16bitData = {
 	.name = "16-bit Data",
+	.usesFrameId = 1,
 	.rxHandler = &xbee_s1_16bitData_rx,
 	.txHandler = &xbee_s1_16bitData_tx,
 };
@@ -147,6 +148,7 @@ const struct xbee_modeDataHandlerTx xbee_s1_64bitData_tx  = {
 };
 const struct xbee_modeConType xbee_s1_64bitData = {
 	.name = "64-bit Data",
+	.usesFrameId = 1,
 	.rxHandler = &xbee_s1_64bitData_rx,
 	.txHandler = &xbee_s1_64bitData_tx,
 };

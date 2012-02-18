@@ -71,10 +71,8 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 	
 	for (i = 0; i < n; i++) {
 		/* keep the pointers (they are const after all) */
-		conTypes[i].name = mode->conTypes[i]->name;
+		memcpy(&conTypes[i], mode->conTypes[i], sizeof(*conTypes));
 		conTypes[i].conList = ll_alloc();
-		conTypes[i].rxHandler = mode->conTypes[i]->rxHandler;
-		conTypes[i].txHandler = mode->conTypes[i]->txHandler;
 	}
 	
 	*retConTypes = conTypes;
@@ -142,7 +140,7 @@ xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, u
 		return XBEE_ENONE;
 	}
 	
-	return XBEE_EFAILED;
+	return XBEE_ENOTEXISTS;
 }
 
 /* ######################################################################### */

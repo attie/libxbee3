@@ -45,6 +45,7 @@ struct xbee_modeDataHandlerTx {
 
 struct xbee_modeConType {
 	const char *name;
+	const unsigned char usesFrameId;
 	struct ll_head *conList;
 	
 	const struct xbee_modeDataHandlerRx *rxHandler;

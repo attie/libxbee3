@@ -285,8 +285,6 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 	if (!f || !src) return XBEE_EMISSINGPARAM;
 	if (len == 0) return XBEE_EINVAL;
 	
-	printf("writing buffer... %d bytes", len);
-	
 	for (pos = 0; pos < len; pos += ret) {
 		ret = 0;
 	
