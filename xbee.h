@@ -61,7 +61,7 @@ xbee_err xbee_modeGet(struct xbee *xbee, const char **mode);
 
 /* ######################################################################### */
 /* --- conn.c --- */
-typedef void(*xbee_t_conCallback)(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt);
+typedef void(*xbee_t_conCallback)(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data);
 
 xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList);
 /* - */

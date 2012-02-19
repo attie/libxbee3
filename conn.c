@@ -262,7 +262,11 @@ EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *t
 	
 	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
 	
-	memcpy(&con->address, address, sizeof(*address));
+	if (address) {
+		memcpy(&con->address, address, sizeof(*address));
+	} else {
+		memset(&con->address, 0, sizeof(*address));
+	}
 	
 	if ((ret = xbee_conLink(xbee, conType, &con->address, con)) != XBEE_ENONE) {
 		xbee_conFree(con);
@@ -505,7 +509,7 @@ xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
 		xbee_log(8, "connection @ %p got packet @ %p, about to hand to callback function @ %p...", con, pkt, callback);
 
 		oPkt = pkt;
-		callback(xbee, con, &pkt);
+		callback(xbee, con, &pkt, &con->userData);
 
 		if (pkt) {
 			if (pkt == oPkt) {

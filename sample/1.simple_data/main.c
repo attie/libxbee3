@@ -4,7 +4,7 @@
 
 #include <xbee.h>
 
-void myCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt) {
+void myCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	if ((*pkt)->dataLen > 0) {
 		if ((*pkt)->data[0] == '@') {
 			xbee_conCallbackSet(con, NULL, NULL);
@@ -55,7 +55,7 @@ int main(void) {
 	for (;;) {
 		void *p;
 
-		if ((ret = xbee_conCallbackGet(con, (void (**)(struct xbee *, struct xbee_con *, struct xbee_pkt **))&p)) != XBEE_ENONE) {
+		if ((ret = xbee_conCallbackGet(con, (xbee_t_conCallback*)&p)) != XBEE_ENONE) {
 			xbee_log(xbee, -1, "xbee_conCallbackGet() returned: %d", ret);
 			return ret;
 		}
