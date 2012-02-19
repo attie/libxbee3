@@ -114,6 +114,16 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		/* check we actually have some data to work with... */
 		if (buf->len < 1) goto done;
 		
+#ifdef XBEE_LOG_RX
+		{
+			int i;
+			xbee_log(25, "rx length: %d", buf->len);
+			for (i = 0; i < buf->len; i++) {
+				xbee_log(25, "rx: %3d 0x%02X [%c]", i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
+			}
+		}
+#endif /* XBEE_LOG_RX */
+		
 		/* locate the connection type of this buffer */
 		if ((ret = xbee_modeLocateConType(xbee->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
 			xbee_log(4, "Unknown message type recieved... (0x%02X)", buf->data[0]);

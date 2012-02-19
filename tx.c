@@ -73,6 +73,16 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 		if (ll_ext_head(xbee->tx->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
+#ifdef XBEE_LOG_TX
+		{
+			int i;
+			xbee_log(25, "tx length: %d", buf->len);
+			for (i = 0; i < buf->len; i++) {
+				xbee_log(25, "tx: %3d 0x%02X [%c]", i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
+			}
+		}
+#endif /* XBEE_LOG_TX */
+
 		if ((ret = tx(xbee, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);
 			continue;
