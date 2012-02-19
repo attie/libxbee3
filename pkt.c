@@ -169,6 +169,8 @@ xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, char *key, int id, struct pkt_
 		goto die2;
 	}
 	
+	if (retKey) *retKey = k;
+	
 	goto done;
 die2:
 	ll_free(k->items, NULL);
@@ -179,6 +181,7 @@ done:
 }
 
 xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey) {
+	xbee_err ret;
 	struct pkt_dataKey *k;
 	
 	if (!pkt || !key) return XBEE_EMISSINGPARAM;
@@ -187,16 +190,19 @@ xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, char *key, int id, struct pkt_
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	ll_lock(pkt->dataItems);
+	ret = XBEE_EFAILED;
 	for (k = NULL; (_ll_get_next(pkt->dataItems, k, (void**)&k, 0) == XBEE_ENONE) && k; ) {
 		if (!strncasecmp(key, k->name, PKT_DATAKEY_MAXLEN)) {
 			if (id == -1 || id == k->id) {
 				if (retKey) *retKey = k;
-				return XBEE_ENONE;
+				ret = XBEE_ENONE;
+				break;
 			}
 		}
 	}
+	ll_unlock(pkt->dataItems);
 	
-	return XBEE_EFAILED;
+	return ret;
 }
 
 static inline xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key) {
@@ -242,7 +248,8 @@ xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, voi
 	if (ll_count_items(k->items, &count) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 	if (index >= count) return XBEE_ERANGE;
 	
-	if ((ret = ll_get_index(k->items, index, retData)) == XBEE_ENOTEXISTS) return ret;
+	*retData = NULL;
+	if ((ret = ll_get_index(k->items, index, retData)) == XBEE_ERANGE) return ret;
 	if (ret != XBEE_ENONE) return XBEE_EINVAL;
 	
 	return XBEE_ENONE;
@@ -256,10 +263,12 @@ xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, int value) {
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
-	return xbee_pktDataAdd(pkt, "analog", channel, (void*)&value, NULL);
+	value += 1;
+	return xbee_pktDataAdd(pkt, "analog", channel, (void*)value, NULL);
 }
 
 EXPORT xbee_err xbee_pktAnalogGet(struct xbee_pkt *pkt, int channel, int index, int *retVal) {
+	int value;
 	xbee_err ret;
 	
 	if (!pkt || !retVal) return XBEE_EMISSINGPARAM;
@@ -267,7 +276,9 @@ EXPORT xbee_err xbee_pktAnalogGet(struct xbee_pkt *pkt, int channel, int index, 
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
-	if ((ret = xbee_pktDataGet(pkt, "analog", channel, index, (void*)retVal)) != XBEE_ENONE) return ret;
+	if ((ret = xbee_pktDataGet(pkt, "analog", channel, index, (void*)&value)) != XBEE_ENONE) return ret;
+	value -= 1;
+	*retVal = value;
 	
 	return XBEE_ENONE;
 }
@@ -282,8 +293,7 @@ xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, int value) {
 	
 	value = !!value;
 	value += 1;
-	
-	return xbee_pktDataAdd(pkt, "digital", channel, (void*)&value, NULL);
+	return xbee_pktDataAdd(pkt, "digital", channel, (void*)value, NULL);
 }
 
 EXPORT xbee_err xbee_pktDigitalGet(struct xbee_pkt *pkt, int channel, int index, int *retVal) {
