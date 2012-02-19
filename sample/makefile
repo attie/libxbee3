@@ -1,7 +1,7 @@
 PROG?=main
 
 all: $(PROG) ../../lib/libxbee.so
-	LD_LIBRARY_PATH=../../lib ./$^
+	LD_LIBRARY_PATH=../../lib ./$(PROG)
 
 new: clean all
 
