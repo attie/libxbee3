@@ -1,9 +1,9 @@
 ### libxbee internal configuration options:
 ### it is recommended that you DO NOT change this file
 
-LIBMAJ:=        2
-LIBMIN:=        1
-LIBREV:=        0
+LIBMAJ:=        3
+LIBMIN:=        0
+LIBREV:=        1
 
 LIBOUT:=        libxbee
 

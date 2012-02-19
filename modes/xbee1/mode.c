@@ -129,13 +129,13 @@ const struct xbee_modeConType xbee_s1_transmitStatus = {
 static const struct xbee_modeConType *conTypes[] = {
 /*&xbee_s1_modemStatus,*/
   &xbee_s1_transmitStatus,
-	&xbee_s1_localAt,
-	&xbee_s1_localAtQueued,
-	&xbee_s1_remoteAt,
+/*&xbee_s1_localAt,*/
+/*&xbee_s1_localAtQueued,*/
+/*&xbee_s1_remoteAt,*/
 	&xbee_s1_16bitData,
 	&xbee_s1_64bitData,
-	&xbee_s1_16bitIo,
-	&xbee_s1_64bitIo,
+/*&xbee_s1_16bitIo,*/
+/*&xbee_s1_64bitIo,*/
 	NULL
 };
 

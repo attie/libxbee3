@@ -1,0 +1,7 @@
+v3.0.1 - 19 Feb 2012
+	* First functional release
+	* Re-structured and flexible build system
+	* Generic 'mode' framework
+	* XBee Series 1 support with Data connection (16/64-bit addressing)
+	* Tx Status handling enabled by default (brings Tx error back from module through libxbee)
+
