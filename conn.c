@@ -367,12 +367,18 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 	
 	ret = xbee_txHandler(con, buf, len);
 
-	if (waitForAck) {
+	if (ret == XBEE_ENONE && waitForAck) {
 		struct timespec to;
 		clock_gettime(CLOCK_REALTIME, &to);
 		if (con->conType->useTimeout) {
+			long onsec;
 			to.tv_sec  += con->conType->timeout.tv_sec;
+			onsec = to.tv_nsec;
 			to.tv_nsec += con->conType->timeout.tv_nsec;
+			while (to.tv_nsec >= 1000000000) {
+				to.tv_sec++;
+				to.tv_nsec -= 1000000000;
+			}
 		} else {
 			to.tv_sec += 1; /* default 1 second timeout */
 		}
