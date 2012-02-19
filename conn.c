@@ -177,15 +177,35 @@ xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *
 	
 	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
-		if (!memcmp(&con->address, address, sizeof(*address))) {
-			if (con->sleepState > alertLevel) continue;
-			if (con->sleepState != CON_AWAKE) {
-				sCon = con;
-				sRet = ret;
-				continue;
-			}
-			break;
+		/* first try to match the address */
+		if (con->address.addr64_enabled && address->addr64_enabled) {
+			if (!memcmp(con->address.addr64, address->addr64, 8)) goto got1;
 		}
+		if (con->address.addr16_enabled && address->addr16_enabled) {
+			if (!memcmp(con->address.addr16, address->addr16, 2)) goto got1;
+		}
+		
+		continue; /* --- no address match --- */
+		
+got1:
+		/* next try to match the endpoints */
+		if (!con->address.endpoints_enabled && !address->endpoints_enabled) goto got2;
+		if (con->address.endpoints_enabled && address->endpoints_enabled) {
+			if (con->address.endpoint_local == address->endpoint_local) goto got2;
+		}
+		
+		continue; /* --- endpoints didnt match --- */
+		
+got2:
+		/* next see if the connection needs (and can be) woken */
+		if (con->sleepState > alertLevel) continue; /* this connection is outside the 'acceptable wake limit' */
+		if (con->sleepState != CON_AWAKE) {
+			/* this is designed to get the most recently created connection, NOT THE FIRST FOUND */
+			sCon = con;
+			sRet = ret;
+			continue;
+		}
+		break;
 	}
 	if (needsLLLock) ll_unlock(conList);
 	
