@@ -21,6 +21,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+xbee_err xbee_s1_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigned char *data, int len);
+
 extern const struct xbee_modeConType xbee_s1_16bitIo;
 extern const struct xbee_modeConType xbee_s1_64bitIo;
 

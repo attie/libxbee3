@@ -29,6 +29,7 @@
 #include "../../frame.h"
 #include "../common.h"
 #include "at.h"
+#include "io.h"
 
 xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
@@ -68,6 +69,10 @@ xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct 
 		memcpy(&(iPkt->data[2]), &(buf->data[addrLen + 5]), iPkt->dataLen - 2); /* copy in the response value (if any) */
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
+	
+	if (!strncasecmp((char*)iPkt->data, "IS", 2)) {
+		xbee_s1_io_parseInputs(xbee, iPkt, &(iPkt->data[2]), iPkt->dataLen - 2);
+	}
 	
 	*pkt = iPkt;
 	
@@ -152,7 +157,11 @@ const struct xbee_modeDataHandlerTx xbee_s1_localAt_tx  = {
 const struct xbee_modeConType xbee_s1_localAt = {
 	.name = "Local AT",
 	.allowFrameId = 1,
-	.useTimeout = 0,
+	.useTimeout = 1,
+	.timeout = {
+		.tv_sec = 0,
+		.tv_nsec = 250000000,
+	},
 	.rxHandler = &xbee_s1_localAt_rx,
 	.txHandler = &xbee_s1_localAt_tx,
 };
