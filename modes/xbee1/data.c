@@ -72,6 +72,7 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, unsigned char identifier, struc
 
 xbee_err xbee_s1_data_tx_func(struct xbee *xbee, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
 	struct xbee_buf *iBuf;
+	size_t bufLen;
 	unsigned char *addr;
 	int addrLen;
 	int pos;
@@ -95,13 +96,14 @@ xbee_err xbee_s1_data_tx_func(struct xbee *xbee, unsigned char identifier, unsig
 	
 	/* API Identifier + Frame ID + Address + Options + Payload */
 	memSize = 3 + addrLen + len;
+	bufLen = memSize;
 	
 	memSize += sizeof(*iBuf);
 	
 	if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
 	
 	pos = 0;
-	iBuf->len = 3 + addrLen + len;
+	iBuf->len = bufLen;
 	iBuf->data[pos] = identifier;                         pos++;
 	iBuf->data[pos] = frameId;                            pos++;
 	memcpy(&(iBuf->data[pos]), addr, addrLen);            pos += addrLen;
