@@ -36,6 +36,8 @@ const struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
 };
 const struct xbee_modeConType xbee_s1_16bitIo = {
 	.name = "16-bit I/O",
+	.allowFrameId = 0,
+	.useTimeout = 0,
 	.rxHandler = &xbee_s1_16bitIo_rx,
 	.txHandler = NULL,
 };
@@ -48,6 +50,8 @@ const struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
 };
 const struct xbee_modeConType xbee_s1_64bitIo = {
 	.name = "64-bit I/O",
+	.allowFrameId = 0,
+	.useTimeout = 0,
 	.rxHandler = &xbee_s1_64bitIo_rx,
 	.txHandler = NULL,
 };

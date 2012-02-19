@@ -40,6 +40,8 @@ const struct xbee_modeDataHandlerTx xbee_s1_localAt_tx  = {
 };
 const struct xbee_modeConType xbee_s1_localAt = {
 	.name = "Local AT",
+	.allowFrameId = 1,
+	.useTimeout = 0,
 	.rxHandler = &xbee_s1_localAt_rx,
 	.txHandler = &xbee_s1_localAt_tx,
 };
@@ -52,6 +54,8 @@ const struct xbee_modeDataHandlerTx xbee_s1_localAtQueued_tx  = {
 };
 const struct xbee_modeConType xbee_s1_localAtQueued = {
 	.name = "Local AT (queued)",
+	.allowFrameId = 1,
+	.useTimeout = 0,
 	.rxHandler = NULL,
 	.txHandler = &xbee_s1_localAtQueued_tx,
 };
@@ -68,6 +72,8 @@ const struct xbee_modeDataHandlerTx xbee_s1_remoteAt_tx  = {
 };
 const struct xbee_modeConType xbee_s1_remoteAt = {
 	.name = "Remote AT",
+	.allowFrameId = 1,
+	.useTimeout = 0,
 	.rxHandler = &xbee_s1_remoteAt_rx,
 	.txHandler = &xbee_s1_remoteAt_tx,
 };

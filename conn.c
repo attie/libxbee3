@@ -346,7 +346,7 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 		xsys_mutex_lock(&con->txMutex);
 	}
 
-	if (!con->conType->usesFrameId) {
+	if (!con->conType->allowFrameId) {
 		waitForAck = 0;
 		con->frameId = 0;
 	} else {
@@ -366,7 +366,12 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 	if (waitForAck) {
 		struct timespec to;
 		clock_gettime(CLOCK_REALTIME, &to);
-		to.tv_sec += 5; /* 5 second timeout */
+		if (con->conType->useTimeout) {
+			to.tv_sec  += con->conType->timeout.tv_sec;
+			to.tv_nsec += con->conType->timeout.tv_nsec;
+		} else {
+			to.tv_sec += 1; /* default 1 second timeout */
+		}
 		if (xbee_frameWait(con->xbee->fBlock, con, retVal, &to) != XBEE_ENONE) ret = XBEE_ETX;
 	}
 	
