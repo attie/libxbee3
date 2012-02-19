@@ -32,6 +32,7 @@ struct xbee_frame {
 	struct xbee_con *con;
 	unsigned char id;
 	unsigned char retVal;
+	unsigned char inUse;
 };
 
 struct xbee_frameBlock {
