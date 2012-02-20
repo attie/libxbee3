@@ -102,8 +102,6 @@ xbee_err xbee_s1_transmitStatus_rx_func(struct xbee *xbee, unsigned char identif
 	frameInfo->id = buf->data[1];
 	frameInfo->retVal = buf->data[2];
 	
-	memset(address, 0, sizeof(*address));
-	
 	goto done;
 die1:
 done:
