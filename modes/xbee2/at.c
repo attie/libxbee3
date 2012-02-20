@@ -29,9 +29,8 @@
 #include "../../frame.h"
 #include "../common.h"
 #include "at.h"
-#include "io.h"
 
-xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_s2_at_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	int addrLen;
@@ -76,7 +75,7 @@ xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct 
 	iPkt->data[iPkt->dataLen] = '\0';
 	
 	if (!strncasecmp((char*)iPkt->data, "IS", 2)) {
-		xbee_s1_io_parseInputs(xbee, iPkt, &(iPkt->data[2]), iPkt->dataLen - 2);
+		//xbee_s2_io_parseInputs(xbee, iPkt, &(iPkt->data[2]), iPkt->dataLen - 2);
 	}
 	
 	*pkt = iPkt;
@@ -84,7 +83,7 @@ xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct 
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_s1_at_tx_func(struct xbee *xbee, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
+xbee_err xbee_s2_at_tx_func(struct xbee *xbee, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	unsigned char *addr16;
@@ -151,15 +150,15 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, unsigned char identifier, unsigne
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_localAt_rx  = {
+const struct xbee_modeDataHandlerRx xbee_s2_localAt_rx  = {
 	.identifier = 0x88,
-	.func = xbee_s1_at_rx_func,
+	.func = xbee_s2_at_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s1_localAt_tx  = {
+const struct xbee_modeDataHandlerTx xbee_s2_localAt_tx  = {
 	.identifier = 0x08,
-	.func = xbee_s1_at_tx_func,
+	.func = xbee_s2_at_tx_func,
 };
-const struct xbee_modeConType xbee_s1_localAt = {
+const struct xbee_modeConType xbee_s2_localAt = {
 	.name = "Local AT",
 	.allowFrameId = 1,
 	.useTimeout = 1,
@@ -167,21 +166,21 @@ const struct xbee_modeConType xbee_s1_localAt = {
 		.tv_sec = 0,
 		.tv_nsec = 250000000,
 	},
-	.rxHandler = &xbee_s1_localAt_rx,
-	.txHandler = &xbee_s1_localAt_tx,
+	.rxHandler = &xbee_s2_localAt_rx,
+	.txHandler = &xbee_s2_localAt_tx,
 };
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_remoteAt_rx  = {
+const struct xbee_modeDataHandlerRx xbee_s2_remoteAt_rx  = {
 	.identifier = 0x97,
-	.func = xbee_s1_at_rx_func,
+	.func = xbee_s2_at_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s1_remoteAt_tx  = {
+const struct xbee_modeDataHandlerTx xbee_s2_remoteAt_tx  = {
 	.identifier = 0x17,
-	.func = xbee_s1_at_tx_func,
+	.func = xbee_s2_at_tx_func,
 };
-const struct xbee_modeConType xbee_s1_remoteAt = {
+const struct xbee_modeConType xbee_s2_remoteAt = {
 	.name = "Remote AT",
 	.allowFrameId = 1,
 	.useTimeout = 1,
@@ -189,6 +188,6 @@ const struct xbee_modeConType xbee_s1_remoteAt = {
 		.tv_sec = 0,
 		.tv_nsec = 250000000,
 	},
-	.rxHandler = &xbee_s1_remoteAt_rx,
-	.txHandler = &xbee_s1_remoteAt_tx,
+	.rxHandler = &xbee_s2_remoteAt_rx,
+	.txHandler = &xbee_s2_remoteAt_tx,
 };
