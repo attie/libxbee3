@@ -110,7 +110,7 @@ $(DESTDIR)/$(LIBOUT).o: .$(DESTDIR).dir $(OBJS) modes/$(DESTDIR)/_modes.o
 
 
 modes/$(DESTDIR)/_modes.o: .$(BUILDDIR).dir modes ALWAYS
-	$(MAKE) -C modes MODELIST=$(MODELIST)
+	$(MAKE) -C modes MODELIST='$(MODELIST)'
 
 $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.c $(PDEPS)
 	$(GCC) -MM -MT $(addprefix $(BUILDDIR)/,$*.o) $*.c -o $@
