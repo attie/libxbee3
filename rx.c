@@ -153,6 +153,8 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		/* its possible that the buffer ONLY contained frame information... if so, were done! */
 		if (!pkt) goto done;
 		
+		xbee_log(12, "received '%s' type packet...", conType->name);
+		
 		/* match the address to a connection */
 		if ((ret = xbee_conMatchAddress(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE || !con) {
 			if (ret == XBEE_ENOTEXISTS) {
@@ -164,6 +166,9 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 			break;
 		}
 		
+		xbee_log(15, "matched packet with con @ %p\n", con);
+		xbee_conLogAddress(xbee, 16, &address);
+		
 		/* wake the connection if necessary */
 		if (con->sleepState != CON_AWAKE) {
 			con->sleepState = CON_AWAKE;
@@ -171,7 +176,10 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		}
 		
 		/* add the packet to the connection's tail! */
-		if ((ret = xbee_conLinkPacket(con, pkt)) != XBEE_ENONE) break;
+		if ((ret = xbee_conLinkPacket(con, pkt)) != XBEE_ENONE) {
+			xbee_log(1, "failed to store packet with connection... xbee_conLinkPacket() returned %d", ret);
+			break;
+		}
 		
 done:
 		ll_ext_item(needsFree, buf);
