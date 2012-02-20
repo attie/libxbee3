@@ -362,18 +362,24 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 #warning INFO - needs remote, can return XBEE_ESTALE
 	int waitForAck;
 	xbee_err ret;
+	int myret;
+	int *pret;
 	
 	if (!con || !buf) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
+	/* we ALWAYS want to be able to check the response value */
+	pret = ((!retVal)?&myret:retVal);
+	*pret = 0;
+
 	if (con->settings.noBlock) {
 		if (xsys_mutex_trylock(&con->txMutex)) return XBEE_EWOULDBLOCK;
 	} else {
 		xsys_mutex_lock(&con->txMutex);
 	}
-
+	
 	if (!con->conType->allowFrameId) {
 		waitForAck = 0;
 		con->frameId = 0;
@@ -406,7 +412,7 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 		} else {
 			to.tv_sec += 1; /* default 1 second timeout */
 		}
-		if (xbee_frameWait(con->xbee->fBlock, con, retVal, &to) != XBEE_ENONE) ret = XBEE_ETX;
+		if (xbee_frameWait(con->xbee->fBlock, con, pret, &to) != XBEE_ENONE || *pret != 0) ret = XBEE_ETX;
 	}
 	
 done:
