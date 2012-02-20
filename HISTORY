@@ -1,3 +1,11 @@
+v3.0.2 - 20 Feb 2012
+	* Added explicit logging of Tx & Rx data
+	* Fixed internal bugs
+	* Re-implemented ll_[get|ext]_index() functions
+	* Refreshed error codes
+	* XBee Series 1 support is complete
+	* Added sample code for use with XBee Series 1
+
 v3.0.1 - 19 Feb 2012
 	* First functional release
 	* Re-structured and flexible build system
