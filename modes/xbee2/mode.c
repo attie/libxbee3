@@ -91,14 +91,15 @@ xbee_err xbee_s2_transmitStatus_rx_func(struct xbee *xbee, unsigned char identif
 	
 	ret	= XBEE_ENONE;
 	
-	if (buf->len != 3) {
+	if (buf->len != 7) {
 		ret = XBEE_ELENGTH;
 		goto die1;
 	}
 	
+#warning TODO - currently missing out on the resolved network address, retry count, and discovery status
 	frameInfo->active = 1;
 	frameInfo->id = buf->data[1];
-	frameInfo->retVal = buf->data[2];
+	frameInfo->retVal = buf->data[5];
 	
 	goto done;
 die1:
@@ -109,7 +110,7 @@ done:
 /* ######################################################################### */
 
 const struct xbee_modeDataHandlerRx xbee_s2_transmitStatus_rx  = {
-	.identifier = 0x89,
+	.identifier = 0x8B,
 	.func = xbee_s2_transmitStatus_rx_func,
 };
 const struct xbee_modeConType xbee_s2_transmitStatus = {
@@ -124,7 +125,7 @@ const struct xbee_modeConType xbee_s2_transmitStatus = {
 
 static const struct xbee_modeConType *conTypes[] = {
 /*&xbee_s2_modemStatus,*/
-/*&xbee_s2_transmitStatus,*/
+	&xbee_s2_transmitStatus,
 	&xbee_s2_localAt,
 	&xbee_s2_remoteAt,
 /*&xbee_s2_Data,*/
