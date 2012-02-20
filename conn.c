@@ -70,6 +70,7 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	xbee_conUnlink(con);
 	return _xbee_conFree(con);
 }
 	
@@ -126,9 +127,14 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 	return ret;
 }
 
-xbee_err xbee_conUnlink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_con *con) {
+xbee_err xbee_conUnlink(struct xbee_con *con) {
+	struct xbee *xbee;
+	struct xbee_modeConType *conType;
 	xbee_err ret;
-	if (!xbee || !conType || !con) return XBEE_EMISSINGPARAM;
+	if (!con) return XBEE_EMISSINGPARAM;
+	xbee = con->xbee;
+	conType = con->conType;
+	if (!xbee || !conType) return XBEE_EINVAL;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
@@ -362,8 +368,8 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 #warning INFO - needs remote, can return XBEE_ESTALE
 	int waitForAck;
 	xbee_err ret;
-	int myret;
-	int *pret;
+	unsigned char myret;
+	unsigned char *pret;
 	
 	if (!con || !buf) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
