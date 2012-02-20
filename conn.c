@@ -178,6 +178,10 @@ xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *
 	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
 		/* first try to match the address */
+		if (!con->address.addr16_enabled && !address->addr16_enabled &&
+		    !con->address.addr64_enabled && !address->addr64_enabled) {
+			goto got1;
+		}
 		if (con->address.addr64_enabled && address->addr64_enabled) {
 			if (!memcmp(con->address.addr64, address->addr64, 8)) goto got1;
 		}
