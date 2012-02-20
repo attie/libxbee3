@@ -48,11 +48,16 @@ xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct 
 	
 	if (buf->len < addrLen + 5) return XBEE_ELENGTH;
 	
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 5)) != XBEE_ENONE) return ret;
-	
 	frameInfo->active = 1;
 	frameInfo->id = buf->data[1];
 	frameInfo->retVal = buf->data[addrLen + 4];
+	
+	if (frameInfo->retVal != 0) {
+		*pkt = 0;
+		return XBEE_ENONE;
+	}
+	
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 5)) != XBEE_ENONE) return ret;
 	
 	if (addrLen == 10) {
 		address->addr64_enabled = 1;
