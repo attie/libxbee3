@@ -28,6 +28,7 @@
 #include "../../log.h"
 #include "../../mode.h"
 #include "../../frame.h"
+#include "../../pkt.h"
 #include "../common.h"
 #include "mode.h"
 #include "at.h"
@@ -124,8 +125,43 @@ const struct xbee_modeConType xbee_s1_transmitStatus = {
 
 /* ######################################################################### */
 
+xbee_err xbee_s1_modemStatus_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+	struct xbee_pkt *iPkt;
+	xbee_err ret;
+
+	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
+	
+	if (buf->len != 2) return XBEE_ELENGTH;
+	
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, 1)) != XBEE_ENONE) return ret;
+	
+	iPkt->dataLen = 1;
+	iPkt->data[0] = buf->data[1];
+	iPkt->data[iPkt->dataLen] = '\0';
+	
+	*pkt = iPkt;
+	
+	return 0;
+}
+
+/* ######################################################################### */
+
+const struct xbee_modeDataHandlerRx xbee_s1_modemStatus_rx  = {
+	.identifier = 0x8A,
+	.func = xbee_s1_modemStatus_rx_func,
+};
+const struct xbee_modeConType xbee_s1_modemStatus = {
+	.name = "Modem Status",
+	.allowFrameId = 0,
+	.useTimeout = 0,
+	.rxHandler = &xbee_s1_modemStatus_rx,
+	.txHandler = NULL,
+};
+
+/* ######################################################################### */
+
 static const struct xbee_modeConType *conTypes[] = {
-/*&xbee_s1_modemStatus,*/
+	&xbee_s1_modemStatus,
   &xbee_s1_transmitStatus,
 	&xbee_s1_localAt,
 	&xbee_s1_remoteAt,
