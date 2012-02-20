@@ -185,41 +185,38 @@ struct xbee_pkt {
 enum xbee_errors {
 	XBEE_ENONE                 =  0,
 	XBEE_EUNKNOWN              = -1,
+	
 	XBEE_ENOMEM                = -2,
+	
 	XBEE_ESELECT               = -3,
 	XBEE_ESELECTINTERRUPTED    = -4,
+	
 	XBEE_EEOF                  = -5,
-	XBEE_EIORETRIES            = -6,
-	XBEE_EOPENFAILED           = -7,
-	XBEE_EIO                   = -8,
-	XBEE_ESEMAPHORE            = -9,
+	XBEE_EIO                   = -6,
+	
+	XBEE_ESEMAPHORE            = -7,
+	XBEE_EMUTEX                = -8,
+	XBEE_ETHREAD               = -9,
 	XBEE_ELINKEDLIST           = -10,
-	XBEE_ETHREAD               = -11,
-	XBEE_ENOXBEE               = -12,
-	XBEE_EMISSINGPARAM         = -13,
-	XBEE_EINVALBAUDRATE        = -14,
-	XBEE_ESETUP                = -15,
-	XBEE_ELENGTH               = -16,
-	XBEE_EINVAL                = -17,
-	XBEE_EBUSY                 = -18,
-	XBEE_ENOMODE               = -19,
-	XBEE_EFAILED               = -20,
-	XBEE_ECANTTX               = -21,
-	XBEE_ENOTREADY             = -22,
-	XBEE_ECALLBACK             = -23,
-	XBEE_EUNESCAPED_START      = -24,
-	XBEE_ETIMEOUT              = -25,
-	XBEE_EMUTEX                = -26,
-	XBEE_EINUSE                = -27,
-	XBEE_ERANGE                = -28,
-	XBEE_EEXISTS               = -29,
-	XBEE_ENOTEXISTS            = -30,
-	XBEE_ESOCKET               = -31,
-	XBEE_ENOTIMPLEMENTED       = -32,
-	XBEE_ESTALE                = -33,
-	XBEE_ETX                   = -34,
-	XBEE_EWOULDBLOCK           = -35,
-	XBEE_ENOFREEFRAMEID        = -36,
+	
+	XBEE_ESETUP                = -11,
+	XBEE_EMISSINGPARAM         = -12,
+	XBEE_EINVAL                = -13,
+	XBEE_ERANGE                = -14,
+	XBEE_ELENGTH               = -15,
+	
+	XBEE_EFAILED               = -18,
+	XBEE_ETIMEOUT              = -17,
+	XBEE_EWOULDBLOCK           = -16,
+	XBEE_EINUSE                = -19,
+	XBEE_EEXISTS               = -20,
+	XBEE_ENOTEXISTS            = -21,
+	XBEE_ENOFREEFRAMEID        = -22,
+	
+	XBEE_ESTALE                = -23,
+	XBEE_ENOTIMPLEMENTED       = -24,
+	
+	XBEE_ETX                   = -25,
 };
 
 /* ######################################################################### */

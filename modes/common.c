@@ -49,7 +49,7 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
 		case 57600:  chosenbaud = B57600;  break;
 		case 115200: chosenbaud = B115200; break;
 		default:
-			return XBEE_EINVALBAUDRATE;
+			return XBEE_EINVAL;
 	}
 	
 	if ((info->fd = xsys_open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) return XBEE_EIO;
