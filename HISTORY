@@ -1,3 +1,13 @@
+v3.0.3 - 21 Feb 2012
+	* Fixed xbee_rxHandler() - now obeys allowFrameId flag
+	* Exported xbee_pktDataGet()
+	* Protected xbee_s1_io_parseInputs() against buffer overrun
+	* XBee Series 1 now supports modem status connection types
+	* XBee Series 2 support is completed (excluding sensor connection types)
+	* Added generic sample code
+	* Added more sample code for use with XBee Series 1 modules
+	* Added sample code for use with XBee Series 2 modules
+
 v3.0.2 - 20 Feb 2012
 	* Added explicit logging of Tx & Rx data
 	* Fixed internal bugs

@@ -3,7 +3,7 @@
 
 LIBMAJ:=        3
 LIBMIN:=        0
-LIBREV:=        2
+LIBREV:=        3
 
 LIBOUT:=        libxbee
 
