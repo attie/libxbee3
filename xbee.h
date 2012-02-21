@@ -93,6 +93,7 @@ xbee_err xbee_conEnd(struct xbee_con *con);
 /* --- pkt.c --- */
 xbee_err xbee_pktFree(struct xbee_pkt *pkt);
 xbee_err xbee_pktValidate(struct xbee_pkt *pkt);
+xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData);
 xbee_err xbee_pktAnalogGet(struct xbee_pkt *pkt, int channel, int index, int *retVal);
 xbee_err xbee_pktDigitalGet(struct xbee_pkt *pkt, int channel, int index, int *retVal);
 

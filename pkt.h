@@ -35,7 +35,6 @@ xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, char *key, int id, struct pkt_
 xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey);
 
 xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, char *key, int id, void *data, void (*freeCallback)(void*));
-xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData);
 
 xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, int value);
 xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, int value);

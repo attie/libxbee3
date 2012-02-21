@@ -233,7 +233,7 @@ xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, char *key, int id, void *data, vo
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData) {
+EXPORT xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData) {
 	struct pkt_dataKey *k;
 	unsigned int count;
 	xbee_err ret;
