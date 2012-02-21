@@ -142,7 +142,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		if ((ret = conType->rxHandler->func(xbee, conType->rxHandler->identifier, buf, &frameInfo, &address, &pkt)) != XBEE_ENONE) break;
 		
 		/* handle any frame info (prod someone who may be waiting for ACK/NAK/etc...) */
-		if (frameInfo.active != 0) {
+		if (frameInfo.active != 0 && conType->allowFrameId != 0) {
 			xbee_log(20, "received Tx status (block: %p, frame: 0x%02X, status: 0x%02X)", fBlock, frameInfo.id, frameInfo.retVal);
 			if ((ret = xbee_framePost(fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
 				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", fBlock, frameInfo.id, ret);

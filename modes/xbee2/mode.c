@@ -118,7 +118,7 @@ const struct xbee_modeDataHandlerRx xbee_s2_transmitStatus_rx  = {
 };
 const struct xbee_modeConType xbee_s2_transmitStatus = {
 	.name = "Transmit Status",
-	.allowFrameId = 0,
+	.allowFrameId = 1,
 	.useTimeout = 0,
 	.rxHandler = &xbee_s2_transmitStatus_rx,
 	.txHandler = NULL,
