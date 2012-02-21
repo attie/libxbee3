@@ -37,12 +37,12 @@ xbee_err xbee_s2_data_rx_func(struct xbee *xbee, unsigned char identifier, struc
 	
 	if (buf->len < 12) return XBEE_ELENGTH;
 	
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 12)) != XBEE_ENONE) return ret;
+	
 	address->addr64_enabled = 1;
 	memcpy(address->addr64, &(buf->data[1]), 8);
 	address->addr16_enabled = 1;
 	memcpy(address->addr16, &(buf->data[9]), 2);
-	
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 12)) != XBEE_ENONE) return ret;
 	
 	iPkt->settings = buf->data[11];
 	

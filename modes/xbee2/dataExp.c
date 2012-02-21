@@ -37,6 +37,11 @@ xbee_err xbee_s2_dataExp_rx_func(struct xbee *xbee, unsigned char identifier, st
 	
 	if (buf->len < 18) return XBEE_ELENGTH;
 	
+	/* ClusterID (2 bytes) */
+	/* ProfileID (2 bytes) */
+	
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 18)) != XBEE_ENONE) return ret;
+	
 	address->addr64_enabled = 1;
 	memcpy(address->addr64, &(buf->data[1]), 8);
 	address->addr16_enabled = 1;
@@ -44,11 +49,6 @@ xbee_err xbee_s2_dataExp_rx_func(struct xbee *xbee, unsigned char identifier, st
 	address->endpoints_enabled = 1;
 	address->endpoint_remote = buf->data[11];
 	address->endpoint_local = buf->data[12];
-	
-	/* ClusterID (2 bytes) */
-	/* ProfileID (2 bytes) */
-	
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 18)) != XBEE_ENONE) return ret;
 	
 	iPkt->settings = buf->data[17];
 	

@@ -52,7 +52,7 @@ xbee_err xbee_s2_at_rx_func(struct xbee *xbee, unsigned char identifier, struct 
 	frameInfo->retVal = buf->data[addrLen + 4];
 	
 	if (frameInfo->retVal != 0) {
-		*pkt = 0;
+		*pkt = NULL;
 		return XBEE_ENONE;
 	}
 	

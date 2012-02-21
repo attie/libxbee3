@@ -46,6 +46,8 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, unsigned char identifier, struc
 	
 	if (buf->len < addrLen + 3) return XBEE_ELENGTH;
 	
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - (addrLen + 3))) != XBEE_ENONE) return ret;
+	
 	if (addrLen == 8) {
 		address->addr64_enabled = 1;
 		memcpy(address->addr64, &(buf->data[1]), addrLen);
@@ -53,8 +55,6 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, unsigned char identifier, struc
 		address->addr16_enabled = 1;
 		memcpy(address->addr16, &(buf->data[1]), addrLen);
 	}
-	
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - (addrLen + 3))) != XBEE_ENONE) return ret;
 	
 	iPkt->rssi = buf->data[addrLen + 1];
 	iPkt->settings = buf->data[addrLen + 2];
