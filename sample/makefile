@@ -9,4 +9,4 @@ clean:
 	-rm $(PROG)
 
 $(PROG): $(PROG).c
-	gcc $^ -g -o $@ -I ../../.. -L ../../../lib -lxbee
+	gcc $^ -g -o $@ -I ../../.. -L ../../../lib -lxbee -lpthread -lrt
