@@ -30,31 +30,63 @@
 #include "../common.h"
 #include "io.h"
 
-xbee_err xbee_s1_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigned char *data, int len) {
+xbee_err xbee_s2_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigned char *data, int len) {
 	int sampleCount;
 	int sample, channel;
 	int ioMask;
 
-	if (len < 3) return XBEE_ELENGTH;
-
+	if (len < 4) return XBEE_ELENGTH;
+	
 	sampleCount = data[0];
 	data++; len--;
 
-	ioMask = ((data[0] << 8) & 0xFF00) | (data[1] & 0xFF);
-	data += 2; len-= 2;
+	/* mask is ordered:
+	    MSB - Supply Voltage
+	          * n/a *
+	          * n/a *
+	          * n/a *
+	          AD3
+	          AD2
+	          AD1
+	       -  AD0
+	       -  * n/a *
+	          * n/a *
+	          * n/a *
+	          CD/DIO12
+	          PWM/DIO11
+	          RSSI/DIO10
+	          * n/a *
+	       -  * n/a *
+	       -  CTS/DIO7
+	          RTS/DIO6
+	          Assoc/DIO5
+	          DIO4
+	          AD3/DIO3
+	          AD2/DIO2
+	          AD1/DIO1
+	    LSB - AD0/DIO0
+	*/
+	ioMask = ((data[2] << 16) & 0xFF0000) | ((data[0] << 8) & 0xFF00) | (data[1] & 0xFF);
+	data += 3; len -= 3;
+	
+	/* poke out the n/a fields, just incase */
+	ioMask &= 0x8F1CFF;
 	
 	for (sample = 0; sample < sampleCount; sample++) {
 		int mask;
 
-		if (ioMask & 0x01FF) {
+		
+		if (ioMask & 0x001CFF) {
 			int digitalValue;
 			
 			if (len < 2) return XBEE_ELENGTH;
 			
-			digitalValue = ((data[0] << 8) & 0x0100) | (data[1] & 0xFF);
+			digitalValue = ((data[0] << 8) & 0xFF00) | (data[1] & 0xFF);
+			/* poke out the n/a fields */
+			digitalValue &= 0x1CFF;
 
-			mask = 0x0001;
-			for (channel = 0; channel <= 8; channel++, mask <<= 1) {
+			mask = 0x000001;
+			for (channel = 0; channel <= 12; channel++, mask <<= 1) {
 				if (ioMask & mask) {
 					if (xbee_pktDigitalAdd(pkt, channel, digitalValue & mask)) {
 						xbee_log(1,"Failed to add digital sample information to packet (channel D%d)", channel);
@@ -64,8 +96,9 @@ xbee_err xbee_s1_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigne
 			data += 2; len -= 2;
 		}
 
-		mask = 0x0200;
-		for (channel = 0; channel <= 5; channel++, mask <<= 1) {
+		mask = 0x010000;
+		for (channel = 0; channel <= 4; channel++, mask <<= 1) {
+			if (channel == 4) mask = 0x800000;
 			if (ioMask & mask) {
 				
 				if (len < 2) return XBEE_ELENGTH;
@@ -83,43 +116,30 @@ xbee_err xbee_s1_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigne
 
 /* ######################################################################### */
 
-xbee_err xbee_s1_io_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_s2_io_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
-	int addrLen;
 	
 	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	
-	if (buf->len < 1) return XBEE_ELENGTH;
+	if (buf->len < 16) return XBEE_ELENGTH;
+
+	address->addr64_enabled = 1;
+	memcpy(address->addr64, &(buf->data[1]), 8);
+	address->addr16_enabled = 1;
+	memcpy(address->addr16, &(buf->data[9]), 2);	
 	
-	switch (buf->data[0]) {
-		case 0x82: addrLen = 8; break;
-		case 0x83: addrLen = 2; break;
-		default: return XBEE_EINVAL;
-	}
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 12)) != XBEE_ENONE) return ret;
 	
-	if (buf->len < addrLen + 3) return XBEE_ELENGTH;
+	iPkt->settings = buf->data[11];
 	
-	if (addrLen == 8) {
-		address->addr64_enabled = 1;
-		memcpy(address->addr64, &(buf->data[1]), addrLen);
-	} else {
-		address->addr16_enabled = 1;
-		memcpy(address->addr16, &(buf->data[1]), addrLen);
-	}
-	
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - (addrLen + 3))) != XBEE_ENONE) return ret;
-	
-	iPkt->rssi = buf->data[addrLen + 1];
-	iPkt->settings = buf->data[addrLen + 2];
-	
-	iPkt->dataLen = buf->len - (addrLen + 3);
+	iPkt->dataLen = buf->len - 12;
 	if (iPkt->dataLen > 0) {
-		memcpy(iPkt->data, &(buf->data[addrLen + 3]), iPkt->dataLen);
+		memcpy(iPkt->data, &(buf->data[12]), iPkt->dataLen);
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	
-	xbee_s1_io_parseInputs(xbee, iPkt, iPkt->data, iPkt->dataLen);
+	xbee_s2_io_parseInputs(xbee, iPkt, iPkt->data, iPkt->dataLen);
 	
 	*pkt = iPkt;
 	
@@ -128,28 +148,14 @@ xbee_err xbee_s1_io_rx_func(struct xbee *xbee, unsigned char identifier, struct 
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
-	.identifier = 0x83,
-	.func = xbee_s1_io_rx_func,
+const struct xbee_modeDataHandlerRx xbee_s2_io_rx  = {
+	.identifier = 0x92,
+	.func = xbee_s2_io_rx_func,
 };
-const struct xbee_modeConType xbee_s1_16bitIo = {
-	.name = "16-bit I/O",
+const struct xbee_modeConType xbee_s2_io = {
+	.name = "I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,
-	.rxHandler = &xbee_s1_16bitIo_rx,
-	.txHandler = NULL,
-};
-
-/* ######################################################################### */
-
-const struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
-	.identifier = 0x82,
-	.func = xbee_s1_io_rx_func,
-};
-const struct xbee_modeConType xbee_s1_64bitIo = {
-	.name = "64-bit I/O",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.rxHandler = &xbee_s1_64bitIo_rx,
+	.rxHandler = &xbee_s2_io_rx,
 	.txHandler = NULL,
 };
