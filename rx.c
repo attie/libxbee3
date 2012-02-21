@@ -71,6 +71,10 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	
 	while (!xbee->die) {
 		if ((ret = rx(xbee, &buf)) != XBEE_ENONE) {
+			if (ret == XBEE_EEOF) {
+				*restart = 0;
+				return XBEE_EEOF;
+			}
 			xbee_log(1, "rx() returned %d (%s)... retrying in 10 ms", ret, xbee_errorToStr(ret));
 			usleep(10000); /* 10 ms */
 			continue;

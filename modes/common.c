@@ -153,8 +153,8 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 		}
 		ret = xsys_fread(&(dest[pos]), 1, len - pos, f);
 		if (ret == 0) {
+			if (xsys_feof(f)) return XBEE_EEOF;
 			if (xsys_ferror(f)) {
-				if (xsys_feof(f)) return XBEE_EEOF;
 				perror("fread()");
 				return XBEE_EIO;
 			}
