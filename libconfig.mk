@@ -10,9 +10,9 @@ LIBOUT:=        libxbee
 LIBS:=          rt pthread dl
 
 SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx \
-                xsys
+                xsys net
 
-MODELIST:=      xbee1 xbee2
+MODELIST:=      xbee1 xbee2 net
 
 SYS_HEADERS:=   xbee.h
 RELEASE_FILES:= HISTORY

@@ -1,5 +1,5 @@
-#ifndef __XBEE_INT_H
-#define __XBEE_INT_H
+#ifndef __XBEE_NET_H
+#define __XBEE_NET_H
 
 /*
 	libxbee - a C library to aid the use of Digi's XBee wireless modules
@@ -21,26 +21,17 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern struct ll_head *xbeeList;
-extern struct ll_head *needsFree;
-
-struct xbee {
-	int die;
+struct xbee_netInfo {
+	int fd;
 	
-	struct xbee_frameBlock *fBlock;
-	struct xbee_log *log;
+	int(*clientFilter)(struct xbee *xbee, char *remoteHost);
 	
-	struct xbee_modeConType *conTypes; /* copied in from the mode */
-	const struct xbee_mode *mode;
-	void *modeData; /* for use by the mode */
-	
-	void *netInfo; /* used by the network interface, if not NULL, it is active */
-	
-	struct xbee_txInfo *tx;
-	struct xbee_rxInfo *rx;
+	struct ll_head *clientList;
 };
 
-xbee_err xbee_alloc(struct xbee **nXbee);
-xbee_err xbee_free(struct xbee *xbee);
+struct xbee_netClientInfo {
+	int fd;
+	FILE *f;
+};
 
-#endif /* __XBEE_INT_H */
+#endif /* __XBEE_RX_H */

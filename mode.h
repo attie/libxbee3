@@ -80,5 +80,6 @@ xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, u
 /* list of potential modes... basically a list of subdirectories in './modes/' */
 extern struct xbee_mode mode_xbee1;
 extern struct xbee_mode mode_xbee2;
+extern struct xbee_mode mode_net;
 
 #endif /* __XBEE_MODE_H */

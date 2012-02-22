@@ -100,8 +100,8 @@ xbee_err xbee_pktDigitalGet(struct xbee_pkt *pkt, int channel, int index, int *r
 
 /* ######################################################################### */
 /* --- net.c --- */
-xbee_err xbee_netStart(struct xbee *xbee, int port);
-xbee_err xbee_netvStart(struct xbee *xbee, int fd);
+xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, char *remoteHost));
+xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, char *remoteHost));
 xbee_err xbee_netStop(struct xbee *xbee);
 
 

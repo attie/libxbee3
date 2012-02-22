@@ -32,6 +32,7 @@
 #include "mode.h"
 #include "rx.h"
 #include "tx.h"
+#include "net.h"
 #include "ll.h"
 
 struct ll_head *xbeeList = NULL;
@@ -91,6 +92,8 @@ die1:
 
 xbee_err xbee_free(struct xbee *xbee) {
 	ll_ext_item(xbeeList, xbee);
+	
+	if (xbee->netInfo) xbee_netStop(xbee);
 	
 	xbee_threadDestroyMine(xbee);
 	

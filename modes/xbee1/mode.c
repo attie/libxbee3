@@ -35,8 +35,8 @@
 #include "data.h"
 #include "io.h"
 
-static xbee_err shutdown(struct xbee *xbee);
 static xbee_err init(struct xbee *xbee, va_list ap);
+static xbee_err shutdown(struct xbee *xbee);
 
 /* ######################################################################### */
 
@@ -49,6 +49,7 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	if ((data = malloc(sizeof(*data))) == NULL) return XBEE_ENOMEM;
 	memset(data, 0, sizeof(*data));
+	xbee->modeData = data;
 	
 	ret = XBEE_ENONE;
 	
@@ -61,7 +62,6 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	if ((ret = xbee_serialSetup(&data->serialInfo)) != XBEE_ENONE) goto die;
 	
-	xbee->modeData = data;
 	return XBEE_ENONE;
 die:
 	shutdown(xbee);
@@ -76,11 +76,12 @@ static xbee_err shutdown(struct xbee *xbee) {
 	
 	data = xbee->modeData;
 	
-	if (data->serialInfo.f) fclose(data->serialInfo.f);
-	if (data->serialInfo.fd != -1) close(data->serialInfo.fd);
+	if (data->serialInfo.f) xsys_fclose(data->serialInfo.f);
+	if (data->serialInfo.fd != -1) xsys_close(data->serialInfo.fd);
 	if (data->serialInfo.device) free(data->serialInfo.device);
 	if (data->serialInfo.txBuf) free(data->serialInfo.txBuf);
 	free(xbee->modeData);
+	xbee->modeData = NULL;
 	
 	return XBEE_ENONE;
 }
