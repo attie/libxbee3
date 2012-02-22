@@ -64,13 +64,17 @@ xbee_err xbee_rxFree(struct xbee_rxInfo *info) {
 
 xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
+	struct xbee_rxInfo *info;
 	struct xbee_buf *buf;
-	xbee_err (*rx)(struct xbee *xbee, struct xbee_buf **buf);
 	
-	rx = arg;
+	info = arg;
+	if (!info->bufList || !info->ioFunc) {
+		*restart = 0;
+		return XBEE_EINVAL;
+	}
 	
 	while (!xbee->die) {
-		if ((ret = rx(xbee, &buf)) != XBEE_ENONE) {
+		if ((ret = info->ioFunc(xbee, &buf)) != XBEE_ENONE) {
 			if (ret == XBEE_EEOF) {
 				*restart = 0;
 				return XBEE_EEOF;
@@ -80,9 +84,19 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 			continue;
 		}
 		
-		if (ll_add_tail(xbee->rx->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+#ifdef XBEE_LOG_RX
+		{
+			int i;
+			xbee_log(25, "rx[%p] length: %d", info, buf->len);
+			for (i = 0; i < buf->len; i++) {
+				xbee_log(25, "rx[%p]: %3d 0x%02X [%c]", info, i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
+			}
+		}
+#endif /* XBEE_LOG_RX */
+		
+		if (ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		buf = NULL;
-		if (xsys_sem_post(&xbee->rx->sem) != 0) return XBEE_ESEMAPHORE;
+		if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
 	}
 	
 	return XBEE_ENONE;
@@ -92,6 +106,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 
 xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
+	struct xbee_rxInfo *info;
 	struct xbee_buf *buf;
 	
 	struct xbee_modeConType *conType;
@@ -102,34 +117,27 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 	
 	struct xbee_con *con;
 	
-	struct xbee_frameBlock *fBlock;
-	
 	ret = XBEE_ENONE;
-	fBlock = arg;
+	info = arg;
 	buf = NULL;
 	
+	if (!info->bufList) {
+		*restart = 0;
+		return XBEE_EINVAL;
+	}
+	
 	while (!xbee->die) {
-		xsys_sem_wait(&xbee->rx->sem);
+		xsys_sem_wait(&info->sem);
 		
 		/* get the next buffer */
-		if (ll_ext_head(xbee->rx->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if (ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
 		/* check we actually have some data to work with... */
 		if (buf->len < 1) goto done;
 		
-#ifdef XBEE_LOG_RX
-		{
-			int i;
-			xbee_log(25, "rx length: %d", buf->len);
-			for (i = 0; i < buf->len; i++) {
-				xbee_log(25, "rx: %3d 0x%02X [%c]", i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
-			}
-		}
-#endif /* XBEE_LOG_RX */
-		
 		/* locate the connection type of this buffer */
-		if ((ret = xbee_modeLocateConType(xbee->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
+		if ((ret = xbee_modeLocateConType(info->conTypes, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
 			xbee_log(4, "Unknown message type recieved... (0x%02X)", buf->data[0]);
 			goto done;
 		} else if (ret != XBEE_ENONE) {
@@ -146,10 +154,10 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		if ((ret = conType->rxHandler->func(xbee, conType->rxHandler->identifier, buf, &frameInfo, &address, &pkt)) != XBEE_ENONE) break;
 		
 		/* handle any frame info (prod someone who may be waiting for ACK/NAK/etc...) */
-		if (frameInfo.active != 0 && conType->allowFrameId != 0) {
-			xbee_log(20, "received Tx status (block: %p, frame: 0x%02X, status: 0x%02X)", fBlock, frameInfo.id, frameInfo.retVal);
-			if ((ret = xbee_framePost(fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
-				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", fBlock, frameInfo.id, ret);
+		if (info->fBlock && frameInfo.active != 0 && conType->allowFrameId != 0) {
+			xbee_log(20, "received Tx status (block: %p, frame: 0x%02X, status: 0x%02X)", info->fBlock, frameInfo.id, frameInfo.retVal);
+			if ((ret = xbee_framePost(info->fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
+				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", info->fBlock, frameInfo.id, ret);
 				ret = XBEE_ENONE;
 			}
 		}

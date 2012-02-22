@@ -24,6 +24,9 @@
 struct xbee_rxInfo {
 	struct ll_head *bufList;
 	xsys_sem sem;
+	xbee_err (*ioFunc)(struct xbee *xbee, struct xbee_buf **buf);
+	struct xbee_frameBlock *fBlock;
+	struct xbee_modeConType *conTypes;
 };
 
 xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo);

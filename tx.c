@@ -63,27 +63,31 @@ xbee_err xbee_txFree(struct xbee_txInfo *info) {
 
 xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
+	struct xbee_txInfo *info;
 	struct xbee_buf *buf;
-	xbee_err (*tx)(struct xbee *xbee, struct xbee_buf *buf);
 	
-	tx = arg;
+	info = arg;
+	if (!info->ioFunc) {
+		*restart = 0;
+		return XBEE_EINVAL;
+	}
 	
 	while (!xbee->die) {
-		if (xsys_sem_wait(&xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
-		if (ll_ext_head(xbee->tx->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if (xsys_sem_wait(&info->sem) != 0) return XBEE_ESEMAPHORE;
+		if (ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
 #ifdef XBEE_LOG_TX
 		{
 			int i;
-			xbee_log(25, "tx length: %d", buf->len);
+			xbee_log(25, "tx[%p] length: %d", info, buf->len);
 			for (i = 0; i < buf->len; i++) {
-				xbee_log(25, "tx: %3d 0x%02X [%c]", i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
+				xbee_log(25, "tx[%p]: %3d 0x%02X [%c]", info, i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
 			}
 		}
 #endif /* XBEE_LOG_TX */
 
-		if ((ret = tx(xbee, buf)) != XBEE_ENONE) {
+		if ((ret = info->ioFunc(xbee, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);
 			continue;
 		}
@@ -91,6 +95,14 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 		free(buf);
 	}
 	
+	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_txQueueBuffer(struct xbee_txInfo *info, struct xbee_buf *buf) {
+	if (ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+	if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
 	return XBEE_ENONE;
 }
 
@@ -108,8 +120,5 @@ xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *buf, int len) {
 	
 	if (!oBuf) return XBEE_EUNKNOWN;
 	
-	if (ll_add_tail(con->xbee->tx->bufList, oBuf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
-	if (xsys_sem_post(&con->xbee->tx->sem) != 0) return XBEE_ESEMAPHORE;
-	
-	return XBEE_ENONE;
+	return xbee_txQueueBuffer(con->xbee->tx, oBuf);
 }
