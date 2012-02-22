@@ -28,10 +28,13 @@
 #include "log.h"
 #include "ll.h"
 
+#warning INFO - calling xsys_thread_cancel() on a thread that is holding a mutex, can cause issues
+
 struct ll_head *threadList = NULL;
 
 struct xbee_threadInfo {
 	int run;     /* FALSE will cause the thread to die once func() returns */
+	int detached;/* TRUE will cause the thread to free the info block before it returns */
 	int running; /* TRUE means that the function is actually running */
 	int active;  /* TRUE means that the thread is alive */
 
@@ -81,6 +84,8 @@ void *threadFunc(struct xbee_threadInfo *info) {
 	info->active = 0;
 	
 	xbee_log(15, "thread %p, function %s() has now ended...", info->thread, info->funcName);
+	
+	if (info->detached) free(info);
 	
 	return (void*)ret;
 }
@@ -162,7 +167,11 @@ xbee_err xbee_threadKill(struct xbee *xbee, xsys_thread thread) {
 	if ((ret = xbee_threadGetInfo(xbee, thread, &info)) != XBEE_ENONE) return XBEE_EINVAL;
 
 	if ((ret = xbee_threadGetState(xbee, thread, NULL, &active)) != XBEE_ENONE) return ret;
-	if (active) if (xsys_thread_cancel(thread)) return XBEE_ETHREAD;
+	if (active) {
+		info->run = 0;
+		usleep(1000); /* 1ms */
+		if (xsys_thread_cancel(thread)) return XBEE_ETHREAD;
+	}
 
 	return XBEE_ENONE;
 }
@@ -203,7 +212,11 @@ xbee_err _xbee_threadDestroy(struct xbee_threadInfo *info, int needsLLLock) {
 	if (!info) return XBEE_EMISSINGPARAM;
 
 	if ((ret = _xbee_threadGetState(NULL, info->thread, NULL, &active, needsLLLock)) != XBEE_ENONE) return ret;
-	if (active) if (xsys_thread_cancel(info->thread)) return XBEE_ETHREAD;
+	if (active) {
+		info->run = 0;
+		usleep(1000); /* 1ms */
+		if (xsys_thread_cancel(info->thread)) return XBEE_ETHREAD;
+	}
 
 	if (xsys_thread_join(info->thread, NULL)) return XBEE_ETHREAD;
 
@@ -242,4 +255,35 @@ xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 	ll_unlock(threadList);
 	
 	return ret;
+}
+
+xbee_err xbee_threadRelease(struct xbee *xbee, xsys_thread thread) {
+	xbee_err ret;
+	struct xbee_threadInfo *info;
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+
+	if ((ret = xbee_threadGetInfo(xbee, thread, &info)) != XBEE_ENONE) return XBEE_EINVAL;
+	
+	xsys_thread_detach(info->thread);
+	info->detached = 1;
+	ll_ext_item(threadList, info);
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_threadStopRelease(struct xbee *xbee, xsys_thread thread) {
+	xbee_err ret;
+	struct xbee_threadInfo *info;
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+
+	if ((ret = xbee_threadGetInfo(xbee, thread, &info)) != XBEE_ENONE) return XBEE_EINVAL;
+	
+	xsys_thread_detach(info->thread);
+	info->detached = 1;
+	info->run = 0;
+	ll_ext_item(threadList, info);
+	
+	return XBEE_ENONE;
 }

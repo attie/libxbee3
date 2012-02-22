@@ -28,13 +28,17 @@ struct xbee_threadInfo;
 #define xbee_threadStart(xbee, retThread, restartDelay, func, arg) \
 	_xbee_threadStart(xbee, retThread, restartDelay, #func, func, arg)
 xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restartDelay, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg);
-xbee_err xbee_threadKill(struct xbee *xbee, xsys_thread thread);
-xbee_err xbee_threadJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
-xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
-xbee_err xbee_threadDestroy(struct xbee_threadInfo *info);
 
 xbee_err xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active);
 
+xbee_err xbee_threadKill(struct xbee *xbee, xsys_thread thread);
+xbee_err xbee_threadJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
+xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
+
+xbee_err xbee_threadDestroy(struct xbee_threadInfo *info);
 xbee_err xbee_threadDestroyMine(struct xbee *xbee);
+
+xbee_err xbee_threadRelease(struct xbee *xbee, xsys_thread thread);
+xbee_err xbee_threadStopRelease(struct xbee *xbee, xsys_thread thread);
 
 #endif /* __XBEE_THREAD_H */
