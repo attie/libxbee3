@@ -27,6 +27,7 @@
 #include "conn.h"
 #include "pkt.h"
 #include "thread.h"
+#include "net.h"
 
 EXPORT INIT void xbee_init(void) {
 	if (!xbeeList && (xbeeList = ll_alloc()) == NULL) {
@@ -37,6 +38,9 @@ EXPORT INIT void xbee_init(void) {
 	}
 	if (!pktList && (pktList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize pktList...\n");
+	}
+	if (!netDeadClientList && (netDeadClientList = ll_alloc()) == NULL) {
+		fprintf(stderr, "libxbee: failed to initialize netDeadClientList...\n");
 	}
 	if (!threadList && (threadList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize threadList...\n");
@@ -55,6 +59,9 @@ EXPORT FINI void xbee_fini(void) {
 	}
 	if (pktList) {
 		ll_free(pktList, (void(*)(void*))xbee_pktFree);
+	}
+	if (netDeadClientList) {
+		ll_free(netDeadClientList, (void(*)(void*))xbee_netClientShutdown);
 	}
 	if (threadList) {
 		ll_free(threadList, (void(*)(void*))xbee_threadDestroy);

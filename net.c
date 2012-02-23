@@ -38,26 +38,85 @@
 #include "ll.h"
 #include "thread.h"
 
+struct ll_head *netDeadClientList = NULL;
+
+/* ######################################################################### */
+
 xbee_err xbee_netRx(struct xbee *xbee, struct xbee_buf **buf, void *arg) {
-	return XBEE_ENOTIMPLEMENTED;
+	struct xbee_netClientInfo *info;
+	char c;
+	char length[2];
+	int pos, len, ret;
+	struct xbee_buf *iBuf;
+	int fd;
+	
+	if (!xbee || !buf || !arg) return XBEE_EMISSINGPARAM;
+	
+	info = arg;
+	if (xbee != info->xbee) return XBEE_EINVAL;
+	fd = info->fd;
+	
+	while (1) {
+		do {
+			if ((ret = recv(fd, &c, 1, MSG_NOSIGNAL)) < 0) return XBEE_EIO;
+			if (ret == 0) goto eof;
+		} while (c != 0x7E);
+		
+		for (len = 2, pos = 0; pos < len; pos += ret) {
+			ret = recv(fd, &(length[pos]), len - pos, MSG_NOSIGNAL);
+			if (ret > 0) continue;
+			if (ret == 0) goto eof;
+			return XBEE_EIO;
+		}
+		
+		if ((iBuf = malloc(sizeof(*iBuf) + len)) == NULL) return XBEE_ENOMEM;
+		ll_add_tail(needsFree, iBuf);
+		
+		iBuf->len = ((length[0] << 8) & 0xFF00) || (length[1] & 0xFF);
+		
+		for (pos = 0; pos < iBuf->len; pos += ret) {
+			ret = recv(fd, &(iBuf->data[pos]), iBuf->len - pos, MSG_NOSIGNAL);
+			if (ret > 0) continue;
+			ll_ext_item(needsFree, iBuf);
+			free(iBuf);
+			if (ret == 0) goto eof;
+			return XBEE_EIO;
+		}
+	}
+	
+	*buf = iBuf;
+	
+	return XBEE_ENONE;
+eof:
+	/* xbee_netRx() is responsible for free()ing memory and killing off client threads on the server
+	   to do this, we need to add ourselves to the netDeadClientList, and remove ourselves from the clientList
+	   the server thread will then cleanup any clients on the next accept() */
+	ll_add_tail(netDeadClientList, info);
+	ll_ext_item(xbee->netInfo->clientList, info);
+	return XBEE_EEOF;
 }
 
 xbee_err xbee_netTx(struct xbee *xbee, struct xbee_buf *buf, void *arg) {
+	struct xbee_netClientInfo *info;
+	int pos, ret;
+	int fd;
+	
+	if (!xbee || !buf || !arg) return XBEE_EMISSINGPARAM;
+	
+	info = arg;
+	if (xbee != info->xbee) return XBEE_EINVAL;
+	fd = info->fd;
+	
+	for (pos = 0; pos < buf->len; pos += ret) {
+		ret = send(fd, buf->data, buf->len - pos, MSG_NOSIGNAL);
+		if (ret >= 0) continue;
+		return XBEE_EIO;
+	}
+	
 	return XBEE_ENOTIMPLEMENTED;
 }
 
 /* ######################################################################### */
-
-xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
-	if (!info) return XBEE_EINVAL;
-	
-	xbee_frameBlockFree(info->fBlock);
-	xbee_txFree(info->tx);
-	xbee_rxFree(info->rx);
-	
-	free(info);
-	return XBEE_ENONE;
-}
 
 xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info) {
 	xbee_err ret;
@@ -93,9 +152,20 @@ done:
 	return ret;
 }
 
+xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
+	if (!info) return XBEE_EINVAL;
+	
+	xbee_frameBlockFree(info->fBlock);
+	xbee_txFree(info->tx);
+	xbee_rxFree(info->rx);
+	
+	free(info);
+	return XBEE_ENONE;
+}
+
 /* ######################################################################### */
 
-xbee_err xbee_netClientSetup(struct xbee *xbee, struct xbee_netClientInfo *client) {
+xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *client) {
 	xbee_err ret;
 	
 	if (!xbee || !client) return XBEE_EMISSINGPARAM;
@@ -119,17 +189,20 @@ xbee_err xbee_netClientSetup(struct xbee *xbee, struct xbee_netClientInfo *clien
 	}
 	return XBEE_ENONE;
 die3:
-	xbee_threadKillRelease(xbee, client->rxHandlerThread);
+	xbee_threadKillJoin(xbee, client->rxHandlerThread, NULL);
 die2:
-	xbee_threadKillRelease(xbee, client->rxThread);
+	xbee_threadKillJoin(xbee, client->rxThread, NULL);
 die1:
 	return ret;
 }
 
 xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client) {
-	xbee_threadKillRelease(client->xbee, client->txThread);
-	xbee_threadKillRelease(client->xbee, client->rxHandlerThread);
-	xbee_threadKillRelease(client->xbee, client->rxThread);
+	if (!client) return XBEE_EMISSINGPARAM;
+	if (!client->xbee) return XBEE_EINVAL;
+
+	xbee_threadKillJoin(client->xbee, client->txThread, NULL);
+	xbee_threadKillJoin(client->xbee, client->rxHandlerThread, NULL);
+	xbee_threadKillJoin(client->xbee, client->rxThread, NULL);
 	
 	shutdown(client->fd, SHUT_RDWR);
 	xsys_close(client->fd);
@@ -150,6 +223,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 	
 	struct xbee_netInfo *info;
 	struct xbee_netClientInfo *client;
+	struct xbee_netClientInfo *deadClient;
 	
 	if (!xbee->netInfo || arg != xbee->netInfo) {
 		*restart = 0;
@@ -160,6 +234,10 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 	while (xbee->netInfo) {
 		ret = XBEE_ENONE;
 		info = xbee->netInfo;
+		
+		while (ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
+			xbee_netClientShutdown(deadClient);
+		}
 		
 		if (!client) {
 			if ((ret = xbee_netClientAlloc(xbee, &info->newClient)) != XBEE_ENONE) return ret;
@@ -205,10 +283,10 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 		memcpy(client->addr, addr, sizeof(client->addr));
 		client->port = port;
 		
-		if ((ret = xbee_netClientSetup(xbee, client)) != XBEE_ENONE) {
+		if ((ret = xbee_netClientStartup(xbee, client)) != XBEE_ENONE) {
 			shutdown(client->fd, SHUT_RDWR);
 			close(client->fd);
-			xbee_log(10, "failed to accept client... xbee_netClientSetup() returned %d", ret);
+			xbee_log(10, "failed to accept client... xbee_netClientStartup() returned %d", ret);
 			continue;
 		}
 		
@@ -297,6 +375,7 @@ EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(str
 
 EXPORT xbee_err xbee_netStop(struct xbee *xbee) {
 	struct xbee_netInfo *info;
+	struct xbee_netClientInfo *deadClient;
 	
 	if (!xbee) return XBEE_EMISSINGPARAM;
 	if (!xbee->netInfo) return XBEE_EINVAL;
@@ -311,6 +390,10 @@ EXPORT xbee_err xbee_netStop(struct xbee *xbee) {
 	xsys_close(info->fd);
 	
 	ll_free(info->clientList, (void(*)(void*))xbee_netClientShutdown);
+	
+	while (ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
+		xbee_netClientShutdown(deadClient);
+	}
 	
 	free(info);
 

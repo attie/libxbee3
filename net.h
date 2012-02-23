@@ -25,6 +25,8 @@
 #define INET_ADDRSTRLEN 16
 #endif
 
+extern struct ll_head *netDeadClientList;
+
 struct xbee_netClientInfo {
 	int fd;
 	int die;
@@ -51,5 +53,11 @@ struct xbee_netInfo {
 	int(*clientFilter)(struct xbee *xbee, char *remoteHost);
 	struct ll_head *clientList;
 };
+
+xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info);
+xbee_err xbee_netClientFree(struct xbee_netClientInfo *info);
+
+xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *client);
+xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client);
 
 #endif /* __XBEE_RX_H */
