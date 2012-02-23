@@ -169,6 +169,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		/* match the address to a connection */
 		if ((ret = xbee_conMatchAddress(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE || !con) {
+			xbee_pktFree(pkt);
 			if (ret == XBEE_ENOTEXISTS) {
 				xbee_log(5, "connectionless '%s' packet (%d bytes)...", conType->name, buf->len);
 				xbee_conLogAddress(xbee, 10, &address);
