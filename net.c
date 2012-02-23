@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -28,8 +29,205 @@
 
 #include "internal.h"
 #include "xbee_int.h"
+#include "rx.h"
+#include "tx.h"
+#include "frame.h"
 #include "net.h"
+//#include "net_handlers.h"
+#include "log.h"
 #include "ll.h"
+#include "thread.h"
+
+xbee_err xbee_netRx(struct xbee *xbee, struct xbee_buf **buf, void *arg) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+xbee_err xbee_netTx(struct xbee *xbee, struct xbee_buf *buf, void *arg) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
+	if (!info) return XBEE_EINVAL;
+	
+	xbee_frameBlockFree(info->fBlock);
+	xbee_txFree(info->tx);
+	xbee_rxFree(info->rx);
+	
+	free(info);
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info) {
+	xbee_err ret;
+	struct xbee_netClientInfo *iInfo;
+	
+	if (!info) return XBEE_EMISSINGPARAM;
+	
+	if ((iInfo = malloc(sizeof(*iInfo))) == NULL) return XBEE_ENOMEM;
+	*info = iInfo;
+
+	ret = XBEE_ENONE;
+	
+	if ((ret = xbee_rxAlloc(&iInfo->rx)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_txAlloc(&iInfo->tx)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_frameBlockAlloc(&iInfo->fBlock)) != XBEE_ENONE) goto die;
+	
+	iInfo->xbee = xbee;
+	
+	iInfo->rx->ioArg = iInfo;
+	iInfo->rx->ioFunc = xbee_netRx;
+	iInfo->rx->fBlock = iInfo->fBlock;
+#define xbee_netConTypes NULL
+	iInfo->rx->conTypes = xbee_netConTypes;
+	
+	iInfo->tx->ioArg = iInfo;
+	iInfo->tx->ioFunc = xbee_netTx;
+	
+	goto done;
+die:
+	*info = NULL;
+	xbee_netClientFree(iInfo);
+done:
+	return ret;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_netClientSetup(struct xbee *xbee, struct xbee_netClientInfo *client) {
+	xbee_err ret;
+	
+	if (!xbee || !client) return XBEE_EMISSINGPARAM;
+	
+	ret = XBEE_ENONE;
+	
+	if ((ret = xbee_threadStart(xbee, &client->rxThread, 150000, xbee_rx, client->rx)) != XBEE_ENONE) {
+		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
+		ret = XBEE_ETHREAD;
+		goto die1;
+	}
+	if ((ret = xbee_threadStart(xbee, &client->rxHandlerThread, 150000, xbee_rxHandler, client->rx)) != XBEE_ENONE) {
+		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
+		ret = XBEE_ETHREAD;
+		goto die2;
+	}
+	if ((ret = xbee_threadStart(xbee, &client->txThread, 150000, xbee_tx, client->tx)) != XBEE_ENONE) {
+		xbee_log(1, "failed to start xbee_tx() thread for client from %s:%d", client->addr, client->port);
+		ret = XBEE_ETHREAD;
+		goto die3;
+	}
+	return XBEE_ENONE;
+die3:
+	xbee_threadKillRelease(xbee, client->rxHandlerThread);
+die2:
+	xbee_threadKillRelease(xbee, client->rxThread);
+die1:
+	return ret;
+}
+
+xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client) {
+	xbee_threadKillRelease(client->xbee, client->txThread);
+	xbee_threadKillRelease(client->xbee, client->rxHandlerThread);
+	xbee_threadKillRelease(client->xbee, client->rxThread);
+	
+	shutdown(client->fd, SHUT_RDWR);
+	xsys_close(client->fd);
+	
+	xbee_netClientFree(client);
+	
+	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
+	xbee_err ret;
+	struct sockaddr_in addrinfo;
+	socklen_t addrlen;
+	char addr[INET_ADDRSTRLEN];
+	int port;
+	
+	struct xbee_netInfo *info;
+	struct xbee_netClientInfo *client;
+	
+	if (!xbee->netInfo || arg != xbee->netInfo) {
+		*restart = 0;
+		return XBEE_EINVAL;
+	}
+	
+	client = NULL;
+	while (xbee->netInfo) {
+		ret = XBEE_ENONE;
+		info = xbee->netInfo;
+		
+		if (!client) {
+			if ((ret = xbee_netClientAlloc(xbee, &info->newClient)) != XBEE_ENONE) return ret;
+			client = info->newClient;
+			client->xbee = xbee;
+		}
+		
+		addrlen = sizeof(addrinfo);
+		if ((client->fd = accept(info->fd, (struct sockaddr*)&addrinfo, &addrlen)) < 0) {
+			ret = XBEE_EIO;
+			if (errno == EINVAL) {
+				/* it appears we aren't listening yet... or have stopped listening. let's sleep for 5ms and try again */
+				usleep(5000);
+				continue;
+			}
+			break;
+		}
+		
+		if (!xbee->netInfo) {
+			shutdown(client->fd, SHUT_RDWR);
+			close(client->fd);
+			break;
+		}
+		
+		memset(addr, 0, sizeof(addr));
+		if (inet_ntop(AF_INET, (const void*)&addrinfo.sin_addr, addr, sizeof(addr)) == NULL) {
+			shutdown(client->fd, SHUT_RDWR);
+			close(client->fd);
+			ret = XBEE_EIO;
+			break;
+		}
+		port = ntohs(addrinfo.sin_port);
+		
+		if (info->clientFilter) {
+			if (info->clientFilter(xbee, addr) != 0) {
+				shutdown(client->fd, SHUT_RDWR);
+				close(client->fd);
+				xbee_log(1, "*** connection from %s:%d was blocked ***", addr, port);
+				continue;
+			}
+		}
+		
+		memcpy(client->addr, addr, sizeof(client->addr));
+		client->port = port;
+		
+		if ((ret = xbee_netClientSetup(xbee, client)) != XBEE_ENONE) {
+			shutdown(client->fd, SHUT_RDWR);
+			close(client->fd);
+			xbee_log(10, "failed to accept client... xbee_netClientSetup() returned %d", ret);
+			continue;
+		}
+		
+		xbee_log(10, "accepted connection from %s:%d", addr, port);
+		
+		ll_add_tail(info->clientList, client);
+		info->newClient = NULL;
+		client = NULL;
+	}
+	
+	if (xbee->netInfo) xbee->netInfo->newClient = NULL;
+	if (client) {	
+		xbee_netClientFree(client);
+	}
+	
+	return ret;
+}
+
+/* ######################################################################### */
 
 EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
 	xbee_err ret;
@@ -67,30 +265,35 @@ EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(st
 }
 
 EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
+	xbee_err ret;
 	struct xbee_netInfo *info;
 	
 	if (!xbee) return XBEE_EMISSINGPARAM;
-	if (fd < 0) return XBEE_EINVAL;
+	if (fd < 0 || xbee->netInfo != NULL) return XBEE_EINVAL;
 	
-	if (listen(fd, 512) == -1) return XBEE_EIO;
+	ret = XBEE_ENONE;
 	
 	if ((info = malloc(sizeof(*info))) == NULL) return XBEE_ENOMEM;
 	memset(info, 0, sizeof(*info));
 	
+	if ((info->clientList = ll_alloc()) == NULL) {
+		free(info);
+		return XBEE_ENOMEM;
+	}
+	
 	info->fd = fd;
 	info->clientFilter = clientFilter;
-	info->clientList = ll_alloc();
 	
 	xbee->netInfo = info;
 	
-	return XBEE_ENONE;
+	if ((ret = xbee_threadStart(xbee, &info->serverThread, 150000, xbee_netServerThread, info)) == XBEE_ENONE) {
+		if (listen(fd, 512) == -1) return XBEE_EIO;
+	}
+	
+	return ret;
 }
 
 /* ######################################################################### */
-
-xbee_err xbee_netKillClient(struct xbee_netClientInfo *client) {
-	return XBEE_ENOTIMPLEMENTED;
-}
 
 EXPORT xbee_err xbee_netStop(struct xbee *xbee) {
 	struct xbee_netInfo *info;
@@ -101,9 +304,13 @@ EXPORT xbee_err xbee_netStop(struct xbee *xbee) {
 	info = xbee->netInfo;
 	xbee->netInfo = NULL;
 	
-	ll_free(info->clientList, (void(*)(void*))xbee_netKillClient);
+	/* closing the listening fd, will cause the accept() in the serverThread to return an error.
+	   once that returns, the while() loop will break, and the thread will die - no need for threadKillRelease() */
+	xbee_threadStopRelease(xbee, info->serverThread);
 	shutdown(info->fd, SHUT_RDWR);
 	xsys_close(info->fd);
+	
+	ll_free(info->clientList, (void(*)(void*))xbee_netClientShutdown);
 	
 	free(info);
 

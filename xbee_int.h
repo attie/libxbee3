@@ -34,7 +34,7 @@ struct xbee {
 	const struct xbee_mode *mode;
 	void *modeData; /* for use by the mode */
 	
-	void *netInfo; /* used by the network interface, if not NULL, it is active */
+	struct xbee_netInfo *netInfo; /* used by the network interface, if not NULL, it is active */
 	
 	struct xbee_txInfo *tx;
 	struct xbee_rxInfo *rx;

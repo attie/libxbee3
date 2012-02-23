@@ -21,17 +21,35 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-struct xbee_netInfo {
-	int fd;
-	
-	int(*clientFilter)(struct xbee *xbee, char *remoteHost);
-	
-	struct ll_head *clientList;
-};
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif
 
 struct xbee_netClientInfo {
 	int fd;
-	FILE *f;
+	int die;
+	
+	struct xbee *xbee;
+	char addr[INET_ADDRSTRLEN];
+	int port;
+	
+	xsys_thread rxThread;
+	xsys_thread rxHandlerThread;
+	xsys_thread txThread;
+	
+	struct xbee_rxInfo *rx;
+	struct xbee_txInfo *tx;
+	struct xbee_frameBlock *fBlock;
+};
+
+struct xbee_netInfo {
+	int fd;
+	
+	xsys_thread serverThread;
+	
+	struct xbee_netClientInfo *newClient;
+	int(*clientFilter)(struct xbee *xbee, char *remoteHost);
+	struct ll_head *clientList;
 };
 
 #endif /* __XBEE_RX_H */
