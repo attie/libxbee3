@@ -287,3 +287,21 @@ xbee_err xbee_threadStopRelease(struct xbee *xbee, xsys_thread thread) {
 	
 	return XBEE_ENONE;
 }
+
+xbee_err xbee_threadKillRelease(struct xbee *xbee, xsys_thread thread) {
+	xbee_err ret;
+	struct xbee_threadInfo *info;
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+
+	if ((ret = xbee_threadGetInfo(xbee, thread, &info)) != XBEE_ENONE) return XBEE_EINVAL;
+	
+	xsys_thread_detach(info->thread);
+	xsys_thread_cancel(info->thread);
+	
+	ll_ext_item(threadList, info);
+	
+	free(info);
+	
+	return XBEE_ENONE;
+}
