@@ -201,7 +201,7 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_xbeeRxIo(struct xbee *xbee, struct xbee_buf **buf) {
+xbee_err xbee_xbeeRxIo(struct xbee *xbee, struct xbee_buf **buf, void *arg) {
 	struct xbee_buf *iBuf;
 	void *p;
 	
@@ -336,7 +336,7 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_xbeeTxIo(struct xbee *xbee, struct xbee_buf *buf) {
+xbee_err xbee_xbeeTxIo(struct xbee *xbee, struct xbee_buf *buf, void *arg) {
 	struct xbee_serialInfo *data;
 	size_t txSize;
 	size_t memSize;
