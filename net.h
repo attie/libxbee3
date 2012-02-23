@@ -60,4 +60,4 @@ xbee_err xbee_netClientFree(struct xbee_netClientInfo *info);
 xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *client);
 xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client);
 
-#endif /* __XBEE_RX_H */
+#endif /* __XBEE_NET_H */

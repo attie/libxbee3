@@ -116,7 +116,7 @@ xbee_err xbee_s2_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigne
 
 /* ######################################################################### */
 
-xbee_err xbee_s2_io_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_s2_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	

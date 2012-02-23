@@ -74,7 +74,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	}
 	
 	while (!xbee->die) {
-		if ((ret = info->ioFunc(xbee, &buf, info->ioArg)) != XBEE_ENONE) {
+		if ((ret = info->ioFunc(xbee, info->ioArg, &buf)) != XBEE_ENONE) {
 			if (ret == XBEE_EEOF) {
 				*restart = 0;
 				return XBEE_EEOF;
@@ -151,7 +151,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		pkt = NULL;
 		
 		/* process the buffer into the buckets */
-		if ((ret = conType->rxHandler->func(xbee, conType->rxHandler->identifier, buf, &frameInfo, &address, &pkt)) != XBEE_ENONE) break;
+		if ((ret = conType->rxHandler->func(xbee, info->handlerArg, conType->rxHandler->identifier, buf, &frameInfo, &address, &pkt)) != XBEE_ENONE) break;
 		
 		/* handle any frame info (prod someone who may be waiting for ACK/NAK/etc...) */
 		if (info->fBlock && frameInfo.active != 0 && conType->allowFrameId != 0) {
@@ -179,7 +179,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 			break;
 		}
 		
-		xbee_log(15, "matched packet with con @ %p\n", con);
+		xbee_log(15, "matched packet with con @ %p", con);
 		xbee_conLogAddress(xbee, 16, &address);
 		
 		/* wake the connection if necessary */

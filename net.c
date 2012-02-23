@@ -42,7 +42,7 @@ struct ll_head *netDeadClientList = NULL;
 
 /* ######################################################################### */
 
-xbee_err xbee_netRx(struct xbee *xbee, struct xbee_buf **buf, void *arg) {
+xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 	struct xbee_netClientInfo *info;
 	char c;
 	char length[2];
@@ -96,7 +96,7 @@ eof:
 	return XBEE_EEOF;
 }
 
-xbee_err xbee_netTx(struct xbee *xbee, struct xbee_buf *buf, void *arg) {
+xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	struct xbee_netClientInfo *info;
 	int pos, ret;
 	int fd;

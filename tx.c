@@ -87,7 +87,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 		}
 #endif /* XBEE_LOG_TX */
 
-		if ((ret = info->ioFunc(xbee, buf, info->ioArg)) != XBEE_ENONE) {
+		if ((ret = info->ioFunc(xbee, info->ioArg, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);
 			continue;
 		}
@@ -116,7 +116,7 @@ xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *buf, int len) {
 	if (!con->conType) return XBEE_EINVAL;
 	if (!con->conType->txHandler || !con->conType->txHandler->func) return XBEE_ENOTIMPLEMENTED;
 	
-	if ((ret = con->conType->txHandler->func(con->xbee, con->conType->txHandler->identifier, con->frameId, &con->address, &con->settings, buf, len, &oBuf)) != XBEE_ENONE) return ret;
+	if ((ret = con->conType->txHandler->func(con->xbee, NULL, con->conType->txHandler->identifier, con->frameId, &con->address, &con->settings, buf, len, &oBuf)) != XBEE_ENONE) return ret;
 	
 	if (!oBuf) return XBEE_EUNKNOWN;
 	

@@ -31,7 +31,7 @@
 #include "at.h"
 #include "io.h"
 
-xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_s1_at_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	int addrLen;
@@ -84,7 +84,7 @@ xbee_err xbee_s1_at_rx_func(struct xbee *xbee, unsigned char identifier, struct 
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_s1_at_tx_func(struct xbee *xbee, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
+xbee_err xbee_s1_at_tx_func(struct xbee *xbee, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	unsigned char *addr16;

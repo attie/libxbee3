@@ -33,7 +33,7 @@ struct xbee_serialInfo {
 
 xbee_err xbee_serialSetup(struct xbee_serialInfo *info);
 
-xbee_err xbee_xbeeRxIo(struct xbee *xbee, struct xbee_buf **buf, void *arg);
-xbee_err xbee_xbeeTxIo(struct xbee *xbee, struct xbee_buf *buf, void *arg);
+xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf);
+xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf);
 
 #endif /* __XBEE_MODE_COMMON_H */

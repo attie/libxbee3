@@ -87,14 +87,14 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-xbee_err xbee_netRxIo(struct xbee *xbee, struct xbee_buf **buf, void *arg) {
+xbee_err xbee_netRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 	sleep(10);
 	return XBEE_ENOTIMPLEMENTED;
 }
 
 /* ######################################################################### */
 
-xbee_err xbee_netTxIo(struct xbee *xbee, struct xbee_buf *buf, void *arg) {
+xbee_err xbee_netTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	sleep(10);
 	return XBEE_ENOTIMPLEMENTED;
 }

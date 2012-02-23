@@ -25,7 +25,7 @@ struct xbee_txInfo {
 	struct ll_head *bufList;
 	xsys_sem sem;
 	void *ioArg;
-	xbee_err (*ioFunc)(struct xbee *xbee, struct xbee_buf *buf, void *arg);
+	xbee_err (*ioFunc)(struct xbee *xbee, void *arg, struct xbee_buf *buf);
 };
 
 xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo);
