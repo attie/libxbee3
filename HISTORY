@@ -1,5 +1,6 @@
 v3.0.4 - in development
 	* Implemented rx/tx counters
+	* Fixed XBee Series 2 data broadcast
 
 v3.0.3 - 21 Feb 2012
 	* Fixed xbee_rxHandler() - now obeys allowFrameId flag

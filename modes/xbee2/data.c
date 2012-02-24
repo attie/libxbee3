@@ -79,18 +79,33 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, void *arg, unsigned char identi
 	iBuf->len = bufLen;
 	iBuf->data[pos] = identifier;                         pos++;
 	iBuf->data[pos] = frameId;                            pos++;
-	if (address->addr64_enabled) {
-		memcpy(&(iBuf->data[pos]), address->addr64, 8);
+	if (settings->broadcastPAN) {
+		/* 64-bit broadcast address */
+		iBuf->data[pos] = 0x00;                             pos++;
+		iBuf->data[pos] = 0x00;                             pos++;
+		iBuf->data[pos] = 0x00;                             pos++;
+		iBuf->data[pos] = 0x00;                             pos++;
+		iBuf->data[pos] = 0x00;                             pos++;
+		iBuf->data[pos] = 0x00;                             pos++;
+		iBuf->data[pos] = 0xFF;                             pos++;
+		iBuf->data[pos] = 0xFF;                             pos++;
+		/* 16-bit broadcast address */
+		iBuf->data[pos] = 0xFF;                             pos++;
+		iBuf->data[pos] = 0xFE;                             pos++;
 	} else {
-		memset(&(iBuf->data[pos]), 0, 8);
+		if (address->addr64_enabled) {
+			memcpy(&(iBuf->data[pos]), address->addr64, 8);
+		} else {
+			memset(&(iBuf->data[pos]), 0, 8);
+		}
+		                                                    pos += 8;
+		if (address->addr16_enabled) {
+			memcpy(&(iBuf->data[pos]), address->addr16, 2);
+		} else {
+			memset(&(iBuf->data[pos]), 0, 2);
+		}
+		                                                    pos += 2;
 	}
-	                                                      pos += 8;
-	if (address->addr16_enabled) {
-		memcpy(&(iBuf->data[pos]), address->addr16, 2);
-	} else {
-		memset(&(iBuf->data[pos]), 0, 2);
-	}
-	                                                      pos += 2;
 	iBuf->data[pos] = 0; /* broadcast radius (max) */     pos++;
 	iBuf->data[pos] = 0;
 	if (settings->broadcastPAN) iBuf->data[pos] |= 0x08;
