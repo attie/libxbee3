@@ -105,7 +105,7 @@ static const struct xbee_modeConType *conTypes[] = {
 	NULL
 };
 
-struct xbee_mode mode_net = {
+const struct xbee_mode mode_net = {
 	.name = "net",
 	
 	.conTypes = conTypes,

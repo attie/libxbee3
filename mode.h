@@ -81,8 +81,8 @@ xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes);
 xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType);
 
 /* list of potential modes... basically a list of subdirectories in './modes/' */
-extern struct xbee_mode mode_xbee1;
-extern struct xbee_mode mode_xbee2;
-extern struct xbee_mode mode_net;
+extern const struct xbee_mode mode_xbee1;
+extern const struct xbee_mode mode_xbee2;
+extern const struct xbee_mode mode_net;
 
 #endif /* __XBEE_MODE_H */
