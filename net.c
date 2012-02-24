@@ -32,8 +32,11 @@
 #include "rx.h"
 #include "tx.h"
 #include "frame.h"
+#include "conn.h"
 #include "net.h"
-//#include "net_handlers.h"
+#include "net_handlers.h"
+#include "net_callbacks.h"
+#include "mode.h"
 #include "log.h"
 #include "ll.h"
 #include "thread.h"
@@ -135,6 +138,7 @@ xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info
 	
 	iInfo->xbee = xbee;
 	
+	iInfo->rx->handlerArg = iInfo;
 	iInfo->rx->ioArg = iInfo;
 	iInfo->rx->ioFunc = xbee_netRx;
 	iInfo->rx->fBlock = iInfo->fBlock;
@@ -165,12 +169,52 @@ xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
 
 /* ######################################################################### */
 
+xbee_err xbee_netConNew(struct xbee *xbee, struct xbee_netClientInfo *client, char *type, unsigned char endpoint, xbee_t_conCallback callback) {
+	xbee_err ret;
+	struct xbee_conAddress address;
+	struct xbee_con *con;
+	
+	if (!xbee || !client || !type || !callback) return XBEE_EMISSINGPARAM;
+	
+	memset(&address, 0, sizeof(address));
+	address.endpoints_enabled = 1;
+	address.endpoint_local = endpoint;
+	address.endpoint_remote = endpoint;
+	
+	if ((ret = _xbee_conNew(xbee, client->conTypes, &con, type, &address)) != XBEE_ENONE) return ret;
+	if (!con) return XBEE_EUNKNOWN;
+	
+	xbee_conDataSet(con, client, NULL);
+	xbee_conCallbackSet(con, callback, NULL);
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_netClientSetupBackchannel(struct xbee *xbee, struct xbee_netClientInfo *client) {
+	xbee_err ret;
+	int endpoint;
+
+	if (!xbee || !client) return XBEE_EMISSINGPARAM;
+	
+	for (endpoint = 0; xbee_netServerCallbacks[endpoint].callback; endpoint++) {
+		if ((ret = xbee_netConNew(xbee, client, "Backchannel", endpoint, xbee_netServerCallbacks[endpoint].callback)) != XBEE_ENONE) return ret;
+	}
+	
+	/* 'frontchannel' connections are added later... by the developer... you know, with xbee_conNew()... */
+	
+	return ret;
+}
+
+/* ######################################################################### */
+
 xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *client) {
 	xbee_err ret;
 	
 	if (!xbee || !client) return XBEE_EMISSINGPARAM;
 	
 	ret = XBEE_ENONE;
+	
+	if ((ret = xbee_netClientSetupBackchannel(xbee, client)) != XBEE_ENONE) return ret;
 	
 	if ((ret = xbee_threadStart(xbee, &client->rxThread, 150000, xbee_rx, client->rx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
@@ -283,6 +327,12 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 		memcpy(client->addr, addr, sizeof(client->addr));
 		client->port = port;
 		
+		if ((ret = xbee_modeImport(&client->conTypes, &xbee_netServerMode)) != XBEE_ENONE) {
+			shutdown(client->fd, SHUT_RDWR);
+			close(client->fd);
+			xbee_log(10, "failed to accept client... xbee_modeImport() returned %d", ret);
+			continue;
+		}
 		if ((ret = xbee_netClientStartup(xbee, client)) != XBEE_ENONE) {
 			shutdown(client->fd, SHUT_RDWR);
 			close(client->fd);

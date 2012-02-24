@@ -10,7 +10,7 @@ LIBOUT:=        libxbee
 LIBS:=          rt pthread
 
 SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx \
-                xsys net
+                xsys net net_handlers net_callbacks
 
 MODELIST:=      xbee1 xbee2 net
 
