@@ -380,6 +380,8 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
+#warning TODO - check that we wont talk over another awake connection
+
 	/* we ALWAYS want to be able to check the response value */
 	pret = ((!retVal)?&myret:retVal);
 	*pret = 0;
@@ -480,6 +482,7 @@ EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates 
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
+#warning TODO - check that we wont interrupt another awake connection
 	con->sleepState = state;
 	return XBEE_ENONE;
 }
