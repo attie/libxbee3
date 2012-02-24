@@ -278,17 +278,17 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 
 /* ########################################################################## */
 
-EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
+xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_modeConType *conTypes, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
 #warning INFO - needs remote
 	xbee_err ret;
 	struct xbee_con *con;
 	struct xbee_modeConType *conType;
-	if (!xbee || !retCon || !type) return XBEE_EMISSINGPARAM;
+	if (!xbee || !conTypes || !retCon || !type) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
-	if ((ret = xbee_modeLocateConType(xbee->conTypes, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
+	if ((ret = xbee_modeLocateConType(conTypes, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
 	if (conType->internal) return XBEE_EINVAL;
 	
 	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
@@ -307,6 +307,9 @@ EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *t
 	*retCon = con;
 	
 	return XBEE_ENONE;
+}
+EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
+	return _xbee_conNew(xbee, xbee->conTypes, retCon, type, address);
 }
 
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
