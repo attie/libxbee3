@@ -289,6 +289,7 @@ EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *t
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	if ((ret = xbee_modeLocateConType(xbee->conTypes, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
+	if (conType->internal) return XBEE_EINVAL;
 	
 	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
 	

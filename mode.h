@@ -49,6 +49,7 @@ struct xbee_modeConType {
 	const char *name;
 	struct ll_head *conList;
 	
+	const unsigned char internal     : 1;
 	const unsigned char allowFrameId : 1;
 	const unsigned char useTimeout   : 1;
 	const struct timespec timeout;
