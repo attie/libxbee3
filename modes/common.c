@@ -351,7 +351,7 @@ xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	
 	/* Delimiter + Length + Payload + Checksum */
 	txSize = 4 + buf->len;
-	memSize = txSize + sizeof(*buf);
+	memSize = txSize + sizeof(*iBuf);
 	
 	iBuf = data->txBuf;
 	if (!iBuf || data->txBufSize < memSize) {
