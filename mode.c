@@ -80,23 +80,21 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const char *name, const struct xbee_modeDataHandlerRx *rxHandler, const struct xbee_modeDataHandlerTx *txHandler) {
+xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct xbee_modeConType *newConType) {
 	int n;
 	struct xbee_modeConType *conTypes;
 	
-	if (!extConTypes || !name || (!rxHandler && !txHandler)) return XBEE_EMISSINGPARAM;
+	if (!extConTypes || !newConType) return XBEE_EMISSINGPARAM;
 	if (!*extConTypes) return XBEE_EINVAL;
+	if (!newConType->name) return XBEE_EINVAL;
+	if (!newConType->rxHandler || !newConType->txHandler) return XBEE_EINVAL;
 	
 	for (n = 0; (*extConTypes)[n].name; n++);
 	
 	if ((conTypes = realloc(*extConTypes, sizeof(*conTypes) * (n + 2))) == NULL) return XBEE_ENOMEM;
-	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
 	*extConTypes = conTypes;
-	
-	conTypes[n].conList = ll_alloc();
-	conTypes[n].rxHandler = rxHandler;
-	conTypes[n].txHandler = txHandler;
-	conTypes[n].name = name; /* add the name last so that it doesn't get activated before it is completely ready */
+	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
+	memcpy(&conTypes[n], newConType, sizeof(*newConType));
 	
 	return XBEE_ENONE;
 }
