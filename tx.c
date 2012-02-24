@@ -123,5 +123,5 @@ xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *buf, int len) {
 	
 	con->info.countTx++;
 	
-	return xbee_txQueueBuffer(con->xbee->tx, oBuf);
+	return xbee_txQueueBuffer(con->iface->tx, oBuf);
 }

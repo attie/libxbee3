@@ -132,21 +132,21 @@ xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info
 
 	ret = XBEE_ENONE;
 	
-	if ((ret = xbee_rxAlloc(&iInfo->rx)) != XBEE_ENONE) goto die;
-	if ((ret = xbee_txAlloc(&iInfo->tx)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_rxAlloc(&iInfo->iface.rx)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_txAlloc(&iInfo->iface.tx)) != XBEE_ENONE) goto die;
 	if ((ret = xbee_frameBlockAlloc(&iInfo->fBlock)) != XBEE_ENONE) goto die;
 	
 	iInfo->xbee = xbee;
 	
-	iInfo->rx->handlerArg = iInfo;
-	iInfo->rx->ioArg = iInfo;
-	iInfo->rx->ioFunc = xbee_netRx;
-	iInfo->rx->fBlock = iInfo->fBlock;
+	iInfo->iface.rx->handlerArg = iInfo;
+	iInfo->iface.rx->ioArg = iInfo;
+	iInfo->iface.rx->ioFunc = xbee_netRx;
+	iInfo->iface.rx->fBlock = iInfo->fBlock;
 #define xbee_netConTypes NULL
-	iInfo->rx->conTypes = xbee_netConTypes;
+	iInfo->iface.rx->conTypes = xbee_netConTypes;
 	
-	iInfo->tx->ioArg = iInfo;
-	iInfo->tx->ioFunc = xbee_netTx;
+	iInfo->iface.tx->ioArg = iInfo;
+	iInfo->iface.tx->ioFunc = xbee_netTx;
 	
 	goto done;
 die:
@@ -160,8 +160,8 @@ xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
 	if (!info) return XBEE_EINVAL;
 	
 	xbee_frameBlockFree(info->fBlock);
-	xbee_txFree(info->tx);
-	xbee_rxFree(info->rx);
+	xbee_txFree(info->iface.tx);
+	xbee_rxFree(info->iface.rx);
 	
 	free(info);
 	return XBEE_ENONE;
@@ -181,7 +181,7 @@ xbee_err xbee_netConNew(struct xbee *xbee, struct xbee_netClientInfo *client, ch
 	address.endpoint_local = endpoint;
 	address.endpoint_remote = endpoint;
 	
-	if ((ret = _xbee_conNew(xbee, client->conTypes, &con, type, &address)) != XBEE_ENONE) return ret;
+	if ((ret = _xbee_conNew(xbee, &client->iface, &con, type, &address)) != XBEE_ENONE) return ret;
 	if (!con) return XBEE_EUNKNOWN;
 	
 	xbee_conDataSet(con, client, NULL);
@@ -216,17 +216,17 @@ xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *cli
 	
 	if ((ret = xbee_netClientSetupBackchannel(xbee, client)) != XBEE_ENONE) return ret;
 	
-	if ((ret = xbee_threadStart(xbee, &client->rxThread, 150000, xbee_rx, client->rx)) != XBEE_ENONE) {
+	if ((ret = xbee_threadStart(xbee, &client->rxThread, 150000, xbee_rx, client->iface.rx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
 		goto die1;
 	}
-	if ((ret = xbee_threadStart(xbee, &client->rxHandlerThread, 150000, xbee_rxHandler, client->rx)) != XBEE_ENONE) {
+	if ((ret = xbee_threadStart(xbee, &client->rxHandlerThread, 150000, xbee_rxHandler, client->iface.rx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
 		goto die2;
 	}
-	if ((ret = xbee_threadStart(xbee, &client->txThread, 150000, xbee_tx, client->tx)) != XBEE_ENONE) {
+	if ((ret = xbee_threadStart(xbee, &client->txThread, 150000, xbee_tx, client->iface.tx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_tx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
 		goto die3;
@@ -327,7 +327,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 		memcpy(client->addr, addr, sizeof(client->addr));
 		client->port = port;
 		
-		if ((ret = xbee_modeImport(&client->conTypes, &xbee_netServerMode)) != XBEE_ENONE) {
+		if ((ret = xbee_modeImport(&client->iface.conTypes, &xbee_netServerMode)) != XBEE_ENONE) {
 			shutdown(client->fd, SHUT_RDWR);
 			close(client->fd);
 			xbee_log(10, "failed to accept client... xbee_modeImport() returned %d", ret);

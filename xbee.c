@@ -76,8 +76,8 @@ xbee_err xbee_alloc(struct xbee **nXbee) {
 	memset(xbee, 0, memSize);
 	if ((ret = xbee_frameBlockAlloc(&xbee->fBlock)) != XBEE_ENONE)         goto die1;
 	if ((ret = xbee_logAlloc(&xbee->log, logLevel, stderr)) != XBEE_ENONE) goto die1;
-	if ((ret = xbee_txAlloc(&xbee->tx)) != XBEE_ENONE)                     goto die1;
-	if ((ret = xbee_rxAlloc(&xbee->rx)) != XBEE_ENONE)                     goto die1;
+	if ((ret = xbee_txAlloc(&xbee->iface.tx)) != XBEE_ENONE)                     goto die1;
+	if ((ret = xbee_rxAlloc(&xbee->iface.rx)) != XBEE_ENONE)                     goto die1;
 	
 	if ((ret = ll_add_tail(xbeeList, xbee)) != XBEE_ENONE)                 goto die1;
 	
@@ -99,9 +99,9 @@ xbee_err xbee_free(struct xbee *xbee) {
 	
 	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
 	
-	xbee_modeCleanup(xbee->conTypes);
-	xbee_rxFree(xbee->rx);
-	xbee_txFree(xbee->tx);
+	xbee_modeCleanup(xbee->iface.conTypes);
+	xbee_rxFree(xbee->iface.rx);
+	xbee_txFree(xbee->iface.tx);
 	xbee_logFree(xbee->log);
 	xbee_frameBlockFree(xbee->fBlock);
 	
@@ -124,22 +124,22 @@ EXPORT xbee_err xbee_setup(struct xbee **retXbee, char *mode, ...) {
 	
 	if ((ret = xbee_alloc(&xbee)) != XBEE_ENONE) return ret;
 	
-	if ((ret = xbee_modeImport(&xbee->conTypes, xbeeMode)) != XBEE_ENONE) goto die;
+	if ((ret = xbee_modeImport(&xbee->iface.conTypes, xbeeMode)) != XBEE_ENONE) goto die;
 	xbee->mode = xbeeMode;
 	
-	xbee->rx->ioFunc = xbee->mode->rx_io;
-	xbee->rx->fBlock = xbee->fBlock;
-	xbee->rx->conTypes = xbee->conTypes;
+	xbee->iface.rx->ioFunc = xbee->mode->rx_io;
+	xbee->iface.rx->fBlock = xbee->fBlock;
+	xbee->iface.rx->conTypes = xbee->iface.conTypes;
 	
-	xbee->tx->ioFunc = xbee->mode->tx_io;
+	xbee->iface.tx->ioFunc = xbee->mode->tx_io;
 	
 	va_start(ap, mode);
 	if ((ret = xbee->mode->init(xbee, ap)) != XBEE_ENONE) goto die;
 	va_end(ap);
 	
-	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rx, xbee->rx)) != XBEE_ENONE)                                goto die;
-	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rxHandler, xbee->rx)) != XBEE_ENONE)                         goto die;
-	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_tx, xbee->tx)) != XBEE_ENONE)                                goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rx, xbee->iface.rx)) != XBEE_ENONE)                                goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_rxHandler, xbee->iface.rx)) != XBEE_ENONE)                         goto die;
+	if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee_tx, xbee->iface.tx)) != XBEE_ENONE)                                goto die;
 	if (xbee->mode->thread) if ((ret = xbee_threadStart(xbee, NULL, 150000, xbee->mode->thread, NULL)) != XBEE_ENONE) goto die;
 	
 	ll_add_tail(xbeeList, xbee);

@@ -24,20 +24,24 @@
 extern struct ll_head *xbeeList;
 extern struct ll_head *needsFree;
 
+struct xbee_interface {
+	struct xbee_rxInfo *rx;
+	struct xbee_txInfo *tx;
+	struct xbee_modeConType *conTypes;
+};
+
 struct xbee {
 	int die;
 	
 	struct xbee_frameBlock *fBlock;
 	struct xbee_log *log;
 	
-	struct xbee_modeConType *conTypes; /* copied in from the mode */
 	const struct xbee_mode *mode;
 	void *modeData; /* for use by the mode */
 	
 	struct xbee_netInfo *netInfo; /* used by the network interface, if not NULL, it is active */
 	
-	struct xbee_txInfo *tx;
-	struct xbee_rxInfo *rx;
+	struct xbee_interface iface;
 };
 
 xbee_err xbee_alloc(struct xbee **nXbee);

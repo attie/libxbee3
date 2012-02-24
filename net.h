@@ -39,11 +39,8 @@ struct xbee_netClientInfo {
 	xsys_thread rxHandlerThread;
 	xsys_thread txThread;
 	
-	struct xbee_rxInfo *rx;
-	struct xbee_txInfo *tx;
+	struct xbee_interface iface;
 	struct xbee_frameBlock *fBlock;
-	
-	struct xbee_modeConType *conTypes;
 };
 
 struct xbee_netInfo {
