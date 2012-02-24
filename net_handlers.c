@@ -35,10 +35,8 @@ xbee_err xbee_netServer_rx_func(struct xbee *xbee, void *arg, unsigned char iden
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	
-	LH
 	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	
-	printf("buf->len = %d\n", buf->len);
 	if (buf->len < 2) return XBEE_ELENGTH;
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 2)) != XBEE_ENONE) return ret;
@@ -63,7 +61,6 @@ xbee_err xbee_netServer_tx_func(struct xbee *xbee, void *arg, unsigned char iden
 	size_t bufLen;
 	size_t memSize;
 	
-	LH
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 	
 	if (!address->endpoints_enabled) return XBEE_EINVAL;
