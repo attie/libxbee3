@@ -75,7 +75,7 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		if ((iBuf = malloc(sizeof(*iBuf) + len)) == NULL) return XBEE_ENOMEM;
 		ll_add_tail(needsFree, iBuf);
 		
-		iBuf->len = ((length[0] << 8) & 0xFF00) || (length[1] & 0xFF);
+		iBuf->len = ((length[0] << 8) & 0xFF00) | (length[1] & 0xFF);
 		
 		for (pos = 0; pos < iBuf->len; pos += ret) {
 			ret = recv(fd, &(iBuf->data[pos]), iBuf->len - pos, MSG_NOSIGNAL);
@@ -85,6 +85,7 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 			if (ret == 0) goto eof;
 			return XBEE_EIO;
 		}
+		break;
 	}
 	
 	*buf = iBuf;
@@ -103,6 +104,9 @@ xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	struct xbee_netClientInfo *info;
 	int pos, ret;
 	int fd;
+	size_t txSize;
+	size_t memSize;
+	struct xbee_buf *iBuf;
 	
 	if (!xbee || !buf || !arg) return XBEE_EMISSINGPARAM;
 	
@@ -110,13 +114,29 @@ xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	if (xbee != info->xbee) return XBEE_EINVAL;
 	fd = info->fd;
 	
-	for (pos = 0; pos < buf->len; pos += ret) {
-		ret = send(fd, buf->data, buf->len - pos, MSG_NOSIGNAL);
+	txSize = 3 + buf->len;
+	memSize = txSize + sizeof(*iBuf);
+	
+	iBuf = info->txBuf;
+	if (!iBuf || info->txBufSize < memSize) {
+		if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
+		info->txBuf = iBuf;
+		info->txBufSize = memSize;
+	}
+	
+	iBuf->len = txSize;
+	iBuf->data[0] = 0x7E;
+	iBuf->data[1] = ((buf->len) >> 8) & 0xFF;
+	iBuf->data[2] = ((buf->len)     ) & 0xFF;
+	memcpy(&(iBuf->data[3]), buf->data, buf->len);
+	
+	for (pos = 0; pos < iBuf->len; pos += ret) {
+		ret = send(fd, iBuf->data, iBuf->len - pos, MSG_NOSIGNAL);
 		if (ret >= 0) continue;
 		return XBEE_EIO;
 	}
 	
-	return XBEE_ENOTIMPLEMENTED;
+	return XBEE_ENONE;
 }
 
 /* ######################################################################### */
@@ -129,6 +149,7 @@ xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info
 	
 	if ((iInfo = malloc(sizeof(*iInfo))) == NULL) return XBEE_ENOMEM;
 	*info = iInfo;
+	memset(iInfo, 0, sizeof(*iInfo));
 
 	ret = XBEE_ENONE;
 	
@@ -142,8 +163,6 @@ xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info
 	iInfo->iface.rx->ioArg = iInfo;
 	iInfo->iface.rx->ioFunc = xbee_netRx;
 	iInfo->iface.rx->fBlock = iInfo->fBlock;
-#define xbee_netConTypes NULL
-	iInfo->iface.rx->conTypes = xbee_netConTypes;
 	
 	iInfo->iface.tx->ioArg = iInfo;
 	iInfo->iface.tx->ioFunc = xbee_netTx;
@@ -264,6 +283,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 	socklen_t addrlen;
 	char addr[INET_ADDRSTRLEN];
 	int port;
+	unsigned int u;
 	
 	struct xbee_netInfo *info;
 	struct xbee_netClientInfo *client;
@@ -282,6 +302,9 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 		while (ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
 			xbee_netClientShutdown(deadClient);
 		}
+		
+		ll_count_items(info->clientList, &u);
+		xbee_log(4, "active clients: %u", u);
 		
 		if (!client) {
 			if ((ret = xbee_netClientAlloc(xbee, &info->newClient)) != XBEE_ENONE) return ret;
@@ -327,12 +350,15 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 		memcpy(client->addr, addr, sizeof(client->addr));
 		client->port = port;
 		
+		client->iface.conTypes = NULL;
 		if ((ret = xbee_modeImport(&client->iface.conTypes, &xbee_netServerMode)) != XBEE_ENONE) {
 			shutdown(client->fd, SHUT_RDWR);
 			close(client->fd);
 			xbee_log(10, "failed to accept client... xbee_modeImport() returned %d", ret);
 			continue;
 		}
+		client->iface.rx->conTypes = client->iface.conTypes;
+		
 		if ((ret = xbee_netClientStartup(xbee, client)) != XBEE_ENONE) {
 			shutdown(client->fd, SHUT_RDWR);
 			close(client->fd);

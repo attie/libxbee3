@@ -41,6 +41,9 @@ struct xbee_netClientInfo {
 	
 	struct xbee_interface iface;
 	struct xbee_frameBlock *fBlock;
+	
+	size_t txBufSize;
+	struct xbee_buf *txBuf;
 };
 
 struct xbee_netInfo {

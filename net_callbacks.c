@@ -26,6 +26,7 @@
 #include "xbee_int.h"
 #include "net.h"
 #include "net_callbacks.h"
+#include "conn.h"
 
 /* ######################################################################### */
 
@@ -91,7 +92,8 @@ void xbee_net_conEnd(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 const struct xbee_netCallback xbee_netServerCallbacks[] = {
 	/* backchannel (0x00), endpoint 0 (0x00) is ALWAYS the 'start' function */
 	ADD_NETSERVERCALLBACK(start) /* this MUST BE FIRST */
-	/* - */
+	/* the rest may be ordered for efficiency...
+	   e.g: tx is probrably going to be the most commonly called */
 	ADD_NETSERVERCALLBACK(connTx)
 	ADD_NETSERVERCALLBACK(conRx)
 	ADD_NETSERVERCALLBACK(conValidate)
@@ -100,9 +102,9 @@ const struct xbee_netCallback xbee_netServerCallbacks[] = {
 	ADD_NETSERVERCALLBACK(conSettings)
 	ADD_NETSERVERCALLBACK(conNew)
 	ADD_NETSERVERCALLBACK(conEnd)
-	/* - */
+	/* these are 'system' functions */
 	ADD_NETSERVERCALLBACK(echo)
 	ADD_NETSERVERCALLBACK(validate)
-	/* - */
+	/* terminate */
 	{ NULL, NULL },
 };
