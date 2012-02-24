@@ -7,7 +7,7 @@ LIBREV:=        3
 
 LIBOUT:=        libxbee
 
-LIBS:=          rt pthread dl
+LIBS:=          rt pthread
 
 SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx \
                 xsys net
@@ -15,7 +15,7 @@ SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx \
 MODELIST:=      xbee1 xbee2 net
 
 SYS_HEADERS:=   xbee.h
-RELEASE_FILES:= HISTORY
+RELEASE_FILES:= HISTORY LICENSE README
 
 VER_DEFINES=    -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
                 -DLIB_COMMIT="\"$(shell git log -1 --format="%H")\""           \
