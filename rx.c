@@ -182,6 +182,9 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xbee_log(15, "matched packet with con @ %p", con);
 		xbee_conLogAddress(xbee, 16, &address);
 		
+		con->info.countRx++;
+		con->info.lastRxTime = time(NULL);
+		
 		/* wake the connection if necessary */
 		if (con->sleepState != CON_AWAKE) {
 			con->sleepState = CON_AWAKE;

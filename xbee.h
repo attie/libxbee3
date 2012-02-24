@@ -148,10 +148,8 @@ struct xbee_conAddress {
 struct xbee_conInfo {
 	int countRx;
 	int countTx;
-	int failedTx;
 	
-	int lastRssi;
-	int lastRxTime;
+	time_t lastRxTime;
 };
 
 struct xbee_conSettings {

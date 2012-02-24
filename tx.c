@@ -120,5 +120,7 @@ xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *buf, int len) {
 	
 	if (!oBuf) return XBEE_EUNKNOWN;
 	
+	con->info.countTx++;
+	
 	return xbee_txQueueBuffer(con->xbee->tx, oBuf);
 }
