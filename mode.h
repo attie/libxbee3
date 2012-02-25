@@ -64,6 +64,7 @@ struct xbee_mode {
 	const struct xbee_modeConType ** const conTypes;
 	
 	xbee_err (* const init)(struct xbee *xbee, va_list ap);
+	xbee_err (* const prepare)(struct xbee *xbee);
 	xbee_err (* const shutdown)(struct xbee *xbee);
 	
 	xbee_err (* const rx_io)(struct xbee *xbee, void *arg, struct xbee_buf **buf); /* retrieves raw buffers from the I/O device */

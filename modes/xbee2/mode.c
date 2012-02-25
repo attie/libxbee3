@@ -183,6 +183,7 @@ const struct xbee_mode mode_xbee2 = {
 	.conTypes = conTypes,
 	
 	.init = init,
+	.prepare = NULL,
 	.shutdown = shutdown,
 	
 	.rx_io = xbee_xbeeRxIo,

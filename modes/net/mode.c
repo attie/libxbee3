@@ -34,6 +34,7 @@
 #include "net.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
+static xbee_err prepare(struct xbee *xbee);
 static xbee_err mode_shutdown(struct xbee *xbee);
 
 /* ######################################################################### */
@@ -64,6 +65,10 @@ die:
 	return ret;
 }
 
+static xbee_err prepare(struct xbee *xbee) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
 static xbee_err mode_shutdown(struct xbee *xbee) {
 	struct xbee_modeData *data;
 	
@@ -87,22 +92,8 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-xbee_err xbee_netRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
-	sleep(10);
-	return XBEE_ENOTIMPLEMENTED;
-}
-
-/* ######################################################################### */
-
-xbee_err xbee_netTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
-	sleep(10);
-	return XBEE_ENOTIMPLEMENTED;
-}
-
-/* ######################################################################### */
-
 static const struct xbee_modeConType *conTypes[] = {
-	NULL
+	NULL,
 };
 
 const struct xbee_mode mode_net = {
@@ -111,10 +102,11 @@ const struct xbee_mode mode_net = {
 	.conTypes = conTypes,
 	
 	.init = init,
+	.prepare = prepare,
 	.shutdown = mode_shutdown,
 	
-	.rx_io = xbee_netRxIo,
-	.tx_io = xbee_netTxIo,
+	.rx_io = xbee_netRx,
+	.tx_io = xbee_netTx,
 	
 	.thread = NULL,
 };
