@@ -52,8 +52,8 @@ xbee_err xbee_netServer_rx_func(struct xbee *xbee, void *arg, unsigned char iden
 	}
 	
 	address->endpoints_enabled = 1;
-	address->endpoint_local = identifier;
-	address->endpoint_remote = identifier;
+	address->endpoint_local = buf->data[1];
+	address->endpoint_remote = buf->data[1];
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - pos)) != XBEE_ENONE) return ret;
 	

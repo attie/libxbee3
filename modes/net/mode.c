@@ -71,17 +71,16 @@ die:
 	return ret;
 }
 
-static xbee_err prepare(struct xbee *xbee) {
+/* ######################################################################### */
+
+static xbee_err prepare_backchannel(struct xbee *xbee) {
 	xbee_err ret;
-	unsigned char retVal;
 	struct xbee_modeData *data;
+	unsigned char retVal;
 	struct xbee_conAddress address;
 	struct xbee_pkt *pkt;
 	int callbackCount;
 	int i, pos, slen;
-	
-	if (!xbee) return XBEE_EMISSINGPARAM;
-	if (!xbee->mode || !xbee->modeData) return XBEE_EINVAL;
 	
 	data = xbee->modeData;
 	
@@ -90,16 +89,17 @@ static xbee_err prepare(struct xbee *xbee) {
 	address.endpoints_enabled = 1;
 	address.endpoint_local = 0;
 	address.endpoint_remote = 0;
+	
 	if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, &data->bc_start, "backchannel", &address)) != XBEE_ENONE) return ret;
-
+	
 	/* transmit our libxbee_commit string - the git commit id */
 	if ((ret = xbee_conTx(data->bc_start, &retVal, "%s", libxbee_commit)) != XBEE_ENONE) {
 		switch (retVal) {
 			case 1:
-				xbee_log(0, "The server is running a different version of libxbee");
+				xbee_log(0, "The server encountered an internal error");
 				break;
 			case 2:
-				xbee_log(0, "The server encountered an internal error");
+				xbee_log(0, "The server is running a different version of libxbee");
 				break;
 			default:
 				xbee_log(0, "Failed to initialize connection to server for an unknown reason...");
@@ -167,8 +167,10 @@ static xbee_err prepare(struct xbee *xbee) {
 	
 	xbee_pktFree(pkt);
 	
+	xbee_conEnd(data->bc_start);
+	data->bc_start = NULL;
+	
 	/* check that we aren't missing any connections */
-	if (data->bc_start == NULL)        return XBEE_EUNKNOWN;
 	if (data->bc_connTx == NULL)       return XBEE_EUNKNOWN;
 	if (data->bc_conRx == NULL)        return XBEE_EUNKNOWN;
 	if (data->bc_conValidate == NULL)  return XBEE_EUNKNOWN;
@@ -182,6 +184,29 @@ static xbee_err prepare(struct xbee *xbee) {
 	
 	return XBEE_ENONE;
 }
+
+static xbee_err prepare_conTypes(struct xbee *xbee) {
+	struct xbee_modeData *data;
+	data = xbee->modeData;
+	return XBEE_ENONE;
+}
+
+static xbee_err prepare(struct xbee *xbee) {
+	xbee_err ret;
+	struct xbee_modeData *data;
+	
+	if (!xbee) return XBEE_EMISSINGPARAM;
+	if (!xbee->mode || !xbee->modeData) return XBEE_EINVAL;
+	
+	data = xbee->modeData;
+
+	if ((ret = prepare_backchannel(xbee)) != XBEE_ENONE) return ret;
+	if ((ret = prepare_conTypes(xbee)) != XBEE_ENONE) return ret;
+	
+	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
 
 static xbee_err mode_shutdown(struct xbee *xbee) {
 	struct xbee_modeData *data;

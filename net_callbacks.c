@@ -46,7 +46,7 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 #ifndef XBEE_NO_NET_STRICT_VERSIONS
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
-		buf[1] = 0x01;
+		buf[1] = 0x02;
 		xbee_connTx(con, NULL, buf, 2);
 		client->die = 1;
 		return;
@@ -71,7 +71,7 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 		/* out of memory */
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
-		buf[1] = 0x02; /* <-- this means intenal error */
+		buf[1] = 0x01; /* <-- this means intenal error */
 		xbee_connTx(con, NULL, buf, 2);
 		return;
 	}
