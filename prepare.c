@@ -51,6 +51,7 @@ EXPORT INIT void xbee_init(void) {
 }
 
 EXPORT FINI void xbee_fini(void) {
+#ifndef XBEE_NO_FINI
 	if (xbeeList) {
 		ll_free(xbeeList, (void(*)(void*))xbee_shutdown);
 	}
@@ -69,4 +70,5 @@ EXPORT FINI void xbee_fini(void) {
 	if (needsFree) {
 		ll_free(needsFree, (void(*)(void*))free);
 	}
+#endif /* XBEE_NO_FINI */
 }

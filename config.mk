@@ -29,3 +29,6 @@ SYS_INCDIR:=    /usr/include
 
 ### un-comment to turn off hardware flow control
 #OPTIONS+=       XBEE_NO_RTSCTS
+
+### useful for debugging the core of libxbee
+#OPTIONS+=       XBEE_NO_FINI
