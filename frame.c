@@ -148,6 +148,7 @@ xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, u
 	int i;
 	
 	if (!fBlock) return XBEE_EMISSINGPARAM;
+	if (frameId == 0) return XBEE_ENONE;
 	
 	xsys_mutex_lock(&fBlock->mutex);
 	frame = NULL;
