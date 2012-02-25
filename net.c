@@ -34,6 +34,7 @@
 #include "frame.h"
 #include "conn.h"
 #include "net.h"
+#include "net_io.h"
 #include "net_handlers.h"
 #include "net_callbacks.h"
 #include "mode.h"
@@ -42,102 +43,6 @@
 #include "thread.h"
 
 struct ll_head *netDeadClientList = NULL;
-
-/* ######################################################################### */
-
-xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
-	struct xbee_netClientInfo *info;
-	char c;
-	char length[2];
-	int pos, len, ret;
-	struct xbee_buf *iBuf;
-	int fd;
-	
-	if (!xbee || !buf || !arg) return XBEE_EMISSINGPARAM;
-	
-	info = arg;
-	if (xbee != info->xbee) return XBEE_EINVAL;
-	fd = info->fd;
-	
-	while (1) {
-		do {
-			if ((ret = recv(fd, &c, 1, MSG_NOSIGNAL)) < 0) return XBEE_EIO;
-			if (ret == 0) goto eof;
-		} while (c != 0x7E);
-		
-		for (len = 2, pos = 0; pos < len; pos += ret) {
-			ret = recv(fd, &(length[pos]), len - pos, MSG_NOSIGNAL);
-			if (ret > 0) continue;
-			if (ret == 0) goto eof;
-			return XBEE_EIO;
-		}
-		
-		if ((iBuf = malloc(sizeof(*iBuf) + len)) == NULL) return XBEE_ENOMEM;
-		ll_add_tail(needsFree, iBuf);
-		
-		iBuf->len = ((length[0] << 8) & 0xFF00) | (length[1] & 0xFF);
-		
-		for (pos = 0; pos < iBuf->len; pos += ret) {
-			ret = recv(fd, &(iBuf->data[pos]), iBuf->len - pos, MSG_NOSIGNAL);
-			if (ret > 0) continue;
-			ll_ext_item(needsFree, iBuf);
-			free(iBuf);
-			if (ret == 0) goto eof;
-			return XBEE_EIO;
-		}
-		break;
-	}
-	
-	*buf = iBuf;
-	
-	return XBEE_ENONE;
-eof:
-	/* xbee_netRx() is responsible for free()ing memory and killing off client threads on the server
-	   to do this, we need to add ourselves to the netDeadClientList, and remove ourselves from the clientList
-	   the server thread will then cleanup any clients on the next accept() */
-	ll_add_tail(netDeadClientList, info);
-	ll_ext_item(xbee->netInfo->clientList, info);
-	return XBEE_EEOF;
-}
-
-xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
-	struct xbee_netClientInfo *info;
-	int pos, ret;
-	int fd;
-	size_t txSize;
-	size_t memSize;
-	struct xbee_buf *iBuf;
-	
-	if (!xbee || !buf || !arg) return XBEE_EMISSINGPARAM;
-	
-	info = arg;
-	if (xbee != info->xbee) return XBEE_EINVAL;
-	fd = info->fd;
-	
-	txSize = 3 + buf->len;
-	memSize = txSize + sizeof(*iBuf);
-	
-	iBuf = info->txBuf;
-	if (!iBuf || info->txBufSize < memSize) {
-		if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
-		info->txBuf = iBuf;
-		info->txBufSize = memSize;
-	}
-	
-	iBuf->len = txSize;
-	iBuf->data[0] = 0x7E;
-	iBuf->data[1] = ((buf->len) >> 8) & 0xFF;
-	iBuf->data[2] = ((buf->len)     ) & 0xFF;
-	memcpy(&(iBuf->data[3]), buf->data, buf->len);
-	
-	for (pos = 0; pos < iBuf->len; pos += ret) {
-		ret = send(fd, iBuf->data, iBuf->len - pos, MSG_NOSIGNAL);
-		if (ret >= 0) continue;
-		return XBEE_EIO;
-	}
-	
-	return XBEE_ENONE;
-}
 
 /* ######################################################################### */
 
