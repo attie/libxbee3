@@ -237,7 +237,7 @@ xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *a
 
 EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 #warning INFO - needs info from remote, this info should be retrieved at setup
-	int i, o;
+	int i, o, p;
 	size_t memSize;
 	char **tList;
 	char *tName;
@@ -252,9 +252,12 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 	conTypes = xbee->iface.conTypes;
 
 	memSize = 0;
+	p = 0;
 	for (i = 0; conTypes[i].name; i++) {
+		if (conTypes[i].internal) continue;
 		memSize += sizeof(char *);
 		memSize += sizeof(char) * (strlen(conTypes[i].name) + 1);
+		p++;
 	}
 	memSize += sizeof(char *);
 
@@ -262,14 +265,17 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 		return XBEE_ENOMEM;
 	}
 
-	tName = (char *)&(tList[i+1]);
-	o = i;
-	for (i = 0; conTypes[i].name && i < o; i++) {
-		tList[i] = tName;
+	tName = (char *)&(tList[p+1]);
+	o = p;
+	p = 0;
+	for (i = 0; conTypes[i].name && p < o; i++) {
+		if (conTypes[i].internal) continue;
+		tList[p] = tName;
 		strcpy(tName, conTypes[i].name);
 		tName += strlen(tName) + 1;
+		p++;
 	}
-	tList[i] = NULL;
+	tList[p] = NULL;
 
 	*retList = tList;
 
