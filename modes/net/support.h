@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-xbee_err xbee_netSupport_conNew(struct xbee *xbee, struct xbee_interface *interface, struct xbee_modeConType *conType, struct xbee_conAddress *address);
+xbee_err xbee_netSupport_conNew(struct xbee *xbee, struct xbee_interface *interface, struct xbee_modeConType *conType, struct xbee_conAddress *address, int *conIdentifier);
 xbee_err xbee_netSupport_conValidate(struct xbee_con *con);
 xbee_err xbee_netSupport_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state);
 xbee_err xbee_netSupport_conSleepGet(struct xbee_con *con);

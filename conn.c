@@ -285,8 +285,10 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 
 xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
 	xbee_err ret;
+	int conIdentifier;
 	struct xbee_con *con;
 	struct xbee_modeConType *conType;
+
 	if (!xbee || !interface || !interface->conTypes || !retCon || !type) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
@@ -294,13 +296,15 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int a
 	
 	if ((ret = xbee_modeLocateConType(interface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
 	
+	conIdentifier = 0;
 	if (xbee->mode->support.conNew) {
 		/* check with support system */
-		if ((ret = xbee->mode->support.conNew(xbee, interface, conType, address)) != XBEE_ENONE) return ret;
+		if ((ret = xbee->mode->support.conNew(xbee, interface, conType, address, &conIdentifier)) != XBEE_ENONE) return ret;
 	}
 	
 	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
 	con->iface = interface;
+	con->conIdentifier = conIdentifier;
 	
 	if (address) {
 		memcpy(&con->address, address, sizeof(*address));
