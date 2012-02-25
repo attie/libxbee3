@@ -175,7 +175,7 @@ xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, u
 	ret = XBEE_ENONE;
 	
 done:
-	frame->inUse = 0;
+	if (frame) frame->inUse = 0;
 	xsys_mutex_unlock(&fBlock->mutex);
 	
 	return ret;
