@@ -27,62 +27,148 @@
 #include "net.h"
 #include "net_callbacks.h"
 #include "conn.h"
+#include "log.h"
 
 /* ######################################################################### */
 
 void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	int i, o;
+	int callbackCount;
+	struct xbee_buf *iBuf;
+	size_t bufLen;
+	size_t memSize;
 	
+	
+	client = *data;
+
+	if (strncasecmp((char *)(*pkt)->data, libxbee_commit, (*pkt)->dataLen)) {
+#ifndef XBEE_NO_NET_STRICT_VERSIONS
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = 0x01;
+		xbee_connTx(con, NULL, buf, 2);
+		client->die = 1;
+		return;
+#else
+		xbee_log(-1, "*** client with mismatched version connected... this may cause instability ***");
+#endif
+	}
+
+	memSize = 0;
+	for (i = 1; xbee_netServerCallbacks[i].callback; i++) {
+		memSize += strlen(xbee_netServerCallbacks[i].name) + 1;
+	}
+	callbackCount = i;
+	
+	memSize += 1; /* for an 8 bit 'count' */
+	memSize += 2; /* for the frameId, and return value */
+	bufLen = memSize;
+	
+	memSize += sizeof(*iBuf);
+	
+	if ((iBuf = malloc(memSize)) == NULL) {
+		/* out of memory */
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = 0x02; /* <-- this means intenal error */
+		xbee_connTx(con, NULL, buf, 2);
+		return;
+	}
+	
+	iBuf->len = bufLen;
+	iBuf->data[0] = (*pkt)->frameId;
+	iBuf->data[1] = 0x00; /* <-- success */
+	iBuf->data[2] = callbackCount;
+	for (i = 1, o = 3; i < callbackCount; i++) {
+		o += snprintf((char *)&(iBuf->data[o]), iBuf->len - o, "%s", xbee_netServerCallbacks[i].name) + 1;
+	}
+	
+	xbee_connTx(con, NULL, iBuf->data, iBuf->len);
+	
+	free(iBuf);
+
+	client->started = 1;
 }
 
 void xbee_net_echo(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	
-}
-
-void xbee_net_validate(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	
+	xbee_connTx(con, NULL, (*pkt)->data, (*pkt)->dataLen);
 }
 
 /* ######################################################################### */
 
 void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
 void xbee_net_conValidate(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
 /* ######################################################################### */
 
 void xbee_net_connTx(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
 void xbee_net_conRx(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
 /* ######################################################################### */
 
 void xbee_net_conSleep(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
 /* ######################################################################### */
 
 void xbee_net_conInfoGet(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
 /* ######################################################################### */
 
 void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
 /* ######################################################################### */
 
 void xbee_net_conEnd(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
+	
+}
+
+/* ######################################################################### */
+
+void xbee_net_conGetTypes(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	struct xbee_netClientInfo *client;
+	client = *data;
+	if (!client->started) return;
 	
 }
 
@@ -102,9 +188,9 @@ const struct xbee_netCallback xbee_netServerCallbacks[] = {
 	ADD_NETSERVERCALLBACK(conSettings)
 	ADD_NETSERVERCALLBACK(conNew)
 	ADD_NETSERVERCALLBACK(conEnd)
+	ADD_NETSERVERCALLBACK(conGetTypes)
 	/* these are 'system' functions */
 	ADD_NETSERVERCALLBACK(echo)
-	ADD_NETSERVERCALLBACK(validate)
 	/* terminate */
 	{ NULL, NULL },
 };

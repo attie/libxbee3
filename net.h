@@ -31,6 +31,8 @@ struct xbee_netClientInfo {
 	int fd;
 	int die;
 	
+	int started;
+	
 	struct xbee *xbee;
 	char addr[INET_ADDRSTRLEN];
 	int port;

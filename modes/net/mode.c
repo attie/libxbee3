@@ -30,6 +30,7 @@
 #include "../../net_io.h"
 #include "../../net_handlers.h"
 #include "../../mode.h"
+#include "../../conn.h"
 #include "../../frame.h"
 #include "../../pkt.h"
 #include "mode.h"
@@ -53,12 +54,15 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	ret = XBEE_ENONE;
 	
+	/* get the hostname */
 	t = va_arg(ap, char*);
 	if ((data->netInfo.host = malloc(strlen(t) + 1)) == NULL) { ret = XBEE_ENOMEM; goto die; }
 	strcpy(data->netInfo.host, t);
 	
+	/* get the port number */
 	data->netInfo.port = va_arg(ap, int);
 	
+	/* setup the network interface */
 	if ((ret = xbee_netSetup(&data->netInfo)) != XBEE_ENONE) goto die;
 	
 	return XBEE_ENONE;
@@ -68,7 +72,115 @@ die:
 }
 
 static xbee_err prepare(struct xbee *xbee) {
-	return XBEE_ENOTIMPLEMENTED;
+	xbee_err ret;
+	unsigned char retVal;
+	struct xbee_modeData *data;
+	struct xbee_conAddress address;
+	struct xbee_pkt *pkt;
+	int callbackCount;
+	int i, pos, slen;
+	
+	if (!xbee) return XBEE_EMISSINGPARAM;
+	if (!xbee->mode || !xbee->modeData) return XBEE_EINVAL;
+	
+	data = xbee->modeData;
+	
+	/* create the 'start' backchannel connection - this is ALWAYS ON ENDPOINT 0x00 */
+	memset(&address, 0, sizeof(address));
+	address.endpoints_enabled = 1;
+	address.endpoint_local = 0;
+	address.endpoint_remote = 0;
+	if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, &data->bc_start, "backchannel", &address)) != XBEE_ENONE) return ret;
+
+	/* transmit our libxbee_commit string - the git commit id */
+	if ((ret = xbee_conTx(data->bc_start, &retVal, "%s", libxbee_commit)) != XBEE_ENONE) {
+		switch (retVal) {
+			case 1:
+				xbee_log(0, "The server is running a different version of libxbee");
+				break;
+			case 2:
+				xbee_log(0, "The server encountered an internal error");
+				break;
+			default:
+				xbee_log(0, "Failed to initialize connection to server for an unknown reason...");
+		}
+		return ret;
+	}
+	
+	/* grab the returned data (an in-order list of the back channel endpoints, starting at 0x01) */
+	if ((ret = xbee_conRx(data->bc_start, &pkt, NULL)) != XBEE_ENONE) return ret;
+	
+	callbackCount = pkt->data[0];
+	
+	memset(&address, 0, sizeof(address));
+	address.endpoints_enabled = 1;
+	
+	for (pos = 1, i = 1; pos < pkt->dataLen; pos += slen + 1, i++) {
+		char *name;
+		struct xbee_con **retCon;
+		
+		name = (char *)&(pkt->data[pos]);
+		slen = strlen(name);
+		
+		/* check for a buffer overflow */
+		if (slen > pkt->dataLen - pos) {
+			slen = pkt->dataLen - pos;
+			name[slen] = '\0';
+		}
+		
+		retCon = NULL;
+		
+		/* try to match the string with an element in struct xbee_modeData */
+#define TRY(conName)  if (!data->bc_##conName && !strncasecmp(name, #conName, slen))
+		TRY (connTx) {
+			retCon = &data->bc_connTx;
+		} else TRY (conRx) {
+			retCon = &data->bc_conRx;
+		} else TRY (conValidate) {
+			retCon = &data->bc_conValidate;
+		} else TRY (conSleep) {
+			retCon = &data->bc_conSleep;
+		} else TRY (conInfoGet) {
+			retCon = &data->bc_conInfoGet;
+		} else TRY (conSettings) {
+			retCon = &data->bc_conSettings;
+		} else TRY (conNew) {
+			retCon = &data->bc_conNew;
+		} else TRY (conEnd) {
+			retCon = &data->bc_conEnd;
+		} else TRY (conGetTypes) {
+			retCon = &data->bc_conGetTypes;
+		} else TRY (echo) {
+			retCon = &data->bc_echo;
+		}
+#undef TRY
+
+		/* if we dont know about that type, then continue - unlikely, but possible
+		   e.g: if XBEE_NO_NET_STRICT_VERSIONS is set */
+		if (!retCon) continue;
+		
+		/* setup the connection */
+		address.endpoint_local = i;
+		address.endpoint_remote = i;
+		if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, retCon, "backchannel", &address)) != XBEE_ENONE) return ret;
+	}
+	
+	xbee_pktFree(pkt);
+	
+	/* check that we aren't missing any connections */
+	if (data->bc_start == NULL)        return XBEE_EUNKNOWN;
+	if (data->bc_connTx == NULL)       return XBEE_EUNKNOWN;
+	if (data->bc_conRx == NULL)        return XBEE_EUNKNOWN;
+	if (data->bc_conValidate == NULL)  return XBEE_EUNKNOWN;
+	if (data->bc_conSleep == NULL)     return XBEE_EUNKNOWN;
+	if (data->bc_conInfoGet == NULL)   return XBEE_EUNKNOWN;
+	if (data->bc_conSettings == NULL)  return XBEE_EUNKNOWN;
+	if (data->bc_conNew == NULL)       return XBEE_EUNKNOWN;
+	if (data->bc_conEnd == NULL)       return XBEE_EUNKNOWN;
+	if (data->bc_conGetTypes == NULL)  return XBEE_EUNKNOWN;
+	if (data->bc_echo == NULL)         return XBEE_EUNKNOWN;
+	
+	return XBEE_ENONE;
 }
 
 static xbee_err mode_shutdown(struct xbee *xbee) {
@@ -94,8 +206,21 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
+const struct xbee_modeConType xbee_net_backchannel = {
+	.name = "Backchannel",
+	.internal = 1,
+	.allowFrameId = 1, /* this needs redeclaring, because this is enabled for the client */
+	.useTimeout = 1,
+	.timeout = {
+		.tv_sec = 5,
+		.tv_nsec = 0,
+	},
+	.rxHandler = &xbee_netServer_backchannel_rx,
+	.txHandler = &xbee_netServer_backchannel_tx,
+};
+
 static const struct xbee_modeConType *conTypes[] = {
-	&xbee_netServer_backchannel,
+	&xbee_net_backchannel,
 	NULL,
 };
 

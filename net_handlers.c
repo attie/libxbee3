@@ -28,26 +28,40 @@
 #include "net_handlers.h"
 #include "pkt.h"
 #include "mode.h"
+#include "frame.h"
 
 /* ######################################################################### */
 
 xbee_err xbee_netServer_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
+	int pos;
 	
 	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	
-	if (buf->len < 2) return XBEE_ELENGTH;
-	
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 2)) != XBEE_ENONE) return ret;
+	if (!arg) {
+		if (buf->len < 4) return XBEE_ELENGTH;
+		/* only in the client, notify about frameID */
+		frameInfo->active = 1;
+		frameInfo->id = buf->data[2];
+		frameInfo->retVal = buf->data[3];
+		pos = 4;
+	} else {
+		if (buf->len < 3) return XBEE_ELENGTH;
+		pos = 3;
+	}
 	
 	address->endpoints_enabled = 1;
 	address->endpoint_local = identifier;
 	address->endpoint_remote = identifier;
 	
-	iPkt->dataLen = buf->len - 2;
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - pos)) != XBEE_ENONE) return ret;
+	
+	iPkt->frameId = buf->data[2];
+	
+	iPkt->dataLen = buf->len - pos;
 	if (iPkt->dataLen > 0) {
-		memcpy(iPkt->data, &(buf->data[2]), iPkt->dataLen);
+		memcpy(iPkt->data, &(buf->data[pos]), iPkt->dataLen);
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	
@@ -60,12 +74,20 @@ xbee_err xbee_netServer_tx_func(struct xbee *xbee, void *arg, unsigned char iden
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	size_t memSize;
+	int pos;
 	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 	
 	if (!address->endpoints_enabled) return XBEE_EINVAL;
 	
-	memSize = 2 + len;
+	if (arg) {
+		/* the server returns the frameId in the buffer */
+		pos = 2;
+	} else {
+		/* the client sends the frameId from the fBlock */
+		pos = 3;
+	}
+	memSize = pos + len;
 	bufLen = memSize;
 	
 	memSize += sizeof(*iBuf);
@@ -75,7 +97,10 @@ xbee_err xbee_netServer_tx_func(struct xbee *xbee, void *arg, unsigned char iden
 	iBuf->len = bufLen;
 	iBuf->data[0] = identifier;
 	iBuf->data[1] = address->endpoint_local;
-	memcpy(&(iBuf->data[2]), buf, len);
+	if (!arg) {
+		iBuf->data[2] = frameId;
+	}
+	memcpy(&(iBuf->data[pos]), buf, len);
 
 	*oBuf = iBuf;
 	
