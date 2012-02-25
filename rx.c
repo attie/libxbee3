@@ -127,7 +127,19 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		return XBEE_EINVAL;
 	}
 	
+	memset(&frameInfo, 0, sizeof(frameInfo));
+	conType = NULL;
 	while (!xbee->die) {
+		/* this is here so that it will be triggered AFTER the packet has been queued (assuming a packet needed to be queued)
+		   handle any frame info (prod someone who may be waiting for ACK/NAK/etc...) */
+		if (info->fBlock && frameInfo.active != 0 && conType && conType->allowFrameId != 0) {
+			xbee_log(20, "received Tx status (block: %p, frame: 0x%02X, status: 0x%02X)", info->fBlock, frameInfo.id, frameInfo.retVal);
+			if ((ret = xbee_framePost(info->fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
+				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", info->fBlock, frameInfo.id, ret);
+				ret = XBEE_ENONE;
+			}
+		}
+		
 		xsys_sem_wait(&info->sem);
 		
 		/* get the next buffer */
@@ -153,15 +165,6 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		/* process the buffer into the buckets */
 		if ((ret = conType->rxHandler->func(xbee, info->handlerArg, conType->rxHandler->identifier, buf, &frameInfo, &address, &pkt)) != XBEE_ENONE) break;
-		
-		/* handle any frame info (prod someone who may be waiting for ACK/NAK/etc...) */
-		if (info->fBlock && frameInfo.active != 0 && conType->allowFrameId != 0) {
-			xbee_log(20, "received Tx status (block: %p, frame: 0x%02X, status: 0x%02X)", info->fBlock, frameInfo.id, frameInfo.retVal);
-			if ((ret = xbee_framePost(info->fBlock, frameInfo.id, frameInfo.retVal)) != XBEE_ENONE) {
-				xbee_log(2, "failed to respond to frame (block: %p, frame: 0x%02X)... xbee_framePost() returned %d", info->fBlock, frameInfo.id, ret);
-				ret = XBEE_ENONE;
-			}
-		}
 		
 		/* its possible that the buffer ONLY contained frame information... if so, were done! */
 		if (!pkt) goto done;
