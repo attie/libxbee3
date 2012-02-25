@@ -170,6 +170,7 @@ struct xbee_pkt {
 	unsigned char status;
 	unsigned char settings;
 	unsigned char rssi; /* print as "RSSI: -%d\n" */
+	unsigned char frameId;
 	
 	unsigned char atCommand[2];
 	

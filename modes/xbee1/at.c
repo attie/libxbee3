@@ -58,6 +58,7 @@ xbee_err xbee_s1_at_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 	}
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 5)) != XBEE_ENONE) return ret;
+	iPkt->frameId = frameInfo->id;
 	
 	if (addrLen == 10) {
 		address->addr64_enabled = 1;
