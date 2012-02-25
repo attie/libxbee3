@@ -78,7 +78,7 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct xbee_modeConType *newConType);
 xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes);
 
-xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType);
+xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, int allowInternal, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType);
 
 /* list of potential modes... basically a list of subdirectories in './modes/' */
 extern const struct xbee_mode mode_xbee1;

@@ -278,7 +278,7 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 
 /* ########################################################################## */
 
-xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
+xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
 #warning INFO - needs remote
 	xbee_err ret;
 	struct xbee_con *con;
@@ -288,8 +288,7 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, struc
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
-	if ((ret = xbee_modeLocateConType(interface->conTypes, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
-	if (conType->internal) return XBEE_EINVAL;
+	if ((ret = xbee_modeLocateConType(interface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
 	
 	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
 	con->iface = interface;
@@ -310,7 +309,7 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, struc
 	return XBEE_ENONE;
 }
 EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
-	return _xbee_conNew(xbee, &xbee->iface, retCon, type, address);
+	return _xbee_conNew(xbee, &xbee->iface, 0, retCon, type, address);
 }
 
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {

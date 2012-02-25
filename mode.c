@@ -113,7 +113,7 @@ xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
 
 /* ######################################################################### */
 
-xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType) {
+xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, int allowInternal, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType) {
 	int i;
 	
 	if (!retType) return XBEE_EMISSINGPARAM;
@@ -133,6 +133,7 @@ xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, char *name, u
 			if (!conTypes[i].txHandler->func) continue;
 			if (conTypes[i].txHandler->identifier != *txId) continue;
 		}
+		if (!allowInternal && conTypes[i].internal) return XBEE_EINVAL;
 		
 		*retType = &conTypes[i];
 		return XBEE_ENONE;

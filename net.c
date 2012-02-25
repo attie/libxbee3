@@ -200,7 +200,7 @@ xbee_err xbee_netConNew(struct xbee *xbee, struct xbee_netClientInfo *client, ch
 	address.endpoint_local = endpoint;
 	address.endpoint_remote = endpoint;
 	
-	if ((ret = _xbee_conNew(xbee, &client->iface, &con, type, &address)) != XBEE_ENONE) return ret;
+	if ((ret = _xbee_conNew(xbee, &client->iface, 1, &con, type, &address)) != XBEE_ENONE) return ret;
 	if (!con) return XBEE_EUNKNOWN;
 	
 	xbee_conDataSet(con, client, NULL);
