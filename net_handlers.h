@@ -21,6 +21,7 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
+extern const struct xbee_modeConType xbee_netServer_backchannel;
 extern const struct xbee_mode xbee_netServerMode;
 
 #endif /* __XBEE_NET_HANDLERS_H */

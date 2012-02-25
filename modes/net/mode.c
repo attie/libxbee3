@@ -28,6 +28,7 @@
 #include "../../xbee_int.h"
 #include "../../log.h"
 #include "../../net_io.h"
+#include "../../net_handlers.h"
 #include "../../mode.h"
 #include "../../frame.h"
 #include "../../pkt.h"
@@ -94,6 +95,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 /* ######################################################################### */
 
 static const struct xbee_modeConType *conTypes[] = {
+	&xbee_netServer_backchannel,
 	NULL,
 };
 

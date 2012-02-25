@@ -113,6 +113,7 @@ const struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx = {
 };
 const struct xbee_modeConType xbee_netServer_backchannel = {
 	.name = "Backchannel",
+	.internal = 1,
 	.allowFrameId = 0,
 	.useTimeout = 0,
 	.rxHandler = &xbee_netServer_backchannel_rx,
