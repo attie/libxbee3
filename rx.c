@@ -74,6 +74,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	}
 	
 	while (!xbee->die) {
+		buf = NULL;
 		if ((ret = info->ioFunc(xbee, info->ioArg, &buf)) != XBEE_ENONE) {
 			if (ret == XBEE_EEOF) {
 				*restart = 0;

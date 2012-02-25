@@ -69,10 +69,11 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 			return XBEE_EIO;
 		}
 		
+		len = ((length[0] << 8) & 0xFF00) | (length[1] & 0xFF);
 		if ((iBuf = malloc(sizeof(*iBuf) + len)) == NULL) return XBEE_ENOMEM;
 		ll_add_tail(needsFree, iBuf);
 		
-		iBuf->len = ((length[0] << 8) & 0xFF00) | (length[1] & 0xFF);
+		iBuf->len = len;
 		
 		for (pos = 0; pos < iBuf->len; pos += ret) {
 			ret = recv(fd, &(iBuf->data[pos]), iBuf->len - pos, MSG_NOSIGNAL);
