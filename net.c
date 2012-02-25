@@ -262,7 +262,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 			xbee_log(10, "failed to accept client... xbee_modeImport() returned %d", ret);
 			continue;
 		}
-		client->iface.rx->conTypes = client->iface.conTypes;
+		client->iface.rx->conTypes = &client->iface.conTypes;
 		
 		if ((ret = xbee_netClientStartup(xbee, client)) != XBEE_ENONE) {
 			shutdown(client->fd, SHUT_RDWR);

@@ -28,7 +28,7 @@ struct xbee_rxInfo {
 	xbee_err (*ioFunc)(struct xbee *xbee, void *arg, struct xbee_buf **buf);
 	void *handlerArg;
 	struct xbee_frameBlock *fBlock;
-	struct xbee_modeConType *conTypes;
+	struct xbee_modeConType **conTypes;
 };
 
 xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo);

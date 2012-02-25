@@ -150,7 +150,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		if (buf->len < 1) goto done;
 		
 		/* locate the connection type of this buffer */
-		if ((ret = xbee_modeLocateConType(info->conTypes, 1, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
+		if ((ret = xbee_modeLocateConType(*info->conTypes, 1, NULL, &buf->data[0], NULL, &conType)) == XBEE_ENOTEXISTS || !conType) {
 			xbee_log(4, "Unknown message type recieved... (0x%02X)", buf->data[0]);
 			goto done;
 		} else if (ret != XBEE_ENONE) {

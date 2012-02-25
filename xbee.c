@@ -129,7 +129,7 @@ EXPORT xbee_err xbee_setup(struct xbee **retXbee, char *mode, ...) {
 	
 	xbee->iface.rx->ioFunc = xbee->mode->rx_io;
 	xbee->iface.rx->fBlock = xbee->fBlock;
-	xbee->iface.rx->conTypes = xbee->iface.conTypes;
+	xbee->iface.rx->conTypes = &xbee->iface.conTypes;
 	
 	xbee->iface.tx->ioFunc = xbee->mode->tx_io;
 	

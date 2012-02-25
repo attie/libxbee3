@@ -80,6 +80,21 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 	return XBEE_ENONE;
 }
 
+/* ######################################################################### */
+
+static void prepare_repopConTypes(struct xbee_modeConType *conTypes) {
+	struct xbee_modeConType *conType;
+	struct xbee_con *con;
+	int i;
+	
+	for (i = 0; conTypes[i].name; i++) {
+		conType = &conTypes[i];
+		for (con = NULL; ll_get_next(conType->conList, con, (void**)&con) == XBEE_ENONE && con; ) {
+			con->conType = conType;
+		}
+	}
+}
+
 xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct xbee_modeConType *newConType) {
 	int n;
 	struct xbee_modeConType *conTypes;
@@ -93,12 +108,16 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct
 	
 	if ((conTypes = realloc(*extConTypes, sizeof(*conTypes) * (n + 2))) == NULL) return XBEE_ENOMEM;
 	*extConTypes = conTypes;
+	prepare_repopConTypes(conTypes);
+	
 	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
 	memcpy(&conTypes[n], newConType, sizeof(*newConType));
 	conTypes[n].conList = ll_alloc();
 	
 	return XBEE_ENONE;
 }
+
+/* ######################################################################### */
 
 xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
 	int i;
