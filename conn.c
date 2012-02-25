@@ -375,12 +375,17 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 	unsigned char myret;
 	unsigned char *pret;
 	
-	if (!con || !buf) return XBEE_EMISSINGPARAM;
+	if (!con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 #warning TODO - check that we wont talk over another awake connection
+
+	if (!buf) {
+		len = 0;
+		buf = &((unsigned char){0x00});
+	}
 
 	/* we ALWAYS want to be able to check the response value */
 	pret = ((!retVal)?&myret:retVal);
