@@ -195,6 +195,10 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 	int i, pos, slen;
 	struct xbee_modeConType newConType;
 	
+	char *mName;
+	struct xbee_modeDataHandlerRx *rx;
+	struct xbee_modeDataHandlerTx *tx;
+	
 	data = xbee->modeData;
 	/* transmit our libxbee_commit string - the git commit id */
 	if ((ret = xbee_connTx(data->bc_conGetTypes, &retVal, NULL, 0)) != XBEE_ENONE) {
@@ -214,7 +218,11 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 	
 	ret = XBEE_ENONE;
 	
-	for (pos = 1, i = 0; pos < pkt->dataLen && i < typeCount; pos += slen + 1, i++) {
+	rx = NULL;
+	tx = NULL;
+	mName = NULL;
+	
+	for (pos = 1, i = 0; pos < pkt->dataLen && i < typeCount; pos += slen, i++) {
 		int id;
 		char flags;
 		char *name;
@@ -223,12 +231,7 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 		flags = pkt->data[pos];
 		pos++;
 		name = (char *)&(pkt->data[pos]);
-		slen = strlen(name);
-		
-		if (slen > pkt->dataLen - pos) {
-			slen = pkt->dataLen - pos;
-			name[slen] = '\0';
-		}
+		slen = strnlen(name, pkt->dataLen - pos) + 1;
 		
 		/* can we use the frameId? */
 		if (flags & 0x01) {
@@ -239,8 +242,6 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 		
 		/* can we receive? */
 		if (flags & 0x02) {
-			struct xbee_modeDataHandlerRx *rx;
-			
 			if ((rx = malloc(sizeof(*rx))) == NULL) { ret = XBEE_ENOMEM; break; }
 			memcpy(rx, &xbee_net_frontchannel_rx, sizeof(*rx));
 			
@@ -250,8 +251,6 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 		
 		/* can we transmit? */
 		if (flags & 0x04) {
-			struct xbee_modeDataHandlerTx *tx;
-			
 			if ((tx = malloc(sizeof(*tx))) == NULL) { ret = XBEE_ENOMEM; break; }
 			memcpy(tx, &xbee_net_frontchannel_tx, sizeof(*tx));
 			
@@ -259,14 +258,31 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 			newConType.txHandler = tx;
 		}
 		
-		newConType.name = name;
+		if ((mName = malloc(sizeof(*name) * (slen + 1))) == NULL) { ret = XBEE_ENOMEM; break; }
+		strncpy(mName, name, slen);
+		newConType.name = mName;
 		
-		if ((ret = xbee_modeAddConType(&xbee->iface.conTypes, &newConType)) != XBEE_ENONE) continue;
+		if ((ret = xbee_modeAddConType(&xbee->iface.conTypes, &newConType)) != XBEE_ENONE) {
+			if (rx) free(rx);
+			rx = NULL;
+			if (tx) free(tx);
+			tx = NULL;
+			if (mName) free(mName);
+			mName = NULL;
+			continue;
+		}
+		
+		rx = NULL;
+		tx = NULL;
+		mName = NULL;
 		
 		xbee_log(3, "registered conType '%s' from server, identifier is 0x%02X", name, i);
 	}
 	
 	xbee_pktFree(pkt);
+	if (rx) free(rx);
+	if (tx) free(tx);
+	if (mName) free(mName);
 	
 	return ret;
 }
