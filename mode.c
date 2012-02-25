@@ -87,7 +87,7 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct
 	if (!extConTypes || !newConType) return XBEE_EMISSINGPARAM;
 	if (!*extConTypes) return XBEE_EINVAL;
 	if (!newConType->name) return XBEE_EINVAL;
-	if (!newConType->rxHandler || !newConType->txHandler) return XBEE_EINVAL;
+	if (!newConType->rxHandler && !newConType->txHandler) return XBEE_EINVAL;
 	
 	for (n = 0; (*extConTypes)[n].name; n++);
 	
@@ -95,6 +95,7 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct
 	*extConTypes = conTypes;
 	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
 	memcpy(&conTypes[n], newConType, sizeof(*newConType));
+	conTypes[n].conList = ll_alloc();
 	
 	return XBEE_ENONE;
 }

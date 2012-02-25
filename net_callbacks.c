@@ -26,6 +26,7 @@
 #include "xbee_int.h"
 #include "net.h"
 #include "net_callbacks.h"
+#include "mode.h"
 #include "conn.h"
 #include "log.h"
 
@@ -79,7 +80,7 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 	iBuf->len = bufLen;
 	iBuf->data[0] = (*pkt)->frameId;
 	iBuf->data[1] = 0x00; /* <-- success */
-	iBuf->data[2] = callbackCount;
+	iBuf->data[2] = callbackCount - 1; /* -1 cos we started at 1, not 0 */
 	for (i = 1, o = 3; i < callbackCount; i++) {
 		o += snprintf((char *)&(iBuf->data[o]), iBuf->len - o, "%s", xbee_netServerCallbacks[i].name) + 1;
 	}
@@ -167,9 +168,57 @@ void xbee_net_conEnd(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 
 void xbee_net_conGetTypes(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	struct xbee_netClientInfo *client;
+	int typeCount;
+	struct xbee_buf *iBuf;
+	int i, o;
+	size_t bufLen;
+	size_t memSize;
+	struct xbee_modeConType *conType;
+	
 	client = *data;
+	
 	if (!client->started) return;
 	
+	memSize = 0;
+	for (i = 0; xbee->iface.conTypes[i].name; i++) {
+		memSize += strlen(xbee->iface.conTypes[i].name) + 2; /* 1 for '\0', 1 for flags */
+	}
+	typeCount = i;
+	
+	memSize += 1; /* for an 8 bit 'count' */
+	memSize += 2; /* for the frameId and return value */
+	bufLen = memSize;
+	
+	memSize += sizeof(*iBuf);
+	
+	if ((iBuf = malloc(memSize)) == NULL) goto err;
+	
+	iBuf->len = bufLen;
+	iBuf->data[0] = (*pkt)->frameId;
+	iBuf->data[1] = 0x00; /* <-- success */
+	iBuf->data[2] = typeCount;
+	for (i = 0, o = 3; i < typeCount; i++) {
+		conType = &(xbee->iface.conTypes[i]);
+		iBuf->data[o] = 0;
+		if (conType->allowFrameId) iBuf->data[o] |= 0x01;
+		if (conType->rxHandler)    iBuf->data[o] |= 0x02;
+		if (conType->txHandler)    iBuf->data[o] |= 0x04;
+		o++;
+		o += snprintf((char *)&(iBuf->data[o]), iBuf->len - o, "%s", conType->name) + 1;
+	}
+	
+	xbee_connTx(con, NULL, iBuf->data, iBuf->len);
+	
+	free(iBuf);
+	
+	return;
+err:
+	{
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = 0x01; /* <-- this means intenal error */
+		xbee_connTx(con, NULL, buf, 2);
+	}
 }
 
 /* ######################################################################### */

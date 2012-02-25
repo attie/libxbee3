@@ -1,7 +1,7 @@
 include ../../config.mk
 include ../../buildconfig.mk
 
-SRCS:=mode net
+SRCS:=mode net handlers
 
 include ../buildmode.mk
 

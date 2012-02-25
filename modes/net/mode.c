@@ -28,13 +28,13 @@
 #include "../../xbee_int.h"
 #include "../../log.h"
 #include "../../net_io.h"
-#include "../../net_handlers.h"
 #include "../../mode.h"
 #include "../../conn.h"
 #include "../../frame.h"
 #include "../../pkt.h"
 #include "mode.h"
 #include "net.h"
+#include "handlers.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
 static xbee_err prepare(struct xbee *xbee);
@@ -115,7 +115,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	memset(&address, 0, sizeof(address));
 	address.endpoints_enabled = 1;
 	
-	for (pos = 1, i = 1; pos < pkt->dataLen; pos += slen + 1, i++) {
+	for (pos = 1, i = 1; pos < pkt->dataLen && i < callbackCount + 1; pos += slen + 1, i++) {
 		char *name;
 		struct xbee_con **retCon;
 		
@@ -186,9 +186,88 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 }
 
 static xbee_err prepare_conTypes(struct xbee *xbee) {
+	xbee_err ret;
 	struct xbee_modeData *data;
+	int typeCount;
+	unsigned char retVal;
+	struct xbee_pkt *pkt;
+	int i, pos, slen;
+	struct xbee_modeConType newConType;
+	
 	data = xbee->modeData;
-	return XBEE_ENONE;
+	/* transmit our libxbee_commit string - the git commit id */
+	if ((ret = xbee_connTx(data->bc_conGetTypes, &retVal, NULL, 0)) != XBEE_ENONE) {
+		switch (retVal) {
+			case 1:
+				xbee_log(0, "The server encountered an internal error");
+				break;
+			default:
+				xbee_log(0, "Failed to initialize connection to server for an unknown reason...");
+		}
+		return ret;
+	}
+	/* grab the returned data (an in-order list of the back channel endpoints, starting at 0x01) */
+	if ((ret = xbee_conRx(data->bc_conGetTypes, &pkt, NULL)) != XBEE_ENONE) return ret;
+	
+	typeCount = pkt->data[0];
+	
+	ret = XBEE_ENONE;
+	
+	for (pos = 1, i = 0; pos < pkt->dataLen && i < typeCount; pos += slen + 1, i++) {
+		int id;
+		char flags;
+		char *name;
+		
+		id = i + 1; /* backchannel is 0 */
+		flags = pkt->data[pos];
+		pos++;
+		name = (char *)&(pkt->data[pos]);
+		slen = strlen(name);
+		
+		if (slen > pkt->dataLen - pos) {
+			slen = pkt->dataLen - pos;
+			name[slen] = '\0';
+		}
+		
+		/* can we use the frameId? */
+		if (flags & 0x01) {
+			memcpy(&newConType, &xbee_net_frontchannel_template_fid, sizeof(newConType));
+		} else {
+			memcpy(&newConType, &xbee_net_frontchannel_template    , sizeof(newConType));
+		}
+		
+		/* can we receive? */
+		if (flags & 0x02) {
+			struct xbee_modeDataHandlerRx *rx;
+			
+			if ((rx = malloc(sizeof(*rx))) == NULL) { ret = XBEE_ENOMEM; break; }
+			memcpy(rx, &xbee_net_frontchannel_rx, sizeof(*rx));
+			
+			rx->identifier = i;
+			newConType.rxHandler = rx;
+		}
+		
+		/* can we transmit? */
+		if (flags & 0x04) {
+			struct xbee_modeDataHandlerTx *tx;
+			
+			if ((tx = malloc(sizeof(*tx))) == NULL) { ret = XBEE_ENOMEM; break; }
+			memcpy(tx, &xbee_net_frontchannel_tx, sizeof(*tx));
+			
+			tx->identifier = i;
+			newConType.txHandler = tx;
+		}
+		
+		newConType.name = name;
+		
+		if ((ret = xbee_modeAddConType(&xbee->iface.conTypes, &newConType)) != XBEE_ENONE) continue;
+		
+		xbee_log(3, "registered conType '%s' from server, identifier is 0x%02X", name, i);
+	}
+	
+	xbee_pktFree(pkt);
+	
+	return ret;
 }
 
 static xbee_err prepare(struct xbee *xbee) {
@@ -216,6 +295,8 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	
 	data = xbee->modeData;
 	
+#warning TODO - walk the conTypes, and free the modeDataHandlers
+	
 	if (data->netInfo.f) xsys_fclose(data->netInfo.f);
 	if (data->netInfo.fd != -1) {	
 		shutdown(data->netInfo.fd, SHUT_RDWR);
@@ -223,6 +304,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	}
 	if (data->netInfo.host) free(data->netInfo.host);
 	if (data->netInfo.txBuf) free(data->netInfo.txBuf);
+	
 	free(xbee->modeData);
 	xbee->modeData = NULL;
 
@@ -230,19 +312,6 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 }
 
 /* ######################################################################### */
-
-const struct xbee_modeConType xbee_net_backchannel = {
-	.name = "Backchannel",
-	.internal = 1,
-	.allowFrameId = 1, /* this needs redeclaring, because this is enabled for the client */
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 5,
-		.tv_nsec = 0,
-	},
-	.rxHandler = &xbee_netServer_backchannel_rx,
-	.txHandler = &xbee_netServer_backchannel_tx,
-};
 
 static const struct xbee_modeConType *conTypes[] = {
 	&xbee_net_backchannel,
