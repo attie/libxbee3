@@ -236,7 +236,6 @@ xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *a
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
-#warning INFO - needs info from remote, this info should be retrieved at setup
 	int i, o, p;
 	size_t memSize;
 	char **tList;
@@ -285,7 +284,6 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 /* ########################################################################## */
 
 xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
-#warning INFO - needs remote
 	xbee_err ret;
 	struct xbee_con *con;
 	struct xbee_modeConType *conType;
@@ -295,6 +293,11 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int a
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	if ((ret = xbee_modeLocateConType(interface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
+	
+	if (xbee->mode->support.conNew) {
+		/* check with support system */
+		if ((ret = xbee->mode->support.conNew(xbee, interface, conType, address)) != XBEE_ENONE) return ret;
+	}
 	
 	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
 	con->iface = interface;
@@ -319,8 +322,14 @@ EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *t
 }
 
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
-#warning INFO - needs remote (if remote fails/contradicts, is XBEE_ESTALE)
+	xbee_err ret;
+	
 	if (ll_get_item(conList, con) != XBEE_ENONE) return XBEE_EINVAL;
+	
+	if (con->xbee && con->xbee->mode->support.conValidate) {
+		/* check with support system */
+		if ((ret = con->xbee->mode->support.conValidate(con)) != XBEE_ENONE) return ret;
+	}
 	return XBEE_ENONE;
 }
 
@@ -375,7 +384,6 @@ die:
 }
 
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len) {
-#warning INFO - needs remote, can return XBEE_ESTALE
 	int waitForAck;
 	xbee_err ret;
 	unsigned char myret;
@@ -488,22 +496,34 @@ die:
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state) {
-#warning INFO - needs remote, can return XBEE_ESTALE
+	xbee_err ret;
 	if (!con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	
+	if (con->xbee->mode->support.conSleepSet) {
+		/* check with support system */
+		if ((ret = con->xbee->mode->support.conSleepSet(con, state)) != XBEE_ENONE) return ret;
+	}
+	
 #warning TODO - check that we wont interrupt another awake connection
 	con->sleepState = state;
 	return XBEE_ENONE;
 }
 
 EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state) {
-#warning INFO - needs remote (if remote fails/contradicts, update local or is XBEE_ESTALE)
+	xbee_err ret;
 	if (!con || !state) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	
+	if (con->xbee->mode->support.conSleepGet) {
+		/* check with support system */
+		if ((ret = con->xbee->mode->support.conSleepGet(con)) != XBEE_ENONE) return ret;
+	}
+	
 	*state = con->sleepState;
 	return XBEE_ENONE;
 }
@@ -642,12 +662,21 @@ EXPORT xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *cu
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings, struct xbee_conSettings *oldSettings) {
-#warning INFO - needs remote, can return XBEE_ESTALE
+	xbee_err ret;
+	struct xbee_conSettings tempOld;
 	if (!con || (!newSettings && !oldSettings)) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if (oldSettings) memcpy(oldSettings, &con->settings, sizeof(con->settings));
+	
+	if (oldSettings) memcpy(&tempOld, &con->settings, sizeof(con->settings));
+	
+	if (con->xbee->mode->support.conSettings) {
+		/* check with support system */
+		if ((ret = con->xbee->mode->support.conSettings(con, newSettings)) != XBEE_ENONE) return ret;
+	}
+	
+	if (oldSettings) memcpy(oldSettings, &tempOld, sizeof(con->settings));
 	if (newSettings) memcpy(&con->settings, newSettings, sizeof(con->settings));
 	return XBEE_ENONE;
 }
@@ -655,6 +684,16 @@ EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conEnd(struct xbee_con *con) {
-#warning INFO - needs remote, can return XBEE_ESTALE
-	return xbee_conFree(con);
+	xbee_err ret;
+	xbee_err ret2;
+
+	if (con->xbee->mode->support.conEnd) {
+		/* check with support system */
+		ret = con->xbee->mode->support.conEnd(con);
+		if (ret != XBEE_ENONE && ret != XBEE_ESTALE) return ret;
+	}
+	
+	if ((ret2 = xbee_conFree(con)) != XBEE_ENONE) return ret2;
+	
+	return ret;
 }

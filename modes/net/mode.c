@@ -35,6 +35,7 @@
 #include "mode.h"
 #include "net.h"
 #include "handlers.h"
+#include "support.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
 static xbee_err prepare(struct xbee *xbee);
@@ -331,4 +332,13 @@ const struct xbee_mode mode_net = {
 	.tx_io = xbee_netTx,
 	
 	.thread = NULL,
+	
+	.support = {
+		.conNew = xbee_netSupport_conNew,
+		.conValidate = xbee_netSupport_conValidate,
+		.conSleepSet = xbee_netSupport_conSleepSet,
+		.conSleepGet = xbee_netSupport_conSleepGet,
+		.conSettings = xbee_netSupport_conSettings,
+		.conEnd = xbee_netSupport_conEnd,
+	},
 };

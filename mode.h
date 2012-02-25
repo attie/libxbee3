@@ -58,6 +58,15 @@ struct xbee_modeConType {
 	const struct xbee_modeDataHandlerTx *txHandler;
 };
 
+struct xbee_modeSupport {
+	xbee_err (* const conNew)(struct xbee *xbee, struct xbee_interface *interface, struct xbee_modeConType *conType, struct xbee_conAddress *address);
+	xbee_err (* const conValidate)(struct xbee_con *con);
+	xbee_err (* const conSleepSet)(struct xbee_con *con, enum xbee_conSleepStates state);
+	xbee_err (* const conSleepGet)(struct xbee_con *con);
+	xbee_err (* const conSettings)(struct xbee_con *con, struct xbee_conSettings *newSettings);
+	xbee_err (* const conEnd)(struct xbee_con *con);
+};
+
 struct xbee_mode {
 	const char * const name;
 	
@@ -71,6 +80,8 @@ struct xbee_mode {
 	xbee_err (* const tx_io)(struct xbee *xbee, void *arg, struct xbee_buf *buf); /* transmits raw buffers to the I/O device */
 	
 	xbee_err (* const thread)(struct xbee *xbee, int *restart, void *arg);
+	
+	struct xbee_modeSupport support;
 };
 
 xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode);
