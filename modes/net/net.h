@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-xbee_err xbee_netSetup(struct xbee_netInfo *info);
+xbee_err xbee_netSetup(struct xbee_modeNetInfo *info);
 
 #endif /* __XBEE_MODE_NET_H */
 

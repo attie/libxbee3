@@ -27,6 +27,7 @@
 #include "../../internal.h"
 #include "../../xbee_int.h"
 #include "../../log.h"
+#include "../../net_io.h"
 #include "../../mode.h"
 #include "../../frame.h"
 #include "../../pkt.h"

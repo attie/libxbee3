@@ -33,7 +33,7 @@
 #include "mode.h"
 #include "net.h"
 
-xbee_err xbee_netSetup(struct xbee_netInfo *info) {
+xbee_err xbee_netSetup(struct xbee_modeNetInfo *info) {
 	xbee_err ret;
 	char rport[7];
 	struct addrinfo *rinfo;

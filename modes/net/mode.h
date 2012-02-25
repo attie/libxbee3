@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-struct xbee_netInfo {
+struct xbee_modeNetInfo {
 	char *host;
 	int port;
 	int fd;
@@ -32,7 +32,7 @@ struct xbee_netInfo {
 };
 
 struct xbee_modeData {
-	struct xbee_netInfo netInfo; /* keep netInfo first, otherwise xbee_netRxIo() and xbee_netTxIo() will break */
+	struct xbee_modeNetInfo netInfo;
 };
 
 #endif /* __XBEE_MODE_MODE_H */
