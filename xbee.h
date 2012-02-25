@@ -217,6 +217,8 @@ enum xbee_errors {
 	XBEE_ENOTIMPLEMENTED       = -24,
 	
 	XBEE_ETX                   = -25,
+	
+	XBEE_EREMOTE               = -26,
 };
 
 /* ######################################################################### */

@@ -114,6 +114,9 @@ EXPORT char *xbee_errorToStr(xbee_err error) {
 			
 		case XBEE_ETX:
 			str = "Transmission failed (check the retVal)";
+			
+		case XBEE_EREMOTE:
+			str = "An error occured on the remote host, or an error was encountered while communicating with the remote host";
 			break;
 	}
 	
