@@ -33,6 +33,41 @@
 
 /* ######################################################################### */
 
+void xbee_net_fromClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	xbee_connTx((struct xbee_con *)(*data), NULL, (*pkt)->data, (*pkt)->dataLen);
+}
+
+void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	unsigned char *buf;
+	size_t memSize;
+	
+	/* this will need updating if struct xbee_pkt changes */
+	/* 6 = status + settings + rssi + frameId + atCommand[2] */
+	/* dataLen can be inferred */
+	memSize = 6 + (*pkt)->dataLen + 1;
+	
+	if ((buf = malloc(memSize)) == NULL) {
+		xbee_log(1, "MALLOC FAILED... dataloss has occured");
+		return;
+	}
+	
+	buf[0] = (*pkt)->status;
+	buf[1] = (*pkt)->settings;
+	buf[2] = (*pkt)->rssi;
+	buf[3] = (*pkt)->frameId;
+	buf[4] = (*pkt)->atCommand[0];
+	buf[5] = (*pkt)->atCommand[1];
+	if ((*pkt)->dataLen > 0) {
+		memcpy(&buf[6], (*pkt)->data, (*pkt)->dataLen);
+	}
+	
+	xbee_connTx((struct xbee_con *)(*data), NULL, buf, memSize);
+	
+	free(buf);
+}
+
+/* ######################################################################### */
+
 void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	struct xbee_netClientInfo *client;
 	int i, o;
@@ -103,9 +138,11 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	unsigned char retVal;
 	struct xbee_netClientInfo *client;
 	struct xbee_conAddress address;
-	struct xbee_con *nCon;
-	char *conType;
-	int i;
+	struct xbee_con *nCon, *lCon, *tCon;
+	int conIdentifier;
+	struct xbee_modeConType *conType;
+	char *conTypeName;
+	int i, o;
 	unsigned char buf[4];
 	client = *data;
 	if (!client->started) return;
@@ -117,34 +154,72 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 		goto err;
 	}
 	
-	memcpy(&address, &((*pkt)->data[1]), sizeof(address));
-	
 	conType = NULL;
-	for (i = 0; xbee->iface.conTypes[i].name; i++) {
-		if (i == (*pkt)->data[0]) {
-			conType = (char *)xbee->iface.conTypes[i].name;
-		}
+	for (i = 0, o = 0; xbee->iface.conTypes[i].name; i++) {
+		if (xbee->iface.conTypes[i].internal) continue;
+		o++;
+		if (o != (*pkt)->data[0]) continue;
+		conType = &xbee->iface.conTypes[i];
+		conTypeName = (char *)xbee->iface.conTypes[i].name;
+		break;
 	}
 	if (!conType) {
 		retVal = 0x02;
 		goto err;
 	}
 	
-	if ((ret = xbee_conNew(xbee, &nCon, conType, &address)) != XBEE_ENONE) goto err;
+	/* find a conIdentifier */
+	conIdentifier = 0;
+	for (tCon = NULL; ll_get_next(conType->conList, tCon, (void **)&tCon) == XBEE_ENONE && tCon; ) {
+		if (tCon->conIdentifier == conIdentifier) {
+			conIdentifier++;
+			tCon = NULL;
+			continue;
+		}
+	}
+	if (conIdentifier > 0xFFFF) {
+		retVal = 0x03;
+		goto err;
+	}
 	
-	nCon->conIdentifier = xbee->netInfo->nextConIdentifier++;
 	
-	ll_add_tail(client->conList, nCon);
+	/* create the local-side connection */
+	memcpy(&address, &((*pkt)->data[1]), sizeof(address));
+	if ((ret = xbee_conNew(xbee, &lCon, conTypeName, &address)) != XBEE_ENONE) goto err;
+	lCon->conIdentifier = conIdentifier;
+	ll_add_tail(client->conList, lCon);
+	
+	/* create the network-side connection */
+	memset(&address, 0, sizeof(address));
+	address.addr16_enabled = 1;
+	address.addr16[0] = (lCon->conIdentifier >> 8) & 0xFF;
+	address.addr16[1] = lCon->conIdentifier & 0xFF;
+	
+	if ((ret = _xbee_conNew(xbee, &client->iface, 0, &nCon, conTypeName, &address)) != XBEE_ENONE) goto err;
+	
+	xbee_conDataSet(lCon, nCon, NULL);
+	xbee_conCallbackSet(lCon, xbee_net_toClient, NULL);
+	
+	xbee_conDataSet(nCon, lCon, NULL);
+	xbee_conCallbackSet(nCon, xbee_net_fromClient, NULL);
 	
 	buf[0] = (*pkt)->frameId;
 	buf[1] = 0x00;
-	buf[2] = (nCon->conIdentifier >> 8) & 0xFF;
-	buf[3] = nCon->conIdentifier & 0xFF;
+	buf[2] = (lCon->conIdentifier >> 8) & 0xFF;
+	buf[3] = lCon->conIdentifier & 0xFF;
 	
 	xbee_connTx(con, NULL, buf, sizeof(buf));
 	
 	return;
 err:
+	if (nCon) {
+		//ll_ext_item(client->conList, lCon);
+		xbee_conEnd(nCon);
+	}
+	if (lCon) {
+		ll_ext_item(client->conList, lCon);
+		xbee_conEnd(lCon);
+	}
 	{
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
@@ -347,6 +422,7 @@ void xbee_net_conGetTypes(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	iBuf->data[1] = 0x00; /* <-- success */
 	iBuf->data[2] = typeCount;
 	for (i = 0, p = 0, o = 3; xbee->iface.conTypes[i].name && p < typeCount; i++) {
+		/* this order of conTypes HAS to match up with the order in net.c xbee_netServerThread() */
 		if (xbee->iface.conTypes[i].internal) continue;
 		p++;
 		conType = &(xbee->iface.conTypes[i]);

@@ -58,8 +58,6 @@ struct xbee_netInfo {
 	struct xbee_netClientInfo *newClient;
 	int(*clientFilter)(struct xbee *xbee, char *remoteHost);
 	struct ll_head *clientList;
-
-	int nextConIdentifier;
 };
 
 xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info);

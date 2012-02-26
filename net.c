@@ -190,11 +190,15 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 	socklen_t addrlen;
 	char addr[INET_ADDRSTRLEN];
 	int port;
-	unsigned int u;
+	unsigned int i, o, u;
 	
 	struct xbee_netInfo *info;
 	struct xbee_netClientInfo *client;
 	struct xbee_netClientInfo *deadClient;
+	
+	struct xbee_modeConType newConType;
+	struct xbee_modeDataHandlerRx *rx;
+	struct xbee_modeDataHandlerTx *tx;
 	
 	if (!xbee->netInfo || arg != xbee->netInfo) {
 		*restart = 0;
@@ -264,9 +268,68 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 			xbee_log(10, "failed to accept client... xbee_modeImport() returned %d", ret);
 			continue;
 		}
+		
+		rx = NULL;
+		tx = NULL;
+		for (i = 0, o = -1; xbee->iface.conTypes[i].name; i++) {
+			struct xbee_modeConType *conType;
+			
+			/* this order of conTypes HAS to match up with the order in net_callbacks.c xbee_net_conGetTypes() */
+			if (xbee->iface.conTypes[i].internal) continue;
+			conType = &xbee->iface.conTypes[i];
+			o++;
+			
+			memset(&newConType, 0, sizeof(newConType));
+			
+			/* YES - THIS IS BACKWARDS... think about it */
+			if (conType->rxHandler) {
+				if ((tx = malloc(sizeof(*tx))) == NULL) { ret = XBEE_ENOMEM; break; } /* !!! */
+				
+				tx->identifier = o;
+				tx->func = xbee_netServer_fc_tx_func;
+				tx->needsFree = 1;
+				
+				newConType.txHandler = tx;
+			}
+			
+			/* YES - THIS IS BACKWARDS... think about it */
+			if (conType->txHandler) {
+				if ((rx = malloc(sizeof(*rx))) == NULL) { ret = XBEE_ENOMEM; break; } /* !!! */
+				
+				rx->identifier = o;
+				rx->func = xbee_netServer_fc_rx_func;
+				rx->needsFree = 1;
+				
+				newConType.rxHandler = rx;
+			}
+			
+			newConType.name = conType->name;
+			
+			if ((ret = xbee_modeAddConType(&client->iface.conTypes, &newConType)) != XBEE_ENONE) {
+				if (rx) free(rx);
+				rx = NULL;
+				if (tx) free(tx);
+				tx = NULL;
+				continue;
+			}
+			
+			rx = NULL;
+			tx = NULL;
+		}
+		if (rx) free(rx);
+		if (tx) free(tx);
+		if (ret != XBEE_ENONE) {
+			xbee_modeCleanup(client->iface.conTypes);
+			shutdown(client->fd, SHUT_RDWR);
+			close(client->fd);
+			xbee_log(10, "failed to import all connection types... returned %d", ret);
+			continue;
+		}
+		
 		client->iface.rx->conTypes = &client->iface.conTypes;
 		
 		if ((ret = xbee_netClientStartup(xbee, client)) != XBEE_ENONE) {
+			xbee_modeCleanup(client->iface.conTypes);
 			shutdown(client->fd, SHUT_RDWR);
 			close(client->fd);
 			xbee_log(10, "failed to accept client... xbee_netClientStartup() returned %d", ret);

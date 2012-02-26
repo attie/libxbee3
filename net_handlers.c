@@ -30,9 +30,66 @@
 #include "mode.h"
 #include "frame.h"
 
+xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+	struct xbee_pkt *iPkt;
+	xbee_err ret;
+	int pos;
+	
+	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
+	
+	/* identifier + frameId + address (2 bytes) */
+	pos = 4;
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - pos)) != XBEE_ENONE) return ret;
+	
+	iPkt->frameId = buf->data[1];
+	address->addr16_enabled = 1;
+	address->addr16[0] = buf->data[2];
+	address->addr16[1] = buf->data[3];
+	
+	iPkt->dataLen = buf->len - pos;
+	if (iPkt->dataLen > 0) {
+		memcpy(iPkt->data, &(buf->data[pos]), iPkt->dataLen);
+	}
+	iPkt->data[iPkt->dataLen] = '\0';
+	
+	*pkt = iPkt;
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
+	struct xbee_buf *iBuf;
+	size_t bufLen;
+	size_t memSize;
+	int pos;
+	
+	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
+	
+	if (!address->addr16_enabled) return XBEE_EINVAL;
+	
+	/* identifier + address (2 bytes) */
+	pos = 3;
+	memSize = pos + len;
+	bufLen = memSize;
+	
+	memSize += sizeof(*iBuf);
+	
+	if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
+	
+	iBuf->len = bufLen;
+	iBuf->data[0] = identifier;
+	iBuf->data[1] = address->addr16[0];
+	iBuf->data[2] = address->addr16[1];
+	memcpy(&(iBuf->data[pos]), buf, len);
+	
+	*oBuf = iBuf;
+	
+	return XBEE_ENONE;
+}
+
 /* ######################################################################### */
 
-xbee_err xbee_netServer_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_netServer_bc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	int pos;
@@ -70,7 +127,7 @@ xbee_err xbee_netServer_rx_func(struct xbee *xbee, void *arg, unsigned char iden
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_netServer_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
+xbee_err xbee_netServer_bc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	size_t memSize;
@@ -109,33 +166,18 @@ xbee_err xbee_netServer_tx_func(struct xbee *xbee, struct xbee_con *con, void *a
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_netServer_frontchannel_rx = {
-	.identifier = 0x01,
-	.func = xbee_netServer_rx_func,
-};
-const struct xbee_modeDataHandlerTx xbee_netServer_frontchannel_tx = {
-	.identifier = 0x01,
-	.func = xbee_netServer_tx_func,
-};
-const struct xbee_modeConType xbee_netServer_frontchannel = {
-	.name = "Frontchannel",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.rxHandler = &xbee_netServer_frontchannel_rx,
-	.txHandler = &xbee_netServer_frontchannel_tx,
-};
-
-/* ######################################################################### */
-
-/* backchannel (0x00), endpoint 0 (0x00) is ALWAYS the 'start' function */
+/* backchannel (0x00), endpoint 0 (0x00) is ALWAYS the 'start' function
+   THIS IS USED BY THE CLIENT CODE TOO */
 const struct xbee_modeDataHandlerRx xbee_netServer_backchannel_rx = {
 	.identifier = 0x00,
-	.func = xbee_netServer_rx_func,
+	.func = xbee_netServer_bc_rx_func,
 };
 const struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx = {
 	.identifier = 0x00,
-	.func = xbee_netServer_tx_func,
+	.func = xbee_netServer_bc_tx_func,
 };
+
+/* the client has its own version of this */
 const struct xbee_modeConType xbee_netServer_backchannel = {
 	.name = "Backchannel",
 	.internal = 1,
@@ -148,9 +190,8 @@ const struct xbee_modeConType xbee_netServer_backchannel = {
 /* ######################################################################### */
 
 static const struct xbee_modeConType *conTypes[] = {
-	&xbee_netServer_frontchannel,
 	&xbee_netServer_backchannel,
-	NULL
+	NULL,
 };
 
 const struct xbee_mode xbee_netServerMode = {
