@@ -169,6 +169,9 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	
 	retVal = 0x01; /* <-- internal error */
 	
+	nCon = NULL;
+	lCon = NULL;
+	
 	if ((*pkt)->dataLen != 1 + sizeof(address)) {
 		retVal = 0x02; /* <-- request error */
 		goto err;
