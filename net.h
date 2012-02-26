@@ -43,6 +43,8 @@ struct xbee_netClientInfo {
 	
 	struct ll_head *conList;
 	
+	struct xbee_con *bc_status;
+	
 	struct xbee_interface iface;
 	struct xbee_frameBlock *fBlock;
 	

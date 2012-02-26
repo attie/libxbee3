@@ -36,7 +36,24 @@
 /* ######################################################################### */
 
 void xbee_net_fromClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	xbee_connTx((struct xbee_con *)(*data), NULL, (*pkt)->data, (*pkt)->dataLen);
+	xbee_err ret;
+	unsigned char retVal;
+	struct xbee_con *rCon;
+	
+	rCon = *data;
+	
+	ret = xbee_connTx(rCon, &retVal, (*pkt)->data, (*pkt)->dataLen);
+	
+	if (!rCon->conType->allowFrameId || rCon->settings.disableAck) return;
+	
+	if (!con->netClient || !con->netClient->bc_status) return;
+	
+	{
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = retVal;
+		xbee_connTx(con->netClient->bc_status, NULL, buf, sizeof(buf));
+	}
 }
 
 void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {

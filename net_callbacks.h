@@ -28,6 +28,7 @@ struct xbee_netCallback {
 	const xbee_t_conCallback callback;
 };
 
+void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data);
 extern const struct xbee_netCallback xbee_netServerCallbacks[];
 
 #endif /* XBEE_NO_NET_SERVER */

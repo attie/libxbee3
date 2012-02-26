@@ -112,6 +112,11 @@ xbee_err xbee_netServer_bc_rx_func(struct xbee *xbee, void *arg, unsigned char i
 		pos = 3;
 	}
 	
+	if (buf->len == pos && buf->data[1] == 0) {
+		/* the 'start' endpoint may not recieve zero data. this is also handy cos its used for the status updates */
+		return XBEE_ENONE;
+	}
+	
 	address->endpoints_enabled = 1;
 	address->endpoint_local = buf->data[1];
 	address->endpoint_remote = buf->data[1];

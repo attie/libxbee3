@@ -131,6 +131,10 @@ xbee_err xbee_netConNew(struct xbee *xbee, struct xbee_netClientInfo *client, ch
 	if (!con) return XBEE_EUNKNOWN;
 	con->netClient = client;
 	
+	if (callback == xbee_net_start) {
+		client->bc_status = con;
+	}
+	
 	xbee_conDataSet(con, client, NULL);
 	xbee_conCallbackSet(con, callback, NULL);
 	
