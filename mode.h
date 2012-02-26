@@ -35,6 +35,7 @@ struct xbee_modeDataHandlerRx {
 struct xbee_modeDataHandlerTx {
 	unsigned char identifier;
 	xbee_err (*func)(struct xbee *xbee,
+	                 struct xbee_con *con,
 	                 void *arg,
 	                 unsigned char identifier,
 	     /* IN */    unsigned char frameId,

@@ -117,7 +117,7 @@ xbee_err xbee_txHandler(struct xbee_con *con, unsigned char *buf, int len) {
 	if (!con->conType->txHandler || !con->conType->txHandler->func) return XBEE_ENOTIMPLEMENTED;
 	
 	oBuf = NULL;
-	if ((ret = con->conType->txHandler->func(con->xbee, con->iface->tx->ioArg, con->conType->txHandler->identifier, con->frameId, &con->address, &con->settings, buf, len, &oBuf)) != XBEE_ENONE) return ret;
+	if ((ret = con->conType->txHandler->func(con->xbee, con, con->iface->tx->ioArg, con->conType->txHandler->identifier, con->frameId, &con->address, &con->settings, buf, len, &oBuf)) != XBEE_ENONE) return ret;
 	
 	if (!oBuf) return XBEE_EUNKNOWN;
 	
