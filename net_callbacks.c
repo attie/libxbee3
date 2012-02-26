@@ -156,9 +156,36 @@ err:
 
 void xbee_net_conValidate(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	struct xbee_netClientInfo *client;
+	unsigned char retVal;
+	int conIdentifier;
+	struct xbee_con *iCon;
 	client = *data;
 	if (!client->started) return;
 	
+	retVal = 0x02;
+	
+	if ((*pkt)->dataLen != 2) {
+		goto err;
+	}
+	
+	conIdentifier = 0;
+	conIdentifier |= (((*pkt)->data[0]) << 8) & 0xFF;
+	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
+	
+	for (iCon = NULL; ll_get_next(client->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+		if (iCon->conIdentifier == conIdentifier) {
+			retVal = 0x00;
+			break;
+		}
+	}
+	
+err:
+	{
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = retVal;
+		xbee_connTx(con, NULL, buf, 2);
+	}
 }
 
 /* ######################################################################### */

@@ -34,9 +34,7 @@
 static xbee_err getConTypeId(struct xbee_modeConType *conTypes, struct xbee_modeConType *conType, unsigned char *conTypeId) {
 	int i;
 	
-	printf("%p\n", conType);
 	for (i = 0; conTypes[i].name; i++) {
-		printf("%s <-> %s\n", conType->name, conTypes[i].name);
 		if (&conTypes[i] == conType) {
 			if (i > 255) return XBEE_ERANGE;
 			*conTypeId = i;
@@ -67,11 +65,11 @@ xbee_err xbee_netSupport_conNew(struct xbee *xbee, struct xbee_interface *interf
 	buf[0] = conTypeId;
 	memcpy(&(buf[1]), address, sizeof(*address));
 	
-	if (xbee_connTx(data->bc_conNew, NULL, buf, len) != XBEE_ENONE) return XBEE_EREMOTE;
+	xbee_connTx(data->bc_conNew, NULL, buf, len);
 	
 	free(buf);
 	
-	if (xbee_conRx(data->bc_conNew, &pkt, NULL) != XBEE_ENONE) return XBEE_EREMOTE;
+	if (xbee_conRx(data->bc_conNew, &pkt, NULL) != XBEE_ENONE || !pkt) return XBEE_EREMOTE;
 	
 	if (pkt->dataLen == 2) {
 		int conId;
@@ -91,16 +89,30 @@ xbee_err xbee_netSupport_conNew(struct xbee *xbee, struct xbee_interface *interf
 
 xbee_err xbee_netSupport_conValidate(struct xbee_con *con) {
 	unsigned char conTypeId;
+	unsigned char buf[2];
+	struct xbee_pkt *pkt;
+	struct xbee_modeData *data;
+	
+	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
 	
+	buf[0] = (con->conIdentifier >> 8) & 0xFF;
+	buf[1] = con->conIdentifier & 0xFF;
 	
+	xbee_connTx(data->bc_conValidate, NULL, buf, sizeof(buf));
+	
+	if (xbee_conRx(data->bc_conValidate, &pkt, NULL) != XBEE_ENONE || !pkt) return XBEE_EREMOTE;
+
+	xbee_pktFree(pkt);
 	
 	return XBEE_ENONE;
 }
 
 xbee_err xbee_netSupport_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state) {
 	unsigned char conTypeId;
+	struct xbee_modeData *data;
+	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
 	
@@ -111,6 +123,8 @@ xbee_err xbee_netSupport_conSleepSet(struct xbee_con *con, enum xbee_conSleepSta
 
 xbee_err xbee_netSupport_conSleepGet(struct xbee_con *con) {
 	unsigned char conTypeId;
+	struct xbee_modeData *data;
+	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
 	
@@ -121,6 +135,8 @@ xbee_err xbee_netSupport_conSleepGet(struct xbee_con *con) {
 
 xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings) {
 	unsigned char conTypeId;
+	struct xbee_modeData *data;
+	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
 	
@@ -131,6 +147,8 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 
 xbee_err xbee_netSupport_conEnd(struct xbee_con *con) {
 	unsigned char conTypeId;
+	struct xbee_modeData *data;
+	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
 	
