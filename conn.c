@@ -150,6 +150,7 @@ xbee_err xbee_conUnlink(struct xbee_con *con) {
 /* ########################################################################## */
 
 xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address) {
+	if (!address) return XBEE_EINVAL;
 	xbee_log(minLogLevel, "address @ %p...", address);
 	if (address->addr16_enabled) {
 		xbee_log(minLogLevel, "   16-bit address:  0x%02X%02X", address->addr16[0], address->addr16[1]);

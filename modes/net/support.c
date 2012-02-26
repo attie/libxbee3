@@ -62,9 +62,10 @@ xbee_err xbee_netSupport_conNew(struct xbee *xbee, struct xbee_interface *interf
 	
 	len = 1 + sizeof(*address);
 	if ((buf = malloc(len)) == NULL) return XBEE_ENOMEM;
+	memset(buf, 0, len);
 	
 	buf[0] = conTypeId;
-	memcpy(&(buf[1]), address, sizeof(*address));
+	if (address) memcpy(&(buf[1]), address, sizeof(*address));
 	
 	xbee_connTx(data->bc_conNew, &txRet, buf, len);
 	

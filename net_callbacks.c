@@ -79,6 +79,7 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	if ((*pkt)->dataLen > 0) {
 		memcpy(&buf[6], (*pkt)->data, (*pkt)->dataLen);
 	}
+	buf[6 + (*pkt)->dataLen] = '\0';
 	
 	xbee_connTx((struct xbee_con *)(*data), NULL, buf, memSize);
 	
