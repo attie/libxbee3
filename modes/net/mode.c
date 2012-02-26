@@ -243,6 +243,7 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 			
 			rx->identifier = i;
 			rx->func = xbee_net_frontchannel_rx_func;
+			rx->needsFree = 1;
 			
 			newConType.rxHandler = rx;
 		}
@@ -253,6 +254,7 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 			
 			tx->identifier = i;
 			tx->func = xbee_net_frontchannel_tx_func;
+			tx->needsFree = 1;
 			
 			newConType.txHandler = tx;
 		}

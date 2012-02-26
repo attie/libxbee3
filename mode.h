@@ -30,6 +30,7 @@ struct xbee_modeDataHandlerRx {
 	     /* OUT */   struct xbee_frameInfo *frameInfo,
 	     /* OUT */   struct xbee_conAddress *address,
 	     /* OUT */   struct xbee_pkt **pkt);
+	unsigned char needsFree;
 };
 
 struct xbee_modeDataHandlerTx {
@@ -44,6 +45,7 @@ struct xbee_modeDataHandlerTx {
 	     /* IN */    unsigned char *buf,
 	     /* IN */    int len,
 	     /* OUT */   struct xbee_buf **oBuf);
+	unsigned char needsFree;
 };
 
 struct xbee_modeConType {

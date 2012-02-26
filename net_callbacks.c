@@ -317,7 +317,7 @@ void xbee_net_conGetTypes(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	struct xbee_netClientInfo *client;
 	int typeCount;
 	struct xbee_buf *iBuf;
-	int i, o;
+	int i, o, p;
 	size_t bufLen;
 	size_t memSize;
 	struct xbee_modeConType *conType;
@@ -327,10 +327,12 @@ void xbee_net_conGetTypes(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	if (!client->started) return;
 	
 	memSize = 0;
+	typeCount = 0;
 	for (i = 0; xbee->iface.conTypes[i].name; i++) {
+		if (xbee->iface.conTypes[i].internal) continue;
+		typeCount++;
 		memSize += strlen(xbee->iface.conTypes[i].name) + 2; /* 1 for '\0', 1 for flags */
 	}
-	typeCount = i;
 	
 	memSize += 1; /* for an 8 bit 'count' */
 	memSize += 2; /* for the frameId and return value */
@@ -344,7 +346,9 @@ void xbee_net_conGetTypes(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	iBuf->data[0] = (*pkt)->frameId;
 	iBuf->data[1] = 0x00; /* <-- success */
 	iBuf->data[2] = typeCount;
-	for (i = 0, o = 3; i < typeCount; i++) {
+	for (i = 0, p = 0, o = 3; xbee->iface.conTypes[i].name && p < typeCount; i++) {
+		if (xbee->iface.conTypes[i].internal) continue;
+		p++;
 		conType = &(xbee->iface.conTypes[i]);
 		iBuf->data[o] = 0;
 		if (conType->allowFrameId) iBuf->data[o] |= 0x01;
