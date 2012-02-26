@@ -55,8 +55,6 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	}
 	if (!con) return XBEE_EINVAL;
 	
-	printf("got me a con @ %p\n", con);
-	
 	/* steal it's address */
 	memcpy(address, &con->address, sizeof(*address));
 	
