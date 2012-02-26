@@ -691,6 +691,7 @@ EXPORT xbee_err xbee_conEnd(struct xbee_con *con) {
 	xbee_err ret;
 	xbee_err ret2;
 
+	ret = XBEE_ENONE;
 	if (con->xbee->mode->support.conEnd) {
 		/* check with support system */
 		ret = con->xbee->mode->support.conEnd(con);
