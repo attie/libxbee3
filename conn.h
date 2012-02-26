@@ -33,6 +33,7 @@ struct xbee_con {
 	struct xbee_interface *iface;
 	
 	void *userData;
+	struct xbee_netClientInfo *netClient;
 	
 	xbee_t_conCallback callback;
 	int callbackStarted;

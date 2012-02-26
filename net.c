@@ -129,6 +129,7 @@ xbee_err xbee_netConNew(struct xbee *xbee, struct xbee_netClientInfo *client, ch
 	
 	if ((ret = _xbee_conNew(xbee, &client->iface, 1, &con, type, &address)) != XBEE_ENONE) return ret;
 	if (!con) return XBEE_EUNKNOWN;
+	con->netClient = client;
 	
 	xbee_conDataSet(con, client, NULL);
 	xbee_conCallbackSet(con, callback, NULL);

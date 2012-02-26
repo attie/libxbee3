@@ -189,6 +189,7 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	memcpy(&address, &((*pkt)->data[1]), sizeof(address));
 	if ((ret = xbee_conNew(xbee, &lCon, conTypeName, &address)) != XBEE_ENONE) goto err;
 	lCon->conIdentifier = conIdentifier;
+	lCon->netClient = client;
 	ll_add_tail(client->conList, lCon);
 	
 	/* create the network-side connection */
@@ -198,6 +199,7 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	address.addr16[1] = lCon->conIdentifier & 0xFF;
 	
 	if ((ret = _xbee_conNew(xbee, &client->iface, 0, &nCon, conTypeName, &address)) != XBEE_ENONE) goto err;
+	nCon->netClient = client;
 	
 	xbee_conDataSet(lCon, nCon, NULL);
 	xbee_conCallbackSet(lCon, xbee_net_toClient, NULL);
