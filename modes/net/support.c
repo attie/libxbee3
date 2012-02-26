@@ -97,6 +97,7 @@ xbee_err xbee_netSupport_conValidate(struct xbee_con *con) {
 	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
+	if (con->conIdentifier == -1) return XBEE_ENONE; /* this indicates that it has been ended remotely */
 	
 	buf[0] = (con->conIdentifier >> 8) & 0xFF;
 	buf[1] = con->conIdentifier & 0xFF;
@@ -121,6 +122,7 @@ xbee_err xbee_netSupport_conSleepSet(struct xbee_con *con, enum xbee_conSleepSta
 	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
+	if (con->conIdentifier == -1) return XBEE_EINVAL; /* this indicates that it has been ended remotely */
 	
 	buf[0] = (con->conIdentifier >> 8) & 0xFF;
 	buf[1] = con->conIdentifier & 0xFF;
@@ -151,6 +153,7 @@ xbee_err xbee_netSupport_conSleepGet(struct xbee_con *con) {
 	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
+	if (con->conIdentifier == -1) return XBEE_EINVAL; /* this indicates that it has been ended remotely */
 	
 	buf[0] = (con->conIdentifier >> 8) & 0xFF;
 	buf[1] = con->conIdentifier & 0xFF;
@@ -177,6 +180,7 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
+	if (con->conIdentifier == -1) return XBEE_EINVAL; /* this indicates that it has been ended remotely */
 	
 	
 	
@@ -185,12 +189,27 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 
 xbee_err xbee_netSupport_conEnd(struct xbee_con *con) {
 	unsigned char conTypeId;
+	unsigned char buf[2];
+	struct xbee_pkt *pkt;
+	unsigned char txRet;
 	struct xbee_modeData *data;
 	data = con->xbee->modeData;
 	if (getConTypeId(con->xbee->iface.conTypes, con->conType, &conTypeId) != XBEE_ENONE) return XBEE_EINVAL;
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
+	if (con->conIdentifier == -1) return XBEE_EINVAL; /* this indicates that it has been ended remotely */
 	
+	buf[0] = (con->conIdentifier >> 8) & 0xFF;
+	buf[1] = con->conIdentifier & 0xFF;
 	
+	xbee_connTx(data->bc_conEnd, &txRet, buf, sizeof(buf));
+	
+	if (xbee_conRx(data->bc_conEnd, &pkt, NULL) != XBEE_ENONE || !pkt) return XBEE_EREMOTE;
+	
+	xbee_pktFree(pkt);
+	
+	if (txRet != 0) return XBEE_EREMOTE;
+	
+	con->conIdentifier = -1;
 	
 	return XBEE_ENONE;
 }
