@@ -41,7 +41,6 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 	size_t bufLen;
 	size_t memSize;
 	
-	
 	client = *data;
 
 	if (strncasecmp((char *)(*pkt)->data, libxbee_commit, (*pkt)->dataLen)) {
@@ -49,7 +48,7 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
 		buf[1] = 0x02;
-		xbee_connTx(con, NULL, buf, 2);
+		xbee_connTx(con, NULL, buf, sizeof(buf));
 		client->die = 1;
 		return;
 #else
@@ -74,7 +73,7 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
 		buf[1] = 0x01; /* <-- this means intenal error */
-		xbee_connTx(con, NULL, buf, 2);
+		xbee_connTx(con, NULL, buf, sizeof(buf));
 		return;
 	}
 	
@@ -142,7 +141,7 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	buf[2] = (nCon->conIdentifier >> 8) & 0xFF;
 	buf[3] = nCon->conIdentifier & 0xFF;
 	
-	xbee_connTx(con, NULL, buf, 4);
+	xbee_connTx(con, NULL, buf, sizeof(buf));
 	
 	return;
 err:
@@ -150,7 +149,7 @@ err:
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
 		buf[1] = retVal;
-		xbee_connTx(con, NULL, buf, 2);
+		xbee_connTx(con, NULL, buf, sizeof(buf));
 	}
 }
 
@@ -184,7 +183,7 @@ err:
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
 		buf[1] = retVal;
-		xbee_connTx(con, NULL, buf, 2);
+		xbee_connTx(con, NULL, buf, sizeof(buf));
 	}
 }
 
@@ -208,9 +207,52 @@ void xbee_net_conRx(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 
 void xbee_net_conSleep(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	struct xbee_netClientInfo *client;
+	unsigned char retVal;
+	int conIdentifier;
+	enum xbee_conSleepStates newSleep, oldSleep;
+	struct xbee_con *iCon;
+	unsigned char buf[3];
 	client = *data;
 	if (!client->started) return;
 	
+	retVal = 0x02;
+	
+	if ((*pkt)->dataLen < 2 || (*pkt)->dataLen > 3) {
+		goto err;
+	}
+	
+	conIdentifier = 0;
+	conIdentifier |= (((*pkt)->data[0]) << 8) & 0xFF;
+	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
+	if ((*pkt)->dataLen == 3) newSleep = (*pkt)->data[2];
+	
+	for (iCon = NULL; ll_get_next(client->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+		if (iCon->conIdentifier == conIdentifier) break;
+	}
+	if (!iCon) goto err;
+	
+	if (xbee_conSleepGet(iCon, &oldSleep) != XBEE_ENONE) goto err;
+	if ((*pkt)->dataLen == 3) {
+		if (xbee_conSleepSet(iCon, newSleep) != XBEE_ENONE) {
+			retVal = 0x03; /* <-- failed to apply, old value present in reply */
+		} else {
+			retVal = 0x00;
+		}
+	}
+	
+	buf[0] = (*pkt)->frameId;
+	buf[1] = retVal;
+	buf[2] = oldSleep & 0xFF;
+	xbee_connTx(con, NULL, buf, sizeof(buf));
+	
+	return;
+err:
+	{
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = retVal;
+		xbee_connTx(con, NULL, buf, sizeof(buf));
+	}
 }
 
 /* ######################################################################### */
