@@ -141,8 +141,6 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 			retCon = &data->bc_conValidate;
 		} else TRY (conSleep) {
 			retCon = &data->bc_conSleep;
-		} else TRY (conInfoGet) {
-			retCon = &data->bc_conInfoGet;
 		} else TRY (conSettings) {
 			retCon = &data->bc_conSettings;
 		} else TRY (conNew) {
@@ -176,7 +174,6 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	if (data->bc_conRx == NULL)        return XBEE_EUNKNOWN;
 	if (data->bc_conValidate == NULL)  return XBEE_EUNKNOWN;
 	if (data->bc_conSleep == NULL)     return XBEE_EUNKNOWN;
-	if (data->bc_conInfoGet == NULL)   return XBEE_EUNKNOWN;
 	if (data->bc_conSettings == NULL)  return XBEE_EUNKNOWN;
 	if (data->bc_conNew == NULL)       return XBEE_EUNKNOWN;
 	if (data->bc_conEnd == NULL)       return XBEE_EUNKNOWN;

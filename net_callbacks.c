@@ -380,7 +380,6 @@ const struct xbee_netCallback xbee_netServerCallbacks[] = {
 	ADD_NETSERVERCALLBACK(conRx)
 	ADD_NETSERVERCALLBACK(conValidate)
 	ADD_NETSERVERCALLBACK(conSleep)
-	ADD_NETSERVERCALLBACK(conInfoGet)
 	ADD_NETSERVERCALLBACK(conSettings)
 	ADD_NETSERVERCALLBACK(conNew)
 	ADD_NETSERVERCALLBACK(conEnd)

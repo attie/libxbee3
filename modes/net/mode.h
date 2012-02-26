@@ -39,7 +39,6 @@ struct xbee_modeData {
 	struct xbee_con *bc_conRx;
 	struct xbee_con *bc_conValidate;
 	struct xbee_con *bc_conSleep;
-	struct xbee_con *bc_conInfoGet;
 	struct xbee_con *bc_conSettings;
 	struct xbee_con *bc_conNew;
 	struct xbee_con *bc_conEnd;
