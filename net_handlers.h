@@ -21,12 +21,16 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef XBEE_NO_NET_SERVER
+
 xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt);
 xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf);
 
+extern const struct xbee_mode xbee_netServerMode;
+
+#endif /* XBEE_NO_NET_SERVER */
+
 extern const struct xbee_modeDataHandlerRx xbee_netServer_backchannel_rx;
 extern const struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx;
-
-extern const struct xbee_mode xbee_netServerMode;
 
 #endif /* __XBEE_NET_HANDLERS_H */

@@ -21,11 +21,11 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
+extern struct ll_head *netDeadClientList;
+
 #ifndef INET_ADDRSTRLEN
 #define INET_ADDRSTRLEN 16
 #endif
-
-extern struct ll_head *netDeadClientList;
 
 struct xbee_netClientInfo {
 	int fd;
@@ -60,10 +60,19 @@ struct xbee_netInfo {
 	struct ll_head *clientList;
 };
 
+#ifndef XBEE_NO_NET_SERVER
+
 xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info);
 xbee_err xbee_netClientFree(struct xbee_netClientInfo *info);
 
 xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *client);
+
+#else /* XBEE_NO_NET_SERVER */
+
+struct xbee_netClientInfo;
+
+#endif /* XBEE_NO_NET_SERVER */
+
 xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client);
 
 #endif /* __XBEE_NET_H */

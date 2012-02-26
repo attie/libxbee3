@@ -22,8 +22,6 @@ SYS_INCDIR:=    /usr/include
 #OPTIONS+=       XBEE_DISABLE_STRICT_OBJECTS
 
 ### un-comment to remove network server functionality
-#OPTIONS+=       XBEE_NO_NET
-#OPTIONS+=       XBEE_NO_NET_CLIENT
 #OPTIONS+=       XBEE_NO_NET_SERVER
 #OPTIONS+=       XBEE_NO_NET_STRICT_VERSIONS
 

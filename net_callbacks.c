@@ -18,6 +18,8 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef XBEE_NO_NET_SERVER
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -332,15 +334,6 @@ err:
 
 /* ######################################################################### */
 
-void xbee_net_conInfoGet(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	struct xbee_netClientInfo *client;
-	client = *data;
-	if (!client->started) return;
-	
-}
-
-/* ######################################################################### */
-
 void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	struct xbee_netClientInfo *client;
 	client = *data;
@@ -469,3 +462,5 @@ const struct xbee_netCallback xbee_netServerCallbacks[] = {
 	/* terminate */
 	{ NULL, NULL },
 };
+
+#endif /* XBEE_NO_NET_SERVER */

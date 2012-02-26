@@ -18,6 +18,8 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* this file is used by the network client... so is not masked out by XBEE_NO_NET_SERVER */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -30,6 +30,8 @@
 #include "mode.h"
 #include "frame.h"
 
+#ifndef XBEE_NO_NET_SERVER
+
 xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
@@ -88,6 +90,8 @@ xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void
 }
 
 /* ######################################################################### */
+
+#endif /* XBEE_NO_NET_SERVER - thie following code is used by the client too */
 
 xbee_err xbee_netServer_bc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
@@ -177,6 +181,8 @@ const struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx = {
 	.func = xbee_netServer_bc_tx_func,
 };
 
+#ifndef XBEE_NO_NET_SERVER
+
 /* the client has its own version of this */
 const struct xbee_modeConType xbee_netServer_backchannel = {
 	.name = "Backchannel",
@@ -199,3 +205,5 @@ const struct xbee_mode xbee_netServerMode = {
 	
 	.conTypes = conTypes,
 };
+
+#endif /* XBEE_NO_NET_SERVER */

@@ -21,11 +21,15 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef XBEE_NO_NET_SERVER
+
 struct xbee_netCallback {
 	const char *name;
 	const xbee_t_conCallback callback;
 };
 
 extern const struct xbee_netCallback xbee_netServerCallbacks[];
+
+#endif /* XBEE_NO_NET_SERVER */
 
 #endif /* __XBEE_NET_CALLBACKS_H */

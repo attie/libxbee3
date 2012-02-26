@@ -44,6 +44,26 @@
 
 struct ll_head *netDeadClientList = NULL;
 
+#ifdef XBEE_NO_NET_SERVER
+
+EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+EXPORT xbee_err xbee_netStop(struct xbee *xbee) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+
+xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client) {
+	return XBEE_ENONE;
+}
+
+#else /* XBEE_NO_NET_SERVER */
+
 /* ######################################################################### */
 
 xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info) {
@@ -445,3 +465,5 @@ EXPORT xbee_err xbee_netStop(struct xbee *xbee) {
 
 	return XBEE_ENONE;
 }
+
+#endif /* XBEE_NO_NET_SERVER */
