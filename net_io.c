@@ -91,11 +91,20 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 	return XBEE_ENONE;
 eof:
 	if (arg) {
+		struct xbee_netClientInfo *info;
+		struct xbee_con *con;
+		info = arg;
+
 		/* xbee_netRx() is responsible for free()ing memory and killing off client threads on the server
 		   to do this, we need to add ourselves to the netDeadClientList, and remove ourselves from the clientList
 		   the server thread will then cleanup any clients on the next accept() */
 		ll_add_tail(netDeadClientList, arg);
 		ll_ext_item(xbee->netInfo->clientList, arg);
+
+		/* end all of our connections */
+		for (con = NULL; ll_ext_head(info->conList, (void **)&con) == XBEE_ENONE && con; ) {
+			xbee_conEnd(con);
+		}
 	}
 	return XBEE_EEOF;
 }
