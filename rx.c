@@ -169,6 +169,10 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		/* its possible that the buffer ONLY contained frame information... if so, were done! */
 		if (!pkt) goto done;
 		
+		if (info->fBlock && frameInfo.active != 0 && conType && conType->allowFrameId != 0) {
+			pkt->frameId = frameInfo.id;
+		}
+		
 		xbee_log(12, "received '%s' type packet...", conType->name);
 		
 		/* match the address to a connection */
