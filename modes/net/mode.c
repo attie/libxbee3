@@ -240,18 +240,20 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 		/* can we receive? */
 		if (flags & 0x02) {
 			if ((rx = malloc(sizeof(*rx))) == NULL) { ret = XBEE_ENOMEM; break; }
-			memcpy(rx, &xbee_net_frontchannel_rx, sizeof(*rx));
 			
 			rx->identifier = i;
+			rx->func = xbee_net_frontchannel_rx_func;
+			
 			newConType.rxHandler = rx;
 		}
 		
 		/* can we transmit? */
 		if (flags & 0x04) {
 			if ((tx = malloc(sizeof(*tx))) == NULL) { ret = XBEE_ENOMEM; break; }
-			memcpy(tx, &xbee_net_frontchannel_tx, sizeof(*tx));
 			
 			tx->identifier = i;
+			tx->func = xbee_net_frontchannel_tx_func;
+			
 			newConType.txHandler = tx;
 		}
 		

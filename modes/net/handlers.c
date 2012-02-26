@@ -37,6 +37,8 @@ xbee_err xbee_net_frontchannel_tx_func(struct xbee *xbee, struct xbee_con *con, 
 
 /* ######################################################################### */
 
+/* these are allocated at runtime - this is just for reference...
+
 const struct xbee_modeDataHandlerRx xbee_net_frontchannel_rx = {
 	.identifier = 0x00,
 	.func = xbee_net_frontchannel_rx_func,
@@ -46,6 +48,7 @@ const struct xbee_modeDataHandlerTx xbee_net_frontchannel_tx = {
 	.identifier = 0x00,
 	.func = xbee_net_frontchannel_tx_func,
 };
+*/
 
 /* this one allows frame IDs */
 const struct xbee_modeConType xbee_net_frontchannel_template = {
