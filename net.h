@@ -41,6 +41,8 @@ struct xbee_netClientInfo {
 	xsys_thread rxHandlerThread;
 	xsys_thread txThread;
 	
+	struct ll_head *conList;
+	
 	struct xbee_interface iface;
 	struct xbee_frameBlock *fBlock;
 	
@@ -56,6 +58,8 @@ struct xbee_netInfo {
 	struct xbee_netClientInfo *newClient;
 	int(*clientFilter)(struct xbee *xbee, char *remoteHost);
 	struct ll_head *clientList;
+
+	int nextConIdentifier;
 };
 
 xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info);

@@ -58,6 +58,8 @@ xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info
 
 	ret = XBEE_ENONE;
 	
+	iInfo->conList = ll_alloc();
+	
 	if ((ret = xbee_rxAlloc(&iInfo->iface.rx)) != XBEE_ENONE) goto die;
 	if ((ret = xbee_txAlloc(&iInfo->iface.tx)) != XBEE_ENONE) goto die;
 	if ((ret = xbee_frameBlockAlloc(&iInfo->fBlock)) != XBEE_ENONE) goto die;

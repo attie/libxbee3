@@ -26,6 +26,7 @@
 #include "xbee_int.h"
 #include "net.h"
 #include "net_callbacks.h"
+#include "ll.h"
 #include "mode.h"
 #include "conn.h"
 #include "log.h"
@@ -99,10 +100,58 @@ void xbee_net_echo(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pk
 /* ######################################################################### */
 
 void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	xbee_err ret;
+	unsigned char retVal;
 	struct xbee_netClientInfo *client;
+	struct xbee_conAddress address;
+	struct xbee_con *nCon;
+	char *conType;
+	int i;
+	unsigned char buf[4];
 	client = *data;
 	if (!client->started) return;
 	
+	retVal = 0x01; /* <-- internal error */
+	
+	if ((*pkt)->dataLen != 1 + sizeof(address)) {
+		retVal = 0x02; /* <-- request error */
+		goto err;
+	}
+	
+	memcpy(&address, &((*pkt)->data[1]), sizeof(address));
+	
+	conType = NULL;
+	for (i = 0; xbee->iface.conTypes[i].name; i++) {
+		if (i == (*pkt)->data[0]) {
+			conType = (char *)xbee->iface.conTypes[i].name;
+		}
+	}
+	if (!conType) {
+		retVal = 0x02;
+		goto err;
+	}
+	
+	if ((ret = xbee_conNew(xbee, &nCon, conType, &address)) != XBEE_ENONE) goto err;
+	
+	nCon->conIdentifier = xbee->netInfo->nextConIdentifier++;
+	
+	ll_add_tail(client->conList, nCon);
+	
+	buf[0] = (*pkt)->frameId;
+	buf[1] = 0x00;
+	buf[2] = (nCon->conIdentifier >> 8) & 0xFF;
+	buf[3] = nCon->conIdentifier & 0xFF;
+	
+	xbee_connTx(con, NULL, buf, 4);
+	
+	return;
+err:
+	{
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = retVal;
+		xbee_connTx(con, NULL, buf, 2);
+	}
 }
 
 void xbee_net_conValidate(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
