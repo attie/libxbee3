@@ -262,6 +262,7 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 		if ((mName = malloc(sizeof(*name) * (slen + 1))) == NULL) { ret = XBEE_ENOMEM; break; }
 		strncpy(mName, name, slen);
 		newConType.name = mName;
+		newConType.nameNeedsFree = 1;
 		
 		if ((ret = xbee_modeAddConType(&xbee->iface.conTypes, &newConType)) != XBEE_ENONE) {
 			if (rx) free(rx);

@@ -50,6 +50,8 @@ struct xbee_modeDataHandlerTx {
 
 struct xbee_modeConType {
 	const char *name;
+	int nameNeedsFree;
+	
 	struct ll_head *conList;
 	
 	const unsigned char internal     : 1;
