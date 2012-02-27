@@ -60,6 +60,7 @@ int xsys_disableBuffer(FILE *stream);
 int xsys_thread_create(xsys_thread *thread, void*(*start_routine)(void*), void *arg);
 int xsys_thread_cancel(xsys_thread thread);
 int xsys_thread_join(xsys_thread thread, void **retval);
+xsys_thread xsys_thread_self(void);
 int xsys_thread_detach(xsys_thread thread);
 int xsys_thread_detach_self(void);
 int xsys_thread_iAm(xsys_thread thread);
