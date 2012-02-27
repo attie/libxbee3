@@ -60,7 +60,18 @@ void *threadFunc(struct xbee_threadInfo *info) {
 	
 	xbee = info->xbee;
 	info->active = 1;
-	restart = 1;
+	
+	if (info->detached) {
+		xsys_thread_detach_self();
+	}
+	
+	if (info->restartDelay < 0) {
+		/* a restartDelay of < 0 indicates that the thread should not restart (by default, the thread can request that it is restarted, in which case -(info->restartDelay) is used as the delay) */
+		restart = 0;
+		info->restartDelay = -info->restartDelay;
+	} else {
+		restart = 1;
+	}
 	
 	do {
 		xbee_log(15, "starting thread %p, function %s()...", info->thread, info->funcName);
@@ -75,9 +86,11 @@ void *threadFunc(struct xbee_threadInfo *info) {
 			xbee_log(10, "thread %p, function %s() returned without error...", info->thread, info->funcName, ret);
 		}
 		if (!restart || !info->run) break;
-		if (info->restartDelay) {
+		if (info->restartDelay != 0) {
 			xbee_log(20, "restarting thread %p, function %s() in %d us...", info->thread, info->funcName, info->restartDelay);
 			usleep(info->restartDelay);
+		} else {
+			xbee_log(20, "restarting thread %p, function %s() with zero delay...", info->thread, info->funcName);
 		}
 	} while (info->run);
 	
@@ -92,7 +105,7 @@ void *threadFunc(struct xbee_threadInfo *info) {
 
 /* ########################################################################## */
 
-xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restartDelay, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg) {
+xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restartDelay, int detach, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg) {
 	struct xbee_threadInfo *info;
 
 	if (!xbee || !func) return XBEE_EMISSINGPARAM;
@@ -105,6 +118,7 @@ xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restar
 	info->func = func;
 	info->arg = arg;
 	info->run = 1;
+	info->detached = detach;
 	info->restartDelay = restartDelay;
 
 	if ((xsys_thread_create(&info->thread, (void*(*)(void *))threadFunc, info)) != 0) {
@@ -112,7 +126,9 @@ xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restar
 		return XBEE_ETHREAD;
 	}
 
-	ll_add_tail(threadList, info);
+	if (!detach) {
+		ll_add_tail(threadList, info);
+	}
 	if (retThread) *retThread = info->thread;
 
 	return XBEE_ENONE;
@@ -239,8 +255,7 @@ xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 	pInfo = NULL;
 	ret = XBEE_ENONE;
 	ll_lock(threadList);
-	for (info = NULL; _ll_get_next(threadList, info, (void**)&info, 0) == XBEE_ENONE; ) {
-		if (!info) break;
+	for (info = NULL; _ll_get_next(threadList, info, (void**)&info, 0) == XBEE_ENONE && info; ) {
 		if (info->xbee != xbee) {
 			pInfo = info;
 			continue;

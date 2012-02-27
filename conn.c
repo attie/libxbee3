@@ -642,7 +642,7 @@ xbee_err xbee_conCallbackProd(struct xbee_con *con) {
 
 	if (!con->callbackStarted || !active) {
 		con->callbackStarted = 1;
-		if ((ret = xbee_threadStart(con->xbee, &con->callbackThread, 0, xbee_conCallbackHandler, con)) != XBEE_ENONE) return ret;
+		if ((ret = xbee_threadStart(con->xbee, &con->callbackThread, 0, 0, xbee_conCallbackHandler, con)) != XBEE_ENONE) return ret;
 	}
 
 	return XBEE_ENONE;

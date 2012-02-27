@@ -25,9 +25,9 @@ extern struct ll_head *threadList;
 
 struct xbee_threadInfo;
 
-#define xbee_threadStart(xbee, retThread, restartDelay, func, arg) \
-	_xbee_threadStart(xbee, retThread, restartDelay, #func, func, arg)
-xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restartDelay, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg);
+#define xbee_threadStart(xbee, retThread, restartDelay, detach, func, arg) \
+	_xbee_threadStart(xbee, retThread, restartDelay, detach, #func, func, arg)
+xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restartDelay, int detach, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg);
 
 xbee_err xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active);
 

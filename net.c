@@ -167,17 +167,17 @@ xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *cli
 	
 	if ((ret = xbee_netClientSetupBackchannel(xbee, client)) != XBEE_ENONE) return ret;
 	
-	if ((ret = xbee_threadStart(xbee, &client->rxThread, 150000, xbee_rx, client->iface.rx)) != XBEE_ENONE) {
+	if ((ret = xbee_threadStart(xbee, &client->rxThread, 150000, 0, xbee_rx, client->iface.rx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
 		goto die1;
 	}
-	if ((ret = xbee_threadStart(xbee, &client->rxHandlerThread, 150000, xbee_rxHandler, client->iface.rx)) != XBEE_ENONE) {
+	if ((ret = xbee_threadStart(xbee, &client->rxHandlerThread, 150000, 0, xbee_rxHandler, client->iface.rx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
 		goto die2;
 	}
-	if ((ret = xbee_threadStart(xbee, &client->txThread, 150000, xbee_tx, client->iface.tx)) != XBEE_ENONE) {
+	if ((ret = xbee_threadStart(xbee, &client->txThread, 150000, 0, xbee_tx, client->iface.tx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_tx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
 		goto die3;
@@ -435,7 +435,7 @@ EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(str
 	
 	xbee->netInfo = info;
 	
-	if ((ret = xbee_threadStart(xbee, &info->serverThread, 150000, xbee_netServerThread, info)) == XBEE_ENONE) {
+	if ((ret = xbee_threadStart(xbee, &info->serverThread, 150000, 0, xbee_netServerThread, info)) == XBEE_ENONE) {
 		if (listen(fd, 512) == -1) return XBEE_EIO;
 	}
 	
