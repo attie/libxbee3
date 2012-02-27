@@ -156,13 +156,23 @@ die:
 	return ret;
 }
 
+xbee_err xbee_shutdownThread(struct xbee *xbee, int *restart, void *arg) {
+	/* release / detach the thread that called shutdown(), dont care on failure */
+	xbee_threadRelease(xbee, (xsys_thread)arg);
+	xbee_free(xbee);
+	return XBEE_ENONE;
+}
+
 EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
 	if (!xbee) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
-	xbee_free(xbee);
-
+	/* pluck out the instance - from now on it is invalid */
+	ll_ext_item(xbeeList, xbee);
+	/* start a detached thread (indicated by -2) */
+	xbee_threadStart(xbee, NULL, -1, 1, xbee_shutdownThread, (void*)(xsys_thread_self()));
+	
 	return XBEE_ENONE;
 }
