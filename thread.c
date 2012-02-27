@@ -248,6 +248,7 @@ xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 
 		if ((ret = _xbee_threadDestroy(info, 0)) != XBEE_ENONE) {
 			xbee_log(1, "failed to destroy thread %p...", info->thread);
+			continue;
 		}
 
 		info = pInfo;

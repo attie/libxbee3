@@ -141,6 +141,9 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	const char * const truncStr = XBEE_LOG_TRUNC_STR;
 	static int truncLen = 0;
 	
+	if (!log || !file || !function || !xbee || !preStr || !format) return XBEE_EMISSINGPARAM;
+	if (!log->f) return XBEE_EINVAL;
+	
 	len = vsnprintf(tBuf, XBEE_LOG_MAXLEN, format, ap);
 	
 	if (len >= XBEE_LOG_MAXLEN) {
