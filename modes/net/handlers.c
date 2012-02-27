@@ -61,7 +61,6 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	pos = 3;
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - pos)) != XBEE_ENONE) return ret;
 	
-	iPkt->dataLen = buf->len - pos;
 	iPkt->status = buf->data[pos];                           pos++;
 	iPkt->settings = buf->data[pos];                         pos++;
 	iPkt->rssi = buf->data[pos];                             pos++;
@@ -69,6 +68,7 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;
 	iPkt->atCommand[1] = buf->data[pos];                     pos++;
 	
+	iPkt->dataLen = buf->len - pos;
 	if (iPkt->dataLen > 0) {
 		memcpy(iPkt->data, &buf->data[pos], iPkt->dataLen);
 	}
