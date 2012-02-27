@@ -153,6 +153,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 		strcpy(&(tBuf[XBEE_LOG_MAXLEN - (truncLen + 1)]), truncStr);
 	}
 	
+	xsys_thread_lock();
 	xsys_mutex_lock(&log->mutex);
 	
 	if (!xbee) {
@@ -164,6 +165,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	}
 	
 	xsys_mutex_unlock(&log->mutex);
+	xsys_thread_unlock();
 	
 	return XBEE_ENONE;
 }

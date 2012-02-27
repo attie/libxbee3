@@ -75,6 +75,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	
 	while (!xbee->die) {
 		buf = NULL;
+		xsys_thread_unlock();
 		if ((ret = info->ioFunc(xbee, info->ioArg, &buf)) != XBEE_ENONE) {
 			if (ret == XBEE_EEOF) {
 				*restart = 0;
@@ -85,6 +86,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 			usleep(10000); /* 10 ms */
 			continue;
 		}
+		xsys_thread_lock();
 		
 #ifdef XBEE_LOG_RX
 		{

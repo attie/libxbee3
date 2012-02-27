@@ -64,6 +64,8 @@ xsys_thread xsys_thread_self(void);
 int xsys_thread_detach(xsys_thread thread);
 int xsys_thread_detach_self(void);
 int xsys_thread_iAm(xsys_thread thread);
+int xsys_thread_lock(void);
+int xsys_thread_unlock(void);
 */
 
 

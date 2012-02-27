@@ -83,6 +83,8 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 #define xsys_thread_detach(thread)            pthread_detach(thread)
 #define xsys_thread_detach_self()             pthread_detach(pthread_self())
 #define xsys_thread_iAm(thread)               pthread_equal(pthread_self(), (thread))
+#define xsys_thread_lock()                    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL)
+#define xsys_thread_unlock()                  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL)
 
 
 /* ######################################################################### */
