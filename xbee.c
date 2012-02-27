@@ -176,3 +176,13 @@ EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
 	
 	return XBEE_ENONE;
 }
+
+EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo)) {
+      if (!xbee || !eofCallback) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+      if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+      if (xbee->iface.rx->eofCallback) return XBEE_EINUSE;
+      xbee->iface.rx->eofCallback = (void(*)(struct xbee *xbee, struct xbee_rxInfo *rxInfo))eofCallback;
+      return XBEE_ENONE;
+}

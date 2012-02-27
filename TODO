@@ -1,5 +1,4 @@
 * Generic data parsing framework
 * Safe thread ending
 * Net client kill on EOF
-* EOF callback for developer
 

@@ -78,6 +78,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 		if ((ret = info->ioFunc(xbee, info->ioArg, &buf)) != XBEE_ENONE) {
 			if (ret == XBEE_EEOF) {
 				*restart = 0;
+				if (info->eofCallback) info->eofCallback(xbee, info);
 				return XBEE_EEOF;
 			}
 			xbee_log(1, "rx() returned %d (%s)... retrying in 10 ms", ret, xbee_errorToStr(ret));
