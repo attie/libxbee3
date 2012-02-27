@@ -199,8 +199,10 @@ xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client) {
 	xbee_threadKillJoin(client->xbee, client->rxHandlerThread, NULL);
 	xbee_threadKillJoin(client->xbee, client->rxThread, NULL);
 	
-	shutdown(client->fd, SHUT_RDWR);
-	xsys_close(client->fd);
+	if (client->fd != -1) {
+		shutdown(client->fd, SHUT_RDWR);
+		xsys_close(client->fd);
+	}
 	
 	xbee_netClientFree(client);
 	

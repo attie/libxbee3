@@ -31,6 +31,7 @@
 #include "mode.h"
 #include "net.h"
 #include "net_io.h"
+#include "thread.h"
 #include "ll.h"
 
 /* for the dual-purpose-ness */
@@ -94,19 +95,37 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 eof:
 	if (arg) {
 		struct xbee_netClientInfo *info;
+		struct xbee_netClientInfo *deadClient;
 		struct xbee_con *con;
 		info = arg;
+		
+		/* tidy up any dead clients - not including us */
+		while (ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
+			xbee_netClientShutdown(deadClient);
+		}
 
 		/* xbee_netRx() is responsible for free()ing memory and killing off client threads on the server
 		   to do this, we need to add ourselves to the netDeadClientList, and remove ourselves from the clientList
 		   the server thread will then cleanup any clients on the next accept() */
 		ll_add_tail(netDeadClientList, arg);
 		ll_ext_item(xbee->netInfo->clientList, arg);
+		
+		/* kill the other threads */
+		xbee_threadKillJoin(info->xbee, info->txThread, NULL);
+		xbee_threadKillJoin(info->xbee, info->rxHandlerThread, NULL);
+		/* excluding the rx thread... thats us! */
+		
+		/* close up the socket */
+		shutdown(info->fd, SHUT_RDWR);
+		xsys_close(info->fd);
+		info->fd = -1; /* <-- mark it closed */
 
 		/* end all of our connections */
 		for (con = NULL; ll_ext_head(info->conList, (void **)&con) == XBEE_ENONE && con; ) {
 			xbee_conEnd(con);
 		}
+		
+		/* this leaves us with a call to xbee_threadKillJoin() and xbee_netClientFree() left! */
 	}
 	return XBEE_EEOF;
 }
