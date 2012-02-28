@@ -194,7 +194,7 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 	
 	
 	
-	return XBEE_ENONE;
+	return XBEE_ENOTIMPLEMENTED;
 }
 
 xbee_err xbee_netSupport_conEnd(struct xbee_con *con) {
