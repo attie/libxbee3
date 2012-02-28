@@ -37,6 +37,7 @@
 /* ######################################################################### */
 
 typedef pthread_t         xsys_thread;
+typedef pthread_key_t     xsys_thread_key;
 
 typedef pthread_mutex_t   xsys_mutex;
 
@@ -86,6 +87,9 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 #define xsys_thread_lock()                    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL)
 #define xsys_thread_unlock()                  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL)
 
+#define xsys_thread_key_init(key, destructor) pthread_key_create((key), (destructor))
+#define xsys_thread_key_set(key, value)       pthread_setspecific((key), (value))
+#define xsys_thread_key_get(key)              pthread_getspecific((key))
 
 /* ######################################################################### */
 /* mutexes */
@@ -103,6 +107,7 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 #define xsys_sem_init(sem)                    sem_init((sem_t*)(sem), 0, 0)
 #define xsys_sem_destroy(sem)                 sem_destroy((sem_t*)(sem))
 #define xsys_sem_wait(sem)                    sem_wait((sem_t*)(sem))
+#define xsys_sem_trywait(sem)                 sem_trywait((sem_t*)(sem))
 #define xsys_sem_timedwait(sem, timeout)      sem_timedwait((sem_t*)(sem), (timeout))
 #define xsys_sem_post(sem)                    sem_post((sem_t*)(sem))
 #define xsys_sem_getvalue(sem, value)         sem_getvalue((sem), (value))

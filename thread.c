@@ -28,24 +28,8 @@
 #include "log.h"
 #include "ll.h"
 
-#warning INFO - calling xsys_thread_cancel() on a thread that is holding a mutex, can cause issues
-
 struct ll_head *threadList = NULL;
-
-struct xbee_threadInfo {
-	int run;     /* FALSE will cause the thread to die once func() returns */
-	int detached;/* TRUE will cause the thread to free the info block before it returns */
-	int running; /* TRUE means that the function is actually running */
-	int active;  /* TRUE means that the thread is alive */
-
-	time_t restartDelay;
-	xsys_thread thread;
-
-	struct xbee *xbee;
-	const char *funcName;
-	xbee_err (*func)(struct xbee *xbee, int *restart, void *arg);
-	void *arg;
-};
+xsys_thread_key threadInfoKey;
 
 xbee_err _xbee_threadGetInfo(struct xbee *xbee, xsys_thread thread, struct xbee_threadInfo **retInfo, int needsLLLock);
 xbee_err _xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active, int needsLLLock);
@@ -60,6 +44,9 @@ void *threadFunc(struct xbee_threadInfo *info) {
 	
 	xbee = info->xbee;
 	info->active = 1;
+	
+	/* setup the thread info */
+	xsys_thread_key_set(threadInfoKey, info);
 	
 	if (info->detached) {
 		xsys_thread_detach_self();
@@ -122,6 +109,7 @@ xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restar
 	info->run = 1;
 	info->detached = detach;
 	info->restartDelay = restartDelay;
+	xsys_sem_init(&info->mutexSem);
 
 	if ((xsys_thread_create(&info->thread, (void*(*)(void *))threadFunc, info)) != 0) {
 		free(info);

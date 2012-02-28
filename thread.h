@@ -22,8 +22,24 @@
 */
 
 extern struct ll_head *threadList;
+extern xsys_thread_key threadInfoKey;
 
-struct xbee_threadInfo;
+struct xbee_threadInfo {
+	int run;     /* FALSE will cause the thread to die once func() returns */
+	int detached;/* TRUE will cause the thread to free the info block before it returns */
+	int running; /* TRUE means that the function is actually running */
+	int active;  /* TRUE means that the thread is alive */
+
+	time_t restartDelay;
+	xsys_thread thread;
+
+	xsys_sem mutexSem; /* keeps count of mutexes held, if > 0, then the thread should be locked */
+
+	struct xbee *xbee;
+	const char *funcName;
+	xbee_err (*func)(struct xbee *xbee, int *restart, void *arg);
+	void *arg;
+};
 
 #define xbee_threadStart(xbee, retThread, restartDelay, detach, func, arg) \
 	_xbee_threadStart(xbee, retThread, restartDelay, detach, #func, func, arg)

@@ -30,6 +30,7 @@
 #include "net.h"
 
 EXPORT INIT void xbee_init(void) {
+	xsys_thread_key_init(&threadInfoKey, NULL);
 	if (!xbeeList && (xbeeList = ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize xbeeList...\n");
 	}

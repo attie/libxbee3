@@ -66,6 +66,10 @@ int xsys_thread_detach_self(void);
 int xsys_thread_iAm(xsys_thread thread);
 int xsys_thread_lock(void);
 int xsys_thread_unlock(void);
+
+int xsys_thread_key_init(xsys_thread_key *key, (void(*)(void*))destructor)
+int xsys_thread_key_set(xsys_thread_key key, (void*)value);
+void *xsys_thread_key_get(xsys_thread_key key);
 */
 
 
@@ -82,6 +86,7 @@ int xsys_mutex_unlock(xsys_mutex *mutex);
 int xsys_sem_init(xsys_sem *sem);
 int xsys_sem_destroy(xsys_sem *sem);
 int xsys_sem_wait(xsys_sem *sem);
+int xsys_sem_trywait(xsys_sem *sem);
 int xsys_sem_timedwait(xsys_sem *sem, struct timespec timeout);
 int xsys_sem_post(xsys_sem *sem);
 int xsys_sem_getvalue(xsys_sem *sem, int *value);
