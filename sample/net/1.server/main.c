@@ -26,7 +26,9 @@ int main(void) {
 		return ret;
 	}
 
-	sleep(3000);
+	printf("Ready!... waiting for 30 secs\n");
+
+	sleep(30);
 
 	xbee_netStop(xbee);
 

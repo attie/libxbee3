@@ -53,6 +53,8 @@ int main(void) {
 		return ret;
 	}
 
+	printf("Ready!\n");
+
 	for (;;) {
 		void *p;
 
