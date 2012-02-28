@@ -123,7 +123,7 @@ xbee_err xbee_s2_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 	iBuf->data[pos] = 0x11; /* cluserID - transparent */  pos++;
 	iBuf->data[pos] = 0xC1; /* profileIDs are not... */   pos++;
 	iBuf->data[pos] = 0x05; /* ... supported by XBees */  pos++;
-	iBuf->data[pos] = 0; /* broadcast radius (max) */     pos++;
+	iBuf->data[pos] = settings->broadcastRadius;          pos++;
 	iBuf->data[pos] = 0;
 	if (settings->broadcastPAN) iBuf->data[pos] |= 0x08;
 	                                                      pos++;

@@ -158,8 +158,8 @@ struct xbee_conSettings {
 	unsigned char broadcastPAN     : 1;
 	unsigned char queueChanges     : 1;
 	unsigned char multicast        : 1;
-	unsigned char broadcastRadius  : 1;
 	unsigned char noBlock          : 1;
+	unsigned char broadcastRadius;
 };
 
 /* ######################################################################### */

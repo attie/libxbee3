@@ -106,7 +106,7 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 		}
 		                                                    pos += 2;
 	}
-	iBuf->data[pos] = 0; /* broadcast radius (max) */     pos++;
+	iBuf->data[pos] = settings->broadcastRadius;          pos++;
 	iBuf->data[pos] = 0;
 	if (settings->broadcastPAN) iBuf->data[pos] |= 0x08;
 	                                                      pos++;
