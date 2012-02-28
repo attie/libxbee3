@@ -75,7 +75,7 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
 	ret = XBEE_ENONE;
 	
-	xsys_mutex_lock(&fBlock->mutex);
+	xbee_mutex_lock(&fBlock->mutex);
 	for (i = 0, o = fBlock->lastFrame; i < fBlock->numFrames; i++, o++) {
 		o %= fBlock->numFrames;
 		if (o == 0) continue; /* skip '0x00', this indicates that no ACK is requested */
@@ -86,7 +86,7 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 		con->frameId = fBlock->frame[o].id;
 		break;
 	}
-	xsys_mutex_unlock(&fBlock->mutex);
+	xbee_mutex_unlock(&fBlock->mutex);
 	
 	return ret;
 }
@@ -98,7 +98,7 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 	
 	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
 	ret = XBEE_EINVAL;
-	xsys_mutex_lock(&fBlock->mutex);
+	xbee_mutex_lock(&fBlock->mutex);
 	frame = NULL;
 	for (i = 0; i < fBlock->numFrames; i++) {
 		if (!fBlock->frame[i].inUse) continue;
@@ -110,7 +110,7 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 		frame = &fBlock->frame[i];
 		break;
 	}
-	xsys_mutex_unlock(&fBlock->mutex);
+	xbee_mutex_unlock(&fBlock->mutex);
 	if (!frame) return ret;
 
 	ret = XBEE_ENONE;
@@ -128,7 +128,7 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 		}
 	}
 	
-	xsys_mutex_lock(&fBlock->mutex);
+	xbee_mutex_lock(&fBlock->mutex);
 	frame->con = NULL;
 	if (retVal) {
 		if (ret == XBEE_ENONE) {
@@ -137,7 +137,7 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 			*retVal = XBEE_ETIMEOUT;
 		}
 	}
-	xsys_mutex_unlock(&fBlock->mutex);
+	xbee_mutex_unlock(&fBlock->mutex);
 	
 	return ret;
 }
@@ -150,7 +150,7 @@ xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, u
 	if (!fBlock) return XBEE_EMISSINGPARAM;
 	if (frameId == 0) return XBEE_ENONE;
 	
-	xsys_mutex_lock(&fBlock->mutex);
+	xbee_mutex_lock(&fBlock->mutex);
 	frame = NULL;
 	for (i = 0; i < fBlock->numFrames; i++) {
 		if (!fBlock->frame[i].inUse) continue;
@@ -176,7 +176,7 @@ xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, u
 	
 done:
 	if (frame) frame->inUse = 0;
-	xsys_mutex_unlock(&fBlock->mutex);
+	xbee_mutex_unlock(&fBlock->mutex);
 	
 	return ret;
 }

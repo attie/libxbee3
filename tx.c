@@ -73,11 +73,9 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 	}
 	
 	while (!xbee->die) {
-		xsys_thread_unlock();
 		if (xsys_sem_wait(&info->sem) != 0) return XBEE_ESEMAPHORE;
 		if (ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
-		xsys_thread_lock();
 		
 #ifdef XBEE_LOG_TX
 		{

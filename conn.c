@@ -414,9 +414,9 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 	*pret = 0;
 
 	if (con->settings.noBlock) {
-		if (xsys_mutex_trylock(&con->txMutex)) return XBEE_EWOULDBLOCK;
+		if (xbee_mutex_trylock(&con->txMutex)) return XBEE_EWOULDBLOCK;
 	} else {
-		xsys_mutex_lock(&con->txMutex);
+		xbee_mutex_lock(&con->txMutex);
 	}
 	
 	if (!con->conType->allowFrameId) {
@@ -455,7 +455,7 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigne
 	}
 	
 done:
-	xsys_mutex_unlock(&con->txMutex);
+	xbee_mutex_unlock(&con->txMutex);
 	
 	return ret;
 }

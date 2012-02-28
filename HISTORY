@@ -5,6 +5,7 @@ v3.0.4 - in development
 	* Added sample code for retrieving library info (commit, build time, etc...)
 	* Added 'net' mode, and xbee_netStart()
 	* Added xbee_attachEOFCallback() to get alerts when a device error occurs (e.g: FDTI / Network disconnect)
+	* Fixed mutex/thread issue
 
 v3.0.3 - 21 Feb 2012
 	* Fixed xbee_rxHandler() - now obeys allowFrameId flag

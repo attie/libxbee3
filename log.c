@@ -88,9 +88,9 @@ EXPORT xbee_err xbee_logSetTarget(struct xbee *xbee, FILE *f) {
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
 	
-	xsys_mutex_lock(&xbee->log->mutex);
+	xbee_mutex_lock(&xbee->log->mutex);
 	xbee->log->f = f;
-	xsys_mutex_unlock(&xbee->log->mutex);
+	xbee_mutex_unlock(&xbee->log->mutex);
 	
 	return XBEE_ENONE;
 }
@@ -114,9 +114,9 @@ EXPORT xbee_err xbee_logSetLevel(struct xbee *xbee, int level) {
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
 	
-	xsys_mutex_lock(&xbee->log->mutex);
+	xbee_mutex_lock(&xbee->log->mutex);
 	xbee->log->logLevel = level;
-	xsys_mutex_unlock(&xbee->log->mutex);
+	xbee_mutex_unlock(&xbee->log->mutex);
 	
 	return XBEE_ENONE;
 }
@@ -153,8 +153,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 		strcpy(&(tBuf[XBEE_LOG_MAXLEN - (truncLen + 1)]), truncStr);
 	}
 	
-	xsys_thread_lock();
-	xsys_mutex_lock(&log->mutex);
+	xbee_mutex_lock(&log->mutex);
 	
 	if (!xbee) {
 		fprintf(log->f, "%s%3d#[%s:%d] %s(): %s\n",      preStr, minLevel, file, line, function,       tBuf);
@@ -164,8 +163,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 		fprintf(log->f, "%s%3d#[%s:%d] %s() !%p!: %s\n", preStr, minLevel, file, line, function, xbee, tBuf);
 	}
 	
-	xsys_mutex_unlock(&log->mutex);
-	xsys_thread_unlock();
+	xbee_mutex_unlock(&log->mutex);
 	
 	return XBEE_ENONE;
 }

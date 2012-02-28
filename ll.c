@@ -82,7 +82,7 @@ xbee_err ll_lock(void *list) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	xsys_mutex_lock(&h->mutex);
+	xbee_mutex_lock(&h->mutex);
 	return XBEE_ENONE;
 }
 
@@ -93,7 +93,7 @@ xbee_err ll_unlock(void *list) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	xsys_mutex_unlock(&h->mutex);
+	xbee_mutex_unlock(&h->mutex);
 	return XBEE_ENONE;
 }
 
@@ -108,7 +108,7 @@ xbee_err _ll_add_head(void *list, void *item, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	p = h->head;
 	if (!(h->head = calloc(1, sizeof(struct ll_info)))) {
 		h->head = p;
@@ -126,7 +126,7 @@ xbee_err _ll_add_head(void *list, void *item, int needMutex) {
 	}
 	h->head->item = item;
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -139,7 +139,7 @@ xbee_err _ll_add_tail(void *list, void *item, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	p = h->tail;
 	if (!(h->tail = calloc(1, sizeof(struct ll_info)))) {
 		h->tail = p;
@@ -157,7 +157,7 @@ xbee_err _ll_add_tail(void *list, void *item, int needMutex) {
 	}
 	h->tail->item = item;
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -172,7 +172,7 @@ xbee_err _ll_add_after(void *list, void *ref, void *item, int needMutex) {
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
 	if (!ref) return ll_add_tail(h, item);
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	i = h->head;
 	while (i) {
 		if (i->item == ref) break;
@@ -198,7 +198,7 @@ xbee_err _ll_add_after(void *list, void *ref, void *item, int needMutex) {
 	t->prev = i;
 	t->item = item;
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -213,7 +213,7 @@ xbee_err _ll_add_before(void *list, void *ref, void *item, int needMutex) {
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
 	if (!ref) return ll_add_tail(h, item);
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	i = h->head;
 	while (i) {
 		if (i->item == ref) break;
@@ -239,7 +239,7 @@ xbee_err _ll_add_before(void *list, void *ref, void *item, int needMutex) {
 	t->next = i;
 	t->item = item;
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -253,14 +253,14 @@ xbee_err _ll_get_head(void *list, void **retItem, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	if (h->head) {
 		*retItem = h->head->item;
 		ret = XBEE_ENONE;
 	} else {
 		ret = XBEE_ERANGE;
 	}
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -272,14 +272,14 @@ xbee_err _ll_get_tail(void *list, void **retItem, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	if (h->tail) {
 		*retItem = h->tail->item;
 		ret = XBEE_ENONE;
 	} else {
 		ret = XBEE_ERANGE;
 	}
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -291,13 +291,13 @@ xbee_err __ll_get_item(void *list, void *item, struct ll_info **retItem, int nee
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	i = h->head;
 	while (i) {
 		if (i->item == item) break;
 		i = i->next;
 	}
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	if (retItem) *retItem = (void*)i;
 	if (!i) return XBEE_ENOTEXISTS;
 	return XBEE_ENONE;
@@ -316,7 +316,7 @@ xbee_err _ll_get_next(void *list, void *ref, void **retItem, int needMutex) {
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
 	if (!ref) return _ll_get_head(h, retItem, needMutex);
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	i = h->head;
 	if (__ll_get_item(h, ref, &i, 0) != XBEE_ENONE) goto out;
 	if (!i) {
@@ -330,7 +330,7 @@ xbee_err _ll_get_next(void *list, void *ref, void **retItem, int needMutex) {
 		ret = NULL;
 	}
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	*retItem = ret;
 	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
@@ -345,7 +345,7 @@ xbee_err _ll_get_prev(void *list, void *ref, void **retItem, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	i = h->head;
 	if (__ll_get_item(h, ref, &i, 0) != XBEE_ENONE) goto out;
 	if (!i) {
@@ -359,7 +359,7 @@ xbee_err _ll_get_prev(void *list, void *ref, void **retItem, int needMutex) {
 		ret = NULL;
 	}
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	*retItem = ret;
 	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
@@ -373,13 +373,13 @@ xbee_err _ll_get_index(void *list, unsigned int index, void **retItem, int needM
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	i = h->head;
 	for (o = 0; o < index; o++) {
 		i = i->next;
 		if (!i) break;
 	}
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	if (!i) {
 		*retItem = NULL;
 		return XBEE_ERANGE;
@@ -398,7 +398,7 @@ xbee_err _ll_ext_head(void *list, void **retItem, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	p = h->head;
 	if (!p) {
 		ret = NULL;
@@ -410,7 +410,7 @@ xbee_err _ll_ext_head(void *list, void **retItem, int needMutex) {
 	if (h->tail == p) h->tail = NULL;
 	free(p);
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	*retItem = ret;
 	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
@@ -424,7 +424,7 @@ xbee_err _ll_ext_tail(void *list, void **retItem, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	p = h->tail;
 	if (!p) {
 		ret = NULL;
@@ -436,7 +436,7 @@ xbee_err _ll_ext_tail(void *list, void **retItem, int needMutex) {
 	if (h->head == p) h->head = NULL;
 	free(p);
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	*retItem = ret;
 	if (!ret) return XBEE_ERANGE;
 	return XBEE_ENONE;
@@ -450,7 +450,7 @@ xbee_err _ll_ext_item(void *list, void *item, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	p = h->head;
 	ret = XBEE_ENONE;
 	while (p) {
@@ -474,7 +474,7 @@ xbee_err _ll_ext_item(void *list, void *item, int needMutex) {
 		}
 		p = p->next;
 	}
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	if (!p) return XBEE_ENOTEXISTS;
 	return ret;
 }
@@ -488,7 +488,7 @@ xbee_err _ll_ext_index(void *list, unsigned int index, void **retItem, int needM
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	i = h->head;
 	for (o = 0; o < index; o++) {
 		i = i->next;
@@ -513,7 +513,7 @@ xbee_err _ll_ext_index(void *list, unsigned int index, void **retItem, int needM
 	free(i);
 	ret = XBEE_ENONE;
 out:
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -527,11 +527,11 @@ xbee_err _ll_modify_item(void *list, void *oldItem, void *newItem, int needMutex
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	if ((ret = __ll_get_item(h, oldItem, &p, 0)) == XBEE_ENONE) {
 		p->item = newItem;
 	}
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	return ret;
 }
 
@@ -545,9 +545,9 @@ xbee_err _ll_count_items(void *list, unsigned int *retCount, int needMutex) {
 	i = list;
 	h = i->head;
 	if (!(h && h->is_head && h->self == h)) return XBEE_EINVAL;
-	if (needMutex) xsys_mutex_lock(&h->mutex);
+	if (needMutex) xbee_mutex_lock(&h->mutex);
 	for (p = h->head, count = 0; p; p = p->next, count++);
-	if (needMutex) xsys_mutex_unlock(&h->mutex);
+	if (needMutex) xbee_mutex_unlock(&h->mutex);
 	*retCount = count;
 	return XBEE_ENONE;
 }
@@ -565,16 +565,16 @@ xbee_err ll_combine(void *head, void *tail) {
 	iH = head;
 	hH = iH->head;
 	if (!(hH && hH->is_head && hH->self == hH)) return XBEE_EINVAL;
-	xsys_mutex_lock(&hH->mutex);
+	xbee_mutex_lock(&hH->mutex);
 	iT = tail;
 	hT = iT->head;
 	if (!(hT && hT->is_head && hT->self == hT)) { ret = XBEE_EINVAL; goto out; }
-	xsys_mutex_lock(&hT->mutex);
+	xbee_mutex_lock(&hT->mutex);
 	while ((ret = _ll_ext_head(tail, &v, 0)) == XBEE_ENONE && v) {
 		_ll_add_tail(head, v, 0);
 	}
-	xsys_mutex_unlock(&hH->mutex);
+	xbee_mutex_unlock(&hH->mutex);
 out:
-	xsys_mutex_unlock(&hT->mutex);
+	xbee_mutex_unlock(&hT->mutex);
 	return XBEE_ENONE;
 }

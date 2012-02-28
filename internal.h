@@ -23,6 +23,7 @@
 
 #include "xbee.h"
 #include "xsys.h"
+#include "mutex.h"
 
 /* ######################################################################### */
 /* just to keep the compiler happy when pointers are used, but not dereferenced... */

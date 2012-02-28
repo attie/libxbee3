@@ -63,11 +63,9 @@ void *threadFunc(struct xbee_threadInfo *info) {
 	do {
 		xbee_log(15, "starting thread %p, function %s()...", info->thread, info->funcName);
 	
-		xsys_thread_unlock();
 		info->running = 1;
 		ret = info->func(info->xbee, &restart, info->arg);
 		info->running = 0;
-		xsys_thread_lock();
 
 		if (ret != XBEE_ENONE) {
 			xbee_log(1, "thread %p, function %s() returned %d...", info->thread, info->funcName, ret);
