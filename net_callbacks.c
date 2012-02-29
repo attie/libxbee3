@@ -58,28 +58,32 @@ void xbee_net_fromClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pk
 
 void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	unsigned char *buf;
+	int pos;
 	size_t memSize;
 	
 	/* this will need updating if struct xbee_pkt changes */
-	/* 6 = status + settings + rssi + frameId + atCommand[2] */
+	/* 6 = dataLen[2] + status + settings + rssi + frameId + atCommand[2] */
 	/* dataLen can be inferred */
-	memSize = 6 + (*pkt)->dataLen + 1;
+	memSize = 8 + (*pkt)->dataLen + 1;
 	
 	if ((buf = malloc(memSize)) == NULL) {
 		xbee_log(1, "MALLOC FAILED... dataloss has occured");
 		return;
 	}
 	
-	buf[0] = (*pkt)->status;
-	buf[1] = (*pkt)->settings;
-	buf[2] = (*pkt)->rssi;
-	buf[3] = (*pkt)->frameId;
-	buf[4] = (*pkt)->atCommand[0];
-	buf[5] = (*pkt)->atCommand[1];
+	pos = 0;
+	buf[pos] = ((*pkt)->dataLen >> 8) & 0xFF;            pos++;
+	buf[pos] = (*pkt)->dataLen & 0xFF;                   pos++;
+	buf[pos] = (*pkt)->status;                           pos++;
+	buf[pos] = (*pkt)->settings;                         pos++;
+	buf[pos] = (*pkt)->rssi;                             pos++;
+	buf[pos] = (*pkt)->frameId;                          pos++;
+	buf[pos] = (*pkt)->atCommand[0];                     pos++;
+	buf[pos] = (*pkt)->atCommand[1];                     pos++;
 	if ((*pkt)->dataLen > 0) {
-		memcpy(&buf[6], (*pkt)->data, (*pkt)->dataLen);
+		memcpy(&buf[pos], (*pkt)->data, (*pkt)->dataLen);  pos += (*pkt)->dataLen;
 	}
-	buf[6 + (*pkt)->dataLen] = '\0';
+	buf[pos] = '\0';
 	
 	xbee_connTx((struct xbee_con *)(*data), NULL, buf, memSize);
 	

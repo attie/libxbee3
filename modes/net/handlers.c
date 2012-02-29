@@ -36,6 +36,7 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	xbee_err ret;
 	int i;
 	int pos;
+	int dataLen;
 	struct xbee_modeConType *conType;
 	struct xbee_con *con;
 	
@@ -59,18 +60,22 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	memcpy(address, &con->address, sizeof(*address));
 	
 	pos = 3;
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - pos)) != XBEE_ENONE) return ret;
 	
-	iPkt->status = buf->data[pos];                           pos++;
-	iPkt->settings = buf->data[pos];                         pos++;
-	iPkt->rssi = buf->data[pos];                             pos++;
-	iPkt->frameId = buf->data[pos];                          pos++;
+	dataLen =           (buf->data[pos] << 8) & 0xFF00;      pos++;
+	dataLen |=           buf->data[pos] & 0xFF;              pos++;
+	
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, dataLen)) != XBEE_ENONE) return ret;
+	
+	iPkt->dataLen =      dataLen;
+	iPkt->status =       buf->data[pos];                     pos++;
+	iPkt->settings =     buf->data[pos];                     pos++;
+	iPkt->rssi =         buf->data[pos];                     pos++;
+	iPkt->frameId =      buf->data[pos];                     pos++;
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;
 	iPkt->atCommand[1] = buf->data[pos];                     pos++;
 	
-	iPkt->dataLen = buf->len - pos;
 	if (iPkt->dataLen > 0) {
-		memcpy(iPkt->data, &buf->data[pos], iPkt->dataLen);
+		memcpy(iPkt->data, &buf->data[pos], iPkt->dataLen);    pos += iPkt->dataLen;
 	}
 	
 	*pkt = iPkt;
