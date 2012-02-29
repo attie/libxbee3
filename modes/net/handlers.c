@@ -68,7 +68,7 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	
 	iPkt->dataLen =      dataLen;
 	iPkt->status =       buf->data[pos];                     pos++;
-	iPkt->settings =     buf->data[pos];                     pos++;
+	iPkt->options =      buf->data[pos];                     pos++;
 	iPkt->rssi =         buf->data[pos];                     pos++;
 	iPkt->frameId =      buf->data[pos];                     pos++;
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;

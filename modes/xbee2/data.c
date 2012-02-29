@@ -44,7 +44,7 @@ xbee_err xbee_s2_data_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	address->addr16_enabled = 1;
 	memcpy(address->addr16, &(buf->data[9]), 2);
 	
-	iPkt->settings = buf->data[11];
+	iPkt->options = buf->data[11];
 	
 	iPkt->dataLen = buf->len - 12;
 	if (iPkt->dataLen > 0) {

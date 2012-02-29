@@ -50,7 +50,7 @@ xbee_err xbee_s2_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char ide
 	address->endpoint_remote = buf->data[11];
 	address->endpoint_local = buf->data[12];
 	
-	iPkt->settings = buf->data[17];
+	iPkt->options = buf->data[17];
 	
 	iPkt->dataLen = buf->len - 18;
 	if (iPkt->dataLen > 0) {

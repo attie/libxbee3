@@ -75,7 +75,7 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	buf[pos] = ((*pkt)->dataLen >> 8) & 0xFF;            pos++;
 	buf[pos] = (*pkt)->dataLen & 0xFF;                   pos++;
 	buf[pos] = (*pkt)->status;                           pos++;
-	buf[pos] = (*pkt)->settings;                         pos++;
+	buf[pos] = (*pkt)->options;                          pos++;
 	buf[pos] = (*pkt)->rssi;                             pos++;
 	buf[pos] = (*pkt)->frameId;                          pos++;
 	buf[pos] = (*pkt)->atCommand[0];                     pos++;

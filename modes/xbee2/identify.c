@@ -40,7 +40,7 @@ xbee_err xbee_s2_identify_rx_func(struct xbee *xbee, void *arg, unsigned char id
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 12)) != XBEE_ENONE) return ret;
 	
-	iPkt->settings = buf->data[11];
+	iPkt->options = buf->data[11];
 	
 	iPkt->dataLen = buf->len - 12;
 	if (iPkt->dataLen > 0) {

@@ -169,7 +169,7 @@ struct xbee_pkt {
 	struct xbee_con *con;
 
 	unsigned char status;
-	unsigned char settings;
+	unsigned char options;
 	unsigned char rssi; /* print as "RSSI: -%d\n" */
 	unsigned char frameId;
 	

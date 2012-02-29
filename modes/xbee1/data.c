@@ -57,7 +57,7 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	}
 	
 	iPkt->rssi = buf->data[addrLen + 1];
-	iPkt->settings = buf->data[addrLen + 2];
+	iPkt->options = buf->data[addrLen + 2];
 	
 	iPkt->dataLen = buf->len - (addrLen + 3);
 	if (iPkt->dataLen > 0) {
