@@ -1,4 +1,4 @@
-v3.0.4 - in development
+v3.0.4 - 29 Feb 2012
 	* Implemented rx/tx counters
 	* Fixed XBee Series 2 data broadcast
 	* Fixed internal bugs
@@ -6,6 +6,7 @@ v3.0.4 - in development
 	* Added 'net' mode, and xbee_netStart()
 	* Added xbee_attachEOFCallback() to get alerts when a device error occurs (e.g: FDTI / Network disconnect)
 	* Fixed mutex/thread issue
+	* Added length checking on transmit functions
 
 v3.0.3 - 21 Feb 2012
 	* Fixed xbee_rxHandler() - now obeys allowFrameId flag
