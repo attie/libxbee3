@@ -82,6 +82,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	struct xbee_pkt *pkt;
 	int callbackCount;
 	int i, pos, slen;
+	struct xbee_con *bc_start;
 	
 	data = xbee->modeData;
 	
@@ -91,10 +92,10 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	address.endpoint_local = 0;
 	address.endpoint_remote = 0;
 	
-	if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, &data->bc_start, "backchannel", &address)) != XBEE_ENONE) return ret;
+	if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, &bc_start, "backchannel", &address)) != XBEE_ENONE) return ret;
 	
 	/* transmit our libxbee_commit string - the git commit id */
-	if ((ret = xbee_conTx(data->bc_start, &retVal, "%s", libxbee_commit)) != XBEE_ENONE) {
+	if ((ret = xbee_conTx(bc_start, &retVal, "%s", libxbee_commit)) != XBEE_ENONE) {
 		switch (retVal) {
 			case 1:
 				xbee_log(0, "The server encountered an internal error");
@@ -109,7 +110,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	}
 	
 	/* grab the returned data (an in-order list of the back channel endpoints, starting at 0x01) */
-	if ((ret = xbee_conRx(data->bc_start, &pkt, NULL)) != XBEE_ENONE) return ret;
+	if ((ret = xbee_conRx(bc_start, &pkt, NULL)) != XBEE_ENONE) return ret;
 	
 	callbackCount = pkt->data[0];
 	
@@ -133,11 +134,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 		
 		/* try to match the string with an element in struct xbee_modeData */
 #define TRY(conName)  if (!data->bc_##conName && !strncasecmp(name, #conName, slen))
-		TRY (connTx) {
-			retCon = &data->bc_connTx;
-		} else TRY (conRx) {
-			retCon = &data->bc_conRx;
-		} else TRY (conValidate) {
+		TRY (conValidate) {
 			retCon = &data->bc_conValidate;
 		} else TRY (conSleep) {
 			retCon = &data->bc_conSleep;
@@ -166,12 +163,9 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	
 	xbee_pktFree(pkt);
 	
-	xbee_conEnd(data->bc_start);
-	data->bc_start = NULL;
+	xbee_conEnd(bc_start);
 	
 	/* check that we aren't missing any connections */
-	if (data->bc_connTx == NULL)       return XBEE_EUNKNOWN;
-	if (data->bc_conRx == NULL)        return XBEE_EUNKNOWN;
 	if (data->bc_conValidate == NULL)  return XBEE_EUNKNOWN;
 	if (data->bc_conSleep == NULL)     return XBEE_EUNKNOWN;
 	if (data->bc_conSettings == NULL)  return XBEE_EUNKNOWN;

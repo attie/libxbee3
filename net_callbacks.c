@@ -238,7 +238,6 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	return;
 err:
 	if (nCon) {
-		//ll_ext_item(client->conList, lCon);
 		xbee_conEnd(nCon);
 	}
 	if (lCon) {
@@ -285,22 +284,6 @@ err:
 		buf[1] = retVal;
 		xbee_connTx(con, NULL, buf, sizeof(buf));
 	}
-}
-
-/* ######################################################################### */
-
-void xbee_net_connTx(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	struct xbee_netClientInfo *client;
-	client = *data;
-	if (!client->started) return;
-	
-}
-
-void xbee_net_conRx(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	struct xbee_netClientInfo *client;
-	client = *data;
-	if (!client->started) return;
-	
 }
 
 /* ######################################################################### */
@@ -472,8 +455,6 @@ const struct xbee_netCallback xbee_netServerCallbacks[] = {
 	ADD_NETSERVERCALLBACK(start) /* this MUST BE FIRST */
 	/* the rest may be ordered for efficiency...
 	   e.g: tx is probrably going to be the most commonly called */
-	ADD_NETSERVERCALLBACK(connTx)
-	ADD_NETSERVERCALLBACK(conRx)
 	ADD_NETSERVERCALLBACK(conValidate)
 	ADD_NETSERVERCALLBACK(conSleep)
 	ADD_NETSERVERCALLBACK(conSettings)
