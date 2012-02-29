@@ -40,6 +40,7 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	struct xbee_modeConType *conType;
 	struct xbee_con *con;
 	
+	if (!xbee || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	if (buf->len < 3) return XBEE_ELENGTH;
 	
 	conType = NULL;
@@ -88,6 +89,9 @@ xbee_err xbee_net_frontchannel_tx_func(struct xbee *xbee, struct xbee_con *con, 
 	size_t bufLen;
 	size_t memSize;
 	int pos;
+	
+	if (!con || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
+	if (len > 0xFFFF) return XBEE_ELENGTH;
 	
 	/* identifier + frameId + conId (2 bytes) */
 	memSize = 4 + len;

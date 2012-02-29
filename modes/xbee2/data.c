@@ -64,6 +64,7 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 	size_t memSize;
 	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
+	if (len > 72) return XBEE_ELENGTH;
 	
 	if (!address->addr64_enabled && !address->addr16_enabled) return XBEE_EINVAL;
 	

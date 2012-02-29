@@ -95,6 +95,7 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 	
 	if (len < 2) return XBEE_ELENGTH; /* must have the AT command... */
+	if (len > 22) return XBEE_ELENGTH; /* 22 is max NI + 2 */
 	
 	switch (identifier) {
 		case 0x08: /* Local AT */

@@ -79,6 +79,7 @@ xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 	size_t memSize;
 	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
+	if (len > 100) return XBEE_ELENGTH;
 	
 	switch (identifier) {
 		case 0x00:

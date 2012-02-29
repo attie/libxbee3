@@ -66,6 +66,7 @@ xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void
 	int pos;
 	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
+	if (len > 0xFFFF) return XBEE_ELENGTH;
 	
 	if (!address->addr16_enabled) return XBEE_EINVAL;
 	
@@ -143,6 +144,7 @@ xbee_err xbee_netServer_bc_tx_func(struct xbee *xbee, struct xbee_con *con, void
 	int pos;
 	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
+	if (len > 0xFFFF) return XBEE_ELENGTH;
 	
 	if (!address->endpoints_enabled) return XBEE_EINVAL;
 	
