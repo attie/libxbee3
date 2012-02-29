@@ -680,12 +680,13 @@ EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *
 	if (oldSettings) memcpy(&tempOld, &con->settings, sizeof(con->settings));
 	
 	if (con->xbee->mode->support.conSettings) {
-		/* check with support system */
+		/* check with support system - this will update the current settings of the con */
 		if ((ret = con->xbee->mode->support.conSettings(con, newSettings)) != XBEE_ENONE) return ret;
 	}
 	
 	if (oldSettings) memcpy(oldSettings, &tempOld, sizeof(con->settings));
 	if (newSettings) memcpy(&con->settings, newSettings, sizeof(con->settings));
+	
 	return XBEE_ENONE;
 }
 

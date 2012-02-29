@@ -183,7 +183,11 @@ xbee_err xbee_netSupport_conSleepGet(struct xbee_con *con) {
 }
 
 xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings) {
+	xbee_err ret;
 	unsigned char conTypeId;
+	unsigned char buf[4];
+	unsigned char txRet;
+	struct xbee_pkt *pkt;
 	struct xbee_modeData *data;
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (!con->xbee || !con->xbee->modeData) return XBEE_EINVAL;
@@ -192,9 +196,41 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 	if (conTypeId == 0) return XBEE_ENONE; /* backchannel (0) is always successful */
 	if (con->conIdentifier == -1) return XBEE_EINVAL; /* this indicates that it has been ended remotely */
 	
+	buf[0] = (con->conIdentifier >> 8) & 0xFF;
+	buf[1] = con->conIdentifier & 0xFF;
 	
+	if (newSettings != NULL) {
+		buf[2] = 0;
+		if (newSettings->disableAck)   buf[2] |= 0x01;
+		if (newSettings->broadcastPAN) buf[2] |= 0x02;
+		if (newSettings->queueChanges) buf[2] |= 0x04;
+		if (newSettings->multicast)    buf[2] |= 0x08;
+		if (newSettings->noBlock)      buf[2] |= 0x10;
+		
+		buf[3] = newSettings->broadcastRadius;
+		
+		xbee_connTx(data->bc_conSettings, &txRet, buf, sizeof(buf));
+	} else {
+		xbee_connTx(data->bc_conSettings, &txRet, buf, 2);
+	}
 	
-	return XBEE_ENOTIMPLEMENTED;
+	if (xbee_conRx(data->bc_conSettings, &pkt, NULL) != XBEE_ENONE || !pkt) return XBEE_EREMOTE;
+	
+	if (txRet == 0 && pkt->dataLen == 2) {
+		con->settings.disableAck =   !!(pkt->data[0] & 0x01);
+		con->settings.broadcastPAN = !!(pkt->data[0] & 0x02);
+		con->settings.queueChanges = !!(pkt->data[0] & 0x04);
+		con->settings.multicast =    !!(pkt->data[0] & 0x08);
+		con->settings.noBlock =      !!(pkt->data[0] & 0x10);
+		con->settings.broadcastRadius = pkt->data[1];
+		ret = XBEE_ENONE;
+	} else {
+		ret = XBEE_EREMOTE;
+	}
+	
+	xbee_pktFree(pkt);
+	
+	return ret;
 }
 
 xbee_err xbee_netSupport_conEnd(struct xbee_con *con) {

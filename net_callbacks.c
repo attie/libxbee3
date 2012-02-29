@@ -315,12 +315,10 @@ void xbee_net_conSleep(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	if (!iCon) goto err;
 	
 	if (xbee_conSleepGet(iCon, &oldSleep) != XBEE_ENONE) goto err;
-	if ((*pkt)->dataLen == 3) {
-		if (xbee_conSleepSet(iCon, newSleep) != XBEE_ENONE) {
-			retVal = 0x03; /* <-- failed to apply, old value present in reply */
-		} else {
-			retVal = 0x00;
-		}
+	if ((*pkt)->dataLen == 3 && xbee_conSleepSet(iCon, newSleep) != XBEE_ENONE) {
+		retVal = 0x03; /* <-- failed to apply, old value present in reply */
+	} else {
+		retVal = 0x00;
 	}
 	
 	buf[0] = (*pkt)->frameId;
@@ -342,9 +340,71 @@ err:
 
 void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	struct xbee_netClientInfo *client;
+	unsigned char retVal;
+	xbee_err ret;
+	int conIdentifier;
+	struct xbee_conSettings oldSettings;
+	struct xbee_con *iCon;
+	unsigned char buf[4];
 	client = *data;
 	if (!client->started) return;
 	
+	retVal = 0x02;
+	
+	if ((*pkt)->dataLen != 2 && (*pkt)->dataLen != 4) {
+		goto err;
+	}
+	
+	conIdentifier = 0;
+	conIdentifier |= (((*pkt)->data[0]) << 8) & 0xFF;
+	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
+	
+	for (iCon = NULL; ll_get_next(client->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+		if (iCon->conIdentifier == conIdentifier) break;
+	}
+	if (!iCon) goto err;
+	
+	if ((*pkt)->dataLen == 4) {
+		struct xbee_conSettings newSettings;
+		
+		memset(&newSettings, 0, sizeof(newSettings));
+		if ((*pkt)->data[2] & 0x01) newSettings.disableAck = 1;
+		if ((*pkt)->data[2] & 0x02) newSettings.broadcastPAN = 1;
+		if ((*pkt)->data[2] & 0x04) newSettings.queueChanges = 1;
+		if ((*pkt)->data[2] & 0x08) newSettings.multicast = 1;
+		if ((*pkt)->data[2] & 0x10) newSettings.noBlock = 1;
+		newSettings.broadcastRadius = (*pkt)->data[3];
+		
+		ret = xbee_conSettings(iCon, &newSettings, &oldSettings);
+	} else {
+		ret = xbee_conSettings(iCon, NULL,         &oldSettings);
+	}
+	
+	if (ret != XBEE_ENONE) {
+		retVal = 0x03;
+	} else {
+		retVal = 0x00;
+	}
+	
+	buf[0] = (*pkt)->frameId;
+	buf[1] = retVal;
+	buf[2] = 0;
+	if (iCon->settings.disableAck)   buf[2] |= 0x01;
+	if (iCon->settings.broadcastPAN) buf[2] |= 0x02;
+	if (iCon->settings.queueChanges) buf[2] |= 0x04;
+	if (iCon->settings.multicast)    buf[2] |= 0x08;
+	if (iCon->settings.noBlock)      buf[2] |= 0x10;
+	buf[3] = iCon->settings.broadcastRadius;
+	xbee_connTx(con, NULL, buf, sizeof(buf));
+	
+	return;
+err:
+	{
+		unsigned char buf[2];
+		buf[0] = (*pkt)->frameId;
+		buf[1] = retVal;
+		xbee_connTx(con, NULL, buf, sizeof(buf));
+	}
 }
 
 /* ######################################################################### */
