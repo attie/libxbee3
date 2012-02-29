@@ -21,7 +21,15 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-struct pkt_dataKey;
+#define PKT_DATAKEY_MAXLEN 32
+struct pkt_dataKey {
+	char name[PKT_DATAKEY_MAXLEN]; /* eg: 'analog' */
+	int id; /* eg: (channel) 3 */
+	struct ll_head *items; /* this contains a list of data, which CAN be raw data cast to a void*, eg: 524 */
+	void (*freeCallback)(void*); /* can only be assigned once for each key */
+};
+
+/* ########################################################################## */
 
 extern struct ll_head *pktList;
 

@@ -30,16 +30,6 @@
 struct ll_head *pktList = NULL;
 
 /* ########################################################################## */
-
-#define PKT_DATAKEY_MAXLEN 32
-struct pkt_dataKey {
-	char name[PKT_DATAKEY_MAXLEN]; /* eg: 'analog' */
-	int id; /* eg: (channel) 3 */
-	struct ll_head *items; /* this contains a list of data, which CAN be raw data cast to a void*, eg: 524 */
-	void (*freeCallback)(void*); /* can only be assigned once for each key */
-};
-
-/* ########################################################################## */
 static inline xbee_err _xbee_pktFree(struct xbee_pkt *pkt);
 static inline xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key);
 
