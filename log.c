@@ -32,16 +32,16 @@
 EXPORT xbee_err _xbee_logDev(const char * const file, const int line, const char * const function, struct xbee * const xbee, const int minLevel, const char * const format, ...) {
 	return XBEE_ENOTIMPLEMENTED;
 }
-EXPORT xbee_err xbee_logSetTarget(struct xbee *xbee, FILE *f) {
+EXPORT xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f) {
 	return XBEE_ENOTIMPLEMENTED;
 }
-EXPORT xbee_err xbee_logGetTarget(struct xbee *xbee, FILE **f) {
+EXPORT xbee_err xbee_logTargetGet(struct xbee *xbee, FILE **f) {
 	return XBEE_ENOTIMPLEMENTED;
 }
-EXPORT xbee_err xbee_logSetLevel(struct xbee *xbee, int level) {
+EXPORT xbee_err xbee_logLevelSet(struct xbee *xbee, int level) {
 	return XBEE_ENOTIMPLEMENTED;
 }
-EXPORT xbee_err xbee_logGetLevel(struct xbee *xbee, int *level) {
+EXPORT xbee_err xbee_logLevelGet(struct xbee *xbee, int *level) {
 	return XBEE_ENOTIMPLEMENTED;
 }
 
@@ -81,7 +81,7 @@ xbee_err xbee_logFree(struct xbee_log *log) {
 
 /* ######################################################################### */
 
-EXPORT xbee_err xbee_logSetTarget(struct xbee *xbee, FILE *f) {
+EXPORT xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f) {
 	if (!xbee) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
@@ -95,7 +95,7 @@ EXPORT xbee_err xbee_logSetTarget(struct xbee *xbee, FILE *f) {
 	return XBEE_ENONE;
 }
 
-EXPORT xbee_err xbee_logGetTarget(struct xbee *xbee, FILE **f) {
+EXPORT xbee_err xbee_logTargetGet(struct xbee *xbee, FILE **f) {
 	if (!xbee) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
@@ -107,7 +107,7 @@ EXPORT xbee_err xbee_logGetTarget(struct xbee *xbee, FILE **f) {
 	return XBEE_ENONE;
 }
 
-EXPORT xbee_err xbee_logSetLevel(struct xbee *xbee, int level) {
+EXPORT xbee_err xbee_logLevelSet(struct xbee *xbee, int level) {
 	if (!xbee) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
@@ -121,7 +121,7 @@ EXPORT xbee_err xbee_logSetLevel(struct xbee *xbee, int level) {
 	return XBEE_ENONE;
 }
 
-EXPORT xbee_err xbee_logGetLevel(struct xbee *xbee, int *level) {
+EXPORT xbee_err xbee_logLevelGet(struct xbee *xbee, int *level) {
 	if (!xbee) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;

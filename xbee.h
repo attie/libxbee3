@@ -109,10 +109,10 @@ xbee_err xbee_netStop(struct xbee *xbee);
 
 /* ######################################################################### */
 /* --- log.c --- */
-xbee_err xbee_logSetTarget(struct xbee *xbee, FILE *f);
-xbee_err xbee_logGetTarget(struct xbee *xbee, FILE **f);
-xbee_err xbee_logSetLevel(struct xbee *xbee, int level);
-xbee_err xbee_logGetLevel(struct xbee *xbee, int *level);
+xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f);
+xbee_err xbee_logTargetGet(struct xbee *xbee, FILE **f);
+xbee_err xbee_logLevelSet(struct xbee *xbee, int level);
+xbee_err xbee_logLevelGet(struct xbee *xbee, int *level);
 
 #ifndef __XBEE_INTERNAL_H
 xbee_err _xbee_logDev(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, char *format, ...);
