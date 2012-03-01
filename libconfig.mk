@@ -15,6 +15,7 @@ SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx \
 MODELIST:=      xbee1 xbee2 net
 
 SYS_HEADERS:=   xbee.h
+SYS_MANPAGES=   $(shell find $(MANDIR) -type f)
 RELEASE_FILES:= HISTORY LICENSE README
 
 VER_DEFINES=    -DLIB_REVISION="\"$(LIBFULLREV)\""                             \

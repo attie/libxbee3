@@ -28,7 +28,11 @@ install: all
 install_dbg: all
 	@sudo make install_dbg_sudo
 
-install_sudo: all $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)) $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV) $(SYS_LIBDIR)/$(LIBOUT).a.$(LIBFULLREV)
+install_sudo: all \
+              $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)) \
+              $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))) \
+              $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV) \
+              $(SYS_LIBDIR)/$(LIBOUT).a.$(LIBFULLREV) \
 
 install_dbg_sudo: install_sudo $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV).dbg
 
@@ -54,14 +58,19 @@ help:
 	
 
 $(SYS_LIBDIR)/$(LIBOUT).%.$(LIBFULLREV): $(DESTDIR)/$(LIBOUT).%.$(LIBFULLREV)
-	install -g root -o root -m 755 -DT $^ $@
+	install -g $(SYS_GROUP) -o $(SYS_USER) -m 755 -DT $^ $@
 	ln -fs $@ $(subst .$(LIBFULLREV),,$@)
 
 $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV).dbg: $(DESTDIR)/$(LIBOUT).so.$(LIBFULLREV).dbg
-	install -g root -o root -m 755 -DT $^ $@
+	install -g $(SYS_GROUP) -o $(SYS_USER) -m 755 -DT $^ $@
 
 $(SYS_INCDIR)/%.h: %.h
-	install -g root -o root -m 644 -DT $^ $@
+	install -g $(SYS_GROUP) -o $(SYS_USER) -m 644 -DT $^ $@
+
+$(SYS_MANDIR)/%.gz: $(MANDIR)/%
+	$(GZIP) < $^ > $@
+	chown $(SYS_USER):$(SYS_GROUP) $@
+	chmod 644 $@
 
 
 new: clean
