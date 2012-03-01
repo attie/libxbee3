@@ -27,6 +27,7 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <sys/time.h>
 
 /* structs that will be defined/used later */
 struct xbee;

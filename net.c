@@ -27,6 +27,11 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 
+#ifndef linux
+/* for FreeBSD */
+#include <netinet/in.h>
+#endif /* !linux */
+
 #include "internal.h"
 #include "xbee_int.h"
 #include "rx.h"

@@ -75,8 +75,11 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
   /* output flags */
   tc.c_oflag &= ~ OPOST;            /* disable output processing */
   tc.c_oflag &= ~(ONLCR | OCRNL);   /* disable translating NL <-> CR */
+#ifdef linux
+/* not for FreeBSD */
   tc.c_oflag &= ~ OFILL;            /* disable fill characters */
-  /* control flags */ 
+#endif /* linux */
+  /* control flags */
   tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
   tc.c_cflag |=   CREAD;            /* enable reciever */
   tc.c_cflag &= ~ PARENB;           /* disable parity */
@@ -112,7 +115,13 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
 	}
 	
 	/* enable input & output transmission */
+#ifdef linux
+/* for Linux */
   if (tcflow(info->fd, TCOON | TCION)) {
+#else
+/* for FreeBSD */
+  if (tcflow(info->fd, TCOON)) {
+#endif
 		perror("tcflow()");
 		return XBEE_ESETUP;
 	}
@@ -127,6 +136,11 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
 		} while (n > 0);
 	}
 	fcntl(info->fd, F_SETFL, 0); /* disable blocking */
+	
+#ifndef linux
+/* for FreeBSD */
+	usleep(250000); /* it seems that the serial port takes a while to get going... */
+#endif
 	
 	return XBEE_ENONE;
 }
