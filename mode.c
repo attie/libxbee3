@@ -32,7 +32,7 @@ const struct xbee_mode * const modeList[] = { MODELIST };
 
 /* ######################################################################### */
 
-xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode) {
+xbee_err xbee_modeRetrieve(const char *name, const struct xbee_mode **retMode) {
 	const struct xbee_mode *mode;
 	int i;
 	if (!name || !retMode) return XBEE_EMISSINGPARAM;
@@ -137,7 +137,7 @@ xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
 
 /* ######################################################################### */
 
-xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, int allowInternal, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType) {
+xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, int allowInternal, const char *name, const unsigned char *rxId, const unsigned char *txId, struct xbee_modeConType **retType) {
 	int i;
 	
 	if (!retType) return XBEE_EMISSINGPARAM;

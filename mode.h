@@ -42,7 +42,7 @@ struct xbee_modeDataHandlerTx {
 	     /* IN */    unsigned char frameId,
 	     /* IN */    struct xbee_conAddress *address,
 	     /* IN */    struct xbee_conSettings *settings,
-	     /* IN */    unsigned char *buf,
+	     /* IN */    const unsigned char *buf,
 	     /* IN */    int len,
 	     /* OUT */   struct xbee_buf **oBuf);
 	unsigned char needsFree;
@@ -89,13 +89,13 @@ struct xbee_mode {
 	struct xbee_modeSupport support;
 };
 
-xbee_err xbee_modeRetrieve(char *name, const struct xbee_mode **retMode);
+xbee_err xbee_modeRetrieve(const char *name, const struct xbee_mode **retMode);
 
 xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbee_mode *mode);
 xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct xbee_modeConType *newConType);
 xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes);
 
-xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, int allowInternal, char *name, unsigned char *rxId, unsigned char *txId, struct xbee_modeConType **retType);
+xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, int allowInternal, const char *name, const unsigned char *rxId, const unsigned char *txId, struct xbee_modeConType **retType);
 
 /* list of potential modes... basically a list of subdirectories in './modes/' */
 extern const struct xbee_mode mode_xbee1;

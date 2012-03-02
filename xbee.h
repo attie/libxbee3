@@ -29,103 +29,13 @@ extern "C" {
 #include <stdarg.h>
 #include <sys/time.h>
 
-/* structs that will be defined/used later */
+/* ######################################################################### */
+
+/* structs that won't be defined in user-space */
 struct xbee;
 struct xbee_con;
-enum xbee_conSleepStates;
-struct xbee_conAddress;
-struct xbee_conInfo;
-struct xbee_conSettings;
-struct xbee_pkt;
-typedef enum xbee_errors xbee_err;
-
-/* ######################################################################### */
-/* --- ver.c --- */
-extern const char libxbee_revision[];
-extern const char libxbee_commit[];
-extern const char libxbee_committer[];
-extern const char libxbee_buildtime[];
 
 
-/* ######################################################################### */
-/* --- xbee.c --- */
-xbee_err xbee_validate(struct xbee *xbee);
-xbee_err xbee_setup(struct xbee **retXbee, char *mode, ...);
-xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo));
-xbee_err xbee_shutdown(struct xbee *xbee);
-
-
-/* ######################################################################### */
-/* --- mode.c --- */
-xbee_err xbee_modeGetList(char ***retList);
-xbee_err xbee_modeGet(struct xbee *xbee, const char **mode);
-
-
-/* ######################################################################### */
-/* --- conn.c --- */
-typedef void(*xbee_t_conCallback)(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data);
-
-xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList);
-/* - */
-xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address);
-xbee_err xbee_conValidate(struct xbee_con *con);
-/* - */
-xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, char *format, ...);
-xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, char *format, va_list args);
-xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len);
-xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
-/* - */
-xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state);
-xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state);
-/* - */
-xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData);
-xbee_err xbee_conDataGet(struct xbee_con *con, void **curData);
-/* - */
-xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info);
-/* - */
-xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback newCallback, xbee_t_conCallback *oldCallback);
-xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *curCallback);
-/* - */
-xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings, struct xbee_conSettings *oldSettings);
-/* - */
-xbee_err xbee_conEnd(struct xbee_con *con);
-
-
-/* ######################################################################### */
-/* --- pkt.c --- */
-xbee_err xbee_pktFree(struct xbee_pkt *pkt);
-xbee_err xbee_pktValidate(struct xbee_pkt *pkt);
-xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData);
-xbee_err xbee_pktAnalogGet(struct xbee_pkt *pkt, int channel, int index, int *retVal);
-xbee_err xbee_pktDigitalGet(struct xbee_pkt *pkt, int channel, int index, int *retVal);
-
-
-/* ######################################################################### */
-/* --- net.c --- */
-xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, char *remoteHost));
-xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, char *remoteHost));
-xbee_err xbee_netStop(struct xbee *xbee);
-
-
-/* ######################################################################### */
-/* --- log.c --- */
-xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f);
-xbee_err xbee_logTargetGet(struct xbee *xbee, FILE **f);
-xbee_err xbee_logLevelSet(struct xbee *xbee, int level);
-xbee_err xbee_logLevelGet(struct xbee *xbee, int *level);
-
-#ifndef __XBEE_INTERNAL_H
-xbee_err _xbee_logDev(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, char *format, ...);
-#define xbee_log(...) _xbee_logDev(__FILE__,__LINE__,__FUNCTION__,__VA_ARGS__)
-#endif
-
-
-/* ########################################################################## */
-/* --- error.c --- */
-char *xbee_errorToStr(xbee_err error);
-
-
-/* ######################################################################### */
 /* ######################################################################### */
 /* tasty structs 'n stuff */
 
@@ -222,9 +132,96 @@ enum xbee_errors {
 	
 	XBEE_EREMOTE               = -26,
 };
+typedef enum xbee_errors xbee_err;
 
 /* ######################################################################### */
+/* ######################################################################### */
+/* --- ver.c --- */
+extern const char libxbee_revision[];
+extern const char libxbee_commit[];
+extern const char libxbee_committer[];
+extern const char libxbee_buildtime[];
 
+
+/* ######################################################################### */
+/* --- xbee.c --- */
+xbee_err xbee_validate(struct xbee *xbee);
+xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...);
+xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo));
+xbee_err xbee_shutdown(struct xbee *xbee);
+
+
+/* ######################################################################### */
+/* --- mode.c --- */
+xbee_err xbee_modeGetList(char ***retList);
+xbee_err xbee_modeGet(struct xbee *xbee, const char **mode);
+
+
+/* ######################################################################### */
+/* --- conn.c --- */
+typedef void(*xbee_t_conCallback)(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data);
+
+xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList);
+/* - */
+xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address);
+xbee_err xbee_conValidate(struct xbee_con *con);
+/* - */
+xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...);
+xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);
+xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len);
+xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
+/* - */
+xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state);
+xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state);
+/* - */
+xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData);
+xbee_err xbee_conDataGet(struct xbee_con *con, void **curData);
+/* - */
+xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info);
+/* - */
+xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback newCallback, xbee_t_conCallback *oldCallback);
+xbee_err xbee_conCallbackGet(struct xbee_con *con, xbee_t_conCallback *curCallback);
+/* - */
+xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings, struct xbee_conSettings *oldSettings);
+/* - */
+xbee_err xbee_conEnd(struct xbee_con *con);
+
+
+/* ######################################################################### */
+/* --- pkt.c --- */
+xbee_err xbee_pktFree(struct xbee_pkt *pkt);
+xbee_err xbee_pktValidate(struct xbee_pkt *pkt);
+xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, const char *key, int id, int index, void **retData);
+xbee_err xbee_pktAnalogGet(struct xbee_pkt *pkt, int channel, int index, int *retVal);
+xbee_err xbee_pktDigitalGet(struct xbee_pkt *pkt, int channel, int index, int *retVal);
+
+
+/* ######################################################################### */
+/* --- net.c --- */
+xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, const char *remoteHost));
+xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, const char *remoteHost));
+xbee_err xbee_netStop(struct xbee *xbee);
+
+
+/* ######################################################################### */
+/* --- log.c --- */
+xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f);
+xbee_err xbee_logTargetGet(struct xbee *xbee, FILE **f);
+xbee_err xbee_logLevelSet(struct xbee *xbee, int level);
+xbee_err xbee_logLevelGet(struct xbee *xbee, int *level);
+
+#ifndef __XBEE_INTERNAL_H
+xbee_err _xbee_logDev(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, const char *format, ...);
+#define xbee_log(...) _xbee_logDev(__FILE__,__LINE__,__FUNCTION__,__VA_ARGS__)
+#endif
+
+
+/* ########################################################################## */
+/* --- error.c --- */
+const char *xbee_errorToStr(xbee_err error);
+
+
+/* ######################################################################### */
 
 #ifdef __cplusplus
 } /* extern "C" */

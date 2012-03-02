@@ -4,7 +4,7 @@
 
 #include <xbee.h>
 
-int myClientFilter(struct xbee *xbee, char *remoteHost) {
+int myClientFilter(struct xbee *xbee, const char *remoteHost) {
 	printf("Connection request from [%s]\n", remoteHost);
 	return 0; /* return 0 - accept, anything else means deny  */
 }

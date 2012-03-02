@@ -127,7 +127,7 @@ xbee_err xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt) {
 
 /* ########################################################################## */
 
-xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey, void (*freeCallback)(void*)) {
+xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, const char *key, int id, struct pkt_dataKey **retKey, void (*freeCallback)(void*)) {
 	struct pkt_dataKey *k;
 	xbee_err ret;
 	
@@ -170,7 +170,7 @@ done:
 	return ret;
 }
 
-xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, char *key, int id, struct pkt_dataKey **retKey) {
+xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, const char *key, int id, struct pkt_dataKey **retKey) {
 	xbee_err ret;
 	struct pkt_dataKey *k;
 	
@@ -203,7 +203,7 @@ static inline xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key) {
 
 /* ########################################################################## */
 
-xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, char *key, int id, void *data, void (*freeCallback)(void*)) {
+xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, const char *key, int id, void *data, void (*freeCallback)(void*)) {
 	struct pkt_dataKey *k;
 	xbee_err ret;
 	
@@ -223,7 +223,7 @@ xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, char *key, int id, void *data, vo
 	return XBEE_ENONE;
 }
 
-EXPORT xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, char *key, int id, int index, void **retData) {
+EXPORT xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, const char *key, int id, int index, void **retData) {
 	struct pkt_dataKey *k;
 	unsigned int count;
 	xbee_err ret;

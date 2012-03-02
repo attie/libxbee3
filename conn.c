@@ -284,7 +284,7 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 
 /* ########################################################################## */
 
-xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
+xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address) {
 	xbee_err ret;
 	int conIdentifier;
 	struct xbee_con *con;
@@ -325,7 +325,7 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int a
 	
 	return XBEE_ENONE;
 }
-EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, char *type, struct xbee_conAddress *address) {
+EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address) {
 	return _xbee_conNew(xbee, &xbee->iface, 0, retCon, type, address);
 }
 
@@ -343,7 +343,7 @@ EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 
 /* ########################################################################## */
 
-EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, char *format, ...) {
+EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...) {
 	xbee_err ret;
 	va_list ap;
 	
@@ -359,7 +359,7 @@ EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, char *fo
 	return ret;
 }
 
-EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, char *format, va_list args) {
+EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args) {
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
@@ -391,7 +391,7 @@ die:
 	return ret;
 }
 
-EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, unsigned char *buf, int len) {
+EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len) {
 	int waitForAck;
 	xbee_err ret;
 	unsigned char myret;

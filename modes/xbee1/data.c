@@ -70,7 +70,7 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, unsigned char *buf, int len, struct xbee_buf **oBuf) {
+xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	unsigned char *addr;

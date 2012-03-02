@@ -385,7 +385,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 
 /* ######################################################################### */
 
-EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
+EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
 	xbee_err ret;
 	int fd;
 	int i;
@@ -420,7 +420,7 @@ EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(st
 	return ret;
 }
 
-EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
+EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
 	xbee_err ret;
 	struct xbee_netInfo *info;
 	

@@ -58,7 +58,7 @@ struct xbee_netInfo {
 	xsys_thread serverThread;
 	
 	struct xbee_netClientInfo *newClient;
-	int(*clientFilter)(struct xbee *xbee, char *remoteHost);
+	int(*clientFilter)(struct xbee *xbee, const char *remoteHost);
 	struct ll_head *clientList;
 };
 

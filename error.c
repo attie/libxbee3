@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-EXPORT char *xbee_errorToStr(xbee_err error) {
+EXPORT const char *xbee_errorToStr(xbee_err error) {
 	char *str = "Unknown error...";
 	
 	switch (error) {

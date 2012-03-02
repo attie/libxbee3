@@ -112,7 +112,7 @@ xbee_err xbee_free(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-EXPORT xbee_err xbee_setup(struct xbee **retXbee, char *mode, ...) {
+EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...) {
 	xbee_err ret;
 	const struct xbee_mode *xbeeMode;
 	struct xbee *xbee;
