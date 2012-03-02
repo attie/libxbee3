@@ -4,17 +4,6 @@
 
 #include <xbee.h>
 
-void myCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	if ((*pkt)->dataLen > 0) {
-		if ((*pkt)->data[0] == '@') {
-			xbee_conCallbackSet(con, NULL, NULL);
-			printf("*** DISABLED CALLBACK... ***\n");
-		}
-		printf("rx: [%s]\n", (*pkt)->data);
-	}
-	printf("tx: %d\n", xbee_conTx(con, NULL, "Hello\r\n"));
-}
-
 int main(void) {
 	int i;
 	void *d;
@@ -44,18 +33,13 @@ int main(void) {
 		return ret;
 	}
 
-	if ((ret = xbee_conCallbackSet(con, myCB, NULL)) != XBEE_ENONE) {
-		xbee_log(xbee, -1, "xbee_conCallbackSet() returned: %d", ret);
-		return ret;
-	}
-
 	/* getting an ACK for a broadcast message is kinda pointless... */
 	xbee_conSettings(con, NULL, &settings);
 	settings.disableAck = 1;
 	xbee_conSettings(con, &settings, NULL);
 
 	for (i = 0; i < 1000; i++) {
-		xbee_conTx(con, NULL, "%d", i);
+		xbee_conTx(con, NULL, "%d\r\n", i);
 
 		/* XBee Series 1 modules don't use meshing, so you can broadcast much faster than Series 2 */
 		usleep(10000); /* 10ms */
