@@ -296,6 +296,11 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int a
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	if ((ret = xbee_modeLocateConType(interface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
+	if (!conType) return XBEE_EUNKNOWN;
+	
+	if (conType->address_validator) {
+		if ((ret = conType->address_validator(address)) != XBEE_ENONE) return ret;
+	}
 	
 	conIdentifier = 0;
 	if (xbee->mode->support.conNew) {

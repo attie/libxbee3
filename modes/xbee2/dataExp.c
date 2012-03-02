@@ -27,6 +27,7 @@
 #include "../../mode.h"
 #include "../../pkt.h"
 #include "../common.h"
+#include "../addrval.h"
 #include "dataExp.h"
 
 xbee_err xbee_s2_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
@@ -151,6 +152,7 @@ const struct xbee_modeConType xbee_s2_dataExp = {
 	.name = "Data (explicit)",
 	.allowFrameId = 1,
 	.useTimeout = 0,
+	.address_validator = xbee_addrval_16or64,
 	.rxHandler = &xbee_s2_dataExp_rx,
 	.txHandler = &xbee_s2_dataExp_tx,
 };

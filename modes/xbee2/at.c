@@ -28,6 +28,7 @@
 #include "../../pkt.h"
 #include "../../frame.h"
 #include "../common.h"
+#include "../addrval.h"
 #include "at.h"
 
 xbee_err xbee_s2_at_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
@@ -168,6 +169,7 @@ const struct xbee_modeConType xbee_s2_localAt = {
 		.tv_sec = 0,
 		.tv_nsec = 250000000,
 	},
+	.address_validator = xbee_addrval_none,
 	.rxHandler = &xbee_s2_localAt_rx,
 	.txHandler = &xbee_s2_localAt_tx,
 };
@@ -190,6 +192,7 @@ const struct xbee_modeConType xbee_s2_remoteAt = {
 		.tv_sec = 0,
 		.tv_nsec = 250000000,
 	},
+	.address_validator = xbee_addrval_16or64,
 	.rxHandler = &xbee_s2_remoteAt_rx,
 	.txHandler = &xbee_s2_remoteAt_tx,
 };

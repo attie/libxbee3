@@ -1,3 +1,10 @@
+v3.0.5 - in progress
+	* Added FreeBSD support
+	* Renamed xbee_logGet*() -> xbee_log*Get(), and xbee_logSet*() -> xbee_log*Set()
+	* Provided C++ support
+	* Added xbee_vsetup()
+	* Added address validation
+
 v3.0.4 - 29 Feb 2012
 	* Implemented rx/tx counters
 	* Fixed XBee Series 2 data broadcast

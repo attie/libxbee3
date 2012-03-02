@@ -28,6 +28,7 @@
 #include "../../pkt.h"
 #include "../../log.h"
 #include "../common.h"
+#include "../addrval.h"
 #include "io.h"
 
 xbee_err xbee_s1_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigned char *data, int len) {
@@ -136,6 +137,7 @@ const struct xbee_modeConType xbee_s1_16bitIo = {
 	.name = "16-bit I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,
+	.address_validator = xbee_addrval_16bit,
 	.rxHandler = &xbee_s1_16bitIo_rx,
 	.txHandler = NULL,
 };
@@ -150,6 +152,7 @@ const struct xbee_modeConType xbee_s1_64bitIo = {
 	.name = "64-bit I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,
+	.address_validator = xbee_addrval_64bit,
 	.rxHandler = &xbee_s1_64bitIo_rx,
 	.txHandler = NULL,
 };

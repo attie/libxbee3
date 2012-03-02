@@ -28,6 +28,7 @@
 #include "../../pkt.h"
 #include "../../frame.h"
 #include "../common.h"
+#include "../addrval.h"
 #include "at.h"
 #include "io.h"
 
@@ -169,6 +170,7 @@ const struct xbee_modeConType xbee_s1_localAt = {
 		.tv_sec = 0,
 		.tv_nsec = 250000000,
 	},
+	.address_validator = xbee_addrval_none,
 	.rxHandler = &xbee_s1_localAt_rx,
 	.txHandler = &xbee_s1_localAt_tx,
 };
@@ -191,6 +193,7 @@ const struct xbee_modeConType xbee_s1_remoteAt = {
 		.tv_sec = 0,
 		.tv_nsec = 250000000,
 	},
+	.address_validator = xbee_addrval_16or64,
 	.rxHandler = &xbee_s1_remoteAt_rx,
 	.txHandler = &xbee_s1_remoteAt_tx,
 };

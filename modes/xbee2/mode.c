@@ -30,6 +30,7 @@
 #include "../../frame.h"
 #include "../../pkt.h"
 #include "../common.h"
+#include "../addrval.h"
 #include "mode.h"
 #include "at.h"
 #include "data.h"
@@ -123,6 +124,7 @@ const struct xbee_modeConType xbee_s2_transmitStatus = {
 	.name = "Transmit Status",
 	.allowFrameId = 1,
 	.useTimeout = 0,
+	.address_validator = xbee_addrval_none,
 	.rxHandler = &xbee_s2_transmitStatus_rx,
 	.txHandler = NULL,
 };
@@ -158,6 +160,7 @@ const struct xbee_modeConType xbee_s2_modemStatus = {
 	.name = "Modem Status",
 	.allowFrameId = 0,
 	.useTimeout = 0,
+	.address_validator = xbee_addrval_none,
 	.rxHandler = &xbee_s2_modemStatus_rx,
 	.txHandler = NULL,
 };

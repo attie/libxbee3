@@ -28,6 +28,7 @@
 #include "../../pkt.h"
 #include "../../log.h"
 #include "../common.h"
+#include "../addrval.h"
 #include "io.h"
 
 xbee_err xbee_s2_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigned char *data, int len) {
@@ -156,6 +157,7 @@ const struct xbee_modeConType xbee_s2_io = {
 	.name = "I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,
+	.address_validator = xbee_addrval_16or64,
 	.rxHandler = &xbee_s2_io_rx,
 	.txHandler = NULL,
 };
