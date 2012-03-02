@@ -112,11 +112,10 @@ xbee_err xbee_free(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...) {
+EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap) {
 	xbee_err ret;
 	const struct xbee_mode *xbeeMode;
 	struct xbee *xbee;
-	va_list ap;
 	
 	if (!retXbee || !mode) return XBEE_EMISSINGPARAM;
 	
@@ -133,15 +132,13 @@ EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...) {
 	
 	xbee->iface.tx->ioFunc = xbee->mode->tx_io;
 	
-	va_start(ap, mode);
 	if ((ret = xbee->mode->init(xbee, ap)) != XBEE_ENONE) goto die;
-	va_end(ap);
 	
 	if ((ret = xbee_threadStart(xbee, NULL, 150000, 0, xbee_rx, xbee->iface.rx)) != XBEE_ENONE)                                goto die;
 	if ((ret = xbee_threadStart(xbee, NULL, 150000, 0, xbee_rxHandler, xbee->iface.rx)) != XBEE_ENONE)                         goto die;
 	if ((ret = xbee_threadStart(xbee, NULL, 150000, 0, xbee_tx, xbee->iface.tx)) != XBEE_ENONE)                                goto die;
 	
-	if (xbee->mode->prepare) if ((ret = xbee->mode->prepare(xbee)) != XBEE_ENONE)                                           goto die;
+	if (xbee->mode->prepare) if ((ret = xbee->mode->prepare(xbee)) != XBEE_ENONE)                                              goto die;
 	
 	if (xbee->mode->thread) if ((ret = xbee_threadStart(xbee, NULL, 150000, 0, xbee->mode->thread, NULL)) != XBEE_ENONE)       goto die;
 	
@@ -153,6 +150,16 @@ EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...) {
 
 die:
 	xbee_free(xbee);
+	return ret;
+}
+EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...) {
+	xbee_err ret;
+	va_list ap;
+	
+	va_start(ap, mode);
+	ret = xbee_vsetup(retXbee, mode, ap);
+	va_end(ap);
+	
 	return ret;
 }
 

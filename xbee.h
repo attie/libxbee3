@@ -147,6 +147,7 @@ extern const char libxbee_buildtime[];
 /* --- xbee.c --- */
 xbee_err xbee_validate(struct xbee *xbee);
 xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...);
+xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap);
 xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo));
 xbee_err xbee_shutdown(struct xbee *xbee);
 
