@@ -14,7 +14,9 @@ PDEPS:=makefile config.mk libconfig.mk buildconfig.mk
 
 ###############################################################################
 
-.PHONY: all install install_dbg install_sudo install_dbg_sudo help clean distclean new release .%.dir
+.PHONY: all help clean distclean new release .%.dir
+.PHONY: install install_dbg install_sudo install_dbg_sudo
+.PHONY: $(SYS_MANDIR)/%.gz.symlink
 .PHONY: ALWAYS
 
 OBJS:=$(addprefix $(BUILDDIR)/,$(addsuffix .o,$(SRCS)))
@@ -31,6 +33,7 @@ install_dbg: all
 install_sudo: all \
               $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)) \
               $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))) \
+              $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz.symlink,$(SYS_MANLINKS))) \
               $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV) \
               $(SYS_LIBDIR)/$(LIBOUT).a.$(LIBFULLREV) \
 
@@ -71,6 +74,10 @@ $(SYS_MANDIR)/%.gz: $(MANDIR)/%
 	$(GZIP) < $^ > $@
 	chown $(SYS_USER):$(SYS_GROUP) $@
 	chmod 644 $@
+
+$(SYS_MANDIR)/%.gz.symlink: $(MANDIR)/%
+	ln -sf $(shell readlink $^).gz $(patsubst %.symlink,%,$@)
+	chown -h $(SYS_USER):$(SYS_GROUP) $(patsubst %.symlink,%,$@)
 
 
 new: clean

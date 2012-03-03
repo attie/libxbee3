@@ -8,6 +8,7 @@ MANDIR:=        man
 LIBFULLREV:=    $(LIBMAJ).$(LIBMIN).$(LIBREV)
 
 SYS_MANPAGES:=  $(subst $(MANDIR)/,,$(SYS_MANPAGES))
+SYS_MANLINKS:=  $(subst $(MANDIR)/,,$(SYS_MANLINKS))
 
 AR:=            $(CROSS_COMPILE)ar
 LD:=            $(CROSS_COMPILE)ld

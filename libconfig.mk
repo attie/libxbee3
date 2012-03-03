@@ -16,6 +16,7 @@ MODELIST:=      xbee1 xbee2 net
 
 SYS_HEADERS:=   xbee.h
 SYS_MANPAGES=   $(shell find $(MANDIR) -type f)
+SYS_MANLINKS=   $(shell find $(MANDIR) -type l)
 RELEASE_FILES:= HISTORY LICENSE README
 
 VER_DEFINES=    -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
