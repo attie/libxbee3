@@ -93,10 +93,10 @@ static xbee_err shutdown(struct xbee *xbee) {
 
 xbee_err xbee_s2_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	xbee_err ret;
-
+	
 	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	
-	ret	= XBEE_ENONE;
+	ret = XBEE_ENONE;
 	
 	if (buf->len != 7) {
 		ret = XBEE_ELENGTH;
@@ -111,7 +111,7 @@ xbee_err xbee_s2_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned c
 	goto done;
 die1:
 done:
-	return 0;
+	return ret;
 }
 
 /* ######################################################################### */

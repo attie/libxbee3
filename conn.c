@@ -454,9 +454,7 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const u
 		struct timespec to;
 		clock_gettime(CLOCK_REALTIME, &to);
 		if (con->conType->useTimeout) {
-			long onsec;
 			to.tv_sec  += con->conType->timeout.tv_sec;
-			onsec = to.tv_nsec;
 			to.tv_nsec += con->conType->timeout.tv_nsec;
 			while (to.tv_nsec >= 1000000000) {
 				to.tv_sec++;

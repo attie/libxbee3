@@ -108,7 +108,7 @@ xbee_err xbee_s1_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned c
 	goto done;
 die1:
 done:
-	return 0;
+	return ret;
 }
 
 /* ######################################################################### */

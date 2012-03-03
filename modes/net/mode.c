@@ -214,11 +214,9 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 	mName = NULL;
 	
 	for (pos = 1, i = 0; pos < pkt->dataLen && i < typeCount; pos += slen, i++) {
-		int id;
 		char flags;
 		char *name;
 		
-		id = i + 1; /* backchannel is 0 */
 		flags = pkt->data[pos];
 		pos++;
 		name = (char *)&(pkt->data[pos]);
@@ -285,13 +283,10 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 
 static xbee_err prepare(struct xbee *xbee) {
 	xbee_err ret;
-	struct xbee_modeData *data;
 	
 	if (!xbee) return XBEE_EMISSINGPARAM;
 	if (!xbee->mode || !xbee->modeData) return XBEE_EINVAL;
 	
-	data = xbee->modeData;
-
 	if ((ret = prepare_backchannel(xbee)) != XBEE_ENONE) return ret;
 	if ((ret = prepare_conTypes(xbee)) != XBEE_ENONE) return ret;
 	

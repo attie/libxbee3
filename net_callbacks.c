@@ -36,18 +36,22 @@
 /* ######################################################################### */
 
 void xbee_net_fromClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	xbee_err ret;
 	unsigned char retVal;
 	struct xbee_con *rCon;
 	
 	rCon = *data;
 	
-	ret = xbee_connTx(rCon, &retVal, (*pkt)->data, (*pkt)->dataLen);
+	if (xbee_connTx(rCon, &retVal, (*pkt)->data, (*pkt)->dataLen) != XBEE_ENONE) {
+		xbee_log(1, "network relay failure (client -> server) - client %p", con->netClient);
+		retVal = 0x01;
+		goto err;
+	}
 	
 	if (!rCon->conType->allowFrameId || rCon->settings.disableAck) return;
 	
 	if (!con->netClient || !con->netClient->bc_status) return;
 	
+err:
 	{
 		unsigned char buf[2];
 		buf[0] = (*pkt)->frameId;
