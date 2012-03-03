@@ -66,11 +66,23 @@ xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 }
 
 xbee_err xbee_conFree(struct xbee_con *con) {
+	xbee_err ret;
+	int active;
+	
 	if (!con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	xbee_conUnlink(con);
+	
+	if ((ret = xbee_threadGetState(con->xbee, con->callbackThread, NULL, &active)) != XBEE_ENOTEXISTS) {
+		if (ret != XBEE_ENONE) return ret;
+		if (active) {
+			con->destroySelf = 1;
+			return XBEE_ENONE;
+		}
+	}
+	
 	return _xbee_conFree(con);
 }
 	
@@ -140,9 +152,6 @@ xbee_err xbee_conUnlink(struct xbee_con *con) {
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if ((ret = ll_ext_item(conType->conList, con)) != XBEE_ENONE) return ret;
-	
-	con->xbee = NULL;
-	con->conType = NULL;
 	
 	return ret;
 }
@@ -583,7 +592,7 @@ xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
 
 	con = arg;
 
-	do {
+	while (!con->destroySelf) {
 		callback = con->callback;
 		if (!callback) break;
 		if ((ret = ll_ext_head(con->pktList, (void**)&pkt)) == XBEE_ERANGE) {
@@ -611,8 +620,12 @@ xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
 				xbee_log(-1, "callback for connection @ %p returned a different packet to what it was provided...");
 			}
 		}
-	} while (1);
-
+	}
+	
+	if (con->destroySelf) {
+		_xbee_conFree(con);
+	}
+	
 	*restart = 0;
 	return XBEE_ENONE;
 }

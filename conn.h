@@ -28,6 +28,7 @@ struct xbee_con {
 	struct ll_head *pktList;
 	struct xbee_modeConType *conType;
 	
+	int destroySelf;
 	int conIdentifier;
 	
 	struct xbee_interface *iface;
