@@ -54,9 +54,9 @@ libxbee structs and enums
 .sp 0
 .BR xbee_conSettings "(3)     - connection settings (e.g: disable ACK)"
 .sp
-.BR xbee_errors "(3)          - a list of potential errors, returned by functions"
-.sp                 
 .BR xbee_conSleepStates "(3)  - a list of sleep states for a connection"
+.sp                 
+.BR xbee_errors "(3)          - a list of potential errors, returned by functions"
 .fi
 .in
 .sp 2
@@ -163,5 +163,12 @@ libxbee log functions
 .BR xbee_logLevelGet "(3)     - retrieve the current log level"
 .sp                           
 .BR xbee_log "(3)             - write a message to the libxbee log"
+.fi
+.in
+.sp 2
+miscellaneous functions
+.in +4n
+.sp
+.BR xbee_errorToStr "(3)      - translate an error number to a string"
 .fi
 .in
