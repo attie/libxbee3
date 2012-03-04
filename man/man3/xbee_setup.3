@@ -1,4 +1,4 @@
-.\" libxbee - a C library to aid the use of Digi's Series 1 XBee modules
+.\" libxbee - a C library to aid the use of Digi's XBee wireless modules
 .\"           running in API mode (AP=2).
 .\" 
 .\" Copyright (C) 2009  Attie Grande (attie@attie.co.uk)
@@ -10,11 +10,11 @@
 .\" 
 .\" This program is distributed in the hope that it will be useful,
 .\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 .\" GNU General Public License for more details.
 .\" 
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program. If not, see <http://www.gnu.org/licenses/>.
 .TH XBEE_SETUP 3  02-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
 xbee_setup, xbee_vsetup, xbee_validate, xbee_shutdown
@@ -94,6 +94,10 @@ if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
 	printf("xbee_setup(): %d - %s\\n", ret, xbee_errorToStr(ret));
 	return ret;
 }
+
+/* use libxbee */
+
+if (xbee_shutdown(xbee) != XBEE_ENONE) return;
 .fi
 .in
 .SH AUTHOR

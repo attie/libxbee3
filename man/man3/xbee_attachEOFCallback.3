@@ -1,4 +1,4 @@
-.\" libxbee - a C library to aid the use of Digi's Series 1 XBee modules
+.\" libxbee - a C library to aid the use of Digi's XBee wireless modules
 .\"           running in API mode (AP=2).
 .\" 
 .\" Copyright (C) 2009  Attie Grande (attie@attie.co.uk)
@@ -10,11 +10,11 @@
 .\" 
 .\" This program is distributed in the hope that it will be useful,
 .\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 .\" GNU General Public License for more details.
 .\" 
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program. If not, see <http://www.gnu.org/licenses/>.
 .TH XBEE_ATTACHEOFCALLBACK 3  02-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
 xbee_attachEOFCallback
@@ -36,6 +36,8 @@ To configure an EOF callback:
 .sp
 .in +4n
 .nf
+#include <xbee.h>
+
 void eek_eof(struct xbee *xbee, void *rxInfo) {
 	xbee_shutdown(xbee);
 }
