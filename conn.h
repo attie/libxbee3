@@ -53,14 +53,17 @@ struct xbee_con {
 xbee_err xbee_conAlloc(struct xbee_con **nCon);
 xbee_err xbee_conFree(struct xbee_con *con);
 
+xbee_err xbee_conWake(struct xbee_con *con);
+
 xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address);
 
 xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_conAddress *address, struct xbee_con *con);
 xbee_err xbee_conUnlink(struct xbee_con *con);
 
 xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address);
-xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel);
-xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock);
+xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2);
+xbee_err xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel);
+xbee_err _xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock);
 
 xbee_err xbee_conLinkPacket(struct xbee_con *con, struct xbee_pkt *pkt);
 xbee_err xbee_conCallbackProd(struct xbee_con *con);

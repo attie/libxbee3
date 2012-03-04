@@ -119,7 +119,7 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 			break;
 		}
 		
-		if ((ret = _xbee_conMatchAddress(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS) {
+		if ((ret = _xbee_conLocate(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS && ret != XBEE_ESLEEPING) {
 			if (ret == XBEE_ENONE) {
 				ret = XBEE_EEXISTS;
 			}
@@ -181,11 +181,38 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 	return XBEE_ENONE;
 }
 
-xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
+xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2) {
+	/* first try to match the address */
+	if (!addr1->addr16_enabled && !addr2->addr16_enabled &&
+			!addr1->addr64_enabled && !addr2->addr64_enabled) {
+		goto got1;
+	}
+	if (addr1->addr64_enabled && addr2->addr64_enabled) {
+		if (!memcmp(addr1->addr64, addr2->addr64, 8)) goto got1;
+	}
+	if (addr1->addr16_enabled && addr2->addr16_enabled) {
+		if (!memcmp(addr1->addr16, addr2->addr16, 2)) goto got1;
+	}
+	
+	return XBEE_EFAILED; /* --- no address match --- */
+	
+got1:
+	/* next try to match the endpoints */
+	if (!addr1->endpoints_enabled && !addr2->endpoints_enabled) goto got2;
+	if (addr1->endpoints_enabled && addr2->endpoints_enabled) {
+		if (addr1->endpoint_local == addr2->endpoint_local) goto got2;
+	}
+	
+	return XBEE_EFAILED; /* --- endpoints didnt match --- */
+	
+got2:
+	return XBEE_ENONE;   /* --- everything matched --- */
+}
+
+xbee_err _xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	struct xbee_con *con;
 	struct xbee_con *sCon;
 	xbee_err ret;
-	xbee_err sRet;
 	
 	if (!conList || !address) return XBEE_EMISSINGPARAM;
 	
@@ -193,54 +220,34 @@ xbee_err _xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *
 	
 	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
-		/* first try to match the address */
-		if (!con->address.addr16_enabled && !address->addr16_enabled &&
-		    !con->address.addr64_enabled && !address->addr64_enabled) {
-			goto got1;
-		}
-		if (con->address.addr64_enabled && address->addr64_enabled) {
-			if (!memcmp(con->address.addr64, address->addr64, 8)) goto got1;
-		}
-		if (con->address.addr16_enabled && address->addr16_enabled) {
-			if (!memcmp(con->address.addr16, address->addr16, 2)) goto got1;
-		}
+		/* try to match the address */
+		if (xbee_conAddressCmp(&con->address, address) != XBEE_ENONE) continue;
 		
-		continue; /* --- no address match --- */
-		
-got1:
-		/* next try to match the endpoints */
-		if (!con->address.endpoints_enabled && !address->endpoints_enabled) goto got2;
-		if (con->address.endpoints_enabled && address->endpoints_enabled) {
-			if (con->address.endpoint_local == address->endpoint_local) goto got2;
-		}
-		
-		continue; /* --- endpoints didnt match --- */
-		
-got2:
 		/* next see if the connection needs (and can be) woken */
 		if (con->sleepState > alertLevel) continue; /* this connection is outside the 'acceptable wake limit' */
 		if (con->sleepState != CON_AWAKE) {
-			/* this is designed to get the most recently created connection, NOT THE FIRST FOUND */
+			/* this is designed to get the most recently created sleeping connection, NOT THE FIRST FOUND */
 			sCon = con;
-			sRet = ret;
 			continue;
 		}
 		break;
 	}
 	if (needsLLLock) ll_unlock(conList);
 	
+	/* did we find a sleepy connection? */
 	if (!con && sCon) {
 		con = sCon;
-		ret = sRet;
+		ret = XBEE_ESLEEPING;
 	}
-	if (con && retCon) *retCon = con;
 
 	if (!con) return XBEE_ENOTEXISTS;
 	
+	if (retCon) *retCon = con;
+	
 	return ret;
 }
-xbee_err xbee_conMatchAddress(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel) {
-	return _xbee_conMatchAddress(conList, address, retCon, alertLevel, 1);
+xbee_err xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel) {
+	return _xbee_conLocate(conList, address, retCon, alertLevel, 1);
 }
 
 /* ########################################################################## */
@@ -357,6 +364,43 @@ EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 
 /* ########################################################################## */
 
+xbee_err xbee_conWake(struct xbee_con *con) {
+	xbee_err ret;
+	struct ll_head *conList;
+	struct xbee_con *iCon;
+
+	if (!con) return XBEE_EMISSINGPARAM;
+	if (!con->conType) return XBEE_EINVAL;
+	if (con->sleepState == CON_AWAKE) return XBEE_ENONE;
+	
+	ret = XBEE_ENONE;
+	conList = con->conType->conList;
+	
+	for (iCon = NULL; _ll_get_next(con->conType->conList, iCon, (void**)&iCon, 0) == XBEE_ENONE && iCon != NULL; ) {
+		/* discount ourselves */
+		if (iCon == con) continue;
+		
+		/* try to match the addresses */
+		if (xbee_conAddressCmp(&con->address, &iCon->address) != XBEE_ENONE) continue;
+		
+		/* check if it's awake */
+		if (iCon->sleepState != CON_AWAKE) continue;
+		
+		/* if it is, then we can't wake up */
+		ret = XBEE_EFAILED;
+		break;
+	}
+	if (ret == XBEE_ENONE) {
+		/* we can wakeup! */
+		con->sleepState = CON_AWAKE;
+	}
+	
+	ll_unlock(con->conType->conList);
+	return ret;
+}
+
+/* ########################################################################## */
+
 EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...) {
 	xbee_err ret;
 	va_list ap;
@@ -416,7 +460,16 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const u
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
-#warning TODO - check that we wont talk over another awake connection
+	if (con->sleepState != CON_AWAKE) {
+		if (con->sleepState != CON_SNOOZE) {
+			/* can't transmit when we are deeper than snooze */
+			return XBEE_ESLEEPING;
+		}
+		if (xbee_conWake(con) != XBEE_ENONE) {
+			/* can't transmit while another con is awake */
+			return XBEE_ESLEEPING;
+		}
+	}
 
 	if (!buf) {
 		len = 0;
@@ -527,9 +580,16 @@ EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates 
 		if ((ret = con->xbee->mode->support.conSleepSet(con, state)) != XBEE_ENONE) return ret;
 	}
 	
-#warning TODO - check that we wont interrupt another awake connection
-	con->sleepState = state;
-	return XBEE_ENONE;
+	ret = XBEE_ENONE;
+	
+	if (state == CON_AWAKE) {
+		/* we need to check if we can wakeup */
+		ret = xbee_conWake(con); /* <-- this will set us to awake if it is successful */
+	} else {
+		con->sleepState = state;
+	}
+	
+	return ret;
 }
 
 EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates *state) {

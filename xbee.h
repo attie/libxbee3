@@ -39,10 +39,11 @@ struct xbee_con;
 /* ######################################################################### */
 /* tasty structs 'n stuff */
 
+/* these must increment away from 'awake' */
 enum xbee_conSleepStates {
-	CON_AWAKE,
-	CON_SNOOZE,
-	CON_SLEEP,
+	CON_AWAKE  = 0,
+	CON_SNOOZE = 1,
+	CON_SLEEP  = 2,
 };
 
 struct xbee_conAddress {
@@ -131,6 +132,8 @@ enum xbee_errors {
 	XBEE_ETX                   = -25,
 	
 	XBEE_EREMOTE               = -26,
+	
+	XBEE_ESLEEPING             = -27,
 };
 typedef enum xbee_errors xbee_err;
 

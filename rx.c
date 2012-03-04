@@ -177,28 +177,28 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xbee_log(12, "received '%s' type packet...", conType->name);
 		
 		/* match the address to a connection */
-		if ((ret = xbee_conMatchAddress(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE || !con) {
+		if (((ret = xbee_conLocate(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE && ret != XBEE_ESLEEPING) || !con) {
 			xbee_pktFree(pkt);
 			if (ret == XBEE_ENOTEXISTS) {
 				xbee_log(5, "connectionless '%s' packet (%d bytes)...", conType->name, buf->len);
 				xbee_conLogAddress(xbee, 10, &address);
 				goto done;
 			}
-			xbee_log(1, "xbee_conMatchAddress() returned %d...", ret);
+			xbee_log(1, "xbee_conLocate() returned %d...", ret);
 			break;
 		}
 		
 		xbee_log(15, "matched packet with con @ %p", con);
 		xbee_conLogAddress(xbee, 16, &address);
 		
-		con->info.countRx++;
-		con->info.lastRxTime = time(NULL);
-		
 		/* wake the connection if necessary */
 		if (con->sleepState != CON_AWAKE) {
 			con->sleepState = CON_AWAKE;
 			xbee_log(1, "woke connection @ %p", con);
 		}
+		
+		con->info.countRx++;
+		con->info.lastRxTime = time(NULL);
 		
 		/* add the packet to the connection's tail! */
 		if ((ret = xbee_conLinkPacket(con, pkt)) != XBEE_ENONE) {
