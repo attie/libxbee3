@@ -39,6 +39,7 @@ To configure an EOF callback:
 #include <xbee.h>
 
 void eek_eof(struct xbee *xbee, void *rxInfo) {
+	printf("device failed - EOF\\n");
 	xbee_shutdown(xbee);
 }
 

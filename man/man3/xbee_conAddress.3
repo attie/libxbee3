@@ -15,23 +15,62 @@
 .\" 
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
-.TH XBEE_CONADDRESS 3  03-Mar-2012 "GNU" "Linux Programmer's Manual"
+.TH XBEE_CONADDRESS 3  04-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
-xbee_conAddress, xbee_conInfo, xbee_conSleepStates
+xbee_conAddress, xbee_conInfo
 .SH SYNOPSIS
-.SH DESCRIPTION
-.SS Return Value
-On success this function will return XBEE_ENONE, otherwise an error number from
-.IR "enum xbee_errors" " (as specified in " <xbee.h> )
-.SH EXAMPLE
-.in +4n
 .nf
 #include <xbee.h>
 
-/* bla... */
+struct xbee_conAddress {
+	unsigned char addr16_enabled;
+	unsigned char addr16[2];
+	
+	unsigned char addr64_enabled;
+	unsigned char addr64[8];
+	
+	unsigned char endpoints_enabled;
+	unsigned char endpoint_local;
+	unsigned char endpoint_remote;
+};
+
+struct xbee_conInfo {
+	int countRx;
+	int countTx;
+	
+	time_t lastRxTime;
+};
+.fi
+.SH DESCRIPTION
+The
+.B xbee_conAddress
+struct contains details on the network address for a remote node. It is recommended that you initialize it by calling
+.BR memset ()
+before you fill it in and call
+.BR xbee_conNew (3).
+.sp
+The data is ordered with the MSB of the address, in the first byte of the array.
+.sp 0
+E.g: the 64-bit address 0x0013A200 0x40081826 would be initialized like so:
+.in +4n
+.nf
+address.addr64_enabled = 1;
+address.addr64[0] = 0x00;
+address.addr64[1] = 0x13;
+address.addr64[2] = 0xA2;
+address.addr64[3] = 0x00;
+address.addr64[4] = 0x40;
+address.addr64[5] = 0x08;
+address.addr64[6] = 0x18;
+address.addr64[7] = 0x26;
 .fi
 .in
+.sp
+Endpoints are a feature of XBee Series 2 modules that are not present with XBee Series 1 modules.
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"
-.BR libxbee (3)
+.BR libxbee (3),
+.BR xbee_conNew (3),
+.BR xbee_conInfoGet (3),
+.BR xbee_conSleepGet (3)

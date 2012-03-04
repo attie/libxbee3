@@ -15,22 +15,70 @@
 .\" 
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
-.TH XBEE_ERRORTOSTR 3  03-Mar-2012 "GNU" "Linux Programmer's Manual"
+.TH XBEE_ERRORTOSTR 3  04-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
-xbee_errorToStr, xbee_errors
+xbee_errorToStr, xbee_errors, xbee_err
 .SH SYNOPSIS
-.SH DESCRIPTION
-.SS Return Value
-On success this function will return XBEE_ENONE, otherwise an error number from
-.IR "enum xbee_errors" " (as specified in " <xbee.h> )
-.SH EXAMPLE
-.in +4n
+.B #include <xbee.h>
+.sp
+.BI "const char *xbee_errorToStr(xbee_err " error ");"
+.sp
 .nf
-#include <xbee.h>
-
-/* bla... */
+enum xbee_errors {
+	XBEE_ENONE                 =  0,
+	XBEE_EUNKNOWN              = -1,
+	
+	XBEE_ENOMEM                = -2,
+	
+	XBEE_ESELECT               = -3,
+	XBEE_ESELECTINTERRUPTED    = -4,
+	
+	XBEE_EEOF                  = -5,
+	XBEE_EIO                   = -6,
+	
+	XBEE_ESEMAPHORE            = -7,
+	XBEE_EMUTEX                = -8,
+	XBEE_ETHREAD               = -9,
+	XBEE_ELINKEDLIST           = -10,
+	
+	XBEE_ESETUP                = -11,
+	XBEE_EMISSINGPARAM         = -12,
+	XBEE_EINVAL                = -13,
+	XBEE_ERANGE                = -14,
+	XBEE_ELENGTH               = -15,
+	
+	XBEE_EFAILED               = -18,
+	XBEE_ETIMEOUT              = -17,
+	XBEE_EWOULDBLOCK           = -16,
+	XBEE_EINUSE                = -19,
+	XBEE_EEXISTS               = -20,
+	XBEE_ENOTEXISTS            = -21,
+	XBEE_ENOFREEFRAMEID        = -22,
+	
+	XBEE_ESTALE                = -23,
+	XBEE_ENOTIMPLEMENTED       = -24,
+	
+	XBEE_ETX                   = -25,
+	
+	XBEE_EREMOTE               = -26,
+	
+	XBEE_ESLEEPING             = -27,
+};
 .fi
-.in
+.sp
+.B typedef enum xbee_errors xbee_err;
+.SH DESCRIPTION
+.BR xbee_errorToStr ()
+provides simple error number to textual error message resolution.
+The returned string should not be 
+.BR free ()'d
+and is not modifiable.
+.sp
+This function behaves similarly to
+.BR strerror (3)
+but the returned string will not be modified by subsequent calls.
+.SS Return Value
+On success this function will return a pointer to a nul terminated string, otherwise a generic error message will be returned.
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"

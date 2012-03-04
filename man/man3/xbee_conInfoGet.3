@@ -15,10 +15,13 @@
 .\" 
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
-.TH XBEE_CONINFOGET 3  03-Mar-2012 "GNU" "Linux Programmer's Manual"
+.TH XBEE_CONINFOGET 3  04-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
 xbee_conInfoGet
 .SH SYNOPSIS
+.B #include <xbee.h>
+.sp
+.BI "xbee_err xbee_conInfoGet(struct xbee_con *" con ", struct xbee_conInfo *" info ");"
 .SH DESCRIPTION
 .SS Return Value
 On success this function will return XBEE_ENONE, otherwise an error number from

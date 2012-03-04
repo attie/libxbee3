@@ -15,13 +15,22 @@
 .\" 
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
-.TH XBEE_LOGLEVELGET 3  03-Mar-2012 "GNU" "Linux Programmer's Manual"
+.TH XBEE_LOGLEVELGET 3  04-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
 xbee_logLevelGet, xbee_logLevelSet, xbee_logTargetGet, xbee_logTargetSet
 .SH SYNOPSIS
+.B #include <xbee.h>
+.sp
+.BI "xbee_err xbee_logLevelGet(struct xbee *" xbee ", int *" level ");"
+.sp
+.BI "xbee_err xbee_logLevelSet(struct xbee *" xbee ", int " level ");"
+.sp
+.BI "xbee_err xbee_logTargetGet(struct xbee *" xbee ", FILE **" f ");"
+.sp
+.BI "xbee_err xbee_logTargetSet(struct xbee *" xbee ", FILE *" f ");"
 .SH DESCRIPTION
 .SS Return Value
-On success this function will return XBEE_ENONE, otherwise an error number from
+On success these functions will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> )
 .SH EXAMPLE
 .in +4n
