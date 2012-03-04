@@ -366,7 +366,6 @@ EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 
 xbee_err xbee_conWake(struct xbee_con *con) {
 	xbee_err ret;
-	struct ll_head *conList;
 	struct xbee_con *iCon;
 
 	if (!con) return XBEE_EMISSINGPARAM;
@@ -374,7 +373,6 @@ xbee_err xbee_conWake(struct xbee_con *con) {
 	if (con->sleepState == CON_AWAKE) return XBEE_ENONE;
 	
 	ret = XBEE_ENONE;
-	conList = con->conType->conList;
 	
 	for (iCon = NULL; _ll_get_next(con->conType->conList, iCon, (void**)&iCon, 0) == XBEE_ENONE && iCon != NULL; ) {
 		/* discount ourselves */
