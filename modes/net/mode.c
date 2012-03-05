@@ -311,7 +311,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	
 	data = xbee->modeData;
 	
-	ll_free(data->conList, xbee_conEnd);
+	ll_free(data->conList, (void(*)(void*))xbee_conEnd);
 	
 	xbee->modeData = NULL; /* pull the rug */
 	

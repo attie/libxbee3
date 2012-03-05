@@ -114,7 +114,7 @@ xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
 	xbee_frameBlockFree(info->fBlock);
 	xbee_txFree(info->iface.tx);
 	xbee_rxFree(info->iface.rx);
-	ll_free(info->conList, xbee_conEnd);
+	ll_free(info->conList, (void(*)(void*))xbee_conEnd);
 	
 	free(info);
 	return XBEE_ENONE;

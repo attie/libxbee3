@@ -66,7 +66,7 @@ void *threadFunc(struct xbee_threadInfo *info) {
 		info->running = 1;
 		ret = info->func(info->xbee, &restart, info->arg);
 		info->running = 0;
-		if (restart = -1) break;
+		if (restart == -1) break;
 
 		if (ret != XBEE_ENONE) {
 			xbee_log(1, "thread %p, function %s() returned %d...", info->thread, info->funcName, ret);
