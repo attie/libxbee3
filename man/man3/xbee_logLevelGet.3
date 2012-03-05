@@ -29,6 +29,21 @@ xbee_logLevelGet, xbee_logLevelSet, xbee_logTargetGet, xbee_logTargetSet
 .sp
 .BI "xbee_err xbee_logTargetSet(struct xbee *" xbee ", FILE *" f ");"
 .SH DESCRIPTION
+These functions allow you to configure and retrieve the logging options for an instance of libxbee.
+.sp
+The
+.I level
+may be any number, and indicates the verbosity of log messages.
+A higher number will generate a more verbose output. See
+.BR xbee_log (3)
+for more details on how this affects log output.
+.sp
+You may redirect the log output using
+.BR xbee_logTargetSet ().
+.I f
+must be an open file descriptor that will allow writing.
+.sp
+By default, libxbee will log to stderr.
 .SS Return Value
 On success these functions will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> )
@@ -37,10 +52,21 @@ On success these functions will return XBEE_ENONE, otherwise an error number fro
 .nf
 #include <xbee.h>
 
-/* bla... */
+struct xbee *xbee;
+FILE *log;
+
+/* initialize xbee, using xbee_setup() */
+
+if ((log = fopen("libxbee.log", "w")) == NULL) return;
+
+if (xbee_logTargetSet(xbee, log) != XBEE_ENONE) return;
+
+if (xbee_logLevelSet(xbee, 100) != XBEE_ENONE) return;
 .fi
 .in
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"
-.BR libxbee (3)
+.BR libxbee (3),
+.BR xbee_setup (3),
+.BR xbee_log (3)

@@ -22,7 +22,34 @@ xbee_conSettings
 .B #include <xbee.h>
 .sp
 .BI "xbee_err xbee_conSettings(struct xbee_con *" con ", struct xbee_conSettings *" newSettings ", struct xbee_conSettings *" oldSettings ");"
+.sp
+.nf
+struct xbee_conSettings {
+	unsigned char disableAck       : 1;
+	unsigned char broadcastPAN     : 1;
+	unsigned char queueChanges     : 1;
+	unsigned char multicast        : 1;
+	unsigned char noBlock          : 1;
+	unsigned char broadcastRadius;
+};
+.fi
 .SH DESCRIPTION
+.BR xbee_conSettings ()
+allows you to configure the connection's parameters.
+.sp
+One of
+.IR newSettings " and " oldSettings
+can optionally be
+.BR NULL ,
+one must be non-NULL.
+.sp
+If they are non-NULL, then the struct pointed to by
+.I oldSettings
+will be filled with the effective settings before the call to
+.BR xbee_conSettings (),
+and then
+.I newSettings
+will be used to update the connection's settings.
 .SS Return Value
 On success this function will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> )
@@ -31,10 +58,22 @@ On success this function will return XBEE_ENONE, otherwise an error number from
 .nf
 #include <xbee.h>
 
-/* bla... */
+struct xbee *xbee;
+struct xbee_con *con;
+struct xbee_conSettings settings;
+
+/* initialize xbee, using xbee_setup() */
+
+/* initialize con, using xbee_conNew() */
+
+if (xbee_conSettings(con, NULL, &settings) != XBEE_ENONE) return;
+settings.disableAck = 1;
+if (xbee_conSettings(con, &settings, NULL) != XBEE_ENONE) return;
 .fi
 .in
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"
-.BR libxbee (3)
+.BR libxbee (3),
+.BR xbee_setup (3),
+.BR xbee_conNew (3)

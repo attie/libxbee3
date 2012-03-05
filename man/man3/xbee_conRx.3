@@ -23,6 +23,24 @@ xbee_conRx
 .sp
 .BI "xbee_err xbee_conRx(struct xbee_con *" con ", struct xbee_pkt **" retPkt ", int *" remainingPackets ");"
 .SH DESCRIPTION
+.BR xbee_conRx ()
+allows you to retrieve packets from an active connection.
+.I retPkt
+must be non-NULL.
+.I remainingPackets
+may optionally be non-NULL, in which case it will be set to the number of packets remaining in the connection's buffer.
+.sp
+You must not forget to call
+.BR xbee_pktFree (3)
+on the returned packet.
+.sp
+If a connection has callbacks enabled, 
+.BR xbee_conRx ()
+will return
+.BR XBEE_EINVAL ,
+.IR pkt " and " remainingPackets
+will not have been updated - see 
+.BR xbee_conCallbackSet (3).
 .SS Return Value
 On success this function will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> )
@@ -31,10 +49,28 @@ On success this function will return XBEE_ENONE, otherwise an error number from
 .nf
 #include <xbee.h>
 
-/* bla... */
+struct xbee *xbee;
+struct xbee_con *con;
+struct xbee_pkt *pkt;
+
+/* initialize xbee, using xbee_setup() */
+
+/* initialize con, using xbee_conNew() */
+
+/* receive some data for con */
+
+if (xbee_conRx(con, &pkt, NULL) != XBEE_ENONE) return;
+
+/* use pkt */
+
+if (xbee_pktFree(pkt) != XBEE_ENONE) return;
 .fi
 .in
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"
 .BR libxbee (3)
+.BR xbee_setup (3),
+.BR xbee_conNew (3),
+.BR xbee_pktFree (3),
+.BR xbee_conCallbackSet (3)

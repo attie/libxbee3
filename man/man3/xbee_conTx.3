@@ -27,6 +27,31 @@ xbee_conTx, xbee_convTx, xbee_connTx
 .sp
 .BI "xbee_err xbee_connTx(struct xbee_con *" con ", unsigned char *" retVal ", const unsigned char *" buf ", int " len ");"
 .SH DESCRIPTION
+This collection of functions allow you to transmit data via an existing connection.
+.sp
+When calling
+.BR xbee_conTx (),
+you may use a
+.BR printf (3)
+style format string and parameters. Similarly,
+.BR xbee_convTx ()
+makes use of 
+.BR vprintf (3).
+When using these two functions, the length of the message is determined from the return value of
+.BR vprintf (3).
+This means that by using
+.RB ' %c '
+conversion specifiers within the format string, you may achieve zero value - 0x00 - bytes before the end of your message. Do not use
+.RB ' \\\\\0 '
+as this will terminate the format string early
+.sp
+.BR xbee_connTx ()
+accepts a buffer and a length instead, allowing you to build the message yourself.
+.sp
+If the connection type supports ACKs, and they are not disabled for the connection, and if
+.I retVal
+is non-NULL, it will be updated with the return value. E.g: 0x04 - No response for a Remote AT connection.
+You should consult the manual for the remote device for information on the values that this may return.
 .SS Return Value
 On success these functions will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> )
@@ -35,10 +60,19 @@ On success these functions will return XBEE_ENONE, otherwise an error number fro
 .nf
 #include <xbee.h>
 
-/* bla... */
+struct xbee *xbee;
+struct xbee_con *con;
+
+/* initialize xbee, using xbee_setup() */
+
+/* initialize con, using xbee_conNew() */
+
+if (xbee_conTx(con, "Hello World! it is %d!", 2012) != XBEE_ENONE) return;
 .fi
 .in
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"
-.BR libxbee (3)
+.BR libxbee (3),
+.BR xbee_setup (3),
+.BR xbee_conNew (3)
