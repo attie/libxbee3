@@ -567,6 +567,16 @@ die:
 
 /* ########################################################################## */
 
+EXPORT xbee_err xbee_conPurge(struct xbee_con *con) {
+	struct xbee_pkt *pkt;
+	while (xbee_conRx(con, &pkt, NULL) == XBEE_ENONE && pkt) {
+		xbee_pktFree(pkt);
+	}
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
 EXPORT xbee_err xbee_conSleepSet(struct xbee_con *con, enum xbee_conSleepStates state) {
 	xbee_err ret;
 	if (!con) return XBEE_EMISSINGPARAM;
