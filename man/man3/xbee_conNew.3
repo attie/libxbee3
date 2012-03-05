@@ -52,6 +52,51 @@ will terminate a connection, and free any memory that is associated with it, inc
 If a callback is active when
 .BR xbee_conEnd ()
 is called, it will be permitted to complete, and then the connection will be terminated.
+.SS Avaliable Types
+.B xbee1
+.in +4n
+"Modem Status"
+.sp 0
+"Transmit Status"
+.sp 0
+"Local AT"
+.sp 0
+"Remote AT"
+.sp 0
+"16-bit Data"
+.sp 0
+"64-bit Data"
+.sp 0
+"16-bit I/O"
+.sp 0
+"64-bit I/O"
+.fi
+.in
+.sp
+.B xbee2
+.in +4n
+"Modem Status"
+.sp 0
+"Transmit Status"
+.sp 0
+"Local AT"
+.sp 0
+"Remote AT"
+.sp 0
+"Data"
+.sp 0
+"Data (explicit)"
+.sp 0
+"I/O"
+.sp 0
+"Identify"
+.fi
+.in
+.B net
+.in +4n
+the connection types for
+.B net
+mode are determined by the mode running on the server.
 .SS Return Value
 On success these functions will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> ).
