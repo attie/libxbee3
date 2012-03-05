@@ -24,17 +24,17 @@ OBJS:=$(addprefix $(BUILDDIR)/,$(addsuffix .o,$(SRCS)))
 all: $(DESTDIR)/$(LIBOUT).so $(DESTDIR)/$(LIBOUT).a
 
 install: all
-	@sudo make install_sudo
+	@sudo $(MAKE) install_sudo
 
 install_dbg: all
-	@sudo make install_dbg_sudo
+	@sudo $(MAKE) install_dbg_sudo
 
 install_sudo: all $(INSTALL_FILES)
 
 install_dbg_sudo: install_sudo $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV).dbg
 
 uninstall:
-	@sudo make uninstall_sudo
+	@sudo $(MAKE) uninstall_sudo
 
 uninstall_sudo:
 	rm -rf $(INSTALL_FILES)
