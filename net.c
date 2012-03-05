@@ -110,6 +110,7 @@ done:
 xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
 	if (!info) return XBEE_EINVAL;
 	
+	if (info->iface.conTypes) xbee_modeCleanup(info->iface.conTypes);
 	xbee_frameBlockFree(info->fBlock);
 	xbee_txFree(info->iface.tx);
 	xbee_rxFree(info->iface.rx);

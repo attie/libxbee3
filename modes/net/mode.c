@@ -32,6 +32,7 @@
 #include "../../conn.h"
 #include "../../frame.h"
 #include "../../pkt.h"
+#include "../../ll.h"
 #include "mode.h"
 #include "net.h"
 #include "handlers.h"
@@ -66,6 +67,8 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	/* setup the network interface */
 	if ((ret = xbee_netSetup(&data->netInfo)) != XBEE_ENONE) goto die;
 	
+	data->conList = ll_alloc();
+	
 	return XBEE_ENONE;
 die:
 	mode_shutdown(xbee);
@@ -85,6 +88,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	struct xbee_con *bc_start;
 	
 	data = xbee->modeData;
+	pkt = NULL;
 	
 	/* create the 'start' backchannel connection - this is ALWAYS ON ENDPOINT 0x00 */
 	memset(&address, 0, sizeof(address));
@@ -106,11 +110,11 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 			default:
 				xbee_log(0, "Failed to initialize connection to server for an unknown reason...");
 		}
-		return ret;
+		goto done;
 	}
 	
 	/* grab the returned data (an in-order list of the back channel endpoints, starting at 0x01) */
-	if ((ret = xbee_conRx(bc_start, &pkt, NULL)) != XBEE_ENONE) return ret;
+	if ((ret = xbee_conRx(bc_start, &pkt, NULL)) != XBEE_ENONE) goto done;
 	
 	callbackCount = pkt->data[0];
 	
@@ -158,23 +162,27 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 		/* setup the connection */
 		address.endpoint_local = i;
 		address.endpoint_remote = i;
-		if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, retCon, "backchannel", &address)) != XBEE_ENONE) return ret;
+		if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, retCon, "backchannel", &address)) != XBEE_ENONE) goto done;
+		
+		/* add it to the conList */
+		ll_add_tail(data->conList, *retCon);
 	}
 	
-	xbee_pktFree(pkt);
-	
-	xbee_conEnd(bc_start);
-	
 	/* check that we aren't missing any connections */
-	if (data->bc_conValidate == NULL)  return XBEE_EUNKNOWN;
-	if (data->bc_conSleep == NULL)     return XBEE_EUNKNOWN;
-	if (data->bc_conSettings == NULL)  return XBEE_EUNKNOWN;
-	if (data->bc_conNew == NULL)       return XBEE_EUNKNOWN;
-	if (data->bc_conEnd == NULL)       return XBEE_EUNKNOWN;
-	if (data->bc_conGetTypes == NULL)  return XBEE_EUNKNOWN;
-	if (data->bc_echo == NULL)         return XBEE_EUNKNOWN;
+	if (data->bc_conValidate == NULL)  { ret = XBEE_EUNKNOWN; goto done; }
+	if (data->bc_conSleep == NULL)     { ret = XBEE_EUNKNOWN; goto done; }
+	if (data->bc_conSettings == NULL)  { ret = XBEE_EUNKNOWN; goto done; }
+	if (data->bc_conNew == NULL)       { ret = XBEE_EUNKNOWN; goto done; }
+	if (data->bc_conEnd == NULL)       { ret = XBEE_EUNKNOWN; goto done; }
+	if (data->bc_conGetTypes == NULL)  { ret = XBEE_EUNKNOWN; goto done; }
+	if (data->bc_echo == NULL)         { ret = XBEE_EUNKNOWN; goto done; }
+
+	ret = XBEE_ENONE;
 	
-	return XBEE_ENONE;
+done:
+	if (pkt) xbee_pktFree(pkt);
+	xbee_conEnd(bc_start);
+	return ret;
 }
 
 static xbee_err prepare_conTypes(struct xbee *xbee) {
@@ -302,6 +310,9 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	if (!xbee->mode || !xbee->modeData) return XBEE_EINVAL;
 	
 	data = xbee->modeData;
+	
+	ll_free(data->conList, xbee_conEnd);
+	
 	xbee->modeData = NULL; /* pull the rug */
 	
 	if (data->netInfo.f) xsys_fclose(data->netInfo.f);
@@ -310,7 +321,10 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 		xsys_close(data->netInfo.fd);
 	}
 	if (data->netInfo.host) free(data->netInfo.host);
-	if (data->netInfo.txBuf) free(data->netInfo.txBuf);
+	if (data->netInfo.txBuf) {
+		ll_ext_item(needsFree, data->netInfo.txBuf);
+		free(data->netInfo.txBuf);
+	}
 	
 	free(data);
 

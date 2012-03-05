@@ -89,6 +89,7 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		break;
 	}
 	
+	/* needs free is handled for us by xbee_rxHandler(), we just need to register it */
 	*buf = iBuf;
 	
 	return XBEE_ENONE;
@@ -164,7 +165,19 @@ xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	
 	iBuf = *txBuf;
 	if (!iBuf || *txBufSize < memSize) {
-		if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
+		void *p;
+		
+		/* make sure we save this buffer... */
+		ll_lock(needsFree);
+		if ((p = realloc(iBuf, memSize)) == NULL) {
+			ll_unlock(needsFree);
+			return XBEE_ENOMEM;
+		}
+		if (iBuf) _ll_ext_item(needsFree, iBuf, 0);
+		_ll_add_tail(needsFree, p, 0);
+		ll_unlock(needsFree);
+		iBuf = p;
+		
 		*txBuf = iBuf;
 		*txBufSize = memSize;
 	}

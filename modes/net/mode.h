@@ -33,6 +33,8 @@ struct xbee_modeNetInfo {
 
 struct xbee_modeData {
 	struct xbee_modeNetInfo netInfo;
+	
+	struct ll_head *conList;
 
 	struct xbee_con *bc_conValidate;
 	struct xbee_con *bc_conSleep;

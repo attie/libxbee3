@@ -53,6 +53,10 @@ EXPORT INIT void xbee_init(void) {
 
 EXPORT FINI void xbee_fini(void) {
 #ifndef XBEE_NO_FINI
+	/* clean up threads, so that they can't depend on anything we are about to free! */
+	if (threadList) {
+		ll_free(threadList, (void(*)(void*))xbee_threadDestroy);
+	}
 	if (xbeeList) {
 		ll_free(xbeeList, (void(*)(void*))xbee_shutdown);
 	}
@@ -64,9 +68,6 @@ EXPORT FINI void xbee_fini(void) {
 	}
 	if (netDeadClientList) {
 		ll_free(netDeadClientList, (void(*)(void*))xbee_netClientShutdown);
-	}
-	if (threadList) {
-		ll_free(threadList, (void(*)(void*))xbee_threadDestroy);
 	}
 	if (needsFree) {
 		ll_free(needsFree, (void(*)(void*))free);
