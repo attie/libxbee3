@@ -99,7 +99,7 @@ tidy:
 
 
 release: all
-	tar -cjvf $(LIBOUT)_v$(LIBFULLREV)_`date +%Y-%m-%d`_`git rev-parse --verify --short HEAD`_`uname -m`.tar.bz2 --transform='s#^#libxbee/#' $(RELEASE_ITEMS)
+	tar -acvf $(LIBOUT)_v$(LIBFULLREV)_`date +%Y-%m-%d`_`git rev-parse --verify --short HEAD`_`uname -m`.tar.bz2 --transform='s#^#libxbee/#SH' $(RELEASE_ITEMS)
 
 
 .%.dir:
