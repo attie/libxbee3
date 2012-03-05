@@ -93,9 +93,9 @@ die1:
 xbee_err xbee_free(struct xbee *xbee) {
 	ll_ext_item(xbeeList, xbee);
 	
-	if (xbee->netInfo) xbee_netStop(xbee);
-	
 	xbee_threadDestroyMine(xbee);
+	
+	if (xbee->netInfo) xbee_netStop(xbee);
 	
 	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
 	
@@ -178,7 +178,7 @@ EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
 
 	/* pluck out the instance - from now on it is invalid */
 	ll_ext_item(xbeeList, xbee);
-	/* start a detached thread (indicated by -2) */
+	/* start a detached thread */
 	xbee_threadStart(xbee, NULL, -1, 1, xbee_shutdownThread, (void*)(xsys_thread_self()));
 	
 	return XBEE_ENONE;

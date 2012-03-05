@@ -79,6 +79,7 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 		if (ret != XBEE_ENONE) return ret;
 		if (active) {
 			con->destroySelf = 1;
+			xsys_sem_post(&con->callbackSem);
 			return XBEE_ENONE;
 		}
 	}

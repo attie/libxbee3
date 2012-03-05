@@ -125,7 +125,7 @@ xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
 	
 	for (i = 0; conTypes[i].name; i++) {
 		ll_free(conTypes[i].conList, (void(*)(void*))xbee_conFree);
-		/* i know, casting to void* to avoid the const keywork is naughty... */
+		/* i know, casting to void* to avoid the const keyword is naughty... */
 		if (conTypes[i].nameNeedsFree) free((void*)conTypes[i].name);
 		if (conTypes[i].rxHandler && conTypes[i].rxHandler->needsFree) free((void*)conTypes[i].rxHandler);
 		if (conTypes[i].txHandler && conTypes[i].txHandler->needsFree) free((void*)conTypes[i].txHandler);

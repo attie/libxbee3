@@ -302,8 +302,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	if (!xbee->mode || !xbee->modeData) return XBEE_EINVAL;
 	
 	data = xbee->modeData;
-	
-#warning TODO - walk the conTypes, and free the modeDataHandlers
+	xbee->modeData = NULL; /* pull the rug */
 	
 	if (data->netInfo.f) xsys_fclose(data->netInfo.f);
 	if (data->netInfo.fd != -1) {	
@@ -313,8 +312,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	if (data->netInfo.host) free(data->netInfo.host);
 	if (data->netInfo.txBuf) free(data->netInfo.txBuf);
 	
-	free(xbee->modeData);
-	xbee->modeData = NULL;
+	free(data);
 
 	return XBEE_ENONE;
 }
