@@ -14,10 +14,16 @@ SRCS:=          ll ver prepare xbee pkt conn error frame mode thread log tx rx \
 
 MODELIST:=      xbee1 xbee2 net
 
-SYS_HEADERS:=   xbee.h
+SYS_HEADERS=    xbee.h
 SYS_MANPAGES=   $(shell find $(MANDIR) -type f)
 SYS_MANLINKS=   $(shell find $(MANDIR) -type l)
-RELEASE_FILES:= HISTORY LICENSE README
+
+RELEASE_FILES=  HISTORY LICENSE README
+INSTALL_FILES=  $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)) \
+                $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))) \
+                $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANLINKS))) \
+                $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV) \
+                $(SYS_LIBDIR)/$(LIBOUT).a.$(LIBFULLREV)
 
 VER_DEFINES=    -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
                 -DLIB_COMMIT="\"$(shell git log -1 --format="%H")\""           \

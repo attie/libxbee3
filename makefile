@@ -15,7 +15,7 @@ PDEPS:=makefile config.mk libconfig.mk buildconfig.mk
 ###############################################################################
 
 .PHONY: all help clean distclean new release .%.dir
-.PHONY: install install_dbg install_sudo install_dbg_sudo
+.PHONY: install install_dbg install_sudo install_dbg_sudo uninstall uninstall_sudo
 .PHONY: ALWAYS
 
 OBJS:=$(addprefix $(BUILDDIR)/,$(addsuffix .o,$(SRCS)))
@@ -29,14 +29,15 @@ install: all
 install_dbg: all
 	@sudo make install_dbg_sudo
 
-install_sudo: all \
-              $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)) \
-              $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))) \
-              $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANLINKS))) \
-              $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV) \
-              $(SYS_LIBDIR)/$(LIBOUT).a.$(LIBFULLREV) \
+install_sudo: all $(INSTALL_FILES)
 
 install_dbg_sudo: install_sudo $(SYS_LIBDIR)/$(LIBOUT).so.$(LIBFULLREV).dbg
+
+uninstall:
+	@sudo make uninstall_sudo
+
+uninstall_sudo:
+	rm -rf $(INSTALL_FILES)
 
 help:
 	@echo "usage:"
@@ -47,6 +48,7 @@ help:
 	@echo "  make release      - to make a *.tar.bz2 file containing all files required to make use of $(LIBOUT)"
 	@echo "  make install      - to install $(LIBOUT) on this system"
 	@echo "  make install_dbg  - to install $(LIBOUT) along with debug information on this system"
+	@echo "  make uninstall    - to uninstall $(LIBOUT) from this system - this version of libxbee should match the version that you installed"
 	@echo "  make help         - to display this help information"
 	@echo ""
 	@echo "environment:"
