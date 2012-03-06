@@ -54,6 +54,8 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	memset(data, 0, sizeof(*data));
 	xbee->modeData = data;
 	
+	data->conList = ll_alloc();
+	
 	ret = XBEE_ENONE;
 	
 	/* get the hostname */
@@ -66,8 +68,6 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	/* setup the network interface */
 	if ((ret = xbee_netSetup(&data->netInfo)) != XBEE_ENONE) goto die;
-	
-	data->conList = ll_alloc();
 	
 	return XBEE_ENONE;
 die:

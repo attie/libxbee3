@@ -164,8 +164,8 @@ EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...) {
 }
 
 xbee_err xbee_shutdownThread(struct xbee *xbee, int *restart, void *arg) {
-	/* release / detach the thread that called shutdown(), dont care on failure */
-	xbee_threadRelease(xbee, (xsys_thread)arg);
+	/* detach the thread that called shutdown(), dont care on failure (it may well be the initial thread) */
+	xsys_thread_detach((xsys_thread)arg);
 	xbee_free(xbee);
 	*restart = -1;
 	return XBEE_ENONE;

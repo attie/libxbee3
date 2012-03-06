@@ -56,21 +56,27 @@ EXPORT FINI void xbee_fini(void) {
 	/* clean up threads, so that they can't depend on anything we are about to free! */
 	if (threadList) {
 		ll_free(threadList, (void(*)(void*))xbee_threadDestroy);
+		threadList = NULL;
 	}
 	if (xbeeList) {
 		ll_free(xbeeList, (void(*)(void*))xbee_shutdown);
+		xbeeList = NULL;
 	}
 	if (conList) {
 		ll_free(conList, (void(*)(void*))xbee_conEnd);
+		conList = NULL;
 	}
 	if (pktList) {
 		ll_free(pktList, (void(*)(void*))xbee_pktFree);
+		pktList = NULL;
 	}
 	if (netDeadClientList) {
 		ll_free(netDeadClientList, (void(*)(void*))xbee_netClientShutdown);
+		netDeadClientList = NULL;
 	}
 	if (needsFree) {
 		ll_free(needsFree, (void(*)(void*))free);
+		needsFree = NULL;
 	}
 #endif /* XBEE_NO_FINI */
 }
