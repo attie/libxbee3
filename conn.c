@@ -455,6 +455,7 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const u
 	unsigned char *pret;
 	
 	if (!con) return XBEE_EMISSINGPARAM;
+	if (len < 0) return XBEE_EINVAL;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
