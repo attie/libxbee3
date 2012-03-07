@@ -174,14 +174,17 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 			}
 			continue;
 		}
-		if (nextIsEscaped) {
-			dest[pos] ^= 0x20;
-			nextIsEscaped = 0;
-		}
 		
+#ifndef XBEE_API1
 		/* process the escape characters out */
 		if (escaped) {
 			int i, p, d;
+			
+			if (nextIsEscaped) {
+				dest[pos] ^= 0x20;
+				nextIsEscaped = 0;
+			}
+			
 			p = pos + (ret - 1);
 			
 			if (pos > 0) {
@@ -208,6 +211,7 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 			
 			ret -= d;
 		}
+#endif /* XBEE_API1 */
 		
 		pos += ret;
 	} while (pos < len);
@@ -386,5 +390,9 @@ xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	}
 	iBuf->data[3 + pos] = 0xFF - chksum;
 	
+#ifndef XBEE_API1
 	return xbee_ioWrite(data->f, iBuf->len, iBuf->data, 1);
+#else
+	return xbee_ioWrite(data->f, iBuf->len, iBuf->data, -1);
+#endif
 }

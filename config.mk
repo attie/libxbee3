@@ -31,5 +31,8 @@ SYS_USER:=      root
 ### un-comment to turn off hardware flow control
 #OPTIONS+=       XBEE_NO_RTSCTS
 
+### un-comment to use API mode 1
+#OPTIONS+=       XBEE_API1
+
 ### useful for debugging the core of libxbee
 #OPTIONS+=       XBEE_NO_FINI
