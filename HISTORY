@@ -7,6 +7,7 @@ v3.0.5 - in progress
 	* Added man page documentation
 	* Added xbee_conPurge()
 	* Added pseudo terminal application
+	* Changed to API mode 1 by default (compile time option)
 
 v3.0.4 - 29 Feb 2012
 	* Implemented rx/tx counters

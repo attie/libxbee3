@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -32,6 +33,12 @@
 #include "../ll.h"
 #include "../log.h"
 #include "common.h"
+
+#if defined(XBEE_API2) && defined(XBEE_API2_DEBUG)
+#define ESCAPER_PRINTF(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define ESCAPER_PRINTF(...)
+#endif /* defined(XBEE_API2) && defined(XBEE_API2_DEBUG) */
 
 xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
   struct termios tc;
@@ -159,6 +166,9 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 	
 	pos = 0;
 	nextIsEscaped = 0;
+	
+	ESCAPER_PRINTF("===== xbee_ioRead(%d) =====\n", escaped);
+	
 	do {
 		if ((ret = xsys_select(f, NULL)) == -1) {
 			perror("xbee_select()");
@@ -175,43 +185,65 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 			continue;
 		}
 		
-#ifndef XBEE_API1
+#ifdef XBEE_API2
+		/* ########################### */
+		
 		/* process the escape characters out */
 		if (escaped) {
-			int i, p, d;
+			int i,l,d;
 			
-			if (nextIsEscaped) {
-				dest[pos] ^= 0x20;
-				nextIsEscaped = 0;
-			}
-			
-			p = pos + (ret - 1);
-			
-			if (pos > 0) {
-				i = pos - 1;
-			} else {
-				i = 0;
-			}
-			
-			/* yes this bit is complex... */
+			l = pos + ret;
 			d = 0;
-			for (; i < p; i++) {
+			
+			ESCAPER_PRINTF("-= escaper =-\n");
+			
+			for (i = pos; i < l - d; i++) {
 				if (d > 0) {
 					dest[i] = dest[i + d];
 				}
-				if (dest[i] == 0x7D) {
-					dest[i] = dest[i + d + 1] ^ 0x20;
-					d++;
+				ESCAPER_PRINTF(" %2d / %2d: 0x%02X", i + 1, len, dest[i]);
+				if (nextIsEscaped || dest[i] == 0x7D) {
+					if (!nextIsEscaped && i == l - 1) {
+						nextIsEscaped = 1;
+						ESCAPER_PRINTF(" ---NE---> 0x%02X", dest[i], dest[i] ^ 0x20);
+						d++;
+					} else {
+						if (!nextIsEscaped) {
+							d++;
+							dest[i] = dest[i + d];
+						}
+						nextIsEscaped = 0;
+						ESCAPER_PRINTF(" -{0x%02X}-> 0x%02X", dest[i], dest[i] ^ 0x20);
+						dest[i] ^= 0x20;
+					}
+					if (dest[i] != 0x7E &&
+					    dest[i] != 0x7D &&
+					    dest[i] != 0x11 &&
+					    dest[i] != 0x13) {
+						ESCAPER_PRINTF(" nonsense");
+#ifdef XBEE_API2_SAFE_ESCAPE
+						dest[i] ^= 0x20;
+#endif
+					}
+				} else {
+					if (dest[i] == 0x11 ||
+					    dest[i] == 0x13) {
+						ESCAPER_PRINTF(" --x-x-x-> 0x%02X", dest[i]);
+						i--;
+						d++;
+					} else {
+						ESCAPER_PRINTF(" --------> 0x%02X", dest[i]);
+					}
 				}
+				if (isprint(dest[i])) ESCAPER_PRINTF(" '%c'", dest[i]);
+				ESCAPER_PRINTF("\n");
 			}
-			if (dest[i] == 0x7D) {
-				nextIsEscaped = 1;
-				d++;
-			}
+			
+			ESCAPER_PRINTF("-= escaper =- - -= lost %d bytes =-\n", d);
 			
 			ret -= d;
 		}
-#endif /* XBEE_API1 */
+#endif /* XBEE_API2 */
 		
 		pos += ret;
 	} while (pos < len);
@@ -242,7 +274,9 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		/* get the start delimiter (0x7E) */
 		do {
 			if ((ret = xbee_ioRead(data->f, 1, &c, 0)) != XBEE_ENONE) return ret;
+			if (c != 0x7E) ESCAPER_PRINTF("======= pre-start data: 0x%02X =======\n", c);
 		} while (c != 0x7E);
+		ESCAPER_PRINTF("======= packet start =======\n");
 		
 		/* get the length (2 bytes) */
 		if ((ret = xbee_ioRead(data->f, 2, iBuf->data, 1)) != XBEE_ENONE) return ret;
@@ -268,7 +302,10 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 			for (t = 0; t < iBuf->len; t++) {
 				xbee_log(10, "  %3d: 0x%02X  %c", t, iBuf->data[t], ((iBuf->data[t] >= ' ' && iBuf->data[t] <= '~') ? iBuf->data[t] : '.'));
 			}
+#if !defined(XBEE_API2) || !defined(XBEE_API2_IGNORE_CHKSUM)
+#warning "YES"
 			continue;
+#endif
 		}
 		break;
 	}
@@ -297,7 +334,9 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEscaped) {
 	int pos;
 	int ret;
+#ifdef XBEE_API2
 	int esc;
+#endif
 	int wlen;
 	
 	if (!f || !src) return XBEE_EMISSINGPARAM;
@@ -306,6 +345,7 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 	for (pos = 0; pos < len; pos += ret) {
 		ret = 0;
 	
+#ifdef XBEE_API2
 		if (firstEscaped == -1) {
 			wlen = len - pos;
 		} else {
@@ -341,6 +381,9 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 			wlen = esc - pos;
 		}
 		if (!wlen) continue;
+#else
+		wlen = len - pos;
+#endif /* XBEE_API2 */
 	
 		if ((ret = xsys_fwrite(&(src[pos]), 1, wlen, f)) > 0) continue;
 		
@@ -390,9 +433,5 @@ xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	}
 	iBuf->data[3 + pos] = 0xFF - chksum;
 	
-#ifndef XBEE_API1
 	return xbee_ioWrite(data->f, iBuf->len, iBuf->data, 1);
-#else
-	return xbee_ioWrite(data->f, iBuf->len, iBuf->data, -1);
-#endif
 }
