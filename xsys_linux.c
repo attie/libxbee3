@@ -3,7 +3,7 @@
 #endif /* __XBEE_XSYS_LOAD_C */
 /*
   libxbee - a C library to aid the use of Digi's XBee wireless modules
-            running in API mode (AP=2).
+	          running in API mode.
 
   Copyright (C) 2009  Attie Grande (attie@attie.co.uk)
 
