@@ -227,7 +227,7 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	
 	/* find a conIdentifier */
 	conIdentifier = 0;
-	for (tCon = NULL; ll_get_next(conType->conList, tCon, (void **)&tCon) == XBEE_ENONE && tCon; ) {
+	for (tCon = NULL; ll_get_next(client->conList, tCon, (void **)&tCon) == XBEE_ENONE && tCon; ) {
 		if (tCon->conIdentifier == conIdentifier) {
 			conIdentifier++;
 			tCon = NULL;
