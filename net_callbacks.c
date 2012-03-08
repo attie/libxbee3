@@ -66,9 +66,9 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	size_t memSize;
 	
 	/* this will need updating if struct xbee_pkt changes */
-	/* 6 = dataLen[2] + status + settings + rssi + frameId + atCommand[2] */
+	/* 9 = dataLen[2] + status + settings + rssi + frameId + address flags + atCommand[2] */
 	/* dataLen can be inferred */
-	memSize = 8 + (*pkt)->dataLen + 1;
+	memSize = 9 + (*pkt)->dataLen + 1;
 	if ((*pkt)->address.addr16_enabled)    memSize += 2;
 	if ((*pkt)->address.addr64_enabled)    memSize += 8;
 	if ((*pkt)->address.endpoints_enabled) memSize += 2;
