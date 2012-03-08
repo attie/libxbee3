@@ -206,6 +206,7 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 		if (newSettings->queueChanges) buf[2] |= 0x04;
 		if (newSettings->multicast)    buf[2] |= 0x08;
 		if (newSettings->noBlock)      buf[2] |= 0x10;
+		if (newSettings->catchAll)     buf[2] |= 0x20;
 		
 		buf[3] = newSettings->broadcastRadius;
 		
@@ -222,6 +223,7 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 		con->settings.queueChanges = !!(pkt->data[0] & 0x04);
 		con->settings.multicast =    !!(pkt->data[0] & 0x08);
 		con->settings.noBlock =      !!(pkt->data[0] & 0x10);
+		con->settings.catchAll =     !!(pkt->data[0] & 0x20);
 		con->settings.broadcastRadius = pkt->data[1];
 		ret = XBEE_ENONE;
 	} else {

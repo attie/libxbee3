@@ -120,7 +120,9 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 			break;
 		}
 		
-		if ((ret = _xbee_conLocate(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS && ret != XBEE_ESLEEPING) {
+		if ((ret = _xbee_conLocate(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS && 
+		     ret != XBEE_ESLEEPING &&
+		     ret != XBEE_ECATCHALL) {
 			if (ret == XBEE_ENONE) {
 				ret = XBEE_EEXISTS;
 			}
@@ -213,14 +215,19 @@ got2:
 xbee_err _xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	struct xbee_con *con;
 	struct xbee_con *sCon;
+	struct xbee_con *cCon;
 	xbee_err ret;
 	
 	if (!conList || !address) return XBEE_EMISSINGPARAM;
 	
 	sCon = NULL;
+	cCon = NULL;
 	
 	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
+		/* keep track of the latest catch-all */
+		if (con->settings.catchAll) cCon = con;
+		
 		/* try to match the address */
 		if (xbee_conAddressCmp(&con->address, address) != XBEE_ENONE) continue;
 		
@@ -235,10 +242,15 @@ xbee_err _xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *addres
 	}
 	if (needsLLLock) ll_unlock(conList);
 	
-	/* did we find a sleepy connection? */
-	if (!con && sCon) {
-		con = sCon;
-		ret = XBEE_ESLEEPING;
+	/* did we find a sleepy/catchall connection? */
+	if (!con) {
+		if (sCon) {
+			con = sCon;
+			ret = XBEE_ESLEEPING;
+		} else if (cCon) {
+			con = cCon;
+			ret = XBEE_ECATCHALL;
+		}
 	}
 
 	if (!con) return XBEE_ENOTEXISTS;

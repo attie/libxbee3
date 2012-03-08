@@ -69,6 +69,9 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	/* 6 = dataLen[2] + status + settings + rssi + frameId + atCommand[2] */
 	/* dataLen can be inferred */
 	memSize = 8 + (*pkt)->dataLen + 1;
+	if ((*pkt)->address.addr16_enabled)    memSize += 2;
+	if ((*pkt)->address.addr64_enabled)    memSize += 8;
+	if ((*pkt)->address.endpoints_enabled) memSize += 2;
 	
 	if ((buf = malloc(memSize)) == NULL) {
 		xbee_log(1, "MALLOC FAILED... dataloss has occured");
@@ -82,6 +85,29 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	buf[pos] = (*pkt)->options;                          pos++;
 	buf[pos] = (*pkt)->rssi;                             pos++;
 	buf[pos] = (*pkt)->frameId;                          pos++;
+	buf[pos] = 0;
+	if ((*pkt)->address.addr16_enabled)    buf[pos] |= 0x01;
+	if ((*pkt)->address.addr64_enabled)    buf[pos] |= 0x02;
+	if ((*pkt)->address.endpoints_enabled) buf[pos] |= 0x04;
+	                                                     pos++;
+	if ((*pkt)->address.addr16_enabled) {
+		buf[pos] = (*pkt)->address.addr16[0];              pos++;
+		buf[pos] = (*pkt)->address.addr16[1];              pos++;
+	}
+	if ((*pkt)->address.addr64_enabled) {
+		buf[pos] = (*pkt)->address.addr64[0];              pos++;
+		buf[pos] = (*pkt)->address.addr64[1];              pos++;
+		buf[pos] = (*pkt)->address.addr64[2];              pos++;
+		buf[pos] = (*pkt)->address.addr64[3];              pos++;
+		buf[pos] = (*pkt)->address.addr64[4];              pos++;
+		buf[pos] = (*pkt)->address.addr64[5];              pos++;
+		buf[pos] = (*pkt)->address.addr64[6];              pos++;
+		buf[pos] = (*pkt)->address.addr64[7];              pos++;
+	}
+	if ((*pkt)->address.endpoints_enabled) {
+		buf[pos] = (*pkt)->address.endpoint_local;         pos++;
+		buf[pos] = (*pkt)->address.endpoint_remote;        pos++;
+	}
 	buf[pos] = (*pkt)->atCommand[0];                     pos++;
 	buf[pos] = (*pkt)->atCommand[1];                     pos++;
 	if ((*pkt)->dataLen > 0) {
@@ -212,7 +238,6 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 		retVal = 0x03;
 		goto err;
 	}
-	
 	
 	/* create the local-side connection */
 	memcpy(&address, &((*pkt)->data[1]), sizeof(address));
@@ -381,6 +406,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 		if ((*pkt)->data[2] & 0x04) newSettings.queueChanges = 1;
 		if ((*pkt)->data[2] & 0x08) newSettings.multicast = 1;
 		if ((*pkt)->data[2] & 0x10) newSettings.noBlock = 1;
+		if ((*pkt)->data[2] & 0x20) newSettings.catchAll = 1;
 		newSettings.broadcastRadius = (*pkt)->data[3];
 		
 		ret = xbee_conSettings(iCon, &newSettings, &oldSettings);
@@ -402,6 +428,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	if (iCon->settings.queueChanges) buf[2] |= 0x04;
 	if (iCon->settings.multicast)    buf[2] |= 0x08;
 	if (iCon->settings.noBlock)      buf[2] |= 0x10;
+	if (iCon->settings.catchAll)     buf[2] |= 0x20;
 	buf[3] = iCon->settings.broadcastRadius;
 	xbee_connTx(con, NULL, buf, sizeof(buf));
 	

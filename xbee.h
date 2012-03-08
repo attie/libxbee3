@@ -71,6 +71,7 @@ struct xbee_conSettings {
 	unsigned char queueChanges     : 1;
 	unsigned char multicast        : 1;
 	unsigned char noBlock          : 1;
+	unsigned char catchAll         : 1;
 	unsigned char broadcastRadius;
 };
 
@@ -79,11 +80,13 @@ struct xbee_conSettings {
 struct xbee_pkt {
 	struct xbee *xbee;
 	struct xbee_con *con;
+	const char *conType;
 
 	unsigned char status;
 	unsigned char options;
 	unsigned char rssi; /* print as "RSSI: -%d\n" */
 	unsigned char frameId;
+	struct xbee_conAddress address;
 	
 	unsigned char atCommand[2];
 	
@@ -134,6 +137,7 @@ enum xbee_errors {
 	XBEE_EREMOTE               = -26,
 	
 	XBEE_ESLEEPING             = -27,
+	XBEE_ECATCHALL             = -28,
 };
 typedef enum xbee_errors xbee_err;
 

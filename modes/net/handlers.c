@@ -57,9 +57,6 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	}
 	if (!con) return XBEE_EINVAL;
 	
-	/* steal it's address */
-	memcpy(address, &con->address, sizeof(*address));
-	
 	pos = 3;
 	
 	dataLen =           (buf->data[pos] << 8) & 0xFF00;      pos++;
@@ -72,6 +69,28 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	iPkt->options =      buf->data[pos];                     pos++;
 	iPkt->rssi =         buf->data[pos];                     pos++;
 	iPkt->frameId =      buf->data[pos];                     pos++;
+	address->addr16_enabled =    !!(buf->data[pos] & 0x01);
+	address->addr64_enabled =    !!(buf->data[pos] & 0x02);
+	address->endpoints_enabled = !!(buf->data[pos] & 0x04);
+	                                                         pos++;
+	if (address->addr16_enabled) {
+		address->addr16[0] = buf->data[pos];              pos++;
+		address->addr16[1] = buf->data[pos];              pos++;
+	}
+	if (address->addr64_enabled) {
+		address->addr64[0] = buf->data[pos];              pos++;
+		address->addr64[1] = buf->data[pos];              pos++;
+		address->addr64[2] = buf->data[pos];              pos++;
+		address->addr64[3] = buf->data[pos];              pos++;
+		address->addr64[4] = buf->data[pos];              pos++;
+		address->addr64[5] = buf->data[pos];              pos++;
+		address->addr64[6] = buf->data[pos];              pos++;
+		address->addr64[7] = buf->data[pos];              pos++;
+	}
+	if ((iPkt)->address.endpoints_enabled) {
+		iPkt->address.endpoint_local =  buf->data[pos];        pos++;
+		iPkt->address.endpoint_remote = buf->data[pos];        pos++;
+	}
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;
 	iPkt->atCommand[1] = buf->data[pos];                     pos++;
 	

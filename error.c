@@ -123,6 +123,9 @@ EXPORT const char *xbee_errorToStr(xbee_err error) {
 		case XBEE_ESLEEPING:
 			str = "The given connection is not currently awake";
 			break;
+		case XBEE_ECATCHALL:
+			str = "The given connection is a catch-all connection";
+			break;
 	}
 	
 	return str;

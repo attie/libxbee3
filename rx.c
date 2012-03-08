@@ -170,6 +170,9 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		/* its possible that the buffer ONLY contained frame information... if so, were done! */
 		if (!pkt) goto done;
 		
+		memcpy(&pkt->address, &address, sizeof(address));
+		pkt->conType = conType->name;
+		
 		if (info->fBlock && frameInfo.active != 0 && conType && conType->allowFrameId != 0) {
 			pkt->frameId = frameInfo.id;
 		}
@@ -177,7 +180,10 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xbee_log(12, "received '%s' type packet...", conType->name);
 		
 		/* match the address to a connection */
-		if (((ret = xbee_conLocate(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE && ret != XBEE_ESLEEPING) || !con) {
+		if (((ret = xbee_conLocate(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE &&
+		      ret != XBEE_ESLEEPING &&
+		      ret != XBEE_ECATCHALL) ||
+		    !con) {
 			xbee_pktFree(pkt);
 			if (ret == XBEE_ENOTEXISTS) {
 				xbee_log(5, "connectionless '%s' packet (%d bytes)...", conType->name, buf->len);
