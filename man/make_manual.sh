@@ -5,7 +5,7 @@ function conv3htm {
 }
 
 for manPage in `find . -type f`; do
-	if [ "$manPage" == "$0" ]; then
+	if [ "$manPage" == "$0" ] || [ "$manPage" == "./.gitignore" ]; then
 		continue;
 	fi
 	htmPage=`conv3htm $manPage`
@@ -13,7 +13,7 @@ for manPage in `find . -type f`; do
 done
 
 for manLink in `find . -type l`; do
-	if [ "$manLink" == "$0" ]; then
+	if [ "$manLink" == "$0" ] || [ "$manPage" == "./.gitignore" ]; then
 		continue;
 	fi
 	htmTarget=`readlink $manLink`
