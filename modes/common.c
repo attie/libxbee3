@@ -303,7 +303,6 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 				xbee_log(10, "  %3d: 0x%02X  %c", t, iBuf->data[t], ((iBuf->data[t] >= ' ' && iBuf->data[t] <= '~') ? iBuf->data[t] : '.'));
 			}
 #if !defined(XBEE_API2) || !defined(XBEE_API2_IGNORE_CHKSUM)
-#warning "YES"
 			continue;
 #endif
 		}
