@@ -1,4 +1,4 @@
-v3.0.5 - in progress
+v3.0.5 - 09 Mar 2012
 	* Added FreeBSD support
 	* Renamed xbee_logGet*() -> xbee_log*Get(), and xbee_logSet*() -> xbee_log*Set()
 	* Provided C++ support
