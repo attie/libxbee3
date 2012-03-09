@@ -9,6 +9,7 @@ v3.0.5 - in progress
 	* Added pseudo terminal application
 	* Changed to API mode 1 by default (compile time option)
 	* Added 'catch-all' connections
+	* Changed 'Remote AT' timeouts to 750ms
 
 v3.0.4 - 29 Feb 2012
 	* Implemented rx/tx counters

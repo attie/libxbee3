@@ -191,7 +191,7 @@ const struct xbee_modeConType xbee_s1_remoteAt = {
 	.useTimeout = 1,
 	.timeout = {
 		.tv_sec = 0,
-		.tv_nsec = 250000000,
+		.tv_nsec = 750000000,
 	},
 	.address_validator = xbee_addrval_16or64,
 	.rxHandler = &xbee_s1_remoteAt_rx,
