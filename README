@@ -1,22 +1,33 @@
 Welcome to libxbee v3!
 
-Please note that this project is still in development, so should not be used for
-any purpose other than learning/playing/testing etc... Basically don't use it to
-make money, and then hold me responsible if it breaks!
+Please note that development for this this project is on going, and the use of
+it is free, but please don't hold me responsible for any damage or injuries that
+may occur.
 
-Feel free to contact me directly with any queries:
+Feel free to contact me directly with any queries, bugs, etc:
   attie@attie.co.uk
+Alternatively, feel free to file an 'issue' on the project site:
+  http://code.google.com/p/libxbee/issues/list
+
+
+=== Licensing ===
+libxbee v3 is licensed using LGPLv3 from v3.0.5 onwards. For more
+information on what this means for you, please see COPYING and COPYING.LESSER.
 
 
 === Building ===
 If you are building libxbee, then there are a number of options avaliable to you.
 "config.mk" contains most of the options you may want to change, and it is
 recommended that you don't modify the other makefiles
+Alternatively, feel free to file an 'issue' on the project site:
+  http://code.google.com/p/libxbee/issues/list
 
 
 === Installation ===
-To install libxbee simply type:
+To install libxbee simply type (you will require sudo permission):
   $ make install
+Or run the following as root:
+  $ make install_sudo
 
 
 === Usage ===
@@ -24,8 +35,8 @@ Compile your applications, including "xbee.h"
 Link with -lxbee
 
 If you are compiling the object file directly into your executable instead
-of making use of the shared library, you must include the following link
-flags:
+of making use of the library, you must include the following link flags. These
+flags are also necessary for newer versions of Ubuntu, and possibly others.
   -lpthread -lrt
 
 
