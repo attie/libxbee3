@@ -18,7 +18,7 @@ SYS_HEADERS=    xbee.h
 SYS_MANPAGES=   $(shell find $(MANDIR) -type f -name '*.3')
 SYS_MANLINKS=   $(shell find $(MANDIR) -type l -name '*.3')
 
-RELEASE_FILES=  HISTORY LICENSE README
+RELEASE_FILES=  HISTORY COPYING COPYING.LESSER README
 INSTALL_FILES=  $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)) \
                 $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))) \
                 $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANLINKS))) \
