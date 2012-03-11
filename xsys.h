@@ -21,6 +21,10 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 #define __XBEE_XSYS_LOAD_H
@@ -93,3 +97,7 @@ int xsys_sem_getvalue(xsys_sem *sem, int *value);
 */
 
 #endif /* __XBEE_XSYS_H */
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

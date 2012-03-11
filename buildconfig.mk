@@ -17,14 +17,17 @@ INSTALL_FILES:= $(INSTALL_FILES)
 AR:=            $(CROSS_COMPILE)ar
 LD:=            $(CROSS_COMPILE)ld
 GCC:=           $(CROSS_COMPILE)gcc
+GPP:=           $(CROSS_COMPILE)g++
 OBJCOPY:=       $(CROSS_COMPILE)objcopy
 GZIP:=          gzip
 MAKE+=          --no-print-directory
 
 DEBUG:=         -g
-CFLAGS+=        -Wall -Wstrict-prototypes -Wno-variadic-macros -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
-CFLAGS+=        -fvisibility=hidden
+CFLAGS+=        -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
 #CFLAGS+=       -pedantic
+CFLAGS+=        -fvisibility=hidden
+CPPFLAGS:=      $(CFLAGS)
+CFLAGS+=        -Wstrict-prototypes -Wno-variadic-macros
 CLINKS+=        $(addprefix -l,$(LIBS)) $(DEBUG)
 
 COMMA:=         ,

@@ -132,11 +132,17 @@ modes/$(DESTDIR)/_modes.o: .$(BUILDDIR).dir modes ALWAYS
 $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.c $(PDEPS)
 	$(GCC) -MM -MT $(addprefix $(BUILDDIR)/,$*.o) $*.c -o $@
 
+$(BUILDDIR)/%.d: .$(BUILDDIR).dir %.cpp $(PDEPS)
+	$(GCC) -MM -MT $(addprefix $(BUILDDIR)/,$*.o) $*.cpp -o $@
+
 $(BUILDDIR)/ver.o: $(BUILDDIR)/ver.d $(wildcard %.c) $(wildcard %.h) $(PDEPS)
 	$(GCC) $(CFLAGS) $(VER_DEFINES) ver.c -o $@
 
 $(BUILDDIR)/mode.o: $(BUILDDIR)/mode.d $(PDEPS)
 	$(GCC) $(CFLAGS) -DMODELIST='$(addsuffix $(COMMA),$(addprefix &mode_,$(MODELIST))) NULL' mode.c -o $@
+
+$(BUILDDIR)/xbeep.o: $(BUILDDIR)/xbeep.d $(PDEPS)
+	$(GPP) $(CPPFLAGS) xbeep.cpp -o $@
 
 $(BUILDDIR)/%.o: $(BUILDDIR)/%.d $(PDEPS)
 	$(GCC) $(CFLAGS) $*.c -o $@
