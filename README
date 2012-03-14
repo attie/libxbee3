@@ -40,6 +40,12 @@ flags are also necessary for newer versions of Ubuntu, and possibly others.
   -lpthread -lrt
 
 
+=== C++ ===
+I have provided a C++ class, but due to linker issues when developing in C it has
+been removed from the library. To make use of this, please include 'xbee.cpp' in
+your project compilation. The definition remains in 'xbee.h'.
+
+
 === Samples ===
 I have proveded sample code in the ./sample directory. Hopefully this will help
 get you up and running with libxbee. If you would like samples showing a different
