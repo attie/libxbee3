@@ -1,3 +1,8 @@
+v3.0.6 - in progress
+	* Added C++ class
+	* Fixed Series 2 addressing issue
+	* Enhanced address checking abilities of xbee_conNew()
+
 v3.0.5 - 09 Mar 2012
 	* Added FreeBSD support
 	* Renamed xbee_logGet*() -> xbee_log*Get(), and xbee_logSet*() -> xbee_log*Set()
