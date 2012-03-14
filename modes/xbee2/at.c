@@ -28,7 +28,6 @@
 #include "../../pkt.h"
 #include "../../frame.h"
 #include "../common.h"
-#include "../addrval.h"
 #include "at.h"
 #include "io.h"
 
@@ -90,7 +89,6 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	unsigned char *addr16;
-	unsigned char *addr64;
 	int pos;
 	size_t memSize;
 	
@@ -102,25 +100,21 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 	switch (identifier) {
 		case 0x08: /* Local AT */
 			if (settings->queueChanges) identifier = 0x09;
-			addr64 = NULL;
 			addr16 = NULL;
 			break;
 		case 0x17: /* Remote AT */
-			if (address->addr64_enabled) {
-				addr64 = &(address->addr64[0]);
-				addr16 = (unsigned char[]){ 0xFF, 0xFE };
-			} else if (address->addr16_enabled) {
-				addr64 = (unsigned char[]){ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+			if (!address->addr64_enabled) return XBEE_EINVAL;
+			if (address->addr16_enabled) {
 				addr16 = &(address->addr16[0]);
-			} else {
-				return XBEE_EINVAL;
+			} else if (address->addr16_enabled) {
+				addr16 = (unsigned char[]){ 0xFF, 0xFE };
 			}
 			break;
 		default: return XBEE_EINVAL;
 	}
 	
 	memSize = 2;
-	if (addr64 && addr16) memSize += 8 + 2;
+	if (addr16) memSize += 8 + 2;
 	memSize += len;
 	bufLen = memSize;
 	
@@ -132,8 +126,8 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 	iBuf->len = bufLen;
 	iBuf->data[pos] = identifier;                          pos++;
 	iBuf->data[pos] = frameId;                             pos++;
-	if (addr64 && addr16) {
-		memcpy(&(iBuf->data[pos]), addr64, 8);               pos += 8;
+	if (addr16) {
+		memcpy(&(iBuf->data[pos]), address->addr64, 8);      pos += 8;
 		memcpy(&(iBuf->data[pos]), addr16, 2);               pos += 2;
 		iBuf->data[pos] = 0x00;
 		if (!settings->queueChanges) {
@@ -170,7 +164,7 @@ const struct xbee_modeConType xbee_s2_localAt = {
 		.tv_sec = 0,
 		.tv_nsec = 250000000,
 	},
-	.address_validator = xbee_addrval_none,
+	.addressRules = ADDR_NONE,
 	.rxHandler = &xbee_s2_localAt_rx,
 	.txHandler = &xbee_s2_localAt_tx,
 };
@@ -193,7 +187,7 @@ const struct xbee_modeConType xbee_s2_remoteAt = {
 		.tv_sec = 0,
 		.tv_nsec = 750000000,
 	},
-	.address_validator = xbee_addrval_16or64,
+	.addressRules = ADDR_64_16OPT_NOEP,
 	.rxHandler = &xbee_s2_remoteAt_rx,
 	.txHandler = &xbee_s2_remoteAt_tx,
 };

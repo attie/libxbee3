@@ -59,9 +59,44 @@ struct xbee_modeConType {
 	const unsigned char useTimeout   : 1;
 	const struct timespec timeout;
 	
-	xbee_err (*address_validator)(struct xbee_conAddress *address);
 	const unsigned char save_addr16;
 	const unsigned char save_addr64;
+	
+	
+#define ADDR_EP_NOTALLOW    0x01
+#define ADDR_EP_REQUIRED    0x02
+#define ADDR_64_NOTALLOW    0x04
+#define ADDR_16_NOTALLOW    0x08
+#define ADDR_64_REQUIRED    0x10
+#define ADDR_16_REQUIRED    0x20
+#define ADDR_16OR64         0x40
+#define ADDR_16XOR64        0x80
+
+#define ADDR_NONE           (ADDR_16_NOTALLOW | ADDR_64_NOTALLOW | ADDR_EP_NOTALLOW)
+
+#define ADDR_16_ONLY        (ADDR_16_REQUIRED | ADDR_64_NOTALLOW | ADDR_EP_NOTALLOW)
+#define ADDR_64_ONLY        (ADDR_16_NOTALLOW | ADDR_64_REQUIRED | ADDR_EP_NOTALLOW)
+#define ADDR_EP_ONLY        (ADDR_16_NOTALLOW | ADDR_64_NOTALLOW | ADDR_EP_REQUIRED)
+
+#define ADDR_64_16OPT_EP    (ADDR_64_REQUIRED | ADDR_EP_REQUIRED)
+#define ADDR_64_16OPT_NOEP  (ADDR_64_REQUIRED | ADDR_EP_NOTALLOW)
+#define ADDR_64_16OPT_EPOPT (ADDR_64_REQUIRED)
+
+#define ADDR_16OR64_NOEP    (ADDR_16OR64 | ADDR_EP_NOTALLOW)
+#define ADDR_16OR64_EP      (ADDR_16OR64 | ADDR_EP_REQUIRED)
+#define ADDR_16XOR64_NOEP   (ADDR_16XOR64 | ADDR_EP_NOTALLOW)
+#define ADDR_16XOR64_EP     (ADDR_16XOR64 | ADDR_EP_REQUIRED)
+	/* 0b........
+	     -------1  - endpoints not allowed
+	     ------1-  - endpoints required
+	     -----1--  - 64-bit not allowed
+	     ----1---  - 16-bit not allowed
+	     ---1----  - 64-bit address required
+	     --1-----  - 16-bit address required
+	     -1------  - 16 or 64-bit address required (OR)
+	     1-------  - 16 or 64-bit address required (XOR) */
+	const unsigned char addressRules;
+	
 	
 	const struct xbee_modeDataHandlerRx *rxHandler;
 	const struct xbee_modeDataHandlerTx *txHandler;

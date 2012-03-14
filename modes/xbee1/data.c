@@ -27,7 +27,6 @@
 #include "../../mode.h"
 #include "../../pkt.h"
 #include "../common.h"
-#include "../addrval.h"
 #include "data.h"
 
 xbee_err xbee_s1_data_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
@@ -137,7 +136,7 @@ const struct xbee_modeConType xbee_s1_16bitData = {
 	.name = "16-bit Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
-	.address_validator = xbee_addrval_16bit,
+	.addressRules = ADDR_16_ONLY,
 	.rxHandler = &xbee_s1_16bitData_rx,
 	.txHandler = &xbee_s1_16bitData_tx,
 };
@@ -156,7 +155,7 @@ const struct xbee_modeConType xbee_s1_64bitData = {
 	.name = "64-bit Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
-	.address_validator = xbee_addrval_64bit,
+	.addressRules = ADDR_64_ONLY,
 	.rxHandler = &xbee_s1_64bitData_rx,
 	.txHandler = &xbee_s1_64bitData_tx,
 };

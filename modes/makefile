@@ -2,7 +2,7 @@ include ../config.mk
 include ../buildconfig.mk
 
 
-SRCS:=common addrval
+SRCS:=common
 
 
 PDEPS:=makefile ../config.mk ../buildconfig.mk

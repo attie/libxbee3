@@ -27,7 +27,6 @@
 #include "../../mode.h"
 #include "../../pkt.h"
 #include "../common.h"
-#include "../addrval.h"
 #include "data.h"
 
 xbee_err xbee_s2_data_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
@@ -67,7 +66,7 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 	if (len > 72) return XBEE_ELENGTH;
 	
-	if (!address->addr64_enabled && !address->addr16_enabled) return XBEE_EINVAL;
+	if (!address->addr64_enabled) return XBEE_EINVAL;
 	
 	/* API Identifier + Frame ID + Address (64) + Address (16) + Radius + Options + Payload */
 	memSize = 14 + len;
@@ -95,12 +94,7 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 		iBuf->data[pos] = 0xFF;                             pos++;
 		iBuf->data[pos] = 0xFE;                             pos++;
 	} else {
-		if (address->addr64_enabled) {
-			memcpy(&(iBuf->data[pos]), address->addr64, 8);
-		} else {
-			memset(&(iBuf->data[pos]), 0, 8);
-		}
-		                                                    pos += 8;
+		memcpy(&(iBuf->data[pos]), address->addr64, 8);     pos += 8;
 		if (address->addr16_enabled) {
 			memcpy(&(iBuf->data[pos]), address->addr16, 2);
 		} else {
@@ -136,7 +130,7 @@ const struct xbee_modeConType xbee_s2_data = {
 	.name = "Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
-	.address_validator = xbee_addrval_16or64,
+	.addressRules = ADDR_64_16OPT_NOEP,
 	.save_addr16 = 1,
 	.save_addr64 = 1,
 	.rxHandler = &xbee_s2_data_rx,

@@ -327,9 +327,16 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int a
 	if ((ret = xbee_modeLocateConType(interface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
 	if (!conType) return XBEE_EUNKNOWN;
 	
-	if (conType->address_validator) {
-		if ((ret = conType->address_validator(address)) != XBEE_ENONE) return ret;
-	}
+	xbee_log(-1, "%02X", conType->addressRules);
+	
+	if (conType->addressRules & ADDR_EP_NOTALLOW && ( address &&  address->endpoints_enabled))                          return XBEE_EINVAL;
+	if (conType->addressRules & ADDR_EP_REQUIRED && (!address || !address->endpoints_enabled))                          return XBEE_EINVAL;
+	if (conType->addressRules & ADDR_64_NOTALLOW && ( address &&  address->addr64_enabled))                             return XBEE_EINVAL;
+	if (conType->addressRules & ADDR_16_NOTALLOW && ( address &&  address->addr16_enabled))                             return XBEE_EINVAL;
+	if (conType->addressRules & ADDR_64_REQUIRED && (!address || !address->addr64_enabled))                             return XBEE_EINVAL;
+	if (conType->addressRules & ADDR_16_REQUIRED && (!address || !address->addr16_enabled))                             return XBEE_EINVAL;
+	if (conType->addressRules & ADDR_16OR64      && (!address || !(address->addr16_enabled | address->addr64_enabled))) return XBEE_EINVAL;
+	if (conType->addressRules & ADDR_16XOR64     && (!address || !(address->addr16_enabled ^ address->addr64_enabled))) return XBEE_EINVAL;
 	
 	conIdentifier = 0;
 	if (xbee->mode->support.conNew) {
