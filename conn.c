@@ -327,8 +327,6 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int a
 	if ((ret = xbee_modeLocateConType(interface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
 	if (!conType) return XBEE_EUNKNOWN;
 	
-	xbee_log(-1, "%02X", conType->addressRules);
-	
 	if (conType->addressRules & ADDR_EP_NOTALLOW && ( address &&  address->endpoints_enabled))                          return XBEE_EINVAL;
 	if (conType->addressRules & ADDR_EP_REQUIRED && (!address || !address->endpoints_enabled))                          return XBEE_EINVAL;
 	if (conType->addressRules & ADDR_64_NOTALLOW && ( address &&  address->addr64_enabled))                             return XBEE_EINVAL;
