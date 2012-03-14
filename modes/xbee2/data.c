@@ -104,7 +104,8 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 		if (address->addr16_enabled) {
 			memcpy(&(iBuf->data[pos]), address->addr16, 2);
 		} else {
-			memset(&(iBuf->data[pos]), 0, 2);
+			iBuf->data[pos] = 0xFF;
+			iBuf->data[pos+1] = 0xFE;
 		}
 		                                                    pos += 2;
 	}
