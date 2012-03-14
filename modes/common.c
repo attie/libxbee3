@@ -177,7 +177,15 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 		}
 		ret = xsys_fread(&(dest[pos]), 1, len - pos, f);
 		if (ret == 0) {
-			if (xsys_feof(f)) return XBEE_EEOF;
+			if (xsys_feof(f)) {
+#ifndef linux
+/* for FreeBSD */
+				usleep(10000);
+				continue;
+#else
+				return XBEE_EEOF;
+#endif /* !linux */
+			}
 			if (xsys_ferror(f)) {
 				perror("fread()");
 				return XBEE_EIO;
