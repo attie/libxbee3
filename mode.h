@@ -60,6 +60,8 @@ struct xbee_modeConType {
 	const struct timespec timeout;
 	
 	xbee_err (*address_validator)(struct xbee_conAddress *address);
+	const unsigned char save_addr16;
+	const unsigned char save_addr64;
 	
 	const struct xbee_modeDataHandlerRx *rxHandler;
 	const struct xbee_modeDataHandlerTx *txHandler;

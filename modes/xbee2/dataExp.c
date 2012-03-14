@@ -154,6 +154,8 @@ const struct xbee_modeConType xbee_s2_dataExp = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.address_validator = xbee_addrval_16or64,
+	.save_addr16 = 1,
+	.save_addr64 = 1,
 	.rxHandler = &xbee_s2_dataExp_rx,
 	.txHandler = &xbee_s2_dataExp_tx,
 };
