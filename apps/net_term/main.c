@@ -34,6 +34,8 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <stdarg.h>
 #include <signal.h>
 #include <errno.h>
@@ -48,17 +50,17 @@
 
 struct remoteInfo {
 	struct xbee_con *conAT, *conData;
-	int ptfd;
+	int sockfd;
 };
 
 /* ########################################################################## */
 
 void usage(char *argv0) {
 	printf("usage:\n"
-	       "  %s <nodeIdentifier>\n"
-				 "  %s 0x<16bitAddress>\n"
-				 "  %s 0x<64bitAddress>\n",
-				 argv0, argv0, argv0);
+         "  %s <nodeIdentifier> <listenPort>\n"
+         "  %s 0x<16bitAddress> <listenPort>\n"
+         "  %s 0x<64bitAddress> <listenPort>\n",
+         argv0, argv0, argv0);
 	exit(1);
 }
 
@@ -139,32 +141,39 @@ int parseAddress(int argc, char *argv[], struct xbee *xbee, struct remoteInfo *i
 
 /* ########################################################################## */
 
-int openPt(void) {
-	int ptfd;
-	int ptfd2;
+int openSock(int port) {
+	int sockfd;
+  int i;
+  struct sockaddr_in addrinfo;
 	
-	/* create/open a Pseudo Terminal */
-	if ((ptfd = posix_openpt(O_RDWR | O_NOCTTY)) == -1) {
-		perror("posix_openpt()");
-		exit(1);
-	}
-	if (grantpt(ptfd)) {
-		perror("grantpt()");
-		exit(1);
-	}
-	if (unlockpt(ptfd)) {
-		perror("unlockpt()");
+	/* create a listening socket */
+	if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+		perror("socket()");
 		exit(1);
 	}
 	
-	/* unblock it... by opening and closing it */
-	if ((ptfd2 = open((char*)ptsname(ptfd), O_RDWR)) == -1) {
-		perror("open(ptfd)");
+	i = 1;
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i)) == -1) {
+		perror("setsockopt()");
 		exit(1);
 	}
-	close(ptfd2);
 	
-	return ptfd;
+	memset(&addrinfo, 0, sizeof(addrinfo));
+	addrinfo.sin_family = AF_INET;
+	addrinfo.sin_port = htons(port);
+	addrinfo.sin_addr.s_addr = INADDR_ANY;
+	
+	if (bind(sockfd, (const struct sockaddr*)&addrinfo, sizeof(addrinfo)) == -1) {
+		perror("bind()");
+		exit(1);
+	}
+	
+	if (listen(sockfd, 1) == -1) {
+		perror("listen()");
+		exit(1);
+	}
+	
+	return sockfd;
 }
 
 /* ########################################################################## */
@@ -231,7 +240,7 @@ void relayCallback(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pk
 	struct remoteInfo *remote = *data;
 	
 	for (written = 0; written < (*pkt)->dataLen; written += t) {
-		if ((t = write(remote->ptfd, &((*pkt)->data[written]), (*pkt)->dataLen - written)) == -1) {
+		if ((t = send(remote->sockfd, &((*pkt)->data[written]), (*pkt)->dataLen - written, MSG_NOSIGNAL)) == -1) {
 			perror("write()");
 			exit(1);
 		}
@@ -242,19 +251,27 @@ void relayCallback(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pk
 
 int main(int argc, char *argv[]) {
 	xbee_err ret;
+	int port;
+	int serverfd;
 	
 	struct xbee *xbee;
 	struct xbee_con *conLAT;
 	struct remoteInfo remote;
 	
 	/* check that we have details on the remote XBee */
-	if (argc != 2) {
+	if (argc != 3) {
 		usage(argv[0]);
 		exit(1);
 	}
 	
-	/* get a Pseudo Terminal */
-	remote.ptfd = openPt();
+	port = -1;
+	if (sscanf(argv[2], "%d", &port) != 1 || port < 1 || port > 65535) {
+		usage(argv[0]);
+		exit(1);
+	}
+	
+	/* get a socket */
+	serverfd = openSock(port);
 	
 	/* setup libxbee */
 	if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
@@ -289,41 +306,19 @@ int main(int argc, char *argv[]) {
 		unsigned char buf[64];
 		
 		for (;;) {
+			int cfd;
 			int fl;
 			int bufLen;
 			int bufGot;
 			
-			printf("- PT closed! - please use '%s'\n", ptsname(remote.ptfd));
+			printf("- socket closed! - please connect to port %d\n", port);
 			
-			/* disable blocking */
-			if ((fl = fcntl(remote.ptfd, F_GETFL)) == -1) {
-				perror("fcntl(F_GETFL)");
-				exit(1);
-			}
-			if (fcntl(remote.ptfd, F_SETFL, fl | O_NONBLOCK) == -1) {
-				perror("fcntl(F_SETFL, O_NONBLOCK)");
+			if ((remote.sockfd = accept(serverfd, NULL, NULL)) == -1) {
+				perror("accept()");
 				exit(1);
 			}
 			
-			/* wait for data */
-			while ((bufLen = read(remote.ptfd, buf, sizeof(buf))) == -1) {
-				if (errno == EAGAIN) {
-					break;
-				}
-				if (errno != EIO) {
-					perror("read()");
-					exit(1);
-				}
-				usleep(50000);
-			}
-			
-			/* enable blocking */
-			if (fcntl(remote.ptfd, F_SETFL, fl) == -1) {
-				perror("fcntl(F_SETFL, !O_NONBLOCK)");
-				exit(1);
-			}
-			
-			printf("# PT opened!\n");
+			printf("# socket opened!\n");
 			
 			/* flick the reset line */
 			if (xbee_conTx(remote.conAT, NULL, "D3%c", 0x04) != XBEE_ENONE) {
@@ -339,7 +334,7 @@ int main(int argc, char *argv[]) {
 			xbee_conPurge(remote.conData);
 			xbee_conCallbackSet(remote.conData, relayCallback, NULL);
 			bufLen = 0;
-			while (bufLen > 0 || (bufLen = read(remote.ptfd, buf, sizeof(buf))) > 0) {
+			while (bufLen > 0 || (bufLen = recv(remote.sockfd, buf, sizeof(buf), MSG_NOSIGNAL)) > 0) {
 				unsigned char txRet;
 				int retries = MAX_RETRIES;
 				while (retries--) {
@@ -351,6 +346,9 @@ int main(int argc, char *argv[]) {
 				bufLen = 0;
 			}
 			xbee_conCallbackSet(remote.conData, NULL, NULL);
+
+			shutdown(remote.sockfd, SHUT_RDWR);
+			close(remote.sockfd);
 		}
 	}
 	
