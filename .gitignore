@@ -4,4 +4,6 @@ lib
 /modes/modes.o
 *~
 *.o
+*.so
 *.d
+main
