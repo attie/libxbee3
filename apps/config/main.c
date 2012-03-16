@@ -5,9 +5,11 @@
 
 #include <xbee.h>
 
-const char * const skip[] = {"AC", "AI", "AS", "CA", "CK", "EA", "ED", "FR", "IS", "ND", "RE", "SH", "SL", "WR"};
+const char * const skip[] = {"AC", "AI", "AS", "CA", "CK", "CN", "DA", "DB", "DN", "EA",
+                             "EC", "ED", "FP", "FR", "HV", "IS", "ND", "RE", "SH", "SL",
+                             "VL", "VR", "WR"};
 const char achars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const char bchars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const char bchars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /* ########################################################################## */
 
@@ -35,9 +37,10 @@ void config_save(FILE *f, struct xbee_con *con) {
 	struct xbee_pkt *pkt;
 	
 	l = sizeof(skip) / sizeof(*skip);
-	fprintf(stderr, "Skipping %d special commands:\n  ", l);
+	fprintf(stderr, "Skipping %d special commands:", l);
 	for (i = 0; i < l; i++) {
-		fprintf(stderr, "%s%s", (i?", ":""), skip[i]);
+		if (!(i % 10)) fprintf(stderr,"\n  ");
+		fprintf(stderr, "%s%s", (i % 10 ? ", " : ""), skip[i]);
 	}
 	fprintf(stderr, "\n");
 	
