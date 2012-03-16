@@ -199,7 +199,7 @@ int main(int argc, char *argv[]) {
 		}
 		if (argv[i][0] == '-') {
 			int o;
-			for (o = 1; argv[i][o]; o++) {
+			for (o = 1; o >= 0 && argv[i][o]; o++) {
 				switch (argv[i][o]) {
 					case 's': mode = 1;  break;
 					case 'l': mode = 2;  break;
@@ -208,6 +208,8 @@ int main(int argc, char *argv[]) {
 						if (argv[i][o+1] != '\0') usage(argv[0]);
 						if (++i >= argc) usage(argv[0]);
 						filename = argv[i];
+						o = -2;
+						break;
 				}
 			}
 			continue;
