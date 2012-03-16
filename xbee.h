@@ -239,16 +239,16 @@ const char *xbee_errorToStr(xbee_err error);
 
 #include <vector>
 
-class xbeep {
+class libxbee {
 	private:
 		struct xbee *xbee;
 		std::vector<struct xbee_con *> connections;
 		
 		struct xbee_con *getCon(const unsigned int conId);
 	public:
-		xbeep(const char *mode, ...);
-		xbeep(const char *mode, va_list ap);
-		~xbeep();
+		libxbee(const char *mode, ...);
+		libxbee(const char *mode, va_list ap);
+		~libxbee();
 		
 		void attachEOFCallback(void (*eofCallback)(struct xbee *xbee, void *rxInfo));
 		

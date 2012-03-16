@@ -1,11 +1,10 @@
 #include <iostream>
 
 #include "xbee.h"
-#include "xsys.h"
 
 using namespace std;
 
-struct xbee_con *xbeep::getCon(const unsigned int conId) {
+struct xbee_con *libxbee::getCon(const unsigned int conId) {
 	struct xbee_con *con;
 	if (conId >= connections.size()) throw XBEE_EINVAL;
 	con = NULL;
@@ -20,7 +19,7 @@ struct xbee_con *xbeep::getCon(const unsigned int conId) {
 
 /* ########################################################################## */
 
-EXPORT xbeep::xbeep(const char *mode, ...) {
+libxbee::libxbee(const char *mode, ...) {
 	xbee_err ret;
 	va_list ap;
 	
@@ -30,20 +29,20 @@ EXPORT xbeep::xbeep(const char *mode, ...) {
 	
 	connections.begin();
 }
-EXPORT xbeep::xbeep(const char *mode, va_list ap) {
+libxbee::libxbee(const char *mode, va_list ap) {
 	xbee_err ret;
 	
 	if ((ret = xbee_vsetup(&xbee, mode, ap)) != XBEE_ENONE) throw ret;
 	
 	connections.begin();
 }
-EXPORT xbeep::~xbeep() {
+libxbee::~libxbee() {
 	xbee_shutdown(xbee);
 }
 
 /* ########################################################################## */
 
-EXPORT void xbeep::attachEOFCallback(void (*eofCallback)(struct xbee *xbee, void *rxInfo)) {
+void libxbee::attachEOFCallback(void (*eofCallback)(struct xbee *xbee, void *rxInfo)) {
 	xbee_err ret;
 	
 	if ((ret = xbee_attachEOFCallback(xbee, eofCallback)) != XBEE_ENONE) throw ret;
@@ -51,7 +50,7 @@ EXPORT void xbeep::attachEOFCallback(void (*eofCallback)(struct xbee *xbee, void
 
 /* ########################################################################## */
 
-EXPORT const char *xbeep::mode(void) {
+const char *libxbee::mode(void) {
 	xbee_err ret;
 	const char *mode;
 	
@@ -62,10 +61,10 @@ EXPORT const char *xbeep::mode(void) {
 
 /* ########################################################################## */
 
-EXPORT unsigned int xbeep::conNew(const char *type) {
+unsigned int libxbee::conNew(const char *type) {
 	return conNew(type, NULL);
 }
-EXPORT unsigned int xbeep::conNew(const char *type, struct xbee_conAddress *address) {
+unsigned int libxbee::conNew(const char *type, struct xbee_conAddress *address) {
 	xbee_err ret;
 	struct xbee_con *con;
 	unsigned int conId;
@@ -77,7 +76,7 @@ EXPORT unsigned int xbeep::conNew(const char *type, struct xbee_conAddress *addr
 	return conId;
 }
 
-EXPORT unsigned char xbeep::conTx(const unsigned int conId, const char *format, ...) {
+unsigned char libxbee::conTx(const unsigned int conId, const char *format, ...) {
 	va_list ap;
 	unsigned char retVal;
 	
@@ -87,7 +86,7 @@ EXPORT unsigned char xbeep::conTx(const unsigned int conId, const char *format, 
 	
 	return retVal;
 }
-EXPORT unsigned char xbeep::conTx(const unsigned int conId, const char *format, va_list ap) {
+unsigned char libxbee::conTx(const unsigned int conId, const char *format, va_list ap) {
 	struct xbee_con *con;
 	xbee_err ret;
 	unsigned char retVal;
@@ -98,7 +97,7 @@ EXPORT unsigned char xbeep::conTx(const unsigned int conId, const char *format, 
 	
 	return retVal;
 }
-EXPORT unsigned char xbeep::conTx(const unsigned int conId, const int len, const unsigned char *data) {
+unsigned char libxbee::conTx(const unsigned int conId, const int len, const unsigned char *data) {
 	struct xbee_con *con;
 	xbee_err ret;
 	unsigned char retVal;
@@ -110,10 +109,10 @@ EXPORT unsigned char xbeep::conTx(const unsigned int conId, const int len, const
 	return retVal;
 }
 
-EXPORT struct xbee_pkt *xbeep::conRx(const unsigned int conId) {
+struct xbee_pkt *libxbee::conRx(const unsigned int conId) {
 	return conRx(conId, NULL);
 }
-EXPORT struct xbee_pkt *xbeep::conRx(const unsigned int conId, int *remainingPackets) {
+struct xbee_pkt *libxbee::conRx(const unsigned int conId, int *remainingPackets) {
 	struct xbee_con *con;
 	struct xbee_pkt *pkt;
 	xbee_err ret;
@@ -125,7 +124,7 @@ EXPORT struct xbee_pkt *xbeep::conRx(const unsigned int conId, int *remainingPac
 	return pkt;
 }
 
-EXPORT void xbeep::conPurge(const unsigned int conId) {
+void libxbee::conPurge(const unsigned int conId) {
 	struct xbee_con *con;
 	xbee_err ret;
 	
@@ -134,7 +133,7 @@ EXPORT void xbeep::conPurge(const unsigned int conId) {
 	if ((ret = xbee_conPurge(con)) != XBEE_ENONE) throw ret;
 }
 
-EXPORT enum xbee_conSleepStates xbeep::conSleep(const unsigned int conId) {
+enum xbee_conSleepStates libxbee::conSleep(const unsigned int conId) {
 	struct xbee_con *con;
 	enum xbee_conSleepStates state;
 	xbee_err ret;
@@ -145,7 +144,7 @@ EXPORT enum xbee_conSleepStates xbeep::conSleep(const unsigned int conId) {
 	
 	return state;
 }
-EXPORT enum xbee_conSleepStates xbeep::conSleep(const unsigned int conId, enum xbee_conSleepStates state) {
+enum xbee_conSleepStates libxbee::conSleep(const unsigned int conId, enum xbee_conSleepStates state) {
 	enum xbee_conSleepStates oldState;
 	struct xbee_con *con;
 	xbee_err ret;
@@ -158,7 +157,7 @@ EXPORT enum xbee_conSleepStates xbeep::conSleep(const unsigned int conId, enum x
 	return oldState;
 }
 
-EXPORT void *xbeep::conData(const unsigned int conId) {
+void *libxbee::conData(const unsigned int conId) {
 	struct xbee_con *con;
 	void *data;
 	xbee_err ret;
@@ -169,7 +168,7 @@ EXPORT void *xbeep::conData(const unsigned int conId) {
 	
 	return data;
 }
-EXPORT void *xbeep::conData(const unsigned int conId, void *newData) {
+void *libxbee::conData(const unsigned int conId, void *newData) {
 	struct xbee_con *con;
 	void *oldData;
 	xbee_err ret;
@@ -182,7 +181,7 @@ EXPORT void *xbeep::conData(const unsigned int conId, void *newData) {
 
 }
 
-EXPORT void xbeep::conInfoGet(const unsigned int conId, struct xbee_conInfo *info) {
+void libxbee::conInfoGet(const unsigned int conId, struct xbee_conInfo *info) {
 	struct xbee_con *con;
 	xbee_err ret;
 	
@@ -191,7 +190,7 @@ EXPORT void xbeep::conInfoGet(const unsigned int conId, struct xbee_conInfo *inf
 	if ((ret = xbee_conInfoGet(con, info)) != XBEE_ENONE) throw ret;
 }
 
-EXPORT xbee_t_conCallback xbeep::conCallbackSet(const unsigned int conId, xbee_t_conCallback newCallback) {
+xbee_t_conCallback libxbee::conCallbackSet(const unsigned int conId, xbee_t_conCallback newCallback) {
 	struct xbee_con *con;
 	xbee_t_conCallback oldCallback;
 	xbee_err ret;
@@ -202,7 +201,7 @@ EXPORT xbee_t_conCallback xbeep::conCallbackSet(const unsigned int conId, xbee_t
 	
 	return oldCallback;
 }
-EXPORT xbee_t_conCallback xbeep::conCallbackGet(const unsigned int conId) {
+xbee_t_conCallback libxbee::conCallbackGet(const unsigned int conId) {
 	struct xbee_con *con;
 	xbee_t_conCallback callback;
 	xbee_err ret;
@@ -214,7 +213,7 @@ EXPORT xbee_t_conCallback xbeep::conCallbackGet(const unsigned int conId) {
 	return callback;
 }
 
-EXPORT void xbeep::conSettings(const unsigned int conId, struct xbee_conSettings *newSettings,struct xbee_conSettings *oldSettings) {
+void libxbee::conSettings(const unsigned int conId, struct xbee_conSettings *newSettings,struct xbee_conSettings *oldSettings) {
 	struct xbee_con *con;
 	xbee_err ret;
 	
@@ -223,7 +222,7 @@ EXPORT void xbeep::conSettings(const unsigned int conId, struct xbee_conSettings
 	if ((ret = xbee_conSettings(con, newSettings, oldSettings)) != XBEE_ENONE) throw ret;
 }
 
-EXPORT void xbeep::conEnd(const unsigned int conId) {
+void libxbee::conEnd(const unsigned int conId) {
 	struct xbee_con *con;
 	xbee_err ret;
 	
@@ -236,18 +235,18 @@ EXPORT void xbeep::conEnd(const unsigned int conId) {
 
 /* ########################################################################## */
 
-EXPORT void xbeep::netStart(int port) {
+void libxbee::netStart(int port) {
 	netStart(port, NULL);
 }
-EXPORT void xbeep::netvStart(int fd) {
+void libxbee::netvStart(int fd) {
 	netvStart(fd, NULL);
 }
-EXPORT void xbeep::netStart(int port, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
+void libxbee::netStart(int port, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
 	xbee_err ret;
 	
 	if ((ret = xbee_netStart(xbee, port, clientFilter)) != XBEE_ENONE) throw ret;
 }
-EXPORT void xbeep::netvStart(int fd, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
+void libxbee::netvStart(int fd, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
 	xbee_err ret;
 	
 	if ((ret = xbee_netvStart(xbee, fd, clientFilter)) != XBEE_ENONE) throw ret;
@@ -255,13 +254,13 @@ EXPORT void xbeep::netvStart(int fd, int(*clientFilter)(struct xbee *xbee, const
 
 /* ########################################################################## */
 
-EXPORT void xbeep::logTargetSet(FILE *f) {
+void libxbee::logTargetSet(FILE *f) {
 	xbee_err ret;
 	
 	if ((ret = xbee_logTargetSet(xbee, f)) != XBEE_ENONE) throw ret;
 }
 
-EXPORT FILE *xbeep::logTargetGet(void) {
+FILE *libxbee::logTargetGet(void) {
 	FILE *f;
 	xbee_err ret;
 	
@@ -270,13 +269,13 @@ EXPORT FILE *xbeep::logTargetGet(void) {
 	return f;
 }
 
-EXPORT void xbeep::logLevelSet(int level) {
+void libxbee::logLevelSet(int level) {
 	xbee_err ret;
 	
 	if ((ret = xbee_logLevelSet(xbee, level)) != XBEE_ENONE) throw ret;
 }
 
-EXPORT int xbeep::logLevelGet(void) {
+int libxbee::logLevelGet(void) {
 	int level;
 	xbee_err ret;
 	
@@ -285,7 +284,7 @@ EXPORT int xbeep::logLevelGet(void) {
 	return level;
 }
 
-EXPORT void xbeep::logDev(const char *file, int line, const char *function, int minLevel, const char *format, ...) {
+void libxbee::logDev(const char *file, int line, const char *function, int minLevel, const char *format, ...) {
 	xbee_err ret;
 	
 	if ((ret = _xbee_logDev(file, line, function, xbee, minLevel, format)) != XBEE_ENONE) throw ret;
