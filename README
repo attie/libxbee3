@@ -40,10 +40,11 @@ flags are also necessary for newer versions of Ubuntu, and possibly others.
   -lpthread -lrt
 
 
-=== C++ ===
-I have provided a C++ class, but due to linker issues when developing in C it has
-been removed from the library. To make use of this, please include 'xbee.cpp' in
-your project compilation. The definition remains in 'xbee.h'.
+=== Interfacing ===
+I have provided the ability to interface with libxbee from a number of languages
+other than 'C'. The source, and sample code for these interfaces  can be found
+in '/interfaces'. Currently the following languages are supported:
+  C++
 
 
 === Samples ===
