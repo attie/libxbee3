@@ -18,10 +18,6 @@ $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))): $(SYS_MANDIR)/%.gz
   $(DEFLATE) < $^ > $@;                      \
   chmod 644 $@;                              \
 else                                         \
-  echo $^; \
 	$(SYMLINK) -fs $(shell readlink $^).gz $@; \
 fi
 	chown -h $(SYS_USER):$(SYS_GROUP) $@
-
-$(SYS_MANDIR)/%:
-	@echo $*
