@@ -1,3 +1,4 @@
+/config.mk
 lib
 .build
 .*.dir

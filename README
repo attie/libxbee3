@@ -17,22 +17,33 @@ information on what this means for you, please see COPYING and COPYING.LESSER.
 
 === Building ===
 If you are building libxbee, then there are a number of options avaliable to you.
-"config.mk" contains most of the options you may want to change, and it is
-recommended that you don't modify the other makefiles
-Alternatively, feel free to file an 'issue' on the project site:
+Initially you should run the following command:
+	$ make configure
+This will retrieve a default 'config.mk' that is suitable for your system. You
+should review this file and then run the following command:
+	$ make all
+
+After the build process has completed, you should find suitable files in ./lib.
+E.g: for a Unix-like OS you can expect to find .so and .a files
+     for Windows you can expect to find a .dll file
+
+It is highly recommended that you don't modify any of the build system.
+
+If you have any issues while building libxbee, please feel free to contact me,
+or alternatively, you can file an 'issue' on the project site:
   http://code.google.com/p/libxbee/issues/list
 
 
 === Installation ===
-To install libxbee simply type (you will require sudo permission):
-  $ make install
-Or run the following as root:
-  $ make install_sudo
+To install libxbee simply type (you will require root permissions):
+  $ sudo make install
+
+This option is not avaliable on all systems (namely Windows).
 
 
 === Usage ===
-Compile your applications, including "xbee.h"
-Link with -lxbee
+Compile your applications, including "xbee.h" in the relevant source files.
+Ensure you link with libxbee (e.g: using 'gcc -lxbee')
 
 If you are compiling the object file directly into your executable instead
 of making use of the library, you must include the following link flags. These
