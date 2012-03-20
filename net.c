@@ -177,24 +177,32 @@ xbee_err xbee_netClientStartup(struct xbee *xbee, struct xbee_netClientInfo *cli
 	if ((ret = xbee_threadStart(xbee, &client->rxThread, 150000, 0, xbee_rx, client->iface.rx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
-		goto die1;
+		goto die;
 	}
 	if ((ret = xbee_threadStart(xbee, &client->rxHandlerThread, 150000, 0, xbee_rxHandler, client->iface.rx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_rx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
-		goto die2;
+		goto die;
 	}
 	if ((ret = xbee_threadStart(xbee, &client->txThread, 150000, 0, xbee_tx, client->iface.tx)) != XBEE_ENONE) {
 		xbee_log(1, "failed to start xbee_tx() thread for client from %s:%d", client->addr, client->port);
 		ret = XBEE_ETHREAD;
-		goto die3;
+		goto die;
 	}
 	return XBEE_ENONE;
-die3:
-	xbee_threadKillJoin(xbee, client->rxHandlerThread, NULL);
-die2:
-	xbee_threadKillJoin(xbee, client->rxThread, NULL);
-die1:
+die:
+	if (client->txThread) {
+		xbee_threadKillJoin(xbee, client->txThread, NULL);
+		client->txThread = NULL;
+	}
+	if (client->rxHandlerThread) {
+		xbee_threadKillJoin(xbee, client->rxHandlerThread, NULL);
+		client->rxHandlerThread = NULL;
+	}
+	if (client->rxThread) {
+		xbee_threadKillJoin(xbee, client->rxThread, NULL);
+		client->rxThread = NULL;
+	}
 	return ret;
 }
 
@@ -202,9 +210,18 @@ xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client) {
 	if (!client) return XBEE_EMISSINGPARAM;
 	if (!client->xbee) return XBEE_EINVAL;
 
-	xbee_threadKillJoin(client->xbee, client->txThread, NULL);
-	xbee_threadKillJoin(client->xbee, client->rxHandlerThread, NULL);
-	xbee_threadKillJoin(client->xbee, client->rxThread, NULL);
+	if (client->rxThread) {
+		xbee_threadKillJoin(client->xbee, client->rxThread, NULL);
+		client->rxThread = NULL;
+	}
+	if (client->rxHandlerThread) {
+		xbee_threadKillJoin(client->xbee, client->rxHandlerThread, NULL);
+		client->rxHandlerThread = NULL;
+	}
+	if (client->txThread) {
+		xbee_threadKillJoin(client->xbee, client->txThread, NULL);
+		client->txThread = NULL;
+	}
 	
 	if (client->fd != -1) {
 		shutdown(client->fd, SHUT_RDWR);

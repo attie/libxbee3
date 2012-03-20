@@ -31,7 +31,7 @@ struct xbee_threadInfo {
 	int active;  /* TRUE means that the thread is alive */
 
 	time_t restartDelay;
-	xsys_thread thread;
+	xsys_thread tid;
 
 	xsys_sem mutexSem; /* keeps count of mutexes held, if > 0, then the thread should be locked */
 
@@ -43,19 +43,17 @@ struct xbee_threadInfo {
 
 #define xbee_threadStart(xbee, retThread, restartDelay, detach, func, arg) \
 	_xbee_threadStart(xbee, retThread, restartDelay, detach, #func, func, arg)
-xbee_err _xbee_threadStart(struct xbee *xbee, xsys_thread *retThread, int restartDelay, int detach, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg);
+xbee_err _xbee_threadStart(struct xbee *xbee, struct xbee_threadInfo **retThread, int restartDelay, int detach, const char *funcName, xbee_err (*func)(struct xbee *xbee, int *restart, void *arg), void *arg);
 
-xbee_err xbee_threadGetState(struct xbee *xbee, xsys_thread thread, int *running, int *active);
+xbee_err xbee_threadKillThis(struct xbee_threadInfo *thread);
+xbee_err xbee_threadKill(struct xbee *xbee, struct xbee_threadInfo *thread);
+xbee_err xbee_threadJoin(struct xbee *xbee, struct xbee_threadInfo *thread, xbee_err *retVal);
+xbee_err xbee_threadKillJoin(struct xbee *xbee, struct xbee_threadInfo *thread, xbee_err *retVal);
+xbee_err xbee_threadRelease(struct xbee *xbee, struct xbee_threadInfo *thread);
+xbee_err xbee_threadStopRelease(struct xbee *xbee, struct xbee_threadInfo *thread);
+xbee_err xbee_threadKillRelease(struct xbee *xbee, struct xbee_threadInfo *thread);
 
-xbee_err xbee_threadKill(struct xbee *xbee, xsys_thread thread);
-xbee_err xbee_threadJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
-xbee_err xbee_threadKillJoin(struct xbee *xbee, xsys_thread thread, xbee_err *retVal);
-xbee_err xbee_threadKillRelease(struct xbee *xbee, xsys_thread thread);
-
-xbee_err xbee_threadDestroy(struct xbee_threadInfo *info);
 xbee_err xbee_threadDestroyMine(struct xbee *xbee);
 
-xbee_err xbee_threadRelease(struct xbee *xbee, xsys_thread thread);
-xbee_err xbee_threadStopRelease(struct xbee *xbee, xsys_thread thread);
 
 #endif /* __XBEE_THREAD_H */

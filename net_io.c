@@ -112,10 +112,16 @@ eof:
 		ll_ext_item(xbee->netInfo->clientList, arg);
 		
 		/* kill the other threads */
-		xbee_threadKillJoin(info->xbee, info->txThread, NULL);
-		xbee_threadKillJoin(info->xbee, info->rxHandlerThread, NULL);
 		/* excluding the rx thread... thats us! */
-		
+		if (info->rxHandlerThread) {
+			xbee_threadKillJoin(info->xbee, info->rxHandlerThread, NULL);
+			info->rxHandlerThread = NULL;
+		}
+		if (info->txThread) {
+			xbee_threadKillJoin(info->xbee, info->txThread, NULL);
+			info->txThread = NULL;
+		}
+
 		/* close up the socket */
 		shutdown(info->fd, SHUT_RDWR);
 		xsys_close(info->fd);

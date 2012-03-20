@@ -28,7 +28,7 @@ struct xbee_con {
 	struct ll_head *pktList;
 	struct xbee_modeConType *conType;
 	
-	int destroySelf;
+	int ending;
 	int conIdentifier;
 	
 	struct xbee_interface *iface;
@@ -37,8 +37,7 @@ struct xbee_con {
 	struct xbee_netClientInfo *netClient;
 	
 	xbee_t_conCallback callback;
-	int callbackStarted;
-	xsys_thread callbackThread;
+	struct xbee_threadInfo *callbackThread;
 	xsys_sem callbackSem;
 	
 	xsys_mutex txMutex;

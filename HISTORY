@@ -3,6 +3,7 @@ v3.0.6 - in progress
 	* Fixed Series 2 addressing issue
 	* Enhanced address checking abilities of xbee_conNew()
 	* Completely redesigned build system
+	* Fixed buggy network interface
 
 v3.0.5 - 09 Mar 2012
 	* Added FreeBSD support

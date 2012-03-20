@@ -28,11 +28,11 @@
 
 int xbee_mutex_lock(xsys_mutex *mutex) {
 	int ret;
-	struct xbee_threadInfo *info;
+	struct xbee_threadInfo *thread;
 	ret = xsys_mutex_lock(mutex);
-	info = xsys_thread_key_get(threadInfoKey);
-	if (info && !ret) {
-		xsys_sem_post(&info->mutexSem);
+	thread = xsys_thread_key_get(threadInfoKey);
+	if (thread && !ret) {
+		xsys_sem_post(&thread->mutexSem);
 		xsys_thread_lock();
 	}
 	return ret;
@@ -40,11 +40,11 @@ int xbee_mutex_lock(xsys_mutex *mutex) {
 
 int xbee_mutex_trylock(xsys_mutex *mutex) {
 	int ret;
-	struct xbee_threadInfo *info;
+	struct xbee_threadInfo *thread;
 	ret = xsys_mutex_trylock(mutex);
-	info = xsys_thread_key_get(threadInfoKey);
-	if (info && !ret) {
-		xsys_sem_post(&info->mutexSem);
+	thread = xsys_thread_key_get(threadInfoKey);
+	if (thread && !ret) {
+		xsys_sem_post(&thread->mutexSem);
 		xsys_thread_lock();
 	}
 	return ret;
@@ -52,13 +52,13 @@ int xbee_mutex_trylock(xsys_mutex *mutex) {
 
 int xbee_mutex_unlock(xsys_mutex *mutex) {
 	int ret;
-	struct xbee_threadInfo *info;
+	struct xbee_threadInfo *thread;
 	ret = xsys_mutex_unlock(mutex);
-	info = xsys_thread_key_get(threadInfoKey);
-	if (info && !ret) {
+	thread = xsys_thread_key_get(threadInfoKey);
+	if (thread && !ret) {
 		int sVal;
-		xsys_sem_trywait(&info->mutexSem);
-		xsys_sem_getvalue(&info->mutexSem, &sVal);
+		xsys_sem_trywait(&thread->mutexSem);
+		xsys_sem_getvalue(&thread->mutexSem, &sVal);
 		if (sVal == 0) xsys_thread_unlock();
 	}
 	return ret;

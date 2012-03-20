@@ -55,7 +55,7 @@ EXPORT FINI void xbee_fini(void) {
 #ifndef XBEE_NO_FINI
 	/* clean up threads, so that they can't depend on anything we are about to free! */
 	if (threadList) {
-		ll_free(threadList, (void(*)(void*))xbee_threadDestroy);
+		ll_free(threadList, (void(*)(void*))xbee_threadKillThis);
 		threadList = NULL;
 	}
 	if (xbeeList) {

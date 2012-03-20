@@ -67,21 +67,22 @@ xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 
 xbee_err xbee_conFree(struct xbee_con *con) {
 	xbee_err ret;
-	int active;
 	
 	if (!con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	xbee_conUnlink(con);
-	
-	if ((ret = xbee_threadGetState(con->xbee, con->callbackThread, NULL, &active)) != XBEE_ENOTEXISTS) {
-		if (ret != XBEE_ENONE) return ret;
-		if (active) {
-			con->destroySelf = 1;
-			xsys_sem_post(&con->callbackSem);
-			return XBEE_ENONE;
+
+	if (con->callbackThread) {
+		con->ending = 1;
+		xsys_sem_post(&con->callbackSem);
+		if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, NULL)) != XBEE_ENONE) {
+			if (ret != XBEE_EINUSE) return ret;
+			usleep(25000);
+			if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, NULL)) != XBEE_ENONE) return ret;
 		}
+		con->callbackThread = NULL;
 	}
 	
 	return _xbee_conFree(con);
@@ -226,7 +227,7 @@ xbee_err _xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *addres
 	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
 		/* skip ending connections */
-		if (con->destroySelf) continue;
+		if (con->ending) continue;
 		
 		/* keep track of the latest catch-all */
 		if (con->settings.catchAll) cCon = con;
@@ -680,7 +681,7 @@ xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
 
 	con = arg;
 
-	while (!con->destroySelf) {
+	while (!con->ending) {
 		callback = con->callback;
 		if (!callback) break;
 		if ((ret = ll_ext_head(con->pktList, (void**)&pkt)) == XBEE_ERANGE) {
@@ -710,10 +711,6 @@ xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
 		}
 	}
 	
-	if (con->destroySelf) {
-		_xbee_conFree(con);
-	}
-	
 	*restart = 0;
 	return XBEE_ENONE;
 }
@@ -721,7 +718,6 @@ xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
 xbee_err xbee_conCallbackProd(struct xbee_con *con) {
 	struct xbee *xbee;
 	xbee_err ret;
-	int active;
 	unsigned int count;
 
 	if (!con) return XBEE_EMISSINGPARAM;
@@ -734,23 +730,21 @@ xbee_err xbee_conCallbackProd(struct xbee_con *con) {
 
 	xsys_sem_post(&con->callbackSem);
 
-	if (con->callbackStarted) {
+	if (con->callbackThread) {
 		xbee_err ret2;
-
-		if ((ret = xbee_threadGetState(con->xbee, con->callbackThread, NULL, &active)) != XBEE_ENONE) return ret;
-		if (active) return XBEE_ENONE;
-
+		
+#warning TODO - there is a gap here, needs a mutex
+		if (con->callbackThread->active) return XBEE_ENONE;
+		
 		if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, &ret2)) != XBEE_ENONE) return ret;
+		con->callbackThread = NULL;
 		if (ret2 != XBEE_ENONE) {
 			xbee_log(3, "dead callback for con @ %p returned %d...", con, ret2);
 		}
 	}
-
-	if (!con->callbackStarted || !active) {
-		con->callbackStarted = 1;
-		if ((ret = xbee_threadStart(con->xbee, &con->callbackThread, 0, 0, xbee_conCallbackHandler, con)) != XBEE_ENONE) return ret;
-	}
-
+	
+	if ((ret = xbee_threadStart(con->xbee, &con->callbackThread, 0, 0, xbee_conCallbackHandler, con)) != XBEE_ENONE) return ret;
+	
 	return XBEE_ENONE;
 }
 

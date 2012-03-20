@@ -37,9 +37,9 @@ struct xbee_netClientInfo {
 	char addr[INET_ADDRSTRLEN];
 	int port;
 	
-	xsys_thread rxThread;
-	xsys_thread rxHandlerThread;
-	xsys_thread txThread;
+	struct xbee_threadInfo *rxThread;
+	struct xbee_threadInfo *rxHandlerThread;
+	struct xbee_threadInfo *txThread;
 	
 	struct ll_head *conList;
 	
@@ -55,7 +55,7 @@ struct xbee_netClientInfo {
 struct xbee_netInfo {
 	int fd;
 	
-	xsys_thread serverThread;
+	struct xbee_threadInfo *serverThread;
 	
 	struct xbee_netClientInfo *newClient;
 	int(*clientFilter)(struct xbee *xbee, const char *remoteHost);
