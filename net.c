@@ -51,11 +51,11 @@ struct ll_head *netDeadClientList = NULL;
 
 #ifdef XBEE_NO_NET_SERVER
 
-EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
+EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
 	return XBEE_ENOTIMPLEMENTED;
 }
 
-EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, char *remoteHost)) {
+EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
 	return XBEE_ENOTIMPLEMENTED;
 }
 
