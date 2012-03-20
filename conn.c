@@ -225,6 +225,9 @@ xbee_err _xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *addres
 	
 	if (needsLLLock) ll_lock(conList);
 	for (con = NULL; (ret = _ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
+		/* skip ending connections */
+		if (con->destroySelf) continue;
+		
 		/* keep track of the latest catch-all */
 		if (con->settings.catchAll) cCon = con;
 		
