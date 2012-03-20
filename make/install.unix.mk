@@ -21,3 +21,9 @@ else                                         \
 	$(SYMLINK) -fs $(shell readlink $^).gz $@; \
 fi
 	chown -h $(SYS_USER):$(SYS_GROUP) $@
+
+
+### release follows... ###
+
+release: $(RELEASE_FILES)
+	tar -acf $(LIBNAME)_v$(LIBFULLREV)_`date +%Y-%m-%d`_`git rev-parse --verify --short HEAD`_`uname -m`_`uname -s`.tar.bz2 --transform='s#^#libxbee/#SH' $^

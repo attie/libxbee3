@@ -29,8 +29,17 @@ INSTALL_FILES=         $(SYS_LIBDIR)/$(LIBNAME).so.$(LIBFULLREV)                
                        $(SYS_LIBDIR)/$(LIBNAME).so                                  \
                        $(SYS_LIBDIR)/$(LIBNAME).a.$(LIBFULLREV)                     \
                        $(SYS_LIBDIR)/$(LIBNAME).a                                   \
-                       $(SYS_INCDIR)/xbee.h                                         \
                        $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))) \
+                       $(SYS_INCDIR)/xbee.h
+
+RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)     \
+                       $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg \
+                       $(DESTDIR)/$(LIBNAME).so                   \
+                       $(DESTDIR)/$(LIBNAME).a.$(LIBFULLREV)      \
+                       $(DESTDIR)/$(LIBNAME).a                    \
+                       $(addprefix $(MANDIR)/,$(SYS_MANPAGES))    \
+                       xbee.h                                     \
+                       README HISTORY COPYING COPYING.LESSER
 
 VER_DEFINES:=          -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
                        -DLIB_COMMIT="\"$(shell git log -1 --format="%H")\""           \
