@@ -101,6 +101,8 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 static inline xbee_err _xbee_conFree(struct xbee_con *con) {
 	ll_ext_item(conList, con);
 	
+	xbee_mutex_lock(&con->txMutex);
+	
 	xsys_mutex_destroy(&con->txMutex);
 	xsys_sem_destroy(&con->callbackSem);
 	ll_free(con->pktList, (void(*)(void*))xbee_pktFree);
@@ -441,21 +443,26 @@ EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const ch
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	va_start(ap, format);
-	ret = xbee_convTx(con, retVal, format, ap);
+	ret = _xbee_convTx(con, retVal, format, ap);
 	va_end(ap);
 	
 	return ret;
 }
 
 EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args) {
+	if (!con || !format) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+
+	return _xbee_convTx(con, retVal, format, args);
+}
+xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args) {
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
 	
 	if (!con || !format) return XBEE_EMISSINGPARAM;
-#ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
-#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	if ((bufLen = vsnprintf(NULL, 0, format, args)) > 0) {
 		bufLen += 1; /* make space for the terminating '\0' */
@@ -472,7 +479,7 @@ EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const c
 		outLen = 0;
 	}
 	
-	ret = xbee_connTx(con, retVal, (unsigned char*)buf, outLen);
+	ret = _xbee_connTx(con, retVal, (unsigned char*)buf, outLen);
 	
 die:
 	if (buf) free(buf);
@@ -480,6 +487,15 @@ die:
 }
 
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len) {
+	if (!con) return XBEE_EMISSINGPARAM;
+	if (len < 0) return XBEE_EINVAL;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	
+	return _xbee_connTx(con, retVal, buf, len);
+}
+xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len) {
 	int waitForAck;
 	xbee_err ret;
 	unsigned char myret;
@@ -487,9 +503,6 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const u
 	
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (len < 0) return XBEE_EINVAL;
-#ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
-#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	if (con->sleepState != CON_AWAKE) {
 		if (con->sleepState != CON_SNOOZE) {
