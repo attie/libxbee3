@@ -132,7 +132,9 @@ xbee_err _xbee_threadStart(struct xbee *xbee, struct xbee_threadInfo **retThread
 
 xbee_err xbee_threadKill(struct xbee *xbee, struct xbee_threadInfo *thread) {
 	if (!xbee || !thread) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_threadValidate(xbee, thread) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	if (thread->active) {
 		thread->run = 0;
@@ -149,7 +151,9 @@ xbee_err xbee_threadKillThis(struct xbee_threadInfo *thread) {
 
 xbee_err xbee_threadJoin(struct xbee *xbee, struct xbee_threadInfo *thread, xbee_err *retVal) {
 	if (!xbee || !thread) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_threadValidate(xbee, thread) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	if (thread->active != 0) return XBEE_EINUSE;
 
@@ -166,7 +170,9 @@ xbee_err xbee_threadKillJoin(struct xbee *xbee, struct xbee_threadInfo *thread, 
 	xbee_err ret;
 
 	if (!xbee || !thread) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_threadValidate(xbee, thread) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	if (thread->active) if ((ret = xbee_threadKill(xbee, thread)) != XBEE_ENONE) return ret;
 	if ((ret = xbee_threadJoin(xbee, thread, retVal)) != XBEE_ENONE) return ret;
@@ -176,7 +182,9 @@ xbee_err xbee_threadKillJoin(struct xbee *xbee, struct xbee_threadInfo *thread, 
 
 xbee_err xbee_threadRelease(struct xbee *xbee, struct xbee_threadInfo *thread) {
 	if (!xbee || !thread) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_threadValidate(xbee, thread) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	xsys_thread_detach(thread->tid);
 	thread->detached = 1;
@@ -189,7 +197,9 @@ xbee_err xbee_threadStopRelease(struct xbee *xbee, struct xbee_threadInfo *threa
 	xbee_err ret;
 
 	if (!xbee || !thread) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_threadValidate(xbee, thread) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	thread->run = 0;
 	if ((ret = xbee_threadRelease(xbee, thread)) != XBEE_ENONE) return ret;
@@ -201,7 +211,9 @@ xbee_err xbee_threadKillRelease(struct xbee *xbee, struct xbee_threadInfo *threa
 	xbee_err ret;
 
 	if (!xbee || !thread) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_threadValidate(xbee, thread) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	if ((ret = xbee_threadRelease(xbee, thread)) != XBEE_ENONE) return ret;
 	if ((ret = xbee_threadKill(xbee, thread)) != XBEE_ENONE) return ret;
