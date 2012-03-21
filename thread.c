@@ -138,6 +138,7 @@ xbee_err xbee_threadKill(struct xbee *xbee, struct xbee_threadInfo *thread) {
 		thread->run = 0;
 		usleep(1000); /* 1ms */
 		if (xsys_thread_cancel(thread->tid)) return XBEE_ETHREAD;
+		thread->active = 0;
 	}
 
 	return XBEE_ENONE;
