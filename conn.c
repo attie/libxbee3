@@ -78,9 +78,19 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 		con->ending = 1;
 		xsys_sem_post(&con->callbackSem);
 		if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, NULL)) != XBEE_ENONE) {
+			int i;
 			if (ret != XBEE_EINUSE) return ret;
-			usleep(25000);
-			if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, NULL)) != XBEE_ENONE) return ret;
+			
+			/* wait patiently upto 50ms for the callback to finish its stuff */
+			for (i = 10; i > 0; i--) {
+				usleep(5000);
+				if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, NULL)) == XBEE_ENONE) break;
+				if (ret == XBEE_EINUSE) continue;
+				return ret;
+			}
+			
+			/* if it's still not dead, then just kill it! */
+			if (i == 0 && (ret = xbee_threadKillJoin(con->xbee, con->callbackThread, NULL)) != XBEE_ENONE) return ret;
 		}
 		con->callbackThread = NULL;
 	}
