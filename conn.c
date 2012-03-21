@@ -433,6 +433,9 @@ xbee_err xbee_conWake(struct xbee_con *con) {
 
 /* ########################################################################## */
 
+xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);
+xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len);
+
 EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...) {
 	xbee_err ret;
 	va_list ap;
