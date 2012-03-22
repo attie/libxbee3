@@ -1,3 +1,4 @@
 *.class
 *.jar
 uk_co_attie_libxbee.h
+/uk_co_attie_libxbee_*.h

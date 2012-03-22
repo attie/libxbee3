@@ -1,8 +1,15 @@
-import uk.co.attie.*;
+import uk.co.attie.libxbee.*;
+import java.lang.*;
 
 class main {
+	static libxbee xbee;
+
 	public static void main(String[] args) {
-		new libxbee().print();
+		try {
+			xbee = new libxbee("xbee1", "/dev/ttyUSB0", 57600);
+		} catch (libxbee_err ret) {
+			System.out.println("Error = " + ret.ret);
+		}
 	}
 	
 	static {
