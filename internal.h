@@ -42,7 +42,7 @@ struct xbee_buf {
 	unsigned char data[1];
 };
 
-#define LH printf("LOG_HERE: %s:%d\n", __FILE__, __LINE__);
+#define LH fprintf(stderr, "LOG_HERE: %s:%d\n", __FILE__, __LINE__);
 
 /* ######################################################################### */
 
