@@ -41,7 +41,7 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)     \
                        xbee.h                                     \
                        README HISTORY COPYING COPYING.LESSER
 
-VER_DEFINES            -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
+VER_DEFINES=           -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
                        -DLIB_COMMIT="\"$(shell git log -1 --format="%H")\""           \
                        -DLIB_COMMITTER="\"$(shell git log -1 --format="%cn <%ce>")\"" \
                        -DLIB_BUILDTIME="\"$(shell date)\""
