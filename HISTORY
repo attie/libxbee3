@@ -1,8 +1,10 @@
-v3.0.6 - in progress
+v3.0.6 - 25 Mar 2012
 	* Added C++ class
 	* Fixed Series 2 addressing issue
 	* Enhanced address checking abilities of xbee_conNew()
 	* Completely redesigned build system
+	* Made a 'defconfig' for FreeBSD
+	* Re-implemented threading functions
 	* Fixed buggy network interface
 
 v3.0.5 - 09 Mar 2012
