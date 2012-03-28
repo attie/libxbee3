@@ -21,8 +21,8 @@
 	along with libxbee. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "xbee.h"
 #include "xsys.h"
+#include "xbee.h"
 #include "mutex.h"
 
 /* ######################################################################### */
@@ -36,6 +36,7 @@ struct xbee_log;
 struct xbee_mode;
 struct xbee_txInfo;
 struct xbee_rxInfo;
+struct xbee_interface;
 
 struct xbee_buf {
 	size_t len;

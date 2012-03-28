@@ -93,6 +93,9 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 	int pos;
 	size_t memSize;
 	
+	unsigned char addr16_default[] = { 0xFF, 0xFE };
+	unsigned char addr64_default[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 	
 	if (len < 2) return XBEE_ELENGTH; /* must have the AT command... */
@@ -107,9 +110,9 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 		case 0x17: /* Remote AT */
 			if (address->addr64_enabled) {
 				addr64 = &(address->addr64[0]);
-				addr16 = (unsigned char[]){ 0xFF, 0xFE };
+				addr16 = addr16_default;
 			} else if (address->addr16_enabled) {
-				addr64 = (unsigned char[]){ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+				addr64 = addr64_default;
 				addr16 = &(address->addr16[0]);
 			} else {
 				return XBEE_EINVAL;

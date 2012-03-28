@@ -24,8 +24,8 @@
 #include <errno.h>
 
 #include "internal.h"
-#include "conn.h"
 #include "xbee_int.h"
+#include "conn.h"
 #include "pkt.h"
 #include "mode.h"
 #include "log.h"
@@ -37,7 +37,7 @@
 struct ll_head *conList = NULL;
 
 /* ########################################################################## */
-static inline xbee_err _xbee_conFree(struct xbee_con *con);
+static xbee_err _xbee_conFree(struct xbee_con *con);
 
 xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 	size_t memSize;
@@ -98,7 +98,7 @@ xbee_err xbee_conFree(struct xbee_con *con) {
 	return _xbee_conFree(con);
 }
 	
-static inline xbee_err _xbee_conFree(struct xbee_con *con) {
+static xbee_err _xbee_conFree(struct xbee_con *con) {
 	ll_ext_item(conList, con);
 	
 	xbee_mutex_lock(&con->txMutex);
@@ -329,18 +329,18 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList) {
 
 /* ########################################################################## */
 
-xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address) {
+xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *iface, int allowInternal, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address) {
 	xbee_err ret;
 	int conIdentifier;
 	struct xbee_con *con;
 	struct xbee_modeConType *conType;
 
-	if (!xbee || !interface || !interface->conTypes || !retCon || !type) return XBEE_EMISSINGPARAM;
+	if (!xbee || !iface || !iface->conTypes || !retCon || !type) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
-	if ((ret = xbee_modeLocateConType(interface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
+	if ((ret = xbee_modeLocateConType(iface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
 	if (!conType) return XBEE_EUNKNOWN;
 	
 	if (conType->addressRules & ADDR_EP_NOTALLOW && ( address &&  address->endpoints_enabled))                          return XBEE_EINVAL;
@@ -355,11 +355,11 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int a
 	conIdentifier = 0;
 	if (xbee->mode->support.conNew) {
 		/* check with support system */
-		if ((ret = xbee->mode->support.conNew(xbee, interface, conType, address, &conIdentifier)) != XBEE_ENONE) return ret;
+		if ((ret = xbee->mode->support.conNew(xbee, iface, conType, address, &conIdentifier)) != XBEE_ENONE) return ret;
 	}
 	
 	if ((ret = xbee_conAlloc(&con)) != XBEE_ENONE) return ret;
-	con->iface = interface;
+	con->iface = iface;
 	con->conIdentifier = conIdentifier;
 	
 	if (address) {
@@ -503,6 +503,8 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 	xbee_err ret;
 	unsigned char myret;
 	unsigned char *pret;
+	unsigned char nada;
+	nada = 0x00;
 	
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (len < 0) return XBEE_EINVAL;
@@ -520,7 +522,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 
 	if (!buf) {
 		len = 0;
-		buf = &((unsigned char){0x00});
+		buf = &nada;
 	}
 
 	/* we ALWAYS want to be able to check the response value */
@@ -759,7 +761,9 @@ xbee_err xbee_conCallbackProd(struct xbee_con *con) {
 	if (con->callbackThread) {
 		xbee_err ret2;
 		
+#ifndef _WIN32
 #warning TODO - there is a gap here, needs a mutex
+#endif
 		if (con->callbackThread->active) return XBEE_ENONE;
 		
 		if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, &ret2)) != XBEE_ENONE) return ret;

@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <termios.h>
+//#include <termios.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
@@ -40,6 +40,7 @@
 #define ESCAPER_PRINTF(...)
 #endif /* defined(XBEE_API2) && defined(XBEE_API2_DEBUG) */
 
+#ifndef _WIN32
 xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
   struct termios tc;
   speed_t chosenbaud;
@@ -151,6 +152,7 @@ xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
 	
 	return XBEE_ENONE;
 }
+#endif
 
 /* ######################################################################### */
 

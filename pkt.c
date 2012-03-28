@@ -30,8 +30,8 @@
 struct ll_head *pktList = NULL;
 
 /* ########################################################################## */
-static inline xbee_err _xbee_pktFree(struct xbee_pkt *pkt);
-static inline xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key);
+static xbee_err _xbee_pktFree(struct xbee_pkt *pkt);
+static xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key);
 
 xbee_err xbee_pktAlloc(struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLen) {
 	size_t memSize;
@@ -74,7 +74,7 @@ EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
 	return _xbee_pktFree(pkt);
 }
 
-static inline xbee_err _xbee_pktFree(struct xbee_pkt *pkt) {
+static xbee_err _xbee_pktFree(struct xbee_pkt *pkt) {
 	ll_ext_item(pktList, pkt);
 	
 	ll_free(pkt->dataItems, (void(*)(void *))_xbee_pktDataKeyDestroy);
@@ -195,7 +195,7 @@ xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, const char *key, int id, struc
 	return ret;
 }
 
-static inline xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key) {
+static xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key) {
 	ll_free(key->items, key->freeCallback);
 	free(key);
 	return XBEE_ENONE;

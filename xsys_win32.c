@@ -1,3 +1,7 @@
+#ifndef __XBEE_XSYS_LOAD_C
+#error This source should be included by xsys.c only
+#endif /* __XBEE_XSYS_LOAD_C */
+
 /*
 	libxbee - a C library to aid the use of Digi's XBee wireless modules
 	          running in API mode.
@@ -18,9 +22,13 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "xsys.h"
+int xsys_select(FILE *stream, struct timeval *timeout) {
+	fd_set fds;
+	int fd;
 
-EXPORT const char libxbee_revision[]  = LIB_REVISION;
-EXPORT const char libxbee_commit[]    = LIB_COMMIT;
-EXPORT const char libxbee_committer[] = LIB_COMMITTER;
-EXPORT const char libxbee_buildtime[] = LIB_BUILDTIME;
+	fd = fileno(stream);
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
+
+	return select(fd + 1, &fds, NULL, NULL, timeout);
+}
