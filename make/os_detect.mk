@@ -24,6 +24,10 @@ DEFCONFIG:=$(addprefix make/default/,$(firstword $(DEFCONFIG)))
 BUILD_RULES?=generic.mk
 BUILD_RULES:=$(addprefix make/build.,$(firstword $(BUILD_RULES)))
 
+ifneq ($(POST_BUILD),)
+POST_BUILD:=$(addprefix make/post.,$(firstword $(POST_BUILD)))
+endif
+
 ifneq ($(INSTALL_RULES),)
 INSTALL_RULES:=$(addprefix make/install.,$(firstword $(INSTALL_RULES)))
 endif

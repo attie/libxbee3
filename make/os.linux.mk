@@ -9,6 +9,7 @@ OBJCOPY=               $(CROSS_COMPILE)objcopy
 AR=                    $(CROSS_COMPILE)ar
 DEFLATE:=              gzip
 SYMLINK:=              ln
+MKDIR=                 @if [ ! -d $* ]; then echo "mkdir -p $*"; mkdir -p $*; else echo "!mkdir $*"; fi
 RM:=                   rm -f
 RMDIR:=                rm -rf
 INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER) -DT
@@ -19,7 +20,7 @@ CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
 CFLAGS+=               -fvisibility=hidden
 CPPFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes -Wno-variadic-macros
-CLINKS+=               $(addprefix -l,$(LIBS)) $(DEBUG)
+CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
 
 LIB_OUT:=              $(DESTDIR)/$(LIBNAME).so \
                        $(DESTDIR)/$(LIBNAME).a
