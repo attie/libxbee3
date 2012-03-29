@@ -22,7 +22,6 @@
 */
 
 extern const struct xbee_modeConType xbee_s1_localAt;
-extern const struct xbee_modeConType xbee_s1_localAtQueued;
 extern const struct xbee_modeConType xbee_s1_remoteAt;
 
 #endif /* __XBEE_MODE_AT_H */
