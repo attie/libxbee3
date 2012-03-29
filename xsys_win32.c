@@ -22,6 +22,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "internal.h"
+
 int xsys_select(FILE *stream, struct timeval *timeout) {
 	fd_set fds;
 	int fd;
@@ -31,4 +33,15 @@ int xsys_select(FILE *stream, struct timeval *timeout) {
 	FD_SET(fd, &fds);
 
 	return select(fd + 1, &fds, NULL, NULL, timeout);
+}
+
+int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
+	DWORD dwMiliseconds;
+	if (timeout) {
+		dwMiliseconds  = timeout->tv_sec * 1000;
+		dwMiliseconds += timeout->tv_nsec / 1000000;
+	} else {
+		dwMiliseconds = 0;
+	}
+	return WaitForSingleObject(sem, dwMiliseconds);
 }
