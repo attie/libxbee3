@@ -78,8 +78,8 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 /* ######################################################################### */
 /* threads */
 
-#define xbee_thread_create(thread, start_routine, arg) \
-                                              (((thread) = CreateThread(NULL,0,(void *)(start_routine),(void *)(arg),0,NULL)) == NULL)
+#define xsys_thread_create(thread, start_routine, arg) \
+                                              (((*(thread)) = CreateThread(NULL,0,(void *)(start_routine),(void *)(arg),0,NULL)) == NULL)
 #define xsys_thread_cancel(thread)            TerminateThread((thread),0)
 #define xsys_thread_join(thread, retval)      (WaitForSingleObject((thread),INFINITE) && GetExitCodeThread((thread), (LPDWORD)(retval)))
 #define xsys_thread_self()                    (0)
