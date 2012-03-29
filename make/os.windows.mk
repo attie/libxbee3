@@ -14,8 +14,7 @@ RMDIR:=                del /FQ
 DEBUG:=                /MT
 CFLAGS+=               /nologo "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /RTCs /Gz $(DEBUG) $(addprefix /D,$(OPTIONS))
 CLINKS+=               /nologo "/LIBPATH:$(SDKPATH)\Lib" "/LIBPATH:$(VCPATH)\lib"
-INCLNK:=               /INCREMENTAL /FORCE:UNRESOLVED 
-FINLNK:=               /INCREMENTAL:NO /DLL 
+FINLNK:=               /DLL 
 
 LIB_OUT:=              $(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll
 
@@ -27,3 +26,5 @@ VER_DEFINES:=          /DLIB_REVISION="\"$(LIBFULLREV)\""                      \
 OPTIONS+=              XBEE_NO_NET_SERVER
 
 POST_BUILD:=           windows.mk
+
+MODELIST:=             xbee1

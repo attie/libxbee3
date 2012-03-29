@@ -5,12 +5,8 @@ $(DESTDIR)/$(LIBNAME).dll $(DESTDIR)/$(LIBNAME).so: $(DESTDIR)/$(LIBNAME).%: $(D
 	$(SYMLINK) -fs `basename $^` $@
 
 # generate the DLL
-$(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll: .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME).o
+$(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll: .$(DESTDIR).dir $(CORE_OBJS) $(MODE_OBJS) $(MODE_MODE_OBJS)
 	$(LD) $(CLINKS) $(FINLNK) "/LIBPATH:$(SDKPATH)Lib" "/LIBPATH:$(VCPATH)\lib" /OUT:$@ /MAP:$@.map $(filter %.o,$^)
-
-# generate the 'libxbee' object file
-$(DESTDIR)/$(LIBNAME).o: .$(DESTDIR).dir $(CORE_OBJS) $(MODE_OBJS) $(MODE_MODE_OBJS)
-	$(LD) $(CLINKS) $(INCLNK) /OUT:$@ $(filter %.o,$^)
 
 ###
 # dynamically generate these rules for each mode

@@ -128,30 +128,24 @@ xbee_err xbee_s1_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
-	.identifier = 0x83,
-	.func = xbee_s1_io_rx_func,
-};
-const struct xbee_modeConType xbee_s1_16bitIo = {
-	.name = "16-bit I/O",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_16_ONLY,
-	.rxHandler = &xbee_s1_16bitIo_rx,
-	.txHandler = NULL,
-};
+void xbee_s1_16bitIo_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_16_ONLY;
+	conType->rxHandler->identifier = 0x83;
+	conType->rxHandler->func = xbee_s1_io_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx;
+struct xbee_modeConType xbee_s1_16bitIo = { "16-bit I/O", &xbee_s1_16bitIo_rx, NULL, xbee_s1_16bitIo_init};
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
-	.identifier = 0x82,
-	.func = xbee_s1_io_rx_func,
-};
-const struct xbee_modeConType xbee_s1_64bitIo = {
-	.name = "64-bit I/O",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_64_ONLY,
-	.rxHandler = &xbee_s1_64bitIo_rx,
-	.txHandler = NULL,
-};
+void xbee_s1_64bitIo_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_64_ONLY;
+	conType->rxHandler->identifier = 0x82;
+	conType->rxHandler->func = xbee_s1_io_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx;
+struct xbee_modeConType xbee_s1_64bitIo = { "64-bit I/O", &xbee_s1_64bitIo_rx, NULL, xbee_s1_64bitIo_init };

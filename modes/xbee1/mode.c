@@ -36,7 +36,7 @@
 #include "io.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
-static xbee_err shutdown(struct xbee *xbee);
+static xbee_err mode_shutdown(struct xbee *xbee);
 
 /* ######################################################################### */
 
@@ -64,11 +64,11 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	return XBEE_ENONE;
 die:
-	shutdown(xbee);
+	mode_shutdown(xbee);
 	return ret;
 }
 
-static xbee_err shutdown(struct xbee *xbee) {
+static xbee_err mode_shutdown(struct xbee *xbee) {
 	struct xbee_modeData *data;
 	
 	if (!xbee) return XBEE_EMISSINGPARAM;
@@ -112,18 +112,15 @@ done:
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_transmitStatus_rx  = {
-	.identifier = 0x89,
-	.func = xbee_s1_transmitStatus_rx_func,
-};
-const struct xbee_modeConType xbee_s1_transmitStatus = {
-	.name = "Transmit Status",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s1_transmitStatus_rx,
-	.txHandler = NULL,
-};
+void xbee_s1_transmitStatus_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x89;
+	conType->rxHandler->func = xbee_s1_transmitStatus_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_transmitStatus_rx;
+struct xbee_modeConType xbee_s1_transmitStatus = { "Transmit Status", &xbee_s1_transmitStatus_rx, NULL, xbee_s1_transmitStatus_init };
 
 /* ######################################################################### */
 
@@ -148,18 +145,15 @@ xbee_err xbee_s1_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_modemStatus_rx  = {
-	.identifier = 0x8A,
-	.func = xbee_s1_modemStatus_rx_func,
-};
-const struct xbee_modeConType xbee_s1_modemStatus = {
-	.name = "Modem Status",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s1_modemStatus_rx,
-	.txHandler = NULL,
-};
+void xbee_s1_modemStatus_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x8A;
+	conType->rxHandler->func = xbee_s1_modemStatus_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_modemStatus_rx;
+struct xbee_modeConType xbee_s1_modemStatus = { "Modem Status", &xbee_s1_modemStatus_rx, NULL, xbee_s1_modemStatus_init };
 
 /* ######################################################################### */
 
@@ -176,17 +170,17 @@ static const struct xbee_modeConType *conTypes[] = {
 };
 
 const struct xbee_mode mode_xbee1 = {
-	.name = "xbee1",
+	/* .name = */ "xbee1",
 	
-	.conTypes = conTypes,
+	/* .conTypes = */ conTypes,
 	
-	.init = init,
-	.prepare = NULL,
-	.shutdown = shutdown,
+	/* .init = */ init,
+	/* .prepare = */ NULL,
+	/* .shutdown = */ mode_shutdown,
 	
-	.rx_io = xbee_xbeeRxIo,
-	.tx_io = xbee_xbeeTxIo,
+	/* .rx_io = */ xbee_xbeeRxIo,
+	/* .tx_io = */ xbee_xbeeTxIo,
 	
-	.thread = NULL,
+	/* .thread = */ NULL,
 };
 

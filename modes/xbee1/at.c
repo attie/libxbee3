@@ -156,46 +156,34 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_localAt_rx  = {
-	.identifier = 0x88,
-	.func = xbee_s1_at_rx_func,
-};
-const struct xbee_modeDataHandlerTx xbee_s1_localAt_tx  = {
-	.identifier = 0x08,
-	.func = xbee_s1_at_tx_func,
-};
-const struct xbee_modeConType xbee_s1_localAt = {
-	.name = "Local AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 0,
-		.tv_nsec = 250000000,
-	},
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s1_localAt_rx,
-	.txHandler = &xbee_s1_localAt_tx,
-};
+void xbee_s1_localAt_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 0;
+	conType->timeout.tv_nsec = 250000000;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x88;
+	conType->rxHandler->func = xbee_s1_at_rx_func;
+	conType->txHandler->identifier = 0x08;
+	conType->txHandler->func = xbee_s1_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_localAt_rx;
+struct xbee_modeDataHandlerTx xbee_s1_localAt_tx;
+struct xbee_modeConType xbee_s1_localAt = { "Local AT", &xbee_s1_localAt_rx, &xbee_s1_localAt_tx, xbee_s1_localAt_init };
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_remoteAt_rx  = {
-	.identifier = 0x97,
-	.func = xbee_s1_at_rx_func,
-};
-const struct xbee_modeDataHandlerTx xbee_s1_remoteAt_tx  = {
-	.identifier = 0x17,
-	.func = xbee_s1_at_tx_func,
-};
-const struct xbee_modeConType xbee_s1_remoteAt = {
-	.name = "Remote AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 0,
-		.tv_nsec = 750000000,
-	},
-	.addressRules = ADDR_16XOR64_NOEP,
-	.rxHandler = &xbee_s1_remoteAt_rx,
-	.txHandler = &xbee_s1_remoteAt_tx,
-};
+void xbee_s1_remoteAt_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 0;
+	conType->timeout.tv_nsec = 750000000;
+	conType->addressRules = ADDR_16XOR64_NOEP;
+	conType->rxHandler->identifier = 0x97;
+	conType->rxHandler->func = xbee_s1_at_rx_func;
+	conType->txHandler->identifier = 0x17;
+	conType->txHandler->func = xbee_s1_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_remoteAt_rx;
+struct xbee_modeDataHandlerTx xbee_s1_remoteAt_tx;
+struct xbee_modeConType xbee_s1_remoteAt = { "Remote AT", &xbee_s1_remoteAt_rx, &xbee_s1_remoteAt_tx, xbee_s1_remoteAt_init };

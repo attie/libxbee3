@@ -32,6 +32,10 @@
 #pragma comment (lib, "uuid.lib")
 
 #define usleep(a)                 Sleep((a)/1000)
+#define strcasecmp(a,b)           _stricmp((a),(b))
+#define strncasecmp(a,b,c)        _strnicmp((a),(b),(c))
+#define snprintf(a,b,...)         _snprintf((a),(b),__VA_ARGS__)
+
 
 /* ######################################################################### */
 
@@ -77,7 +81,7 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 #define xbee_thread_create(thread, start_routine, arg) \
                                               (((thread) = CreateThread(NULL,0,(void *)(start_routine),(void *)(arg),0,NULL)) == NULL)
 #define xsys_thread_cancel(thread)            TerminateThread((thread),0)
-#define xsys_thread_join(thread, retval)      (WaitForSingleObject((thread),INFINITE) && GetExitCodeThread((thread), (retval)))
+#define xsys_thread_join(thread, retval)      (WaitForSingleObject((thread),INFINITE) && GetExitCodeThread((thread), (LPDWORD)(retval)))
 #define xsys_thread_self()                    (0)
 #define xsys_thread_detach(thread)            
 #define xsys_thread_detach_self()             

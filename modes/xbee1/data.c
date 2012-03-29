@@ -124,38 +124,30 @@ xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_16bitData_rx  = {
-	.identifier = 0x81,
-	.func = xbee_s1_data_rx_func,
-};
-const struct xbee_modeDataHandlerTx xbee_s1_16bitData_tx  = {
-	.identifier = 0x01,
-	.func = xbee_s1_data_tx_func,
-};
-const struct xbee_modeConType xbee_s1_16bitData = {
-	.name = "16-bit Data",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_16_ONLY,
-	.rxHandler = &xbee_s1_16bitData_rx,
-	.txHandler = &xbee_s1_16bitData_tx,
-};
+void xbee_s1_16bitData_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_16_ONLY;
+	conType->rxHandler->identifier = 0x81;
+	conType->rxHandler->func = xbee_s1_data_rx_func;
+	conType->txHandler->identifier = 0x01;
+	conType->txHandler->func = xbee_s1_data_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_16bitData_rx;
+struct xbee_modeDataHandlerTx xbee_s1_16bitData_tx;
+struct xbee_modeConType xbee_s1_16bitData = { "16-bit Data", &xbee_s1_16bitData_rx, &xbee_s1_16bitData_tx, xbee_s1_16bitData_init};
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_64bitData_rx  = {
-	.identifier = 0x80,
-	.func = xbee_s1_data_rx_func,
-};
-const struct xbee_modeDataHandlerTx xbee_s1_64bitData_tx  = {
-	.identifier = 0x00,
-	.func = xbee_s1_data_tx_func,
-};
-const struct xbee_modeConType xbee_s1_64bitData = {
-	.name = "64-bit Data",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_64_ONLY,
-	.rxHandler = &xbee_s1_64bitData_rx,
-	.txHandler = &xbee_s1_64bitData_tx,
-};
+void xbee_s1_64bitData_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_64_ONLY;
+	conType->rxHandler->identifier = 0x80;
+	conType->rxHandler->func = xbee_s1_data_rx_func;
+	conType->txHandler->identifier = 0x00;
+	conType->txHandler->func = xbee_s1_data_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s1_64bitData_rx;
+struct xbee_modeDataHandlerTx xbee_s1_64bitData_tx;
+struct xbee_modeConType xbee_s1_64bitData = { "64-bit Data", &xbee_s1_64bitData_rx, &xbee_s1_64bitData_tx, xbee_s1_64bitData_init};
