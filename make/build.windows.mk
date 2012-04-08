@@ -31,5 +31,6 @@ $(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir %.c
 #####
 
 # build a core object
+$(BUILDDIR)/xsys.o: xsys_win32.c
 $(BUILDDIR)/%.o: .$(BUILDDIR).dir %.c
 	$(CC) $(CFLAGS) $*.c /c /Fo$@
