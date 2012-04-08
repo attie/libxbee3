@@ -18,6 +18,8 @@ FINLNK:=               /DLL
 
 LIB_OUT:=              $(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll
 
+CLEAN_FILES=           $(BUILDDIR)\*.o
+
 VER_DEFINES:=          /DLIB_REVISION="\"$(LIBFULLREV)\""                      \
                        /DLIB_COMMIT="\"-- unknown --\""                        \
                        /DLIB_COMMITTER="\"-- unknown --\""                     \
