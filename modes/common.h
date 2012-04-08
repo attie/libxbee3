@@ -21,18 +21,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-struct xbee_serialInfo {
-	char *device;
-	int baudrate;
-	int fd;
-	FILE *f;
-	
-	size_t txBufSize;
-	struct xbee_buf *txBuf;
-};
-
-xbee_err xbee_serialSetup(struct xbee_serialInfo *info);
-
 xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf);
 xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf);
 

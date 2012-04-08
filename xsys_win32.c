@@ -46,6 +46,7 @@ int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
 	return WaitForSingleObject(sem, dwMiliseconds);
 }
 
+/* ######################################################################### */
 /* thanks to Carl Staelin for this:
      http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows */
 LARGE_INTEGER getFILETIMEoffset() {
@@ -103,4 +104,10 @@ int clock_gettime(int X, struct timeval *tv) {
 	tv->tv_usec = t.QuadPart % 1000000;
 
 	return (0);
+}
+
+/* ######################################################################### */
+
+xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
+  return XBEE_ENOTIMPLEMENTED;
 }

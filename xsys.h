@@ -27,16 +27,6 @@ extern "C" {
 
 #include <stdio.h>
 
-#define __XBEE_XSYS_LOAD_H
-#if defined(__GNUC__) /* ------- */
-#include "xsys_linux.h"
-#elif defined(_WIN32) /* ------- */
-#include "xsys_win32.h"
-#else /* ----------------------- */
-#error Unsupported OS
-#endif /* ---------------------- */
-#undef __XBEE_XSYS_LOAD_H
-
 /* file I/O --- needs the following functions:
 int xsys_open(char *path, int flags);
 int xsys_lockf(int fd);
@@ -96,8 +86,22 @@ int xsys_sem_post(xsys_sem *sem);
 int xsys_sem_getvalue(xsys_sem *sem, int *value);
 */
 
-#endif /* __XBEE_XSYS_H */
+/* misc --- other misc functions that need to be implemented:
+xbee_err xbee_serialSetup(struct xbee_serialInfo *info)
+*/
+
+#define __XBEE_XSYS_LOAD_H
+#if defined(__GNUC__) /* ------- */
+#include "xsys_linux.h"
+#elif defined(_WIN32) /* ------- */
+#include "xsys_win32.h"
+#else /* ----------------------- */
+#error Unsupported OS
+#endif /* ---------------------- */
+#undef __XBEE_XSYS_LOAD_H
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+#endif /* __XBEE_XSYS_H */
