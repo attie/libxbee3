@@ -5,8 +5,11 @@ $(DESTDIR)/$(LIBNAME).dll $(DESTDIR)/$(LIBNAME).so: $(DESTDIR)/$(LIBNAME).%: $(D
 	$(SYMLINK) -fs `basename $^` $@
 
 # generate the DLL
-$(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll: .$(DESTDIR).dir $(CORE_OBJS) $(MODE_OBJS) $(MODE_MODE_OBJS)
-	$(LD) $(CLINKS) $(FINLNK) "/LIBPATH:$(SDKPATH)Lib" "/LIBPATH:$(VCPATH)\lib" /OUT:$@ /MAP:$@.map $(filter %.o,$^)
+$(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll: .$(DESTDIR).dir $(CORE_OBJS) $(MODE_OBJS) $(MODE_MODE_OBJS) $(BUILDDIR)/win32.res
+	$(LD) $(CLINKS) $(FINLNK) "/LIBPATH:$(SDKPATH)Lib" "/LIBPATH:$(VCPATH)\lib" /OUT:$@ /MAP:$@.map $(filter %.o,$^) $(filter %.res,$^)
+
+$(BUILDDIR)/win32.res: xsys_win32.rc
+	$(RC) "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /n /fo$@ $^
 
 ###
 # dynamically generate these rules for each mode
