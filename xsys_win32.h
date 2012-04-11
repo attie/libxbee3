@@ -28,9 +28,9 @@
 #include <io.h>
 #include <time.h>
 #include <sys/timeb.h>
+#include "xsys_win32_winpthreads.h"
 
 #pragma comment (lib, "uuid.lib")
-
 #define usleep(a)                 Sleep((a)/1000)
 #define strcasecmp(a,b)           _stricmp((a),(b))
 #define strncasecmp(a,b,c)        _strnicmp((a),(b),(c))
@@ -39,10 +39,10 @@
 
 /* ######################################################################### */
 
-typedef HANDLE            xsys_thread;
-typedef DWORD             xsys_thread_key;
+typedef pthread_t         xsys_thread;
+typedef pthread_key_t     xsys_thread_key;
 
-typedef HANDLE            xsys_mutex;
+typedef pthread_mutex_t   xsys_mutex;
 
 typedef HANDLE            xsys_sem;
 typedef size_t            xsys_size_t;
@@ -79,28 +79,28 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 /* threads */
 
 #define xsys_thread_create(thread, start_routine, arg) \
-                                              (((*(thread)) = CreateThread(NULL,0,(void *)(start_routine),(void *)(arg),0,NULL)) == NULL)
-#define xsys_thread_cancel(thread)            TerminateThread((thread),0)
-#define xsys_thread_join(thread, retval)      (WaitForSingleObject((thread),INFINITE) && GetExitCodeThread((thread), (LPDWORD)(retval)))
-#define xsys_thread_self()                    (0)
-#define xsys_thread_detach(thread)            
-#define xsys_thread_detach_self()             
-#define xsys_thread_iAm(thread)               
-#define xsys_thread_lock()                    
-#define xsys_thread_unlock()                  
+                                              pthread_create((pthread_t*)(thread), NULL, (start_routine), (arg))
+#define xsys_thread_cancel(thread)            pthread_cancel((pthread_t)(thread))
+#define xsys_thread_join(thread, retval)      pthread_join((pthread_t)(thread), (retval))
+#define xsys_thread_self()                    pthread_self()
+#define xsys_thread_detach(thread)            pthread_detach(thread)
+#define xsys_thread_detach_self()             pthread_detach(pthread_self())
+#define xsys_thread_iAm(thread)               pthread_equal(pthread_self(), (thread))
+#define xsys_thread_lock()                    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL)
+#define xsys_thread_unlock()                  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL)
 
-#define xsys_thread_key_init(key, destructor) ((*(key)) = TlsAlloc())
-#define xsys_thread_key_set(key, value)       TlsSetValue((key), (value))
-#define xsys_thread_key_get(key)              TlsGetValue((key))
+#define xsys_thread_key_init(key, destructor) pthread_key_create((key), (destructor))
+#define xsys_thread_key_set(key, value)       pthread_setspecific((key), (value))
+#define xsys_thread_key_get(key)              pthread_getspecific((key))
 
 /* ######################################################################### */
 /* mutexes */
 
-#define xsys_mutex_init(mutex)                (((*(mutex)) = CreateEvent(NULL,FALSE,TRUE,NULL)) == NULL)
-#define xsys_mutex_destroy(mutex)             CloseHandle((mutex))
-#define xsys_mutex_lock(mutex)                WaitForSingleObject((mutex),INFINITE)
-#define xsys_mutex_trylock(mutex)             WaitForSingleObject((mutex),0)
-#define xsys_mutex_unlock(mutex)              SetEvent((mutex))
+#define xsys_mutex_init(mutex)                pthread_mutex_init((pthread_mutex_t*)(mutex), NULL)
+#define xsys_mutex_destroy(mutex)             pthread_mutex_destroy((pthread_mutex_t*)(mutex))
+#define xsys_mutex_lock(mutex)                pthread_mutex_lock((pthread_mutex_t*)(mutex))
+#define xsys_mutex_trylock(mutex)             pthread_mutex_trylock((pthread_mutex_t*)(mutex))
+#define xsys_mutex_unlock(mutex)              pthread_mutex_unlock((pthread_mutex_t*)(mutex))
 
 
 /* ######################################################################### */

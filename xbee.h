@@ -36,10 +36,13 @@ extern "C" {
 #define ETIMEDOUT           110
 
 #define CLOCK_REALTIME      0
+
+# ifndef WIN_PTHREADS
 struct timespec {
   time_t  tv_sec;    /* seconds */
   long    tv_nsec;   /* nanoseconds */
 };
+# endif
 #endif 
 
 /* ######################################################################### */
