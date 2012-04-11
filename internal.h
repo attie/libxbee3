@@ -21,15 +21,11 @@
 	along with libxbee. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "xbee.h"
-#include "xsys.h"
-#include "mutex.h"
-
 /* ######################################################################### */
-/* just to keep the compiler happy when pointers are used, but not dereferenced... */
-
+/* just to keep the compiler happy before structs are declared */
 struct xbee;
 struct xbee_con;
+struct xbee_serialInfo;
 struct xbee_frameBlock;
 struct xbee_frameInfo;
 struct xbee_log;
@@ -37,9 +33,22 @@ struct xbee_mode;
 struct xbee_txInfo;
 struct xbee_rxInfo;
 
+#include "xbee.h"
+#include "xsys.h"
+#include "mutex.h"
+
 struct xbee_buf {
 	size_t len;
 	unsigned char data[1];
+};
+
+struct xbee_serialInfo {
+	char *device;
+	int baudrate;
+	xsys_serialDev dev;
+	
+	size_t txBufSize;
+	struct xbee_buf *txBuf;
 };
 
 #define LH fprintf(stderr, "LOG_HERE: %s:%d\n", __FILE__, __LINE__);

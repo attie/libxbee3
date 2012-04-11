@@ -37,6 +37,7 @@ extern "C" {
 #endif /* ---------------------- */
 #undef __XBEE_XSYS_LOAD_H
 
+
 /* file I/O --- needs the following functions:
 int xsys_open(char *path, int flags);
 int xsys_lockf(int fd);
@@ -53,11 +54,14 @@ xsys_size_t xsys_fwrite(void *ptr, xsys_size_t size, xsys_size_t nmemb, FILE *st
 int xsys_fflush(FILE *stream);
 int xsys_ferror(FILE *stream);
 int xsys_feof(FILE *stream);
-
-int xsys_select(FILE *stream, struct timeval *timeout);
-
-int xsys_disableBuffer(FILE *stream);
 */
+
+
+/* serial I/O --- needs the following functions: */
+xbee_err xsys_serialSetup(struct xbee_serialInfo *info);
+xbee_err xsys_serialShutdown(struct xbee_serialInfo *info);
+xbee_err xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest);
+xbee_err xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src);
 
 
 /* threads --- needs the following functions:

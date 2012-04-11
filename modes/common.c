@@ -40,158 +40,31 @@
 #define ESCAPER_PRINTF(...)
 #endif /* defined(XBEE_API2) && defined(XBEE_API2_DEBUG) */
 
-xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
-  struct termios tc;
-  speed_t chosenbaud;
-
-	if (!info) return XBEE_EMISSINGPARAM;
-	
-	switch (info->baudrate) {
-		case 1200:   chosenbaud = B1200;   break;
-		case 2400:   chosenbaud = B2400;   break;
-		case 4800:   chosenbaud = B4800;   break;
-		case 9600:   chosenbaud = B9600;   break;
-		case 19200:  chosenbaud = B19200;  break;
-		case 38400:  chosenbaud = B38400;  break;
-		case 57600:  chosenbaud = B57600;  break;
-		case 115200: chosenbaud = B115200; break;
-		default:
-			return XBEE_EINVAL;
-	}
-	
-	if ((info->fd = xsys_open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) return XBEE_EIO;
-	
-	if ((info->f = xsys_fdopen(info->fd, "r+")) == NULL) return XBEE_EIO;
-	
-	xsys_fflush(info->f);
-	xsys_disableBuffer(info->f);
-	
-	if (tcgetattr(info->fd, &tc)) {
-		perror("tcgetattr()");
-		return XBEE_ESETUP;
-	}
-	
-  /* input flags */
-  tc.c_iflag &= ~ IGNBRK;           /* enable ignoring break */
-  tc.c_iflag &= ~(IGNPAR | PARMRK); /* disable parity checks */
-  tc.c_iflag &= ~ INPCK;            /* disable parity checking */
-  tc.c_iflag &= ~ ISTRIP;           /* disable stripping 8th bit */
-  tc.c_iflag &= ~(INLCR | ICRNL);   /* disable translating NL <-> CR */
-  tc.c_iflag &= ~ IGNCR;            /* disable ignoring CR */
-  tc.c_iflag &= ~(IXON | IXOFF);    /* disable XON/XOFF flow control */
-  /* output flags */
-  tc.c_oflag &= ~ OPOST;            /* disable output processing */
-  tc.c_oflag &= ~(ONLCR | OCRNL);   /* disable translating NL <-> CR */
-#ifdef linux
-/* not for FreeBSD */
-  tc.c_oflag &= ~ OFILL;            /* disable fill characters */
-#endif /* linux */
-  /* control flags */
-  tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
-  tc.c_cflag |=   CREAD;            /* enable reciever */
-  tc.c_cflag &= ~ PARENB;           /* disable parity */
-  tc.c_cflag &= ~ CSTOPB;           /* disable 2 stop bits */
-  tc.c_cflag &= ~ CSIZE;            /* remove size flag... */
-  tc.c_cflag |=   CS8;              /* ...enable 8 bit characters */
-  tc.c_cflag |=   HUPCL;            /* enable lower control lines on close - hang up */
-#ifdef XBEE_NO_RTSCTS
-  tc.c_cflag &= ~ CRTSCTS;          /* disable hardware CTS/RTS flow control */
-#else
-  tc.c_cflag |=   CRTSCTS;          /* enable hardware CTS/RTS flow control */
-#endif
-  /* local flags */
-  tc.c_lflag &= ~ ISIG;             /* disable generating signals */
-  tc.c_lflag &= ~ ICANON;           /* disable canonical mode - line by line */
-  tc.c_lflag &= ~ ECHO;             /* disable echoing characters */
-  tc.c_lflag &= ~ ECHONL;           /* ??? */
-  tc.c_lflag &= ~ NOFLSH;           /* disable flushing on SIGINT */
-  tc.c_lflag &= ~ IEXTEN;           /* disable input processing */
-
-  /* control characters */
-  memset(tc.c_cc,0,sizeof(tc.c_cc));
-	
-	/* set i/o baud rate */
-  if (cfsetspeed(&tc, chosenbaud)) {
-		perror("cfsetspeed()");
-		return XBEE_ESETUP;
-	}
-	
-  if (tcsetattr(info->fd, TCSAFLUSH, &tc)) {
-		perror("tcsetattr()");
-		return XBEE_ESETUP;
-	}
-	
-	/* enable input & output transmission */
-#ifdef linux
-/* for Linux */
-  if (tcflow(info->fd, TCOON | TCION)) {
-#else
-/* for FreeBSD */
-  if (tcflow(info->fd, TCOON)) {
-#endif
-		perror("tcflow()");
-		return XBEE_ESETUP;
-	}
-	
-	/* purge buffer */
-	{
-		char buf[1024];
-		int n;
-		do {
-			usleep(5000); /* 5ms */
-			n = read(info->fd, buf, sizeof(buf));
-		} while (n > 0);
-	}
-	fcntl(info->fd, F_SETFL, 0); /* disable blocking */
-	
-#ifndef linux
-/* for FreeBSD */
-	usleep(250000); /* it seems that the serial port takes a while to get going... */
-#endif
-	
-	return XBEE_ENONE;
-}
+#define XBEE_MAX_BUFFERLEN 256
 
 /* ######################################################################### */
 
-#define XBEE_MAX_BUFFERLEN 256
-
-static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) {
+static xbee_err escaped_read(struct xbee_serialInfo *info, int len, unsigned char *dest, int escaped) {
 	int pos;
-	int ret;
+	int rlen;
+#ifdef XBEE_API2
 	int nextIsEscaped;
+#endif
+	xbee_err err;
 	
-	if (!f || !dest) return XBEE_EMISSINGPARAM;
+	if (!info || !dest) return XBEE_EMISSINGPARAM;
 	if (len == 0) return XBEE_EINVAL;
 	
 	pos = 0;
+#ifdef XBEE_API2
 	nextIsEscaped = 0;
+#endif
 	
-	ESCAPER_PRINTF("===== xbee_ioRead(%d) =====\n", escaped);
+	ESCAPER_PRINTF("===== escaped_read(%d) =====\n", escaped);
 	
 	do {
-		if ((ret = xsys_select(f, NULL)) == -1) {
-			perror("xbee_select()");
-			if (errno == EINTR) return XBEE_ESELECTINTERRUPTED;
-			return XBEE_ESELECT;
-		}
-		ret = xsys_fread(&(dest[pos]), 1, len - pos, f);
-		if (ret == 0) {
-			if (xsys_feof(f)) {
-#ifndef linux
-/* for FreeBSD */
-				usleep(10000);
-				continue;
-#else
-				return XBEE_EEOF;
-#endif /* !linux */
-			}
-			if (xsys_ferror(f)) {
-				perror("fread()");
-				return XBEE_EIO;
-			}
-			continue;
-		}
+		rlen = len - pos;
+		if ((err = xsys_serialRead(info, rlen, &(dest[pos]))) != XBEE_ENONE) return err;
 		
 #ifdef XBEE_API2
 		/* ########################### */
@@ -200,7 +73,7 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 		if (escaped) {
 			int i,l,d;
 			
-			l = pos + ret;
+			l = pos + rlen;
 			d = 0;
 			
 			ESCAPER_PRINTF("-= escaper =-\n");
@@ -249,11 +122,11 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 			
 			ESCAPER_PRINTF("-= escaper =- - -= lost %d bytes =-\n", d);
 			
-			ret -= d;
+			rlen -= d;
 		}
 #endif /* XBEE_API2 */
 		
-		pos += ret;
+		pos += rlen;
 	} while (pos < len);
 	
 	return XBEE_ENONE;
@@ -281,13 +154,13 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 	while (1) {
 		/* get the start delimiter (0x7E) */
 		do {
-			if ((ret = xbee_ioRead(data->f, 1, &c, 0)) != XBEE_ENONE) return ret;
+			if ((ret = escaped_read(data, 1, &c, 0)) != XBEE_ENONE) return ret;
 			if (c != 0x7E) ESCAPER_PRINTF("======= pre-start data: 0x%02X =======\n", c);
 		} while (c != 0x7E);
 		ESCAPER_PRINTF("======= packet start =======\n");
 		
 		/* get the length (2 bytes) */
-		if ((ret = xbee_ioRead(data->f, 2, iBuf->data, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, 2, iBuf->data, 1)) != XBEE_ENONE) return ret;
 		t = ((iBuf->data[0] << 8) & 0xFF00) | (iBuf->data[1] & 0xFF);
 		if (t > XBEE_MAX_BUFFERLEN) {
 			xbee_log(1, "OVERSIZED PACKET... data loss has occured (packet length: %d)", t);
@@ -296,10 +169,10 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		iBuf->len = t;
 		
 		/* get the data! */
-		if ((ret = xbee_ioRead(data->f, iBuf->len, iBuf->data, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, iBuf->len, iBuf->data, 1)) != XBEE_ENONE) return ret;
 		
 		/* get the checksum */
-		if ((ret = xbee_ioRead(data->f, 1, &chksum, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, 1, &chksum, 1)) != XBEE_ENONE) return ret;
 		
 		/* check the checksum */
 		for (t = 0; t < iBuf->len; t++) {
@@ -338,20 +211,18 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 /* firstEscaped = -1 - NONE
                    0 - first byte
                    1 - second byte... */
-static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEscaped) {
+static xbee_err escaped_write(struct xbee_serialInfo *info, int len, unsigned char *src, int firstEscaped) {
 	int pos;
-	int ret;
 #ifdef XBEE_API2
 	int esc;
 #endif
 	int wlen;
+	xbee_err err;
 	
-	if (!f || !src) return XBEE_EMISSINGPARAM;
+	if (!info || !src) return XBEE_EMISSINGPARAM;
 	if (len == 0) return XBEE_EINVAL;
 	
-	for (pos = 0; pos < len; pos += ret) {
-		ret = 0;
-	
+	for (pos = 0; pos < len; pos += wlen) {
 #ifdef XBEE_API2
 		if (firstEscaped == -1) {
 			wlen = len - pos;
@@ -367,13 +238,7 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 					unsigned char c[2];
 					c[0] = 0x7D;
 					c[1] = src[pos] ^ 0x20;
-					if (xsys_fwrite(c, 2, 1, f) != 1) {
-						if (xsys_ferror(f)) {
-							perror("fwrite()");
-							return XBEE_EIO;
-						}
-						usleep(5000);
-					}
+					if ((err = xsys_serialWrite(info, 2, c)) != XBEE_ENONE) return err;
 					pos++;
 				}
 			}
@@ -391,14 +256,8 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 #else
 		wlen = len - pos;
 #endif /* XBEE_API2 */
-	
-		if ((ret = xsys_fwrite(&(src[pos]), 1, wlen, f)) > 0) continue;
 		
-		if (xsys_ferror(f)) {
-			perror("fwrite()");
-			return XBEE_EIO;
-		}
-		usleep(5000);
+		if ((err = xsys_serialWrite(info, wlen, &(src[pos]))) != XBEE_ENONE) return err;
 	}
 	
 	return XBEE_ENONE;
@@ -440,5 +299,5 @@ xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	}
 	iBuf->data[3 + pos] = 0xFF - chksum;
 	
-	return xbee_ioWrite(data->f, iBuf->len, iBuf->data, 1);
+	return escaped_write(data, iBuf->len, iBuf->data, 1);
 }

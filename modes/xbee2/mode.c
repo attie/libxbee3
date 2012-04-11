@@ -62,7 +62,7 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	data->serialInfo.baudrate = va_arg(ap, int);
 	
-	if ((ret = xbee_serialSetup(&data->serialInfo)) != XBEE_ENONE) goto die;
+	if ((ret = xsys_serialSetup(&data->serialInfo)) != XBEE_ENONE) goto die;
 	
 	return XBEE_ENONE;
 die:
@@ -78,8 +78,7 @@ static xbee_err shutdown(struct xbee *xbee) {
 	
 	data = xbee->modeData;
 	
-	if (data->serialInfo.f) xsys_fclose(data->serialInfo.f);
-	if (data->serialInfo.fd != -1) xsys_close(data->serialInfo.fd);
+	xsys_serialShutdown(&data->serialInfo);
 	if (data->serialInfo.device) free(data->serialInfo.device);
 	if (data->serialInfo.txBuf) free(data->serialInfo.txBuf);
 	free(xbee->modeData);
@@ -193,4 +192,3 @@ const struct xbee_mode mode_xbee2 = {
 	
 	.thread = NULL,
 };
-
