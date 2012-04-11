@@ -6,6 +6,7 @@ include make/buildsys.mk
 all: $(LIB_OUT)
 
 configure: config.mk
+	@true
 
 new: clean
 	@$(MAKE) all
