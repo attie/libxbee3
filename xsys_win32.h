@@ -30,7 +30,6 @@
 #include <sys/timeb.h>
 #include "xsys_win32_winpthreads.h"
 
-#pragma comment (lib, "uuid.lib")
 #define usleep(a)                 Sleep((a)/1000)
 #define strcasecmp(a,b)           _stricmp((a),(b))
 #define strncasecmp(a,b,c)        _strnicmp((a),(b),(c))

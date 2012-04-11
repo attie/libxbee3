@@ -24,6 +24,8 @@
 
 #include "internal.h"
 
+#pragma comment (lib, "uuid.lib")
+
 int xsys_select(FILE *stream, struct timeval *timeout) {
 	fd_set fds;
 	int fd;
