@@ -37,6 +37,8 @@ int xsys_select(FILE *stream, struct timeval *timeout) {
 	return select(fd + 1, &fds, NULL, NULL, timeout);
 }
 
+/* ######################################################################### */
+
 int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
 	DWORD dwMiliseconds;
 	if (timeout) {
@@ -46,6 +48,38 @@ int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
 		dwMiliseconds = 0;
 	}
 	return WaitForSingleObject(sem, dwMiliseconds);
+}
+
+#define SEMAQUERYINFOCLASS	0
+#define WINAPI __stdcall
+typedef long NTSTATUS;
+struct seminfo {
+	UINT Count; // current semaphore count
+	UINT Limit; // max semaphore count
+};
+NTSTATUS ((WINAPI *NtQuerySemaphore)(HANDLE Handle, UINT InfoClass, struct seminfo *SemaInfo, UINT InfoSize, PUINT RetLen)) = NULL;
+HMODULE g_ntdll = NULL;
+int xsys_sem_getvalue(xsys_sem *sem, int *value) {
+	struct seminfo info;
+	UINT retLen;
+	
+	if (!NtQuerySemaphore) {
+		if (!g_ntdll) {
+			g_ntdll = LoadLibrary("ntdll.dll");
+			if (!g_ntdll) return -1;
+		}
+		if (!NtQuerySemaphore) {
+			NtQuerySemaphore = GetProcAddress(g_ntdll, "NtQuerySemaphore");
+			if (!NtQuerySemaphore) return -1;
+		}
+	}
+	
+	if (NtQuerySemaphore(sem, SEMAQUERYINFOCLASS, &info, sizeof(info), &retLen) < 0) return -1;
+	if (retLen != sizeof(info)) return -1;
+	
+	*value = info.Count;
+	
+	return 0;
 }
 
 /* ######################################################################### */

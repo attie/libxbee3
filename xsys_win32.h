@@ -105,13 +105,13 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 /* ######################################################################### */
 /* semaphores */
 
-#define xsys_sem_init(sem)                    (((*(sem)) = CreateEvent(NULL,FALSE,FALSE,NULL)) == NULL)
+#define xsys_sem_init(sem)                    (((*(sem)) = CreateSemaphore(NULL,0,1024,NULL)) == NULL)
 #define xsys_sem_destroy(sem)                 CloseHandle((sem))
 #define xsys_sem_wait(sem)                    WaitForSingleObject((sem),INFINITE)
 #define xsys_sem_trywait(sem)                 WaitForSingleObject((sem),0)
 int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout);
-#define xsys_sem_post(sem)                    SetEvent((sem))
-#define xsys_sem_getvalue(sem, value)         
+#define xsys_sem_post(sem)                    ReleaseSemaphore((sem),1,NULL)
+int xsys_sem_getvalue(xsys_sem *sem, int *value);
 
 
 #endif /* __XBEE_XSYS_WIN32_H */
