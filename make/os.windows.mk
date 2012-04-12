@@ -9,7 +9,7 @@ RC=                    "$(SDKPATH)\bin\rc.exe"
 
 MKDIR=                 mkdir $* || true
 RM:=                   del /F
-RMDIR:=                del /FQ
+RMDIR:=                del /F /Q
 
 DEBUG:=                /MT
 CFLAGS+=               /nologo "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /RTCs /Gd $(DEBUG) $(addprefix /D,$(OPTIONS))
