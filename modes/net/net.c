@@ -61,7 +61,7 @@ xbee_err xbee_netSetup(struct xbee_modeNetInfo *info) {
 	if ((info->f = xsys_fdopen(info->fd, "r+")) == NULL) goto die;
 	
 	xsys_fflush(info->f);
-	xsys_disableBuffer(info->f);
+	setvbuf(info->f, NULL, _IONBF, BUFSIZ);
 	
 	ret = XBEE_ENONE;
 	goto done;

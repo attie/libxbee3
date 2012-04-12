@@ -51,6 +51,12 @@ typedef sem_t             xsys_sem;
 typedef size_t            xsys_size_t;
 typedef ssize_t           xsys_ssize_t;
 
+struct serialDev {
+	int fd;
+	FILE *f;
+};
+typedef struct serialDev  xsys_serialDev;
+
 #define EXPORT __attribute__((visibility("default")))
 #define INIT   __attribute__((constructor))
 #define FINI   __attribute__((destructor))
@@ -74,10 +80,6 @@ int xsys_lockf(int fd);
 #define xsys_ferror(stream)                   ferror((stream))
 #define xsys_feof(stream)                     feof((stream))
 
-int xsys_select(FILE *stream, struct timeval *timeout);
-
-#define xsys_disableBuffer(stream)            setvbuf((stream), NULL, _IONBF, BUFSIZ)
-
 
 /* ######################################################################### */
 /* threads */
@@ -96,6 +98,7 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 #define xsys_thread_key_init(key, destructor) pthread_key_create((key), (destructor))
 #define xsys_thread_key_set(key, value)       pthread_setspecific((key), (value))
 #define xsys_thread_key_get(key)              pthread_getspecific((key))
+
 
 /* ######################################################################### */
 /* mutexes */

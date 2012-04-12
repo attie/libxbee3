@@ -42,46 +42,31 @@
 #define ESCAPER_PRINTF(...)
 #endif /* defined(XBEE_API2) && defined(XBEE_API2_DEBUG) */
 
-/* ######################################################################### */
-
 #define XBEE_MAX_BUFFERLEN 256
 
-static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) {
+/* ######################################################################### */
+
+static xbee_err escaped_read(struct xbee_serialInfo *info, int len, unsigned char *dest, int escaped) {
 	int pos;
-	int ret;
+	int rlen;
+#ifdef XBEE_API2
 	int nextIsEscaped;
+#endif
+	xbee_err err;
 	
-	if (!f || !dest) return XBEE_EMISSINGPARAM;
+	if (!info || !dest) return XBEE_EMISSINGPARAM;
 	if (len == 0) return XBEE_EINVAL;
 	
 	pos = 0;
+#ifdef XBEE_API2
 	nextIsEscaped = 0;
+#endif
 	
-	ESCAPER_PRINTF("===== xbee_ioRead(%d) =====\n", escaped);
+	ESCAPER_PRINTF("===== escaped_read(%d) =====\n", escaped);
 	
 	do {
-		if ((ret = xsys_select(f, NULL)) == -1) {
-			perror("xbee_select()");
-			if (errno == EINTR) return XBEE_ESELECTINTERRUPTED;
-			return XBEE_ESELECT;
-		}
-		ret = xsys_fread(&(dest[pos]), 1, len - pos, f);
-		if (ret == 0) {
-			if (xsys_feof(f)) {
-#ifndef linux
-/* for FreeBSD */
-				usleep(10000);
-				continue;
-#else
-				return XBEE_EEOF;
-#endif /* !linux */
-			}
-			if (xsys_ferror(f)) {
-				perror("fread()");
-				return XBEE_EIO;
-			}
-			continue;
-		}
+		rlen = len - pos;
+		if ((err = xsys_serialRead(info, rlen, &(dest[pos]))) != XBEE_ENONE) return err;
 		
 #ifdef XBEE_API2
 		/* ########################### */
@@ -90,7 +75,7 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 		if (escaped) {
 			int i,l,d;
 			
-			l = pos + ret;
+			l = pos + rlen;
 			d = 0;
 			
 			ESCAPER_PRINTF("-= escaper =-\n");
@@ -139,11 +124,11 @@ static xbee_err xbee_ioRead(FILE *f, int len, unsigned char *dest, int escaped) 
 			
 			ESCAPER_PRINTF("-= escaper =- - -= lost %d bytes =-\n", d);
 			
-			ret -= d;
+			rlen -= d;
 		}
 #endif /* XBEE_API2 */
 		
-		pos += ret;
+		pos += rlen;
 	} while (pos < len);
 	
 	return XBEE_ENONE;
@@ -171,13 +156,13 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 	while (1) {
 		/* get the start delimiter (0x7E) */
 		do {
-			if ((ret = xbee_ioRead(data->f, 1, &c, 0)) != XBEE_ENONE) return ret;
+			if ((ret = escaped_read(data, 1, &c, 0)) != XBEE_ENONE) return ret;
 			if (c != 0x7E) ESCAPER_PRINTF("======= pre-start data: 0x%02X =======\n", c);
 		} while (c != 0x7E);
 		ESCAPER_PRINTF("======= packet start =======\n");
 		
 		/* get the length (2 bytes) */
-		if ((ret = xbee_ioRead(data->f, 2, iBuf->data, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, 2, iBuf->data, 1)) != XBEE_ENONE) return ret;
 		t = ((iBuf->data[0] << 8) & 0xFF00) | (iBuf->data[1] & 0xFF);
 		if (t > XBEE_MAX_BUFFERLEN) {
 			xbee_log(1, "OVERSIZED PACKET... data loss has occured (packet length: %d)", t);
@@ -186,10 +171,10 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		iBuf->len = t;
 		
 		/* get the data! */
-		if ((ret = xbee_ioRead(data->f, iBuf->len, iBuf->data, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, iBuf->len, iBuf->data, 1)) != XBEE_ENONE) return ret;
 		
 		/* get the checksum */
-		if ((ret = xbee_ioRead(data->f, 1, &chksum, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, 1, &chksum, 1)) != XBEE_ENONE) return ret;
 		
 		/* check the checksum */
 		for (t = 0; t < iBuf->len; t++) {
@@ -228,20 +213,18 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 /* firstEscaped = -1 - NONE
                    0 - first byte
                    1 - second byte... */
-static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEscaped) {
+static xbee_err escaped_write(struct xbee_serialInfo *info, int len, unsigned char *src, int firstEscaped) {
 	int pos;
-	int ret;
 #ifdef XBEE_API2
 	int esc;
 #endif
 	int wlen;
+	xbee_err err;
 	
-	if (!f || !src) return XBEE_EMISSINGPARAM;
+	if (!info || !src) return XBEE_EMISSINGPARAM;
 	if (len == 0) return XBEE_EINVAL;
 	
-	for (pos = 0; pos < len; pos += ret) {
-		ret = 0;
-	
+	for (pos = 0; pos < len; pos += wlen) {
 #ifdef XBEE_API2
 		if (firstEscaped == -1) {
 			wlen = len - pos;
@@ -257,13 +240,7 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 					unsigned char c[2];
 					c[0] = 0x7D;
 					c[1] = src[pos] ^ 0x20;
-					if (xsys_fwrite(c, 2, 1, f) != 1) {
-						if (xsys_ferror(f)) {
-							perror("fwrite()");
-							return XBEE_EIO;
-						}
-						usleep(5000);
-					}
+					if ((err = xsys_serialWrite(info, 2, c)) != XBEE_ENONE) return err;
 					pos++;
 				}
 			}
@@ -281,14 +258,8 @@ static xbee_err xbee_ioWrite(FILE *f, int len, unsigned char *src, int firstEsca
 #else
 		wlen = len - pos;
 #endif /* XBEE_API2 */
-	
-		if ((ret = xsys_fwrite(&(src[pos]), 1, wlen, f)) > 0) continue;
 		
-		if (xsys_ferror(f)) {
-			perror("fwrite()");
-			return XBEE_EIO;
-		}
-		usleep(5000);
+		if ((err = xsys_serialWrite(info, wlen, &(src[pos]))) != XBEE_ENONE) return err;
 	}
 	
 	return XBEE_ENONE;
@@ -330,5 +301,5 @@ xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	}
 	iBuf->data[3 + pos] = 0xFF - chksum;
 	
-	return xbee_ioWrite(data->f, iBuf->len, iBuf->data, 1);
+	return escaped_write(data, iBuf->len, iBuf->data, 1);
 }
