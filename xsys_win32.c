@@ -77,7 +77,13 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
   tc.BaudRate          = info->baudrate;
   tc.fBinary           = TRUE;
   tc.fParity           = FALSE;
+#ifdef XBEE_NO_RTSCTS
   tc.fOutxCtsFlow      = FALSE;
+  tc.fRtsControl       = RTS_CONTROL_DISABLE;
+#else
+  tc.fOutxCtsFlow      = TRUE;
+  tc.fRtsControl       = RTS_CONTROL_ENABLE;
+#endif
   tc.fOutxDsrFlow      = FALSE;
   tc.fDtrControl       = DTR_CONTROL_DISABLE;
   tc.fDsrSensitivity   = FALSE;
@@ -86,7 +92,6 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
   tc.fInX              = FALSE;
   tc.fErrorChar        = FALSE;
   tc.fNull             = FALSE;
-  tc.fRtsControl       = RTS_CONTROL_DISABLE;
   tc.fAbortOnError     = FALSE;
   tc.ByteSize          = 8;
   tc.Parity            = NOPARITY;
