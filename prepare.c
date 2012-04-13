@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "internal.h"
+#include "prepare.h"
 #include "ll.h"
 #include "xbee_int.h"
 #include "conn.h"
