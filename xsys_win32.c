@@ -23,8 +23,38 @@
 */
 
 #include "internal.h"
+#include "prepare.h"
 
 #pragma comment (lib, "uuid.lib")
+
+/* ######################################################################### */
+
+HMODULE module = NULL;
+int attach_counter = 0;
+
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
+  if (dwReason == DLL_PROCESS_DETACH || dwReason == DLL_THREAD_DETACH) {
+    /* ensure that libxbee has been shut down nicely */
+		attach_counter--;
+		if (!attach_counter) {
+			xbee_fini();
+		}
+  } else if (dwReason == DLL_PROCESS_ATTACH || dwReason == DLL_THREAD_ATTACH) {
+		attach_counter++;
+    if (!module) {
+      /* keep a handle on the module */
+      module = (HMODULE)hModule;
+			xbee_init();
+    }
+  }
+  return TRUE;
+}
+
+HRESULT __stdcall DllCanUnloadNow(void) {
+	return !attach_counter;
+}
+
+/* ######################################################################### */
 
 int xsys_serialSetup(struct xbee_serialInfo *info) {
   DCB tc;
