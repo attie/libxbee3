@@ -37,7 +37,8 @@ extern "C" {
 
 #define CLOCK_REALTIME      0
 
-# ifndef WIN_PTHREADS
+# if !defined(_WIN32) && !defined(__XBEE_INTERNAL_H)
+/* i still hate windows */
 struct timespec {
   time_t  tv_sec;    /* seconds */
   long    tv_nsec;   /* nanoseconds */

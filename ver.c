@@ -18,7 +18,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "xsys.h"
+#include "internal.h"
 
 EXPORT const char libxbee_revision[]  = LIB_REVISION;
 EXPORT const char libxbee_commit[]    = LIB_COMMIT;

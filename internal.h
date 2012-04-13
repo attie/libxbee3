@@ -34,6 +34,11 @@ struct xbee_txInfo;
 struct xbee_rxInfo;
 struct xbee_interface;
 
+#ifdef _WIN32
+/* i hate windows */
+#define EXPORT __declspec(dllexport)
+#endif
+
 #include "xbee.h"
 #include "xsys.h"
 #include "mutex.h"
