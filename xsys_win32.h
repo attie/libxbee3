@@ -47,7 +47,7 @@ typedef HANDLE            xsys_sem;
 typedef size_t            xsys_size_t;
 typedef size_t            xsys_ssize_t;
 
-typedef HANDLE            xsys_file;
+typedef HANDLE            xsys_serialDev;
 
 #define EXPORT __declspec(dllexport)
 #define INIT   

@@ -26,15 +26,97 @@
 
 #pragma comment (lib, "uuid.lib")
 
-int xsys_select(FILE *stream, struct timeval *timeout) {
-	fd_set fds;
-	int fd;
+int xsys_serialSetup(struct xbee_serialInfo *info) {
+  DCB tc;
+  COMMTIMEOUTS timeouts;
+	
+	if (!info) return XBEE_EMISSINGPARAM;
+	if (!info->device) return XBEE_EINVAL;
+	
+  info->dev = CreateFile(TEXT(info->device),
+                        GENERIC_READ | GENERIC_WRITE,
+                        0,    /* exclusive access */
+                        NULL, /* default security attributes */
+                        OPEN_EXISTING,
+												0,
+                        NULL);
+	
+	if (info->dev == INVALID_HANDLE_VALUE) return XBEE_EIO;
+	
+  GetCommState(info->dev, &tc);
+  tc.BaudRate          = info->baudrate;
+  tc.fBinary           = TRUE;
+  tc.fParity           = FALSE;
+  tc.fOutxCtsFlow      = FALSE;
+  tc.fOutxDsrFlow      = FALSE;
+  tc.fDtrControl       = DTR_CONTROL_DISABLE;
+  tc.fDsrSensitivity   = FALSE;
+  tc.fTXContinueOnXoff = FALSE;
+  tc.fOutX             = FALSE;
+  tc.fInX              = FALSE;
+  tc.fErrorChar        = FALSE;
+  tc.fNull             = FALSE;
+  tc.fRtsControl       = RTS_CONTROL_DISABLE;
+  tc.fAbortOnError     = FALSE;
+  tc.ByteSize          = 8;
+  tc.Parity            = NOPARITY;
+  tc.StopBits          = ONESTOPBIT;
+  SetCommState(info->dev, &tc);
+	
+  timeouts.ReadIntervalTimeout = MAXDWORD;
+  timeouts.ReadTotalTimeoutMultiplier = 0;
+  timeouts.ReadTotalTimeoutConstant = 0;
+  timeouts.WriteTotalTimeoutMultiplier = 0;
+  timeouts.WriteTotalTimeoutConstant = 0;
+  SetCommTimeouts(info->dev, &timeouts);
+	
+  SetCommMask(info->dev, EV_RXCHAR);
+	
+	return XBEE_ENONE;
+}
 
-	fd = fileno(stream);
-	FD_ZERO(&fds);
-	FD_SET(fd, &fds);
+int xsys_serialShutdown(struct xbee_serialInfo *info) {
+	if (!info) return XBEE_EMISSINGPARAM;
+	if (info->dev == INVALID_HANDLE_VALUE) return XBEE_EINVAL;
+	CloseHandle(info->dev);
+	info->dev = INVALID_HANDLE_VALUE;
+	return XBEE_ENONE;
+}
 
-	return select(fd + 1, &fds, NULL, NULL, timeout);
+int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) {
+	int pos;
+	int ret;
+	int err;
+	
+	if (!info) return XBEE_EMISSINGPARAM;
+	if (info->dev == INVALID_HANDLE_VALUE) return XBEE_EINVAL;
+	
+	for (pos = 0; pos < len; pos += ret) {
+		if (ReadFile(info->dev, &(dest[pos]), len - pos, &ret, NULL)) continue;
+		err = GetLastError();
+#ifndef _WIN32
+#warning TODO - decide if err is due to device being removed (e.g: FTDI) and return XBEE_EOF
+#endif
+		return XBEE_EIO;
+	}
+	
+	return XBEE_ENONE;
+}
+
+int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) {
+	int pos;
+	int ret;
+	int err;
+	
+	if (!info) return XBEE_EMISSINGPARAM;
+	if (info->dev == INVALID_HANDLE_VALUE) return XBEE_EINVAL;
+	
+	for (pos = 0; pos < len; pos += ret) {
+		if (WriteFile(info->dev, &(src[pos]), len - pos, &ret, NULL)) continue;
+		return XBEE_EIO;
+	}
+	
+	return XBEE_ENONE;
 }
 
 /* ######################################################################### */
@@ -57,7 +139,8 @@ struct seminfo {
 	UINT Count; // current semaphore count
 	UINT Limit; // max semaphore count
 };
-NTSTATUS ((WINAPI *NtQuerySemaphore)(HANDLE Handle, UINT InfoClass, struct seminfo *SemaInfo, UINT InfoSize, PUINT RetLen)) = NULL;
+typedef NTSTATUS ((WINAPI *_NtQuerySemaphore)(HANDLE Handle, UINT InfoClass, struct seminfo *SemaInfo, UINT InfoSize, PUINT RetLen));
+_NtQuerySemaphore NtQuerySemaphore = NULL;
 HMODULE g_ntdll = NULL;
 int xsys_sem_getvalue(xsys_sem *sem, int *value) {
 	struct seminfo info;
@@ -69,7 +152,7 @@ int xsys_sem_getvalue(xsys_sem *sem, int *value) {
 			if (!g_ntdll) return -1;
 		}
 		if (!NtQuerySemaphore) {
-			NtQuerySemaphore = GetProcAddress(g_ntdll, "NtQuerySemaphore");
+			NtQuerySemaphore = (_NtQuerySemaphore)GetProcAddress(g_ntdll, "NtQuerySemaphore");
 			if (!NtQuerySemaphore) return -1;
 		}
 	}
