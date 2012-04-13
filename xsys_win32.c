@@ -159,7 +159,7 @@ int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
 	} else {
 		dwMiliseconds = 0;
 	}
-	return WaitForSingleObject(sem, dwMiliseconds);
+	return WaitForSingleObject(*sem, dwMiliseconds);
 }
 
 #define SEMAQUERYINFOCLASS	0
@@ -187,7 +187,7 @@ int xsys_sem_getvalue(xsys_sem *sem, int *value) {
 		}
 	}
 	
-	if (NtQuerySemaphore(sem, SEMAQUERYINFOCLASS, &info, sizeof(info), &retLen) < 0) return -1;
+	if (NtQuerySemaphore(*sem, SEMAQUERYINFOCLASS, &info, sizeof(info), &retLen) < 0) return -1;
 	if (retLen != sizeof(info)) return -1;
 	
 	*value = info.Count;
