@@ -42,6 +42,7 @@ xbee_err xbee_frameBlockAlloc(struct xbee_frameBlock **nfBlock) {
 	if (!(fBlock = malloc(memSize))) return XBEE_ENOMEM;
 	
 	memset(fBlock, 0, memSize);
+	xsys_mutex_init(&fBlock->mutex);
 	fBlock->numFrames = sizeof(fBlock->frame) / sizeof(fBlock->frame[0]);
 	for (i = 0; i < fBlock->numFrames; i++) {
 		fBlock->frame[i].id = i;
@@ -60,6 +61,7 @@ xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock) {
 	for (i = 0; i < fBlock->numFrames; i++) {
 		xsys_sem_destroy(&fBlock->frame[i].sem);
 	}
+	xsys_mutex_destroy(&fBlock->mutex);
 	
 	free(fBlock);
 	
