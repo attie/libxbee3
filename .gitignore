@@ -8,3 +8,5 @@ lib
 *.so
 *.d
 main
+*.obj
+*.exe
