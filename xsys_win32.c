@@ -56,6 +56,8 @@ HRESULT __stdcall DllCanUnloadNow(void) {
 
 /* ######################################################################### */
 
+/* when opening COM1-COM9, you can specify 'COMx'
+   when opening ports out of this range, you must specify '\\\\.\\COMx' */
 int xsys_serialSetup(struct xbee_serialInfo *info) {
   DCB tc;
   COMMTIMEOUTS timeouts;
