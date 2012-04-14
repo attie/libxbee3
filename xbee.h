@@ -169,6 +169,7 @@ EXPORT extern const char libxbee_buildtime[];
 
 /* ######################################################################### */
 /* --- xbee.c --- */
+EXPORT void xbee_freeMemory(void *ptr); /* <-- this is for STUPID windows */
 EXPORT xbee_err xbee_validate(struct xbee *xbee);
 EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...);
 EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap);
