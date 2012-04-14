@@ -21,7 +21,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern const struct xbee_modeConType xbee_s2_localAt;
-extern const struct xbee_modeConType xbee_s2_remoteAt;
+extern struct xbee_modeConType xbee_s2_localAt;
+extern struct xbee_modeConType xbee_s2_remoteAt;
 
 #endif /* __XBEE_MODE_AT_H */

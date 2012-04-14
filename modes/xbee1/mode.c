@@ -182,4 +182,3 @@ const struct xbee_mode mode_xbee1 = {
 	
 	/* .thread = */ NULL,
 };
-

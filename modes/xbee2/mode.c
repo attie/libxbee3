@@ -114,11 +114,11 @@ done:
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s2_transmitStatus_rx  = {
+struct xbee_modeDataHandlerRx xbee_s2_transmitStatus_rx  = {
 	.identifier = 0x8B,
 	.func = xbee_s2_transmitStatus_rx_func,
 };
-const struct xbee_modeConType xbee_s2_transmitStatus = {
+struct xbee_modeConType xbee_s2_transmitStatus = {
 	.name = "Transmit Status",
 	.allowFrameId = 1,
 	.useTimeout = 0,
@@ -150,11 +150,11 @@ xbee_err xbee_s2_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s2_modemStatus_rx  = {
+struct xbee_modeDataHandlerRx xbee_s2_modemStatus_rx  = {
 	.identifier = 0x8A,
 	.func = xbee_s2_modemStatus_rx_func,
 };
-const struct xbee_modeConType xbee_s2_modemStatus = {
+struct xbee_modeConType xbee_s2_modemStatus = {
 	.name = "Modem Status",
 	.allowFrameId = 0,
 	.useTimeout = 0,

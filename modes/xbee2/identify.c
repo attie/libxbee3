@@ -80,11 +80,11 @@ xbee_err xbee_s2_identify_rx_func(struct xbee *xbee, void *arg, unsigned char id
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s2_identify_rx  = {
+struct xbee_modeDataHandlerRx xbee_s2_identify_rx  = {
 	.identifier = 0x95,
 	.func = xbee_s2_identify_rx_func,
 };
-const struct xbee_modeConType xbee_s2_identify = {
+struct xbee_modeConType xbee_s2_identify = {
 	.name = "Identify",
 	.allowFrameId = 0,
 	.useTimeout = 0,

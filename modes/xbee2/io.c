@@ -148,11 +148,11 @@ xbee_err xbee_s2_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s2_io_rx  = {
+struct xbee_modeDataHandlerRx xbee_s2_io_rx  = {
 	.identifier = 0x92,
 	.func = xbee_s2_io_rx_func,
 };
-const struct xbee_modeConType xbee_s2_io = {
+struct xbee_modeConType xbee_s2_io = {
 	.name = "I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,

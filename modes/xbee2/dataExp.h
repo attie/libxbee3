@@ -21,6 +21,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern const struct xbee_modeConType xbee_s2_dataExp;
+extern struct xbee_modeConType xbee_s2_dataExp;
 
 #endif /* __XBEE_MODE_DATAEXP_H */

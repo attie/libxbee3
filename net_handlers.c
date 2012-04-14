@@ -179,11 +179,11 @@ xbee_err xbee_netServer_bc_tx_func(struct xbee *xbee, struct xbee_con *con, void
 
 /* backchannel (0x00), endpoint 0 (0x00) is ALWAYS the 'start' function
    THIS IS USED BY THE CLIENT CODE TOO */
-const struct xbee_modeDataHandlerRx xbee_netServer_backchannel_rx = {
+struct xbee_modeDataHandlerRx xbee_netServer_backchannel_rx = {
 	.identifier = 0x00,
 	.func = xbee_netServer_bc_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx = {
+struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx = {
 	.identifier = 0x00,
 	.func = xbee_netServer_bc_tx_func,
 };
@@ -191,7 +191,7 @@ const struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx = {
 #ifndef XBEE_NO_NET_SERVER
 
 /* the client has its own version of this */
-const struct xbee_modeConType xbee_netServer_backchannel = {
+struct xbee_modeConType xbee_netServer_backchannel = {
 	.name = "Backchannel",
 	.internal = 1,
 	.allowFrameId = 0,

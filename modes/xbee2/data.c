@@ -118,15 +118,15 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s2_data_rx  = {
+struct xbee_modeDataHandlerRx xbee_s2_data_rx  = {
 	.identifier = 0x90,
 	.func = xbee_s2_data_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s2_data_tx  = {
+struct xbee_modeDataHandlerTx xbee_s2_data_tx  = {
 	.identifier = 0x10,
 	.func = xbee_s2_data_tx_func,
 };
-const struct xbee_modeConType xbee_s2_data = {
+struct xbee_modeConType xbee_s2_data = {
 	.name = "Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
