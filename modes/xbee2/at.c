@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "../../internal.h"
 #include "../../xbee_int.h"
 #include "../../mode.h"
@@ -92,6 +91,8 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 	int pos;
 	size_t memSize;
 	
+	unsigned char addr16_default[] = { 0xFF, 0xFE };
+	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 	
 	if (len < 2) return XBEE_ELENGTH; /* must have the AT command... */
@@ -107,7 +108,7 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 			if (address->addr16_enabled) {
 				addr16 = &(address->addr16[0]);
 			} else if (address->addr16_enabled) {
-				addr16 = (unsigned char[]){ 0xFF, 0xFE };
+				addr16 = addr16_default;
 			}
 			break;
 		default: return XBEE_EINVAL;
@@ -148,46 +149,34 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s2_localAt_rx  = {
-	.identifier = 0x88,
-	.func = xbee_s2_at_rx_func,
-};
-struct xbee_modeDataHandlerTx xbee_s2_localAt_tx  = {
-	.identifier = 0x08,
-	.func = xbee_s2_at_tx_func,
-};
-struct xbee_modeConType xbee_s2_localAt = {
-	.name = "Local AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 0,
-		.tv_nsec = 250000000,
-	},
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s2_localAt_rx,
-	.txHandler = &xbee_s2_localAt_tx,
-};
+void xbee_s2_localAt_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 0;
+	conType->timeout.tv_nsec = 250000000;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x88;
+	conType->rxHandler->func = xbee_s2_at_rx_func;
+	conType->txHandler->identifier = 0x08;
+	conType->txHandler->func = xbee_s2_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s2_localAt_rx;
+struct xbee_modeDataHandlerTx xbee_s2_localAt_tx;
+struct xbee_modeConType xbee_s2_localAt = { "Local AT", &xbee_s2_localAt_rx, &xbee_s2_localAt_tx, xbee_s2_localAt_init };
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s2_remoteAt_rx  = {
-	.identifier = 0x97,
-	.func = xbee_s2_at_rx_func,
-};
-struct xbee_modeDataHandlerTx xbee_s2_remoteAt_tx  = {
-	.identifier = 0x17,
-	.func = xbee_s2_at_tx_func,
-};
-struct xbee_modeConType xbee_s2_remoteAt = {
-	.name = "Remote AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 0,
-		.tv_nsec = 750000000,
-	},
-	.addressRules = ADDR_64_16OPT_NOEP,
-	.rxHandler = &xbee_s2_remoteAt_rx,
-	.txHandler = &xbee_s2_remoteAt_tx,
-};
+void xbee_s2_remoteAt_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 0;
+	conType->timeout.tv_nsec = 750000000;
+	conType->addressRules = ADDR_64_16OPT_NOEP;
+	conType->rxHandler->identifier = 0x97;
+	conType->rxHandler->func = xbee_s2_at_rx_func;
+	conType->txHandler->identifier = 0x17;
+	conType->txHandler->func = xbee_s2_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s2_remoteAt_rx;
+struct xbee_modeDataHandlerTx xbee_s2_remoteAt_tx;
+struct xbee_modeConType xbee_s2_remoteAt = { "Remote AT", &xbee_s2_remoteAt_rx, &xbee_s2_remoteAt_tx, xbee_s2_remoteAt_init };

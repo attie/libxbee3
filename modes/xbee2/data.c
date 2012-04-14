@@ -118,21 +118,17 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s2_data_rx  = {
-	.identifier = 0x90,
-	.func = xbee_s2_data_rx_func,
-};
-struct xbee_modeDataHandlerTx xbee_s2_data_tx  = {
-	.identifier = 0x10,
-	.func = xbee_s2_data_tx_func,
-};
-struct xbee_modeConType xbee_s2_data = {
-	.name = "Data",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_64_16OPT_NOEP,
-	.save_addr16 = 1,
-	.save_addr64 = 1,
-	.rxHandler = &xbee_s2_data_rx,
-	.txHandler = &xbee_s2_data_tx,
-};
+void xbee_s2_data_init(struct xbee_modeConType *conType) {
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_64_16OPT_NOEP;
+	conType->save_addr16 = 1;
+	conType->save_addr64 = 1;
+	conType->rxHandler->identifier = 0x90;
+	conType->rxHandler->func = xbee_s2_data_rx_func;
+	conType->txHandler->identifier = 0x10;
+	conType->txHandler->func = xbee_s2_data_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s2_data_rx;
+struct xbee_modeDataHandlerTx xbee_s2_data_tx;
+struct xbee_modeConType xbee_s2_data = { "Data", &xbee_s2_data_rx, &xbee_s2_data_tx, xbee_s2_data_init };
