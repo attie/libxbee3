@@ -247,7 +247,7 @@ EXPORT xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, const char *key, int id, i
 
 /* ########################################################################## */
 
-xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, int value) {
+xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, long value) {
 	if (!pkt) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
@@ -275,7 +275,7 @@ EXPORT xbee_err xbee_pktAnalogGet(struct xbee_pkt *pkt, int channel, int index, 
 
 /* ########################################################################## */
 
-xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, int value) {
+xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, long value) {
 	if (!pkt) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;

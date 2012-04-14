@@ -44,7 +44,7 @@ xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, const char *key, int id, struc
 
 xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, const char *key, int id, void *data, void (*freeCallback)(void*));
 
-xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, int value);
-xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, int value);
+xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, long value);
+xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, long value);
 
 #endif /* __XBEE_PKT_H */
