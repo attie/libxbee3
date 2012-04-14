@@ -14,7 +14,7 @@ RMDIR:=                del /F /Q
 DEBUG:=                /MT
 CFLAGS+=               /nologo "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /RTCs /Gd $(DEBUG) $(addprefix /D,$(OPTIONS))
 CLINKS+=               /nologo "/LIBPATH:$(SDKPATH)\Lib" "/LIBPATH:$(VCPATH)\lib"
-FINLNK:=               /DLL 
+FINLNK:=               /DLL
 
 LIB_OUT:=              $(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll
 
