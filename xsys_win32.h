@@ -49,9 +49,7 @@ typedef size_t            xsys_ssize_t;
 
 typedef HANDLE            xsys_serialDev;
 
-#ifndef EXPORT
 #define EXPORT __declspec(dllexport)
-#endif
 #define INIT   
 #define FINI   
 
@@ -60,7 +58,6 @@ typedef HANDLE            xsys_serialDev;
 /* file I/O */
 
 #define xsys_open(path, flags)                open((path),(flags))
-int xsys_lockf(int fd);
 #define xsys_close(fd)                        close((fd))
 #define xsys_read(fd, buf, count)             read((fd),(buf),(count))
 #define xsys_write(fd, buf, count)            write((fd),(buf),(count))
