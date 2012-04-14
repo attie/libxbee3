@@ -112,7 +112,7 @@ int xsys_select(FILE *stream, struct timeval *timeout);
 #define xsys_sem_wait(sem)                    WaitForSingleObject(*(sem),INFINITE)
 #define xsys_sem_trywait(sem)                 WaitForSingleObject(*(sem),0)
 int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout);
-#define xsys_sem_post(sem)                    !ReleaseSemaphore(*(sem),1,NULL)
+#define xsys_sem_post(sem)                    (!ReleaseSemaphore(*(sem),1,NULL))
 int xsys_sem_getvalue(xsys_sem *sem, int *value);
 
 
