@@ -23,7 +23,7 @@ xbee_conCallbackGet, xbee_conCallbackSet
 .sp
 .BI "typedef void(*xbee_t_conCallback)(struct xbee *" xbee ", struct xbee_con *" con ", struct xbee_pkt **" pkt ", void **" data ");"
 .sp
-.BI "xbee_err xbee_conCallbackSet(struct xbee_con *" con ", xbee_t_conCallback " newCallback ", xbee_t_conCallback *" oldCallback" );"
+.BI "xbee_err xbee_conCallbackSet(struct xbee_con *" con ", xbee_t_conCallback " newCallback ", xbee_t_conCallback *" oldCallback ");"
 .sp 0
 .BI "xbee_err xbee_conCallbackGet(struct xbee_con *" con ", xbee_t_conCallback *" curCallback ");"
 .ad b
