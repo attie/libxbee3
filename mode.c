@@ -73,7 +73,7 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 		/* keep the pointers (they are const after all) */
 		memcpy(&conTypes[i], mode->conTypes[i], sizeof(*conTypes));
 		
-		/* initialization added for microsot compiler support */
+		/* initialization added for microsoft compiler support */
 		if (conTypes[i].init) conTypes[i].init(&(conTypes[i]));
 		
 		conTypes[i].conList = ll_alloc();
