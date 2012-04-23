@@ -125,6 +125,7 @@ xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 /* ######################################################################### */
 
 void xbee_s1_16bitData_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_16_ONLY;
@@ -140,6 +141,7 @@ struct xbee_modeConType xbee_s1_16bitData = { "16-bit Data", &xbee_s1_16bitData_
 /* ######################################################################### */
 
 void xbee_s1_64bitData_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_64_ONLY;

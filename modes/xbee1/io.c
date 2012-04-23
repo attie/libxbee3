@@ -129,6 +129,7 @@ xbee_err xbee_s1_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 /* ######################################################################### */
 
 void xbee_s1_16bitIo_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 0;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_16_ONLY;
@@ -141,6 +142,7 @@ struct xbee_modeConType xbee_s1_16bitIo = { "16-bit I/O", &xbee_s1_16bitIo_rx, N
 /* ######################################################################### */
 
 void xbee_s1_64bitIo_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 0;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_64_ONLY;

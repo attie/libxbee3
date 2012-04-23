@@ -81,6 +81,7 @@ xbee_err xbee_s2_identify_rx_func(struct xbee *xbee, void *arg, unsigned char id
 /* ######################################################################### */
 
 void xbee_s2_identify_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 0;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_NONE;

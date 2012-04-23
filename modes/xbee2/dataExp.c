@@ -136,6 +136,7 @@ xbee_err xbee_s2_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 /* ######################################################################### */
 
 void xbee_s2_dataExp_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_64_16OPT_EP;

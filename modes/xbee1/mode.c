@@ -112,6 +112,7 @@ done:
 /* ######################################################################### */
 
 void xbee_s1_transmitStatus_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_NONE;
@@ -145,6 +146,7 @@ xbee_err xbee_s1_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char
 /* ######################################################################### */
 
 void xbee_s1_modemStatus_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 0;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_NONE;

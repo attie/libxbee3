@@ -157,6 +157,7 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 /* ######################################################################### */
 
 void xbee_s1_localAt_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 1;
 	conType->timeout.tv_sec = 0;
@@ -174,6 +175,7 @@ struct xbee_modeConType xbee_s1_localAt = { "Local AT", &xbee_s1_localAt_rx, &xb
 /* ######################################################################### */
 
 void xbee_s1_remoteAt_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 1;
 	conType->timeout.tv_sec = 0;
