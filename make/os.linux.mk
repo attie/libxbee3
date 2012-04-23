@@ -13,6 +13,7 @@ MKDIR=                 @if [ ! -d $* ]; then echo "mkdir -p $*"; mkdir -p $*; el
 RM:=                   rm -f
 RMDIR:=                rm -rf
 INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER) -DT
+MAN2HTML:=             man2html
 
 DEBUG:=                -g
 CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
@@ -22,8 +23,9 @@ CPPFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes -Wno-variadic-macros
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
 
-LIB_OUT:=              $(DESTDIR)/$(LIBNAME).so \
-                       $(DESTDIR)/$(LIBNAME).a
+LIB_OUT=               $(DESTDIR)/$(LIBNAME).so \
+                       $(DESTDIR)/$(LIBNAME).a \
+                       $(addprefix $(HTMLDIR)/,$(SYS_HTMLPAGES))
 
 INSTALL_FILES=         $(SYS_LIBDIR)/$(LIBNAME).so.$(LIBFULLREV)                    \
                        $(SYS_LIBDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg                \
@@ -39,6 +41,7 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)     \
                        $(DESTDIR)/$(LIBNAME).a.$(LIBFULLREV)      \
                        $(DESTDIR)/$(LIBNAME).a                    \
                        $(addprefix $(MANDIR)/,$(SYS_MANPAGES))    \
+                       $(addprefix $(HTMLDIR)/,$(SYS_HTMLPAGES))  \
                        xbee.h                                     \
                        README HISTORY COPYING COPYING.LESSER
 

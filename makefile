@@ -14,6 +14,7 @@ new: clean
 clean:
 	$(RM) $(BUILDDIR)/*.o
 	$(RM) $(BUILDDIR)/*.d
+	$(RM) $(HTMLDIR)/*/*.html
 
 distclean: clean
 	$(RM) $(patsubst %,.%.dir,$(CONSTRUCTIONDIRS))
