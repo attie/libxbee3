@@ -18,7 +18,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define EXPORT __attribute__((visibility ("default")))
+#include "internal.h"
 
 EXPORT const char libxbee_revision[]  = LIB_REVISION;
 EXPORT const char libxbee_commit[]    = LIB_COMMIT;

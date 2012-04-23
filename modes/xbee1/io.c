@@ -128,11 +128,11 @@ xbee_err xbee_s1_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
 	.identifier = 0x83,
 	.func = xbee_s1_io_rx_func,
 };
-const struct xbee_modeConType xbee_s1_16bitIo = {
+struct xbee_modeConType xbee_s1_16bitIo = {
 	.name = "16-bit I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,
@@ -143,11 +143,11 @@ const struct xbee_modeConType xbee_s1_16bitIo = {
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
 	.identifier = 0x82,
 	.func = xbee_s1_io_rx_func,
 };
-const struct xbee_modeConType xbee_s1_64bitIo = {
+struct xbee_modeConType xbee_s1_64bitIo = {
 	.name = "64-bit I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,

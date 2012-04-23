@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-xbee_err xsys_serialSetup(struct xbee_serialInfo *info) {
+int xsys_serialSetup(struct xbee_serialInfo *info) {
   struct termios tc;
   speed_t chosenbaud;
 	
@@ -144,7 +144,7 @@ xbee_err xsys_serialSetup(struct xbee_serialInfo *info) {
 	return XBEE_ENONE;
 }
 
-xbee_err xsys_serialShutdown(struct xbee_serialInfo *info) {
+int xsys_serialShutdown(struct xbee_serialInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
 	if (info->dev.f) fclose(info->dev.f);
 	info->dev.f = NULL;
@@ -153,9 +153,7 @@ xbee_err xsys_serialShutdown(struct xbee_serialInfo *info) {
 	return XBEE_ENONE;
 }
 
-/* ######################################################################### */
-
-xbee_err xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) {
+int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) {
 	fd_set fds;
 	int ret;
 	int pos;
@@ -192,7 +190,7 @@ xbee_err xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *d
 
 /* ######################################################################### */
 
-xbee_err xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) {
+int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) {
 	int pos;
 	int ret;
 	

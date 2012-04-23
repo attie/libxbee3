@@ -30,7 +30,6 @@ extern "C" {
 
 /* file I/O --- needs the following functions:
 int xsys_open(char *path, int flags);
-int xsys_lockf(int fd);
 int xsys_close(int fd);
 xsys_ssize_t xsys_read(int fd, void *buf, xsys_size_t count);
 xsys_ssize_t xsys_write(int fd, void *buf, xsys_size_t count);
@@ -48,10 +47,10 @@ int xsys_feof(FILE *stream);
 
 
 /* serial I/O --- needs the following functions: */
-xbee_err xsys_serialSetup(struct xbee_serialInfo *info);
-xbee_err xsys_serialShutdown(struct xbee_serialInfo *info);
-xbee_err xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest);
-xbee_err xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src);
+int xsys_serialSetup(struct xbee_serialInfo *info);
+int xsys_serialShutdown(struct xbee_serialInfo *info);
+int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest);
+int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src);
 
 
 /* threads --- needs the following functions:

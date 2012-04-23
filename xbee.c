@@ -38,6 +38,14 @@
 struct ll_head *xbeeList = NULL;
 struct ll_head *needsFree = NULL;
 
+EXPORT void xbee_freeMemory(void *ptr) {
+	/* because the windows memory model is stupid, memory that is allocated from within
+	   the DLL, must also be free'd from within the DLL */
+	free(ptr);
+}
+
+/* ######################################################################### */
+
 EXPORT xbee_err xbee_validate(struct xbee *xbee) {
 	if (ll_get_item(xbeeList, xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	return XBEE_ENONE;

@@ -135,15 +135,15 @@ xbee_err xbee_s2_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s2_dataExp_rx  = {
+struct xbee_modeDataHandlerRx xbee_s2_dataExp_rx  = {
 	.identifier = 0x91,
 	.func = xbee_s2_dataExp_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s2_dataExp_tx  = {
+struct xbee_modeDataHandlerTx xbee_s2_dataExp_tx  = {
 	.identifier = 0x11,
 	.func = xbee_s2_dataExp_tx_func,
 };
-const struct xbee_modeConType xbee_s2_dataExp = {
+struct xbee_modeConType xbee_s2_dataExp = {
 	.name = "Data (explicit)",
 	.allowFrameId = 1,
 	.useTimeout = 0,

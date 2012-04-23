@@ -49,18 +49,22 @@ struct xbee_modeDataHandlerTx {
 };
 
 struct xbee_modeConType {
-	const char *name;
+	char *name;
+	struct xbee_modeDataHandlerRx *rxHandler;
+	struct xbee_modeDataHandlerTx *txHandler;
+	void (*init)(struct xbee_modeConType *conType);
+	
 	int nameNeedsFree;
 	
 	struct ll_head *conList;
 	
-	const unsigned char internal     : 1;
-	const unsigned char allowFrameId : 1;
-	const unsigned char useTimeout   : 1;
-	const struct timespec timeout;
+	unsigned char internal     : 1;
+	unsigned char allowFrameId : 1;
+	unsigned char useTimeout   : 1;
+	struct timespec timeout;
 	
-	const unsigned char save_addr16;
-	const unsigned char save_addr64;
+	unsigned char save_addr16;
+	unsigned char save_addr64;
 	
 	
 #define ADDR_EP_NOTALLOW    0x01
@@ -95,15 +99,11 @@ struct xbee_modeConType {
 	     --1-----  - 16-bit address required
 	     -1------  - 16 or 64-bit address required (OR)
 	     1-------  - 16 or 64-bit address required (XOR) */
-	const unsigned char addressRules;
-	
-	
-	const struct xbee_modeDataHandlerRx *rxHandler;
-	const struct xbee_modeDataHandlerTx *txHandler;
+	unsigned char addressRules;
 };
 
 struct xbee_modeSupport {
-	xbee_err (* const conNew)(struct xbee *xbee, struct xbee_interface *interface, struct xbee_modeConType *conType, struct xbee_conAddress *address, int *conIdentifier);
+	xbee_err (* const conNew)(struct xbee *xbee, struct xbee_interface *iface, struct xbee_modeConType *conType, struct xbee_conAddress *address, int *conIdentifier);
 	xbee_err (* const conValidate)(struct xbee_con *con);
 	xbee_err (* const conSleepSet)(struct xbee_con *con, enum xbee_conSleepStates state);
 	xbee_err (* const conSleepGet)(struct xbee_con *con);

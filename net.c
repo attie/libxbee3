@@ -20,32 +20,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-
-#ifndef linux
-/* for FreeBSD */
-#include <netinet/in.h>
-#endif /* !linux */
 
 #include "internal.h"
 #include "xbee_int.h"
-#include "rx.h"
-#include "tx.h"
-#include "frame.h"
-#include "conn.h"
 #include "net.h"
-#include "net_io.h"
-#include "net_handlers.h"
-#include "net_callbacks.h"
-#include "mode.h"
-#include "log.h"
-#include "ll.h"
-#include "thread.h"
 
 struct ll_head *netDeadClientList = NULL;
 
@@ -68,6 +46,30 @@ xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client) {
 }
 
 #else /* XBEE_NO_NET_SERVER */
+
+#include <string.h>
+#include <errno.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+
+#ifndef linux
+/* for FreeBSD */
+#include <netinet/in.h>
+#endif /* !linux */
+
+#include "rx.h"
+#include "tx.h"
+#include "frame.h"
+#include "conn.h"
+#include "net_io.h"
+#include "net_handlers.h"
+#include "net_callbacks.h"
+#include "mode.h"
+#include "log.h"
+#include "ll.h"
+#include "thread.h"
 
 /* ######################################################################### */
 

@@ -22,7 +22,6 @@
 #include <stdlib.h>
 
 #include "internal.h"
-#include "xsys.h"
 
 #define __XBEE_XSYS_LOAD_C
 #if defined(__GNUC__) /* ------- */

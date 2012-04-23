@@ -30,7 +30,7 @@ extern const struct xbee_mode xbee_netServerMode;
 
 #endif /* XBEE_NO_NET_SERVER */
 
-extern const struct xbee_modeDataHandlerRx xbee_netServer_backchannel_rx;
-extern const struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx;
+extern struct xbee_modeDataHandlerRx xbee_netServer_backchannel_rx;
+extern struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx;
 
 #endif /* __XBEE_NET_HANDLERS_H */

@@ -23,6 +23,6 @@
 
 xbee_err xbee_s2_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigned char *data, int len);
 
-extern const struct xbee_modeConType xbee_s2_io;
+extern struct xbee_modeConType xbee_s2_io;
 
 #endif /* __XBEE_MODE_IO_H */

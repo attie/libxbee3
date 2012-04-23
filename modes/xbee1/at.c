@@ -153,15 +153,15 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_localAt_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_localAt_rx  = {
 	.identifier = 0x88,
 	.func = xbee_s1_at_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s1_localAt_tx  = {
+struct xbee_modeDataHandlerTx xbee_s1_localAt_tx  = {
 	.identifier = 0x08,
 	.func = xbee_s1_at_tx_func,
 };
-const struct xbee_modeConType xbee_s1_localAt = {
+struct xbee_modeConType xbee_s1_localAt = {
 	.name = "Local AT",
 	.allowFrameId = 1,
 	.useTimeout = 1,
@@ -176,15 +176,15 @@ const struct xbee_modeConType xbee_s1_localAt = {
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_remoteAt_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_remoteAt_rx  = {
 	.identifier = 0x97,
 	.func = xbee_s1_at_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s1_remoteAt_tx  = {
+struct xbee_modeDataHandlerTx xbee_s1_remoteAt_tx  = {
 	.identifier = 0x17,
 	.func = xbee_s1_at_tx_func,
 };
-const struct xbee_modeConType xbee_s1_remoteAt = {
+struct xbee_modeConType xbee_s1_remoteAt = {
 	.name = "Remote AT",
 	.allowFrameId = 1,
 	.useTimeout = 1,

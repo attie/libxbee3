@@ -137,19 +137,19 @@ xbee_err xbee_net_frontchannel_tx_func(struct xbee *xbee, struct xbee_con *con, 
 
 /* these are allocated at runtime - this is just for reference...
 
-const struct xbee_modeDataHandlerRx xbee_net_frontchannel_rx = {
+struct xbee_modeDataHandlerRx xbee_net_frontchannel_rx = {
 	.identifier = 0x00,
 	.func = xbee_net_frontchannel_rx_func,
 };
 
-const struct xbee_modeDataHandlerTx xbee_net_frontchannel_tx = {
+struct xbee_modeDataHandlerTx xbee_net_frontchannel_tx = {
 	.identifier = 0x00,
 	.func = xbee_net_frontchannel_tx_func,
 };
 */
 
 /* this one allows frame IDs */
-const struct xbee_modeConType xbee_net_frontchannel_template = {
+struct xbee_modeConType xbee_net_frontchannel_template = {
 	.name = NULL,
 	.internal = 0,
 	.allowFrameId = 1,
@@ -163,7 +163,7 @@ const struct xbee_modeConType xbee_net_frontchannel_template = {
 };
 
 /* this one does not allow frame IDs */
-const struct xbee_modeConType xbee_net_frontchannel_template_fid = {
+struct xbee_modeConType xbee_net_frontchannel_template_fid = {
 	.name = NULL,
 	.internal = 0,
 	.allowFrameId = 0,
@@ -178,7 +178,7 @@ const struct xbee_modeConType xbee_net_frontchannel_template_fid = {
 
 /* ######################################################################### */
 
-const struct xbee_modeConType xbee_net_backchannel = {
+struct xbee_modeConType xbee_net_backchannel = {
 	.name = "Backchannel",
 	.internal = 1,
 	.allowFrameId = 1, /* this needs redeclaring, because this is enabled for the client */

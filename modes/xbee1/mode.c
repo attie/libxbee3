@@ -36,7 +36,7 @@
 #include "io.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
-static xbee_err shutdown(struct xbee *xbee);
+static xbee_err mode_shutdown(struct xbee *xbee);
 
 /* ######################################################################### */
 
@@ -64,11 +64,11 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	return XBEE_ENONE;
 die:
-	shutdown(xbee);
+	mode_shutdown(xbee);
 	return ret;
 }
 
-static xbee_err shutdown(struct xbee *xbee) {
+static xbee_err mode_shutdown(struct xbee *xbee) {
 	struct xbee_modeData *data;
 	
 	if (!xbee) return XBEE_EMISSINGPARAM;
@@ -111,11 +111,11 @@ done:
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_transmitStatus_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_transmitStatus_rx  = {
 	.identifier = 0x89,
 	.func = xbee_s1_transmitStatus_rx_func,
 };
-const struct xbee_modeConType xbee_s1_transmitStatus = {
+struct xbee_modeConType xbee_s1_transmitStatus = {
 	.name = "Transmit Status",
 	.allowFrameId = 1,
 	.useTimeout = 0,
@@ -147,11 +147,11 @@ xbee_err xbee_s1_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_modemStatus_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_modemStatus_rx  = {
 	.identifier = 0x8A,
 	.func = xbee_s1_modemStatus_rx_func,
 };
-const struct xbee_modeConType xbee_s1_modemStatus = {
+struct xbee_modeConType xbee_s1_modemStatus = {
 	.name = "Modem Status",
 	.allowFrameId = 0,
 	.useTimeout = 0,
@@ -181,7 +181,7 @@ const struct xbee_mode mode_xbee1 = {
 	
 	.init = init,
 	.prepare = NULL,
-	.shutdown = shutdown,
+	.shutdown = mode_shutdown,
 	
 	.rx_io = xbee_xbeeRxIo,
 	.tx_io = xbee_xbeeTxIo,

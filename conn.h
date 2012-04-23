@@ -54,7 +54,7 @@ xbee_err xbee_conFree(struct xbee_con *con);
 
 xbee_err xbee_conWake(struct xbee_con *con);
 
-xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *interface, int allowInternal, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address);
+xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *iface, int allowInternal, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address);
 
 xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_conAddress *address, struct xbee_con *con);
 xbee_err xbee_conUnlink(struct xbee_con *con);

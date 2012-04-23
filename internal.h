@@ -32,9 +32,10 @@ struct xbee_log;
 struct xbee_mode;
 struct xbee_txInfo;
 struct xbee_rxInfo;
+struct xbee_interface;
 
-#include "xbee.h"
 #include "xsys.h"
+#include "xbee.h"
 #include "mutex.h"
 
 struct xbee_buf {

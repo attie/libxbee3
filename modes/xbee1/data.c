@@ -124,15 +124,15 @@ xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_16bitData_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_16bitData_rx  = {
 	.identifier = 0x81,
 	.func = xbee_s1_data_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s1_16bitData_tx  = {
+struct xbee_modeDataHandlerTx xbee_s1_16bitData_tx  = {
 	.identifier = 0x01,
 	.func = xbee_s1_data_tx_func,
 };
-const struct xbee_modeConType xbee_s1_16bitData = {
+struct xbee_modeConType xbee_s1_16bitData = {
 	.name = "16-bit Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
@@ -143,15 +143,15 @@ const struct xbee_modeConType xbee_s1_16bitData = {
 
 /* ######################################################################### */
 
-const struct xbee_modeDataHandlerRx xbee_s1_64bitData_rx  = {
+struct xbee_modeDataHandlerRx xbee_s1_64bitData_rx  = {
 	.identifier = 0x80,
 	.func = xbee_s1_data_rx_func,
 };
-const struct xbee_modeDataHandlerTx xbee_s1_64bitData_tx  = {
+struct xbee_modeDataHandlerTx xbee_s1_64bitData_tx  = {
 	.identifier = 0x00,
 	.func = xbee_s1_data_tx_func,
 };
-const struct xbee_modeConType xbee_s1_64bitData = {
+struct xbee_modeConType xbee_s1_64bitData = {
 	.name = "64-bit Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
