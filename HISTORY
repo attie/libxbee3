@@ -1,3 +1,8 @@
+v3.0.7 - in progress
+	* Fixed initialization of frame mutexes
+	* Abstracted serial I/O further for Win32 port
+	* General tidy of codebase
+
 v3.0.6 - 25 Mar 2012
 	* Added C++ class
 	* Fixed Series 2 addressing issue
