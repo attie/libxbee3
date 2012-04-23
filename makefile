@@ -12,9 +12,9 @@ new: clean
 	@$(MAKE) all
 
 clean:
-	$(RM) $(BUILDDIR)/*.o
-	$(RM) $(BUILDDIR)/*.d
-	$(RM) $(HTMLDIR)/*/*.html
+ifneq ($(CLEAN_FILES),)
+	$(RM) $(CLEAN_FILES)
+endif
 
 distclean: clean
 	$(RM) $(patsubst %,.%.dir,$(CONSTRUCTIONDIRS))

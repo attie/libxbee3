@@ -9,6 +9,7 @@ OBJCOPY=               $(CROSS_COMPILE)objcopy
 AR=                    $(CROSS_COMPILE)ar
 DEFLATE:=              gzip
 SYMLINK:=              ln
+MKDIR=                 @if [ ! -d $* ]; then echo "mkdir -p $*"; mkdir -p $*; else echo "!mkdir $*"; fi
 RM:=                   rm -f
 RMDIR:=                rm -rf
 INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER)
@@ -40,6 +41,9 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)     \
                        $(addprefix $(MANDIR)/,$(SYS_MANPAGES))    \
                        xbee.h                                     \
                        README HISTORY COPYING COPYING.LESSER
+
+CLEAN_FILES=           $(BUILDDIR)/*.o \
+                       $(BUILDDIR)/*.d
 
 VER_DEFINES=           -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
                        -DLIB_COMMIT="\"$(shell git log -1 --format="%H")\""           \

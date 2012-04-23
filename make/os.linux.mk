@@ -45,6 +45,10 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)     \
                        xbee.h                                     \
                        README HISTORY COPYING COPYING.LESSER
 
+CLEAN_FILES=           $(BUILDDIR)/*.o \
+                       $(BUILDDIR)/*.d \
+                       $(HTMLDIR)/*/*.html
+
 VER_DEFINES=           -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
                        -DLIB_COMMIT="\"$(shell git log -1 --format="%H")\""           \
                        -DLIB_COMMITTER="\"$(shell git log -1 --format="%cn <%ce>")\"" \
