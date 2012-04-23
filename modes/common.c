@@ -20,9 +20,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef _WIN32
-#include <termios.h>
-#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
