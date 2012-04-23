@@ -7,6 +7,7 @@ LIBFULLREV:=           $(LIBMAJ).$(LIBMIN).$(LIBREV)
 LIBNAME:=              libxbee
 
 MANDIR:=               man
+HTMLDIR:=              html
 BUILDDIR:=             .build
 DESTDIR:=              lib
 

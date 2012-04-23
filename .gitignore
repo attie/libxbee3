@@ -1,12 +1,14 @@
 /config.mk
+*~
+
 lib
 .build
 .*.dir
-/modes/modes.o
-*~
+
+*.d
 *.o
 *.so
-*.d
 main
+
 *.obj
 *.exe

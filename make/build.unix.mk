@@ -61,3 +61,18 @@ $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.c
 
 # include all the dep files avaliable
 -include $(wildcard $(BUILDDIR)/*.d)
+
+ifneq ($(MAN2HTML),)
+# generate HTML from man pages
+$(addprefix $(HTMLDIR)/,$(filter-out index.html,$(SYS_HTMLPAGES))): $(HTMLDIR)/%.html: $(MANDIR)/%
+	@echo "cat $^ | $(MAN2HTML) -rp | tail -n +3 > $@"
+	@mkdir -p `dirname $@`
+	@if [ ! -h $^ ]; then                        \
+	cat $^ | $(MAN2HTML) -rp | tail -n +3 > $@;  \
+  chmod 644 $@;                                \
+else                                           \
+	$(SYMLINK) -fs $(shell readlink $^).html $@; \
+fi
+$(HTMLDIR)/index.html: $(filter %libxbee.3.html,$(HTMLDIR)/$(SYS_HTMLPAGES))
+	$(SYMLINK) -fs $(subst $(HTMLDIR)/,,$^) $@
+endif
