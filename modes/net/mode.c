@@ -54,7 +54,7 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	memset(data, 0, sizeof(*data));
 	xbee->modeData = data;
 	
-	data->conList = ll_alloc();
+	data->conList = xbee_ll_alloc();
 	
 	ret = XBEE_ENONE;
 	
@@ -165,7 +165,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 		if ((ret = _xbee_conNew(xbee, &xbee->iface, 1, retCon, "backchannel", &address)) != XBEE_ENONE) goto done;
 		
 		/* add it to the conList */
-		ll_add_tail(data->conList, *retCon);
+		xbee_ll_add_tail(data->conList, *retCon);
 	}
 	
 	/* check that we aren't missing any connections */
@@ -311,7 +311,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	
 	data = xbee->modeData;
 	
-	ll_free(data->conList, (void(*)(void*))xbee_conEnd);
+	xbee_ll_free(data->conList, (void(*)(void*))xbee_conEnd);
 	
 	xbee->modeData = NULL; /* pull the rug */
 	
@@ -322,7 +322,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	}
 	if (data->netInfo.host) free(data->netInfo.host);
 	if (data->netInfo.txBuf) {
-		ll_ext_item(needsFree, data->netInfo.txBuf);
+		xbee_ll_ext_item(needsFree, data->netInfo.txBuf);
 		free(data->netInfo.txBuf);
 	}
 	

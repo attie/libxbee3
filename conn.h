@@ -21,11 +21,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern struct ll_head *conList;
+extern struct xbee_ll_head *conList;
 
 struct xbee_con {
 	struct xbee *xbee;
-	struct ll_head *pktList;
+	struct xbee_ll_head *pktList;
 	struct xbee_modeConType *conType;
 	
 	int ending;
@@ -61,8 +61,8 @@ xbee_err xbee_conUnlink(struct xbee_con *con);
 
 xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address);
 xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2);
-xbee_err xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel);
-xbee_err _xbee_conLocate(struct ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock);
+xbee_err xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel);
+xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock);
 
 xbee_err xbee_conLinkPacket(struct xbee_con *con, struct xbee_pkt *pkt);
 xbee_err xbee_conCallbackProd(struct xbee_con *con);

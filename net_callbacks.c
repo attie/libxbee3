@@ -227,7 +227,7 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	
 	/* find a conIdentifier */
 	conIdentifier = 0;
-	for (tCon = NULL; ll_get_next(conType->conList, tCon, (void **)&tCon) == XBEE_ENONE && tCon; ) {
+	for (tCon = NULL; xbee_ll_get_next(conType->conList, tCon, (void **)&tCon) == XBEE_ENONE && tCon; ) {
 		if (tCon->conIdentifier == conIdentifier) {
 			conIdentifier++;
 			tCon = NULL;
@@ -244,7 +244,7 @@ void xbee_net_conNew(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	if ((ret = xbee_conNew(xbee, &lCon, conTypeName, &address)) != XBEE_ENONE) goto err;
 	lCon->conIdentifier = conIdentifier;
 	lCon->netClient = client;
-	ll_add_tail(client->conList, lCon);
+	xbee_ll_add_tail(client->conList, lCon);
 	
 	/* create the network-side connection */
 	memset(&address, 0, sizeof(address));
@@ -274,7 +274,7 @@ err:
 		xbee_conEnd(nCon);
 	}
 	if (lCon) {
-		ll_ext_item(client->conList, lCon);
+		xbee_ll_ext_item(client->conList, lCon);
 		xbee_conEnd(lCon);
 	}
 	{
@@ -303,7 +303,7 @@ void xbee_net_conValidate(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	conIdentifier |= (((*pkt)->data[0]) << 8) & 0xFF;
 	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
 	
-	for (iCon = NULL; ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+	for (iCon = NULL; xbee_ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
 		if (iCon->conIdentifier == conIdentifier) {
 			retVal = 0x00;
 			break;
@@ -342,7 +342,7 @@ void xbee_net_conSleep(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
 	if ((*pkt)->dataLen == 3) newSleep = (*pkt)->data[2];
 	
-	for (iCon = NULL; ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+	for (iCon = NULL; xbee_ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
 		if (iCon->conIdentifier == conIdentifier) break;
 	}
 	if (!iCon) goto err;
@@ -392,7 +392,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	conIdentifier |= (((*pkt)->data[0]) << 8) & 0xFF;
 	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
 	
-	for (iCon = NULL; ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+	for (iCon = NULL; xbee_ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
 		if (iCon->conIdentifier == conIdentifier) break;
 	}
 	if (!iCon) goto err;
@@ -462,9 +462,9 @@ void xbee_net_conEnd(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **
 	conIdentifier |= (((*pkt)->data[0]) << 8) & 0xFF;
 	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
 	
-	for (iCon = NULL; ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+	for (iCon = NULL; xbee_ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
 		if (iCon->conIdentifier == conIdentifier) {
-			ll_ext_item(client->conList, iCon);
+			xbee_ll_ext_item(client->conList, iCon);
 			xbee_conEnd(iCon);
 			retVal = 0x00;
 			break;

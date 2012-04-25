@@ -28,13 +28,13 @@
 #include "log.h"
 #include "ll.h"
 
-struct ll_head *threadList = NULL;
+struct xbee_ll_head *threadList = NULL;
 xsys_thread_key threadInfoKey;
 
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_threadValidate(struct xbee *xbee, struct xbee_threadInfo *thread) {
-	if (ll_get_item(threadList, thread) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_ll_get_item(threadList, thread) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee && thread->xbee != xbee) return XBEE_EINVAL;
 	return XBEE_ENONE;
 }
@@ -121,7 +121,7 @@ xbee_err _xbee_threadStart(struct xbee *xbee, struct xbee_threadInfo **retThread
 	}
 
 	if (!detach) {
-		ll_add_tail(threadList, thread);
+		xbee_ll_add_tail(threadList, thread);
 	}
 	if (retThread) *retThread = thread;
 
@@ -159,7 +159,7 @@ xbee_err xbee_threadJoin(struct xbee *xbee, struct xbee_threadInfo *thread, xbee
 
 	if (xsys_thread_join(thread->tid, (void**)retVal)) return XBEE_ETHREAD;
 
-	ll_ext_item(threadList, thread);
+	xbee_ll_ext_item(threadList, thread);
 	xsys_sem_destroy(&thread->mutexSem);
 	free(thread);
 
@@ -188,7 +188,7 @@ xbee_err xbee_threadRelease(struct xbee *xbee, struct xbee_threadInfo *thread) {
 
 	xsys_thread_detach(thread->tid);
 	thread->detached = 1;
-	ll_ext_item(threadList, thread);
+	xbee_ll_ext_item(threadList, thread);
 	
 	return XBEE_ENONE;
 }
@@ -234,7 +234,7 @@ xbee_err xbee_threadDestroyMine(struct xbee *xbee) {
 
 	pThread = NULL;
 	ret = XBEE_ENONE;
-	for (thread = NULL; ll_get_next(threadList, thread, (void**)&thread) == XBEE_ENONE && thread; ) {
+	for (thread = NULL; xbee_ll_get_next(threadList, thread, (void**)&thread) == XBEE_ENONE && thread; ) {
 		if (thread->xbee != xbee) {
 			pThread = thread;
 			continue;

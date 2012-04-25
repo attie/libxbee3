@@ -21,7 +21,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern struct ll_head *netDeadClientList;
+extern struct xbee_ll_head *netDeadClientList;
 
 #ifndef INET_ADDRSTRLEN
 #define INET_ADDRSTRLEN 16
@@ -41,7 +41,7 @@ struct xbee_netClientInfo {
 	struct xbee_threadInfo *rxHandlerThread;
 	struct xbee_threadInfo *txThread;
 	
-	struct ll_head *conList;
+	struct xbee_ll_head *conList;
 	
 	struct xbee_con *bc_status;
 	
@@ -59,7 +59,7 @@ struct xbee_netInfo {
 	
 	struct xbee_netClientInfo *newClient;
 	int(*clientFilter)(struct xbee *xbee, const char *remoteHost);
-	struct ll_head *clientList;
+	struct xbee_ll_head *clientList;
 };
 
 #ifndef XBEE_NO_NET_SERVER

@@ -41,7 +41,7 @@ xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo) {
 	if (!(info = malloc(memSize))) return XBEE_ENOMEM;
 	
 	memset(info, 0, memSize);
-	info->bufList = ll_alloc();
+	info->bufList = xbee_ll_alloc();
 	xsys_sem_init(&info->sem);
 	
 	*nInfo = info;
@@ -52,7 +52,7 @@ xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo) {
 xbee_err xbee_txFree(struct xbee_txInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
 	
-	ll_free(info->bufList, (void(*)(void*))free);
+	xbee_ll_free(info->bufList, (void(*)(void*))free);
 	xsys_sem_destroy(&info->sem);
 	free(info);
 	
@@ -74,7 +74,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 	
 	while (!xbee->die) {
 		if (xsys_sem_wait(&info->sem) != 0) return XBEE_ESEMAPHORE;
-		if (ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if (xbee_ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
 #ifdef XBEE_LOG_TX
@@ -101,7 +101,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 /* ######################################################################### */
 
 xbee_err xbee_txQueueBuffer(struct xbee_txInfo *info, struct xbee_buf *buf) {
-	if (ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+	if (xbee_ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 	if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
 	return XBEE_ENONE;
 }

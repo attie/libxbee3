@@ -3,6 +3,7 @@ v3.0.7 - in progress
 	* Abstracted serial I/O further for Win32 port
 	* General tidy of codebase
 	* Added HTML documentation
+	* Renamed internal ll_* functions to xbee_ll_* to avoid conflicts when statically linking
 
 v3.0.6 - 25 Mar 2012
 	* Added C++ class

@@ -21,7 +21,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern struct ll_head *threadList;
+extern struct xbee_ll_head *threadList;
 extern xsys_thread_key threadInfoKey;
 
 struct xbee_threadInfo {
