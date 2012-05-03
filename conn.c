@@ -548,9 +548,9 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 		}
 	}
 	
-	ret = xbee_txHandler(con, buf, len);
+	if ((ret = xbee_txHandler(con, buf, len)) != XBEE_ENONE) goto done;
 
-	if (ret == XBEE_ENONE && waitForAck) {
+	if (waitForAck) {
 		struct timespec to;
 		clock_gettime(CLOCK_REALTIME, &to);
 		if (con->conType->useTimeout) {
