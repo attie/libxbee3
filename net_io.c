@@ -74,14 +74,14 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		
 		len = ((length[0] << 8) & 0xFF00) | (length[1] & 0xFF);
 		if ((iBuf = malloc(sizeof(*iBuf) + len)) == NULL) return XBEE_ENOMEM;
-		ll_add_tail(needsFree, iBuf);
+		xbee_ll_add_tail(needsFree, iBuf);
 		
 		iBuf->len = len;
 		
 		for (pos = 0; pos < iBuf->len; pos += ret) {
 			ret = recv(fd, &(iBuf->data[pos]), iBuf->len - pos, MSG_NOSIGNAL);
 			if (ret > 0) continue;
-			ll_ext_item(needsFree, iBuf);
+			xbee_ll_ext_item(needsFree, iBuf);
 			free(iBuf);
 			if (ret == 0) goto eof;
 			return XBEE_EIO;
@@ -101,15 +101,15 @@ eof:
 		info = arg;
 		
 		/* tidy up any dead clients - not including us */
-		while (ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
+		while (xbee_ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
 			xbee_netClientShutdown(deadClient);
 		}
 
 		/* xbee_netRx() is responsible for free()ing memory and killing off client threads on the server
 		   to do this, we need to add ourselves to the netDeadClientList, and remove ourselves from the clientList
 		   the server thread will then cleanup any clients on the next accept() */
-		ll_add_tail(netDeadClientList, arg);
-		ll_ext_item(xbee->netInfo->clientList, arg);
+		xbee_ll_add_tail(netDeadClientList, arg);
+		xbee_ll_ext_item(xbee->netInfo->clientList, arg);
 		
 		/* kill the other threads */
 		/* excluding the rx thread... thats us! */
@@ -128,7 +128,7 @@ eof:
 		info->fd = -1; /* <-- mark it closed */
 
 		/* end all of our connections */
-		for (con = NULL; ll_ext_head(info->conList, (void **)&con) == XBEE_ENONE && con; ) {
+		for (con = NULL; xbee_ll_ext_head(info->conList, (void **)&con) == XBEE_ENONE && con; ) {
 			xbee_conEnd(con);
 		}
 		
@@ -174,14 +174,14 @@ xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 		void *p;
 		
 		/* make sure we save this buffer... */
-		ll_lock(needsFree);
+		xbee_ll_lock(needsFree);
 		if ((p = realloc(iBuf, memSize)) == NULL) {
-			ll_unlock(needsFree);
+			xbee_ll_unlock(needsFree);
 			return XBEE_ENOMEM;
 		}
-		if (iBuf) _ll_ext_item(needsFree, iBuf, 0);
-		_ll_add_tail(needsFree, p, 0);
-		ll_unlock(needsFree);
+		if (iBuf) _xbee_ll_ext_item(needsFree, iBuf, 0);
+		_xbee_ll_add_tail(needsFree, p, 0);
+		xbee_ll_unlock(needsFree);
 		iBuf = p;
 		
 		*txBuf = iBuf;

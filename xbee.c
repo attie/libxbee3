@@ -35,8 +35,8 @@
 #include "net.h"
 #include "ll.h"
 
-struct ll_head *xbeeList = NULL;
-struct ll_head *needsFree = NULL;
+struct xbee_ll_head *xbeeList = NULL;
+struct xbee_ll_head *needsFree = NULL;
 
 EXPORT void xbee_freeMemory(void *ptr) {
 	/* because the windows memory model is stupid, memory that is allocated from within
@@ -47,7 +47,7 @@ EXPORT void xbee_freeMemory(void *ptr) {
 /* ######################################################################### */
 
 EXPORT xbee_err xbee_validate(struct xbee *xbee) {
-	if (ll_get_item(xbeeList, xbee) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_ll_get_item(xbeeList, xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	return XBEE_ENONE;
 }
 
@@ -87,7 +87,7 @@ xbee_err xbee_alloc(struct xbee **nXbee) {
 	if ((ret = xbee_txAlloc(&xbee->iface.tx)) != XBEE_ENONE)                     goto die1;
 	if ((ret = xbee_rxAlloc(&xbee->iface.rx)) != XBEE_ENONE)                     goto die1;
 	
-	if ((ret = ll_add_tail(xbeeList, xbee)) != XBEE_ENONE)                 goto die1;
+	if ((ret = xbee_ll_add_tail(xbeeList, xbee)) != XBEE_ENONE)                 goto die1;
 	
 	*nXbee = xbee;
 	
@@ -99,7 +99,7 @@ die1:
 }
 
 xbee_err xbee_free(struct xbee *xbee) {
-	ll_ext_item(xbeeList, xbee);
+	xbee_ll_ext_item(xbeeList, xbee);
 	
 	xbee_threadDestroyMine(xbee);
 	
@@ -150,7 +150,7 @@ EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap)
 	
 	if (xbee->mode->thread) if ((ret = xbee_threadStart(xbee, NULL, 150000, 0, xbee->mode->thread, NULL)) != XBEE_ENONE)       goto die;
 	
-	ll_add_tail(xbeeList, xbee);
+	xbee_ll_add_tail(xbeeList, xbee);
 	
 	*retXbee = xbee;
 	
@@ -186,7 +186,7 @@ EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	/* pluck out the instance - from now on it is invalid */
-	ll_ext_item(xbeeList, xbee);
+	xbee_ll_ext_item(xbeeList, xbee);
 	/* start a detached thread */
 	xbee_threadStart(xbee, NULL, -1, 1, xbee_shutdownThread, (void*)(xsys_thread_self()));
 	

@@ -21,8 +21,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern struct ll_head *xbeeList;
-extern struct ll_head *needsFree;
+extern struct xbee_ll_head *xbeeList;
+extern struct xbee_ll_head *needsFree;
 
 struct xbee_interface {
 	struct xbee_rxInfo *rx;

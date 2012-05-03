@@ -56,7 +56,7 @@ struct xbee_modeConType {
 	
 	int nameNeedsFree;
 	
-	struct ll_head *conList;
+	struct xbee_ll_head *conList;
 	
 	unsigned char internal     : 1;
 	unsigned char allowFrameId : 1;

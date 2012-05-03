@@ -52,7 +52,7 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	}
 	if (!conType) return XBEE_EINVAL;
 	
-	for (con = NULL; ll_get_next(conType->conList, con, (void **)&con) == XBEE_ENONE && con; ) {
+	for (con = NULL; xbee_ll_get_next(conType->conList, con, (void **)&con) == XBEE_ENONE && con; ) {
 		if (con->conIdentifier == (((buf->data[1] << 8) & 0xFF) | (buf->data[2] & 0xFF))) break;
 	}
 	if (!con) return XBEE_EINVAL;

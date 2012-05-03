@@ -27,7 +27,7 @@
 #include "pkt.h"
 #include "ll.h"
 
-struct ll_head *pktList = NULL;
+struct xbee_ll_head *pktList = NULL;
 
 /* ########################################################################## */
 static xbee_err _xbee_pktFree(struct xbee_pkt *pkt);
@@ -41,7 +41,7 @@ xbee_err xbee_pktAlloc(struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLe
 	if (!nPkt) return XBEE_EMISSINGPARAM;
 	
 	if (oPkt) {
-		if ((ret = ll_ext_item(pktList, oPkt)) != XBEE_ENONE) {
+		if ((ret = xbee_ll_ext_item(pktList, oPkt)) != XBEE_ENONE) {
 			return ret;
 		}
 	}
@@ -53,10 +53,10 @@ xbee_err xbee_pktAlloc(struct xbee_pkt **nPkt, struct xbee_pkt *oPkt, int dataLe
 	
 	if (!oPkt) {
 		memset(pkt, 0, memSize);
-		pkt->dataItems = ll_alloc();
+		pkt->dataItems = xbee_ll_alloc();
 	}
 	
-	if ((ret = ll_add_tail(pktList, pkt)) != XBEE_ENONE) {
+	if ((ret = xbee_ll_add_tail(pktList, pkt)) != XBEE_ENONE) {
 		_xbee_pktFree(pkt);
 		ret = XBEE_ELINKEDLIST;
 	} else {
@@ -75,9 +75,9 @@ EXPORT xbee_err xbee_pktFree(struct xbee_pkt *pkt) {
 }
 
 static xbee_err _xbee_pktFree(struct xbee_pkt *pkt) {
-	ll_ext_item(pktList, pkt);
+	xbee_ll_ext_item(pktList, pkt);
 	
-	ll_free(pkt->dataItems, (void(*)(void *))_xbee_pktDataKeyDestroy);
+	xbee_ll_free(pkt->dataItems, (void(*)(void *))_xbee_pktDataKeyDestroy);
 	
 	free(pkt);
 	
@@ -87,7 +87,7 @@ static xbee_err _xbee_pktFree(struct xbee_pkt *pkt) {
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_pktValidate(struct xbee_pkt *pkt) {
-	if (ll_get_item(pktList, pkt) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_ll_get_item(pktList, pkt) != XBEE_ENONE) return XBEE_EINVAL;
 	return XBEE_ENONE;
 }
 
@@ -100,8 +100,8 @@ xbee_err xbee_pktLink(struct xbee_con *con, struct xbee_pkt *pkt) {
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if (ll_get_item(con->pktList, pkt) == XBEE_ENONE) return XBEE_EEXISTS;
-	if ((ret = ll_add_tail(con->pktList, pkt)) == XBEE_ENONE) {
+	if (xbee_ll_get_item(con->pktList, pkt) == XBEE_ENONE) return XBEE_EEXISTS;
+	if ((ret = xbee_ll_add_tail(con->pktList, pkt)) == XBEE_ENONE) {
 		pkt->xbee = con->xbee;
 		pkt->con = con;
 	}
@@ -115,7 +115,7 @@ xbee_err _xbee_pktUnlink(struct xbee_con *con, struct xbee_pkt *pkt, int needsLL
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if ((ret = _ll_ext_item(con->pktList, pkt, needsLLLock)) == XBEE_ENONE) {
+	if ((ret = _xbee_ll_ext_item(con->pktList, pkt, needsLLLock)) == XBEE_ENONE) {
 		pkt->xbee = NULL;
 		pkt->con = NULL;
 	}
@@ -149,12 +149,12 @@ xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, const char *key, int id, struc
 	snprintf(k->name, PKT_DATAKEY_MAXLEN, "%s", key);
 	k->id = id;
 	k->freeCallback = freeCallback;
-	if ((k->items = ll_alloc()) == NULL) {
+	if ((k->items = xbee_ll_alloc()) == NULL) {
 		ret = XBEE_ENOMEM;
 		goto die1;
 	}
 	
-	if (ll_add_tail(pkt->dataItems, k) != XBEE_ENONE) {
+	if (xbee_ll_add_tail(pkt->dataItems, k) != XBEE_ENONE) {
 		ret = XBEE_ELINKEDLIST;
 		goto die2;
 	}
@@ -163,7 +163,7 @@ xbee_err xbee_pktDataKeyAdd(struct xbee_pkt *pkt, const char *key, int id, struc
 	
 	goto done;
 die2:
-	ll_free(k->items, NULL);
+	xbee_ll_free(k->items, NULL);
 die1:
 	free(k);
 done:
@@ -179,9 +179,9 @@ xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, const char *key, int id, struc
 	if (xbee_pktValidate(pkt) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
-	ll_lock(pkt->dataItems);
+	xbee_ll_lock(pkt->dataItems);
 	ret = XBEE_EFAILED;
-	for (k = NULL; (_ll_get_next(pkt->dataItems, k, (void**)&k, 0) == XBEE_ENONE) && k; ) {
+	for (k = NULL; (_xbee_ll_get_next(pkt->dataItems, k, (void**)&k, 0) == XBEE_ENONE) && k; ) {
 		if (!strncasecmp(key, k->name, PKT_DATAKEY_MAXLEN)) {
 			if (id == -1 || id == k->id) {
 				if (retKey) *retKey = k;
@@ -190,13 +190,13 @@ xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, const char *key, int id, struc
 			}
 		}
 	}
-	ll_unlock(pkt->dataItems);
+	xbee_ll_unlock(pkt->dataItems);
 	
 	return ret;
 }
 
 static xbee_err _xbee_pktDataKeyDestroy(struct pkt_dataKey *key) {
-	ll_free(key->items, key->freeCallback);
+	xbee_ll_free(key->items, key->freeCallback);
 	free(key);
 	return XBEE_ENONE;
 }
@@ -216,7 +216,7 @@ xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, const char *key, int id, void *da
 		return XBEE_EFAILED;
 	}
 	
-	if (ll_add_tail(k->items, data)) {
+	if (xbee_ll_add_tail(k->items, data)) {
 		return XBEE_ELINKEDLIST;
 	}
 	
@@ -235,11 +235,11 @@ EXPORT xbee_err xbee_pktDataGet(struct xbee_pkt *pkt, const char *key, int id, i
 	
 	if ((ret = xbee_pktDataKeyGet(pkt, key, id, &k)) != XBEE_ENONE) return ret;
 	
-	if (ll_count_items(k->items, &count) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+	if (xbee_ll_count_items(k->items, &count) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 	if (index >= count) return XBEE_ERANGE;
 	
 	*retData = NULL;
-	if ((ret = ll_get_index(k->items, index, retData)) == XBEE_ERANGE) return ret;
+	if ((ret = xbee_ll_get_index(k->items, index, retData)) == XBEE_ERANGE) return ret;
 	if (ret != XBEE_ENONE) return XBEE_EINVAL;
 	
 	return XBEE_ENONE;

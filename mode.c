@@ -76,7 +76,7 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 		/* initialization added for microsoft compiler support */
 		if (conTypes[i].init) conTypes[i].init(&(conTypes[i]));
 		
-		conTypes[i].conList = ll_alloc();
+		conTypes[i].conList = xbee_ll_alloc();
 	}
 	
 	*retConTypes = conTypes;
@@ -93,7 +93,7 @@ static void prepare_repopConTypes(struct xbee_modeConType *conTypes) {
 	
 	for (i = 0; conTypes[i].name; i++) {
 		conType = &conTypes[i];
-		for (con = NULL; ll_get_next(conType->conList, con, (void**)&con) == XBEE_ENONE && con; ) {
+		for (con = NULL; xbee_ll_get_next(conType->conList, con, (void**)&con) == XBEE_ENONE && con; ) {
 			con->conType = conType;
 		}
 	}
@@ -116,7 +116,7 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct
 	
 	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
 	memcpy(&conTypes[n], newConType, sizeof(*newConType));
-	conTypes[n].conList = ll_alloc();
+	conTypes[n].conList = xbee_ll_alloc();
 	
 	return XBEE_ENONE;
 }
@@ -128,7 +128,7 @@ xbee_err xbee_modeCleanup(struct xbee_modeConType *conTypes) {
 	if (!conTypes) return XBEE_EMISSINGPARAM;
 	
 	for (i = 0; conTypes[i].name; i++) {
-		ll_free(conTypes[i].conList, (void(*)(void*))xbee_conFree);
+		xbee_ll_free(conTypes[i].conList, (void(*)(void*))xbee_conFree);
 		/* i know, casting to void* to avoid the const keyword is naughty... */
 		if (conTypes[i].nameNeedsFree) free((void*)conTypes[i].name);
 		if (conTypes[i].rxHandler && conTypes[i].rxHandler->needsFree) free((void*)conTypes[i].rxHandler);

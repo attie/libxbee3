@@ -107,7 +107,7 @@ struct xbee_pkt {
 	
 	unsigned char atCommand[2];
 	
-	struct ll_head *dataItems;
+	struct xbee_ll_head *dataItems;
 	
 	int dataLen;
 	unsigned char data[1];

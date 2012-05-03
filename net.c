@@ -25,7 +25,7 @@
 #include "xbee_int.h"
 #include "net.h"
 
-struct ll_head *netDeadClientList = NULL;
+struct xbee_ll_head *netDeadClientList = NULL;
 
 #ifdef XBEE_NO_NET_SERVER
 
@@ -85,7 +85,7 @@ xbee_err xbee_netClientAlloc(struct xbee *xbee, struct xbee_netClientInfo **info
 
 	ret = XBEE_ENONE;
 	
-	iInfo->conList = ll_alloc();
+	iInfo->conList = xbee_ll_alloc();
 	
 	if ((ret = xbee_rxAlloc(&iInfo->iface.rx)) != XBEE_ENONE) goto die;
 	if ((ret = xbee_txAlloc(&iInfo->iface.tx)) != XBEE_ENONE) goto die;
@@ -116,7 +116,7 @@ xbee_err xbee_netClientFree(struct xbee_netClientInfo *info) {
 	xbee_frameBlockFree(info->fBlock);
 	xbee_txFree(info->iface.tx);
 	xbee_rxFree(info->iface.rx);
-	ll_free(info->conList, (void(*)(void*))xbee_conEnd);
+	xbee_ll_free(info->conList, (void(*)(void*))xbee_conEnd);
 	
 	free(info);
 	return XBEE_ENONE;
@@ -263,11 +263,11 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 		ret = XBEE_ENONE;
 		info = xbee->netInfo;
 		
-		while (ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
+		while (xbee_ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
 			xbee_netClientShutdown(deadClient);
 		}
 		
-		ll_count_items(info->clientList, &u);
+		xbee_ll_count_items(info->clientList, &u);
 		xbee_log(4, "active clients: %u", u);
 		
 		if (!client) {
@@ -391,7 +391,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 		
 		xbee_log(10, "accepted connection from %s:%d", addr, port);
 		
-		ll_add_tail(info->clientList, client);
+		xbee_ll_add_tail(info->clientList, client);
 		info->newClient = NULL;
 		client = NULL;
 	}
@@ -453,7 +453,7 @@ EXPORT xbee_err xbee_netvStart(struct xbee *xbee, int fd, int(*clientFilter)(str
 	if ((info = malloc(sizeof(*info))) == NULL) return XBEE_ENOMEM;
 	memset(info, 0, sizeof(*info));
 	
-	if ((info->clientList = ll_alloc()) == NULL) {
+	if ((info->clientList = xbee_ll_alloc()) == NULL) {
 		free(info);
 		return XBEE_ENOMEM;
 	}
@@ -488,9 +488,9 @@ EXPORT xbee_err xbee_netStop(struct xbee *xbee) {
 	shutdown(info->fd, SHUT_RDWR);
 	xsys_close(info->fd);
 	
-	ll_free(info->clientList, (void(*)(void*))xbee_netClientShutdown);
+	xbee_ll_free(info->clientList, (void(*)(void*))xbee_netClientShutdown);
 	
-	while (ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
+	while (xbee_ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
 		xbee_netClientShutdown(deadClient);
 	}
 	

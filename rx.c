@@ -42,7 +42,7 @@ xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo) {
 	if (!(info = malloc(memSize))) return XBEE_ENOMEM;
 	
 	memset(info, 0, memSize);
-	info->bufList = ll_alloc();
+	info->bufList = xbee_ll_alloc();
 	xsys_sem_init(&info->sem);
 	
 	*nInfo = info;
@@ -53,7 +53,7 @@ xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo) {
 xbee_err xbee_rxFree(struct xbee_rxInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
 	
-	ll_free(info->bufList, (void(*)(void*))xbee_pktFree);
+	xbee_ll_free(info->bufList, (void(*)(void*))xbee_pktFree);
 	xsys_sem_destroy(&info->sem);
 	free(info);
 	
@@ -96,7 +96,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 		}
 #endif /* XBEE_LOG_RX */
 		
-		if (ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if (xbee_ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		buf = NULL;
 		if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
 	}
@@ -144,7 +144,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xsys_sem_wait(&info->sem);
 		
 		/* get the next buffer */
-		if (ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if (xbee_ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
 		/* check we actually have some data to work with... */
@@ -222,13 +222,13 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		}
 		
 done:
-		ll_ext_item(needsFree, buf);
+		xbee_ll_ext_item(needsFree, buf);
 		free(buf);
 		buf = NULL;
 	}
 	
 	if (buf) {
-		ll_ext_item(needsFree, buf);
+		xbee_ll_ext_item(needsFree, buf);
 		free(buf);
 	}
 	
