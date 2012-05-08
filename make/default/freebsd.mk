@@ -8,7 +8,7 @@ SYS_GROUP:=     wheel
 SYS_USER:=      root
 
 ### using this can create a smaller binary, by removing modes you won't use
-#MODELIST:=             xbee1 xbee2 net
+#MODELIST:=             xbee1 xbee2 xbeeZB net
 
 ### setup a cross-compile toolchain (either here, or in the environment)
 #CROSS_COMPILE?= 
