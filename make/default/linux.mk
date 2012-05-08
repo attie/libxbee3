@@ -7,6 +7,9 @@ SYS_MANDIR:=    /usr/share/man
 SYS_GROUP:=     root
 SYS_USER:=      root
 
+### using this can create a smaller binary, by removing modes you won't use
+#MODELIST:=             xbee1 xbee2 net
+
 ### setup a cross-compile toolchain (either here, or in the environment)
 #CROSS_COMPILE?= 
 #CFLAGS+=        
