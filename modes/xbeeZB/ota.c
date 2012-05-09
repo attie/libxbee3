@@ -49,8 +49,8 @@ xbee_err xbee_sZB_ota_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	iPkt->options = buf->data[11];
 	
 	iPkt->dataLen = 2;
-	iPkt->data[0] = buf->data[12];
-	iPkt->data[1] = buf->data[13];
+	iPkt->data[0] = buf->data[12]; /* bootloader message type */
+	iPkt->data[1] = buf->data[13]; /* block number */
 	iPkt->data[iPkt->dataLen] = '\0';
 	
 	*pkt = iPkt;
