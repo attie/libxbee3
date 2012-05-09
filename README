@@ -9,6 +9,27 @@ Feel free to contact me directly with any queries, bugs, etc:
 Alternatively, feel free to file an 'issue' on the project site:
   http://code.google.com/p/libxbee/issues/list
 
+####################
+### PLEASE NOTE: ###
+####################
+  Digi chose some rather unfortunate (re-)names for thier XBee modules.
+  To keep backwards compatibility, some modes are not named as intuitavely as
+   you might expect. Please see the information below to match your module
+   to the correct libxbee mode.
+		
+  'xbee1'  => XBee Series 1   (802.15.4 / no meshing)
+      http://goo.gl/10a45
+      http://sprkfn.com/p8665
+			http://doc.libxbee.attie.co.uk/images/xbee1.jpg
+  'xbee2'  => XBee Series 2.5 (ZNet / DigiMesh) - formerly 'Series 2'
+      http://goo.gl/fQbkt
+      http://sprkfn.com/p8876
+			http://doc.libxbee.attie.co.uk/images/xbee2.jpg
+  'xbeeZB' => XBee Series 2   (ZigBee)
+      http://goo.gl/TJmeQ
+      http://sprkfn.com/p10414
+			http://doc.libxbee.attie.co.uk/images/xbeeZB.jpg
+
 
 === Licensing ===
 libxbee v3 is licensed using LGPLv3 from v3.0.5 onwards. For more
