@@ -464,15 +464,18 @@ xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *f
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
+	va_list args2;
 	
 	if (!con || !format) return XBEE_EMISSINGPARAM;
+	
+	va_copy(args2, args);
 	
 	if ((bufLen = vsnprintf(NULL, 0, format, args)) > 0) {
 		bufLen += 1; /* make space for the terminating '\0' */
 		if (!(buf = malloc(bufLen))) {
 			return XBEE_ENOMEM;
 		}
-		outLen = vsnprintf(buf, bufLen, format, args) + 1;
+		outLen = vsnprintf(buf, bufLen, format, args2) + 1;
 		if (outLen > bufLen) {
 			ret = XBEE_ERANGE;
 			goto die;
