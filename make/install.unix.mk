@@ -29,3 +29,26 @@ fi
 
 release: $(RELEASE_FILES)
 	tar -acf $(LIBNAME)_v$(LIBFULLREV)_`date +%Y-%m-%d`_`git rev-parse --verify --short HEAD`_`uname -m`_`uname -s`.tar.bz2 --transform='s#^#$(LIBNAME)_$(LIBFULLREV)/#SH' $^
+
+
+### html pages follow... ###
+
+.PHONY: install_html
+
+test:
+	@echo $(SYS_HTMLPAGES)
+
+ifeq ($(SYS_HTMLDIR),)
+install_html:
+	@echo 'Please specify $$(SYS_HTMLDIR) in config.mk'
+	@false
+else
+install_html: $(addprefix $(SYS_HTMLDIR)/,$(SYS_HTMLPAGES))
+$(addprefix $(SYS_HTMLDIR)/,$(SYS_HTMLPAGES)): $(SYS_HTMLDIR)/%: $(HTMLDIR)/%
+	@echo "$(INSTALL) -m 644 $^ $@"
+	@if [ ! -h $^ ]; then                        \
+  $(INSTALL) -m 644 $^ $@;                                \
+else                                           \
+	$(SYMLINK) -fs $(shell readlink $^) $@; \
+fi
+endif
