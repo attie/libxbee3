@@ -25,5 +25,7 @@ fi
 
 ### release follows... ###
 
+.PHONY: release
+
 release: $(RELEASE_FILES)
 	tar -acf $(LIBNAME)_v$(LIBFULLREV)_`date +%Y-%m-%d`_`git rev-parse --verify --short HEAD`_`uname -m`_`uname -s`.tar.bz2 --transform='s#^#$(LIBNAME)_$(LIBFULLREV)/#SH' $^

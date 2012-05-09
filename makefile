@@ -3,6 +3,8 @@ include make/buildsys.mk
 
 # the configuration can be found in config.mk after running `make configure`
 
+.PHONY: all configure new clean distclean
+
 all: $(LIB_OUT)
 
 configure: config.mk
@@ -30,6 +32,9 @@ include $(firstword $(BUILD_RULES))
 ifneq ($(INSTALL_RULES),)
 include $(firstword $(INSTALL_RULES))
 endif
+
+.PHONY: install uninstall
+
 install: $(INSTALL_FILES)
 
 uninstall:
