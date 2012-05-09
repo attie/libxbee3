@@ -32,12 +32,18 @@ struct xbee_conAddress {
 	unsigned char endpoints_enabled;
 	unsigned char endpoint_local;
 	unsigned char endpoint_remote;
+
+	unsigned char cluster_enabled;
+	unsigned short cluster_id;
+
+	unsigned char profile_enabled;
+	unsigned short profile_id;
 };
 .fi
 .SH DESCRIPTION
 The
 .B xbee_conAddress
-struct contains details on the network address for a remote node. It is recommended that you initialize it by calling
+struct contains details on the network address for a remote node. It is recommended that you initialize it to zero by calling
 .BR memset ()
 before you fill it in and call
 .BR xbee_conNew (3).
@@ -47,6 +53,8 @@ The data is ordered with the MSB of the address, in the first byte of the array.
 E.g: the 64-bit address 0x0013A200 0x40081826 would be initialized like so:
 .in +4n
 .nf
+memset(&address, 0, sizeof(address));
+
 address.addr64_enabled = 1;
 address.addr64[0] = 0x00;
 address.addr64[1] = 0x13;
