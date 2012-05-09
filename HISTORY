@@ -5,6 +5,7 @@ v3.0.7 - in progress
 	* Added HTML documentation
 	* Renamed internal ll_* functions to xbee_ll_* to avoid conflicts when statically linking
 	* Added 'sensor' connection type for 'xbee2'
+	* Fixed bug in xbee_convTx() when using va_args on 64bit linux (and possibly other systems)
 
 v3.0.6 - 25 Mar 2012
 	* Added C++ class

@@ -8,7 +8,10 @@ SYS_GROUP:=     root
 SYS_USER:=      root
 
 ### using this can create a smaller binary, by removing modes you won't use
-#MODELIST:=             xbee1 xbee2 xbeeZB net
+#MODELIST:=      xbee1 xbee2 net
+
+### to use the 'install_html' rule, you must specify where to install the files to
+#SYS_HTMLDIR:=   /var/www/libxbee.doc
 
 ### setup a cross-compile toolchain (either here, or in the environment)
 #CROSS_COMPILE?= 

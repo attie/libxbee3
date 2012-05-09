@@ -18,7 +18,6 @@ endif
 
 
 .PRECIOUS: .%.dir
-.PHONY:    all configure
 
 config.mk:| $(DEFCONFIG)
 	cp $(firstword $|) $@
