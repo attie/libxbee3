@@ -19,6 +19,9 @@ endif
 distclean: clean
 	$(RM) $(patsubst %,.%.dir,$(CONSTRUCTIONDIRS))
 	$(RMDIR) $(CONSTRUCTIONDIRS)
+ifneq ($(DISTCLEAN_FILES),)
+	$(RM) $(DISTCLEAN_FILES)
+endif
 
 # get hold of the build rules
 include $(firstword $(BUILD_RULES))
