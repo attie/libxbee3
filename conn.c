@@ -217,32 +217,33 @@ got1:
 	if (!addr1->endpoints_enabled && !addr2->endpoints_enabled) goto got2;
 	if (addr1->endpoints_enabled && addr2->endpoints_enabled) {
 		if (addr1->endpoint_local == addr2->endpoint_local) goto got2;
+#warning TODO - handle broadcast endpoint, but probably not here...
 	}
 	
-	return XBEE_EFAILED; /* --- endpoints didnt match --- */
+	return XBEE_EFAILED; /* --- endpoints didn't match --- */
 	
 got2:
-	/* try to match cluster id */
-	if (!addr1->cluster_enabled && !addr2->cluster_enabled) goto got3;
-	if (addr1->cluster_enabled && addr2->cluster_enabled) {
-		if (addr1->cluster_id == addr2->cluster_id) goto got3;
-	} else if (addr1->cluster_enabled) {
-		if (addr1->cluster_id == 0x0011) goto got3;
-	} else if (addr2->cluster_enabled) {
-		if (addr2->cluster_id == 0x0011) goto got3;
-	}
-	
-	return XBEE_EFAILED; /* --- cluster id didn't match / isn't the default (0x0011) */
-	
-got3:
 	/* try to match the profile id */
-	if (!addr1->profile_enabled && !addr2->profile_enabled) goto got4;
+	if (!addr1->profile_enabled && !addr2->profile_enabled) goto got3;
 	if (addr1->profile_enabled && addr2->profile_enabled) {
 		if (addr1->profile_id == addr2->profile_id) goto got3;
 	} else if (addr1->profile_enabled) {
 		if (addr1->profile_id == 0xC105) goto got3;
 	} else if (addr2->profile_enabled) {
 		if (addr2->profile_id == 0xC105) goto got3;
+	}
+	
+	return XBEE_EFAILED; /* --- cluster id didn't match / isn't the default (0x0011) */
+	
+got3:
+	/* try to match cluster id */
+	if (!addr1->cluster_enabled && !addr2->cluster_enabled) goto got4;
+	if (addr1->cluster_enabled && addr2->cluster_enabled) {
+		if (addr1->cluster_id == addr2->cluster_id) goto got4;
+	} else if (addr1->cluster_enabled) {
+		if (addr1->cluster_id == 0x0011) goto got4;
+	} else if (addr2->cluster_enabled) {
+		if (addr2->cluster_id == 0x0011) goto got4;
 	}
 	
 	return XBEE_EFAILED; /* --- profile id didn't match / isn't the default (0xC105) */
