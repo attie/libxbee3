@@ -37,9 +37,6 @@ xbee_err xbee_sZB_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char id
 	
 	if (buf->len < 18) return XBEE_ELENGTH;
 	
-	/* ClusterID (2 bytes) */
-	/* ProfileID (2 bytes) */
-	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 18)) != XBEE_ENONE) return ret;
 	
 	address->addr64_enabled = 1;
