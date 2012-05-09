@@ -49,6 +49,10 @@ xbee_err xbee_sZB_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char id
 	address->endpoints_enabled = 1;
 	address->endpoint_remote = buf->data[11];
 	address->endpoint_local = buf->data[12];
+	address->cluster_enabled = 1;
+	address->cluster_id = ((buf->data[13] << 8) & 0xFF00) | (buf->data[14] & 0xFF);
+	address->profile_enabled = 1;
+	address->profile_id = ((buf->data[15] << 8) & 0xFF00) | (buf->data[16] & 0xFF);
 	
 	iPkt->options = buf->data[17];
 	
@@ -116,10 +120,20 @@ xbee_err xbee_sZB_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void 
 		iBuf->data[pos] = 0xE8; /* default to data... */    pos++;
 		iBuf->data[pos] = 0xE8; /* ... endpoint */          pos++;
 	}
-	iBuf->data[pos] = 0; /* reserved */                   pos++;
-	iBuf->data[pos] = 0x11; /* cluserID - transparent */  pos++;
-	iBuf->data[pos] = 0xC1; /* profileIDs are not... */   pos++;
-	iBuf->data[pos] = 0x05; /* ... supported by XBees */  pos++;
+	if (address->cluster_enabled) {
+		iBuf->data[pos] = (address->cluster_id >> 8) & 0xFF;  pos++;
+		iBuf->data[pos] =  address->cluster_id       & 0xFF;  pos++;
+	} else {
+		iBuf->data[pos] = 0x00; /* clusterID 0x0011... */   pos++;
+		iBuf->data[pos] = 0x11; /* ... (default) */         pos++;
+	}
+	if (address->profile_enabled) {
+		iBuf->data[pos] = (address->profile_id >> 8) & 0xFF;  pos++;
+		iBuf->data[pos] =  address->profile_id       & 0xFF;  pos++;
+	} else {
+		iBuf->data[pos] = 0xC1; /* profileID 0xC105... */   pos++;
+		iBuf->data[pos] = 0x05; /* ... (default) */         pos++;
+	}
 	iBuf->data[pos] = settings->broadcastRadius;          pos++;
 	iBuf->data[pos] = 0;
 	if (settings->broadcastPAN) iBuf->data[pos] |= 0x08;
