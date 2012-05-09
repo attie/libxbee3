@@ -73,6 +73,12 @@ struct xbee_conAddress {
 	unsigned char endpoints_enabled;
 	unsigned char endpoint_local;
 	unsigned char endpoint_remote;
+	
+	unsigned char cluster_enabled;
+	unsigned short cluster_id;
+	
+	unsigned char profile_enabled;
+	unsigned short profile_id;
 };
 
 struct xbee_conInfo {
