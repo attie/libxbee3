@@ -194,6 +194,16 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 	} else {
 		xbee_log(minLogLevel, "   endpoints:       --");
 	}
+	if (address->profile_enabled) {
+		xbee_log(minLogLevel, "   profile ID:      0x%04X", address->profile_id);
+	} else {
+		xbee_log(minLogLevel, "   profile ID:      ----");
+	}
+	if (address->cluster_enabled) {
+		xbee_log(minLogLevel, "   cluster ID:      0x%04X", address->cluster_id);
+	} else {
+		xbee_log(minLogLevel, "   cluster ID:      ----");
+	}
 	return XBEE_ENONE;
 }
 
