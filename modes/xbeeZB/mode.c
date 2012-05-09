@@ -35,6 +35,7 @@
 #include "data.h"
 #include "dataExp.h"
 #include "io.h"
+#include "sensor.h"
 #include "identify.h"
 #include "ota.h"
 
@@ -174,7 +175,7 @@ static const struct xbee_modeConType *conTypes[] = {
 	&xbee_sZB_data,
 	&xbee_sZB_dataExp,
 	&xbee_sZB_io,
-	/*&xbee_sZB_sensor,*/
+	&xbee_sZB_sensor,
 	&xbee_sZB_identify,
 	&xbee_sZB_ota,
 	NULL

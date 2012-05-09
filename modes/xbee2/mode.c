@@ -35,6 +35,7 @@
 #include "data.h"
 #include "dataExp.h"
 #include "io.h"
+#include "sensor.h"
 #include "identify.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
@@ -173,7 +174,7 @@ static const struct xbee_modeConType *conTypes[] = {
 	&xbee_s2_data,
 	&xbee_s2_dataExp,
 	&xbee_s2_io,
-/*&xbee_s2_Sensor,*/
+	&xbee_s2_sensor,
 	&xbee_s2_identify,
 	NULL
 };

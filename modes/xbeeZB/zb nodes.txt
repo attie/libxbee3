@@ -1,0 +1,34 @@
+COORD
+	13a200,408916dc
+	COM26
+ENDPT
+	13a200,4089165f
+	COM14
+
+
+compatibility
+Y = yes
+P = partial
+N = no
+
+implementation
+y = yes
+p = partial
+n = no
+
+type						xbee2	xbeezb
+-------------------------------
+modemStatus			Yy		Yy
+transmitStatus	Yp		Yp (should retrieve the 16-bit address)
+localAt					Yy		Yy
+remoteAt				Yy		Yy (xbeeZB has more options)
+data						Yy		Yy (xbeeZB has different options(tx) and extended options(rx))
+dataExp					Py		Py (xbeeZB supports clusterID & profileID, and has different / extended options, rx is very close - just different options)
+io							Yy		Yy
+Sensor					Yn		Yn
+identify				Yy		Yy (xbeeZB has different events)
+
+createRoute			-			Yn
+routeRecord			-			Yn
+manyToOneRoute	-			Yn
+otaUpdate				-			Yy
