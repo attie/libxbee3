@@ -89,12 +89,26 @@ struct xbee_conInfo {
 };
 
 struct xbee_conSettings {
-	unsigned char disableAck       : 1;
-	unsigned char broadcastPAN     : 1;
-	unsigned char queueChanges     : 1;
-	unsigned char multicast        : 1;
+	/* libxbee options: */
 	unsigned char noBlock          : 1;
 	unsigned char catchAll         : 1;
+	
+	/* generic options: */
+	unsigned char queueChanges     : 1; /* for AT connections */
+	unsigned char disableAck       : 1; /* specific options for XBee 1 / causes use of FrameID 0x00 for others */
+	
+	/* XBee 1 options: */
+	unsigned char broadcastPAN     : 1;
+	
+	/* XBee 2 / ZNet options: */
+	unsigned char multicast        : 1;
+	
+	/* XBee ZigBee options: */
+	unsigned char disableRetries   : 1;
+	unsigned char enableEncryption : 1;
+	unsigned char extendTimeout    : 1;
+	
+	/* other */
 	unsigned char broadcastRadius;
 };
 
