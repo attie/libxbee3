@@ -35,9 +35,6 @@ release: $(RELEASE_FILES)
 
 .PHONY: install_html
 
-test:
-	@echo $(SYS_HTMLPAGES)
-
 ifeq ($(SYS_HTMLDIR),)
 install_html:
 	@echo 'Please specify $$(SYS_HTMLDIR) in config.mk'
