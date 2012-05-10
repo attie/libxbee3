@@ -130,11 +130,10 @@ xbee_err xbee_sZB_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg,
 		memcpy(&(iBuf->data[pos]), address->addr64, 8);      pos += 8;
 		memcpy(&(iBuf->data[pos]), addr16, 2);               pos += 2;
 		iBuf->data[pos] = 0x00;
+		if (settings->disableRetries)   iBuf->data[pos] |= 0x01;
 		if (!settings->queueChanges)    iBuf->data[pos] |= 0x02;
-#warning TODO - support these options
-/*	if (settings->disableRetries)   iBuf->data[pos] |= 0x01;
 		if (settings->enableEncryption) iBuf->data[pos] |= 0x20;
-		if (settings->extendTimeout)    iBuf->data[pos] |= 0x40; */
+		if (settings->extendTimeout)    iBuf->data[pos] |= 0x40;
 		                                                     pos++;
 	} else {
 		iBuf->len--;

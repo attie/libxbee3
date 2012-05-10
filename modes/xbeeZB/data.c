@@ -105,11 +105,9 @@ xbee_err xbee_sZB_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *ar
 	}
 	iBuf->data[pos] = settings->broadcastRadius;          pos++;
 	iBuf->data[pos] = 0;
-#warning TODO - support these options
-/*
 	if (settings->disableRetries)   iBuf->data[pos] |= 0x01;
 	if (settings->enableEncryption) iBuf->data[pos] |= 0x20;
-	if (settings->extendTimeout)    iBuf->data[pos] |= 0x40; */
+	if (settings->extendTimeout)    iBuf->data[pos] |= 0x40;
 	                                                      pos++;
 
 	memcpy(&(iBuf->data[pos]), buf, len);                 pos += len;
