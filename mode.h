@@ -140,5 +140,6 @@ xbee_err xbee_modeLocateConType(struct xbee_modeConType *conTypes, int allowInte
 extern const struct xbee_mode mode_xbee1;
 extern const struct xbee_mode mode_xbee2;
 extern const struct xbee_mode mode_net;
+extern const struct xbee_mode mode_debug;
 
 #endif /* __XBEE_MODE_H */
