@@ -114,7 +114,7 @@ xbee_err xbee_sZB_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg,
 	}
 	
 	memSize = 2;
-	if (addr16) memSize += 8 + 2;
+	if (addr16) memSize += 8 + 2 + 1; /* 64bit, 16bit and options */
 	memSize += len;
 	bufLen = memSize;
 	
@@ -135,8 +135,6 @@ xbee_err xbee_sZB_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg,
 		if (settings->enableEncryption) iBuf->data[pos] |= 0x20;
 		if (settings->extendTimeout)    iBuf->data[pos] |= 0x40;
 		                                                     pos++;
-	} else {
-		iBuf->len--;
 	}
 	
 	memcpy(&(iBuf->data[pos]), buf, len);                  pos += len;
