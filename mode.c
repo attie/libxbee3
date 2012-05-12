@@ -64,7 +64,7 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 	if (!retConTypes || !mode) return XBEE_EMISSINGPARAM;
 	if (*retConTypes) return XBEE_EINVAL;
 	
-	for (n = 0; mode->conTypes[n] && mode->conTypes[n]->name; n++);
+	for (n = 0; mode->conTypes && mode->conTypes[n] && mode->conTypes[n]->name; n++);
 	
 	if ((conTypes = malloc(sizeof(*conTypes) * (n + 1))) == NULL) return XBEE_ENOMEM;
 	memset(&conTypes[n], 0, sizeof(*conTypes));

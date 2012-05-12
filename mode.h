@@ -141,5 +141,6 @@ extern const struct xbee_mode mode_xbee1;
 extern const struct xbee_mode mode_xbee2;
 extern const struct xbee_mode mode_xbeeZB;
 extern const struct xbee_mode mode_net;
+extern const struct xbee_mode mode_debug;
 
 #endif /* __XBEE_MODE_H */

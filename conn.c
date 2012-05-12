@@ -510,11 +510,10 @@ xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *f
 	va_end(args1);
 	
 	if (bufLen > 0) {
-		bufLen += 1; /* make space for the terminating '\0' */
-		if (!(buf = malloc(bufLen))) {
+		if (!(buf = malloc(bufLen + 1))) { /* +1 for the terminating '\0' */
 			return XBEE_ENOMEM;
 		}
-		outLen = vsnprintf(buf, bufLen, format, args) + 1;
+		outLen = vsnprintf(buf, bufLen + 1, format, args);
 		if (outLen > bufLen) {
 			ret = XBEE_ERANGE;
 			goto die;
