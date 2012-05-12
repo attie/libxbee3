@@ -119,7 +119,7 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 	}
 	
 	memSize = 2;
-	if (addr64 && addr16) memSize += 8 + 2;
+	if (addr64 && addr16) memSize += 8 + 2 + 1; /* 64bit, 16bit and options */
 	memSize += len;
 	bufLen = memSize;
 	
@@ -139,8 +139,6 @@ xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 			iBuf->data[pos] |= 0x02;
 		}
 		                                                     pos++;
-	} else {
-		iBuf->len--;
 	}
 	
 	memcpy(&(iBuf->data[pos]), buf, len);                  pos += len;
