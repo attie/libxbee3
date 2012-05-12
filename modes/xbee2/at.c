@@ -106,7 +106,7 @@ xbee_err xbee_s2_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 			if (!address->addr64_enabled) return XBEE_EINVAL;
 			if (address->addr16_enabled) {
 				addr16 = &(address->addr16[0]);
-			} else if (address->addr16_enabled) {
+			} else {
 				addr16 = (unsigned char[]){ 0xFF, 0xFE };
 			}
 			break;
