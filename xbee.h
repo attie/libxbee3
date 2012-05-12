@@ -96,9 +96,7 @@ struct xbee_conSettings {
 	/* generic options: */
 	unsigned char queueChanges     : 1; /* for AT connections */
 	unsigned char disableAck       : 1; /* specific options for XBee 1 / causes use of FrameID 0x00 for others */
-	
-	/* XBee 1 options: */
-	unsigned char broadcastPAN     : 1;
+	unsigned char broadcast        : 1;
 	
 	/* XBee 2 / ZNet options: */
 	unsigned char multicast        : 1;

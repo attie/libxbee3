@@ -86,7 +86,7 @@ xbee_err xbee_s2_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 	iBuf->len = bufLen;
 	iBuf->data[pos] = identifier;                         pos++;
 	iBuf->data[pos] = frameId;                            pos++;
-	if (settings->broadcastPAN) {
+	if (settings->broadcast) {
 		/* 64-bit broadcast address */
 		iBuf->data[pos] = 0x00;                             pos++;
 		iBuf->data[pos] = 0x00;                             pos++;
@@ -122,7 +122,7 @@ xbee_err xbee_s2_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 	iBuf->data[pos] = 0x05; /* ... supported by XBees */  pos++;
 	iBuf->data[pos] = settings->broadcastRadius;          pos++;
 	iBuf->data[pos] = 0;
-	if (settings->broadcastPAN) iBuf->data[pos] |= 0x08;
+	if (settings->broadcast) iBuf->data[pos] |= 0x08;
 	                                                      pos++;
 
 	memcpy(&(iBuf->data[pos]), buf, len);                 pos += len;

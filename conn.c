@@ -578,7 +578,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 		waitForAck = 0;
 		con->frameId = 0;
 	} else {
-		waitForAck = !con->settings.disableAck; /* cache it, incase it changes */
+		waitForAck = !(con->settings.disableAck || con->settings.broadcast); /* cache it, incase it changes */
 		if (waitForAck) {
 			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con)) != XBEE_ENONE) {
 				ret = XBEE_ENOFREEFRAMEID;

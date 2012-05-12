@@ -87,7 +87,7 @@ xbee_err xbee_sZB_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void 
 	iBuf->len = bufLen;
 	iBuf->data[pos] = identifier;                         pos++;
 	iBuf->data[pos] = frameId;                            pos++;
-	if (settings->broadcastPAN) {
+	if (settings->broadcast) {
 		/* 64-bit broadcast address */
 		iBuf->data[pos] = 0x00;                             pos++;
 		iBuf->data[pos] = 0x00;                             pos++;

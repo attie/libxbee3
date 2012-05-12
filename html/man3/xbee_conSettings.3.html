@@ -1,4 +1,5 @@
-<HTML><HEAD><TITLE>Manpage of XBEE_CONSETTINGS</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XBEE_CONSETTINGS</TITLE>
 </HEAD><BODY>
 <H1>XBEE_CONSETTINGS</H1>
 Section: Linux Programmer's Manual (3)<BR>Updated: 04-Mar-2012<BR><A HREF="#index">Index</A>
@@ -11,7 +12,7 @@ xbee_conSettings
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
-<B>#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</B>
+<B>#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</B>
 
 <P>
 <B>xbee_err xbee_conSettings(struct xbee_con *</B><I>con</I><B>, struct xbee_conSettings *</B><I>newSettings</I><B>, struct xbee_conSettings *</B><I>oldSettings</I><B>);</B>
@@ -20,7 +21,7 @@ xbee_conSettings
 <PRE>
 struct xbee_conSettings {
         unsigned char disableAck       : 1;
-        unsigned char broadcastPAN     : 1;
+        unsigned char broadcast        : 1;
         unsigned char queueChanges     : 1;
         unsigned char multicast        : 1;
         unsigned char noBlock          : 1;
@@ -58,14 +59,14 @@ will be used to update the connection's settings.
 <H3>Return Value</H3>
 
 On success this function will return XBEE_ENONE, otherwise an error number from
-<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</I>)
+<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</I>)
 
 <A NAME="lbAF">&nbsp;</A>
 <H2>EXAMPLE</H2>
 
 
 <PRE>
-#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;
+#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;
 
 struct xbee *xbee;
 struct xbee_con *con;
@@ -111,8 +112,8 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 </DL>
 <HR>
 This document was created by
-<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 20:32:55 GMT, April 23, 2012
+Time: 19:54:27 GMT, May 12, 2012
 </BODY>
 </HTML>

@@ -202,7 +202,7 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 	if (newSettings != NULL) {
 		buf[2] = 0;
 		if (newSettings->disableAck)   buf[2] |= 0x01;
-		if (newSettings->broadcastPAN) buf[2] |= 0x02;
+		if (newSettings->broadcast)    buf[2] |= 0x02;
 		if (newSettings->queueChanges) buf[2] |= 0x04;
 		if (newSettings->multicast)    buf[2] |= 0x08;
 		if (newSettings->noBlock)      buf[2] |= 0x10;
@@ -219,7 +219,7 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 	
 	if (txRet == 0 && pkt->dataLen == 2) {
 		con->settings.disableAck =   !!(pkt->data[0] & 0x01);
-		con->settings.broadcastPAN = !!(pkt->data[0] & 0x02);
+		con->settings.broadcast =    !!(pkt->data[0] & 0x02);
 		con->settings.queueChanges = !!(pkt->data[0] & 0x04);
 		con->settings.multicast =    !!(pkt->data[0] & 0x08);
 		con->settings.noBlock =      !!(pkt->data[0] & 0x10);
