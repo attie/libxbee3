@@ -35,6 +35,9 @@
 #define strncasecmp(a,b,c)        _strnicmp((a),(b),(c))
 #define snprintf(a,b,...)         _snprintf((a),(b),__VA_ARGS__)
 
+/* TODO - THIS SHOULD BE INVESTIGATED FUTHER... */
+#define va_copy(a,b)             ((a) = (b))
+
 
 /* ######################################################################### */
 
