@@ -1,10 +1,10 @@
 ### libxbee configuration options:
 
 ### system install directories
-SYS_LIBDIR:=    /usr/local/lib
-SYS_INCDIR:=    /usr/local/include
+SYS_LIBDIR:=    /usr/lib
+SYS_INCDIR:=    /usr/include
 SYS_MANDIR:=    /usr/share/man
-SYS_GROUP:=     wheel
+SYS_GROUP:=     root
 SYS_USER:=      root
 
 ### using this can create a smaller binary, by removing modes you won't use
@@ -14,9 +14,10 @@ SYS_USER:=      root
 #SYS_HTMLDIR:=   /var/www/libxbee.doc
 
 ### setup a cross-compile toolchain (either here, or in the environment)
-#CROSS_COMPILE?= 
-#CFLAGS+=        
-#CLINKS+=        
+# use the CodeSourcery 2011.03-41 toolchain (v4.5.2)
+CROSS_COMPILE?= arm-none-linux-gnueabi-
+CFLAGS+=        -march=armv4t -mtune=arm920t
+CLINKS+=        -march=armv4t -mtune=arm920t
 
 ### un-comment to remove ALL logging (smaller & faster binary)
 #OPTIONS+=       XBEE_DISABLE_LOGGING

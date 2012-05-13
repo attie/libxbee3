@@ -464,15 +464,19 @@ xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *f
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
+	va_list args1;
 	
 	if (!con || !format) return XBEE_EMISSINGPARAM;
 	
-	if ((bufLen = vsnprintf(NULL, 0, format, args)) > 0) {
-		bufLen += 1; /* make space for the terminating '\0' */
-		if (!(buf = malloc(bufLen))) {
+	va_copy(args1, args);
+	bufLen = vsnprintf(NULL, 0, format, args1);
+	va_end(args1);
+	
+	if (bufLen > 0) {
+		if (!(buf = malloc(bufLen + 1))) { /* +1 for the terminating '\0' */
 			return XBEE_ENOMEM;
 		}
-		outLen = vsnprintf(buf, bufLen, format, args) + 1;
+		outLen = vsnprintf(buf, bufLen + 1, format, args);
 		if (outLen > bufLen) {
 			ret = XBEE_ERANGE;
 			goto die;
@@ -539,7 +543,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 		waitForAck = 0;
 		con->frameId = 0;
 	} else {
-		waitForAck = !con->settings.disableAck; /* cache it, incase it changes */
+		waitForAck = !(con->settings.disableAck || con->settings.broadcast); /* cache it, incase it changes */
 		if (waitForAck) {
 			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con)) != XBEE_ENONE) {
 				ret = XBEE_ENOFREEFRAMEID;

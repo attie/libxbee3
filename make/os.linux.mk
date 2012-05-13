@@ -47,7 +47,9 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)     \
                        README HISTORY COPYING COPYING.LESSER
 
 CLEAN_FILES=           $(BUILDDIR)/*.o \
-                       $(BUILDDIR)/*.d \
+                       $(BUILDDIR)/*.d
+
+DISTCLEAN_FILES=       $(HTMLDIR)/*.html \
                        $(HTMLDIR)/*/*.html
 
 VER_DEFINES=           -DLIB_REVISION="\"$(LIBFULLREV)\""                             \

@@ -111,7 +111,7 @@ xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 	
 	iBuf->data[pos] = 0;
 	if (settings->disableAck)   iBuf->data[pos] |= 0x01;
-	if (settings->broadcastPAN) iBuf->data[pos] |= 0x04;
+	if (settings->broadcast)    iBuf->data[pos] |= 0x04;
 	                                                      pos++;
 
 	memcpy(&(iBuf->data[pos]), buf, len);                 pos += len;

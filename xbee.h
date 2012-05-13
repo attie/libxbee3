@@ -84,7 +84,7 @@ struct xbee_conInfo {
 
 struct xbee_conSettings {
 	unsigned char disableAck       : 1;
-	unsigned char broadcastPAN     : 1;
+	unsigned char broadcast        : 1;
 	unsigned char queueChanges     : 1;
 	unsigned char multicast        : 1;
 	unsigned char noBlock          : 1;

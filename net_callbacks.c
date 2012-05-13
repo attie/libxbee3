@@ -402,7 +402,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 		
 		memset(&newSettings, 0, sizeof(newSettings));
 		if ((*pkt)->data[2] & 0x01) newSettings.disableAck = 1;
-		if ((*pkt)->data[2] & 0x02) newSettings.broadcastPAN = 1;
+		if ((*pkt)->data[2] & 0x02) newSettings.broadcast = 1;
 		if ((*pkt)->data[2] & 0x04) newSettings.queueChanges = 1;
 		if ((*pkt)->data[2] & 0x08) newSettings.multicast = 1;
 		if ((*pkt)->data[2] & 0x10) newSettings.noBlock = 1;
@@ -424,7 +424,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	buf[1] = retVal;
 	buf[2] = 0;
 	if (iCon->settings.disableAck)   buf[2] |= 0x01;
-	if (iCon->settings.broadcastPAN) buf[2] |= 0x02;
+	if (iCon->settings.broadcast)    buf[2] |= 0x02;
 	if (iCon->settings.queueChanges) buf[2] |= 0x04;
 	if (iCon->settings.multicast)    buf[2] |= 0x08;
 	if (iCon->settings.noBlock)      buf[2] |= 0x10;
