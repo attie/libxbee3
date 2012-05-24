@@ -47,7 +47,7 @@ void nodeCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void
 
 	/*                     v   v       v   v   v   v      v   v   v   v       */
 	printf("Node: %-20s  0x%02X%02X  0x%02X%02X%02X%02X 0x%02X%02X%02X%02X\n",
-	       &((*pkt)->data[11]),
+	       &((*pkt)->data[10]),
 
 	       (*pkt)->data[0],
 	       (*pkt)->data[1],
