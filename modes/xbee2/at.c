@@ -67,12 +67,12 @@ xbee_err xbee_s2_at_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 		memcpy(address->addr16, &(buf->data[10]), 2);
 	}
 	
-	/* (... - 5) + 2 -> API Identifier + Frame ID + Status (not including the AT Command) */
-	iPkt->dataLen = (buf->len - addrLen - 5) + 2;
+	/* (... - 5) + 2 -> API Identifier + Frame ID + Status */
+	iPkt->dataLen = (buf->len - addrLen - 5);
 	
-	memcpy(iPkt->data, &(buf->data[addrLen + 2]) , 2); /* copy in the AT command */
-	if (iPkt->dataLen > 2) {
-		memcpy(&(iPkt->data[2]), &(buf->data[addrLen + 5]), iPkt->dataLen - 2); /* copy in the response value (if any) */
+	memcpy(iPkt->atCommand, &(buf->data[addrLen + 2]) , 2); /* copy in the AT command */
+	if (iPkt->dataLen > 0) {
+		memcpy(iPkt->data, &(buf->data[addrLen + 5]), iPkt->dataLen); /* copy in the response value (if any) */
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	

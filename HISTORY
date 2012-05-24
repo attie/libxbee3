@@ -7,7 +7,7 @@ v3.0.7 - in progress
 	* Added 'sensor' connection type for 'xbee2'
 	* Fixed bug in xbee_convTx() when using va_args on 64bit linux (and possibly other systems)
 	* Fixed incorrect xbee_conTx() and xbee_convTx() behavior (was adding a '\0' byte)
-	* Fixed bug in AT tx handlers
+	* Fixed bug in AT tx & rx handlers
 
 v3.0.6 - 25 Mar 2012
 	* Added C++ class

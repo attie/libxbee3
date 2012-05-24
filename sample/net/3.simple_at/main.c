@@ -25,11 +25,11 @@
 #include <xbee.h>
 
 void myCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	if ((*pkt)->dataLen < 2) {
+	if ((*pkt)->dataLen == 0) {
 		printf("too short...\n");
 		return;
 	}
-	printf("rx: [%s]\n", &((*pkt)->data)[2]);
+	printf("rx: [%s]\n", (*pkt)->data);
 }
 
 int main(void) {

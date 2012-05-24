@@ -21,25 +21,51 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <xbee.h>
 
-void myCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+void nodeCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	int i;
+
+	if (strncasecmp((*pkt)->atCommand, "ND", 2)) return;
 	if ((*pkt)->dataLen == 0) {
-		printf("too short...\n");
+		printf("Scan complete!\n");
+		xbee_conEnd(con);
+		xbee_shutdown(xbee);
+		exit(0);
+	}
+
+	if ((*pkt)->dataLen < 11) {
+		printf("Received small packet...\n");
 		return;
 	}
-	printf("rx: [%s]\n", (*pkt)->data);
+
+	/*                     v   v       v   v   v   v      v   v   v   v       */
+	printf("Node: %-20s  0x%02X%02X  0x%02X%02X%02X%02X 0x%02X%02X%02X%02X\n",
+	       &((*pkt)->data[11]),
+
+	       (*pkt)->data[0],
+	       (*pkt)->data[1],
+
+	       (*pkt)->data[2],
+	       (*pkt)->data[3],
+	       (*pkt)->data[4],
+	       (*pkt)->data[5],
+	       (*pkt)->data[6],
+	       (*pkt)->data[7],
+	       (*pkt)->data[8],
+	       (*pkt)->data[9]);
 }
 
 int main(void) {
 	void *d;
 	struct xbee *xbee;
 	struct xbee_con *con;
-	char txRet;
 	xbee_err ret;
+	unsigned char txRet;
 
-	if ((ret = xbee_setup(&xbee, "xbee2", "/dev/ttyUSB1", 57600)) != XBEE_ENONE) {
+	if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
 		printf("ret: %d (%s)\n", ret, xbee_errorToStr(ret));
 		return ret;
 	}
@@ -49,19 +75,20 @@ int main(void) {
 		return ret;
 	}
 
-	if ((ret = xbee_conCallbackSet(con, myCB, NULL)) != XBEE_ENONE) {
+	if ((ret = xbee_conCallbackSet(con, nodeCB, NULL)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conCallbackSet() returned: %d", ret);
 		return ret;
 	}
-	
-	ret = xbee_conTx(con, &txRet, "NI");
-	printf("tx: %d\n", ret);
-	if (ret) {
-		printf("txRet: %d\n", txRet);
-	} else {
-		sleep(1);
+
+	if ((ret = xbee_conTx(con, &txRet, "ND")) != XBEE_ENONE && (ret != XBEE_ETX && txRet != XBEE_ETIMEOUT)) {
+		xbee_log(xbee, -1, "xbee_conTx() returned: %d-%d", ret, txRet);
+		return ret;
 	}
-	
+
+	printf("ND Sent!... waiting for 5 secs\n");
+
+	sleep(5);
+
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conEnd() returned: %d", ret);
 		return ret;
