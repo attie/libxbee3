@@ -22,8 +22,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <semaphore.h>
+#include <errno.h>
+#include <time.h>
 
 #include <xbee.h>
+
+sem_t ndComplete;
 
 void nodeCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	int i;
@@ -31,9 +36,8 @@ void nodeCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void
 	if (strncasecmp((*pkt)->atCommand, "ND", 2)) return;
 	if ((*pkt)->dataLen == 0) {
 		printf("Scan complete!\n");
-		xbee_conEnd(con);
-		xbee_shutdown(xbee);
-		exit(0);
+		sem_post(&ndComplete);
+		return;
 	}
 
 	if ((*pkt)->dataLen < 11) {
@@ -64,7 +68,13 @@ int main(void) {
 	struct xbee_con *con;
 	xbee_err ret;
 	unsigned char txRet;
+	struct timespec to;
 
+	if (sem_init(&ndComplete, 0, 0) != 0) {
+		printf("sem_init() returned an error: %d - %s\n", errno, strerror(errno));
+		return -1;
+	}
+	
 	if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
 		printf("ret: %d (%s)\n", ret, xbee_errorToStr(ret));
 		return ret;
@@ -85,9 +95,18 @@ int main(void) {
 		return ret;
 	}
 
-	printf("ND Sent!... waiting for 5 secs\n");
+	printf("ND Sent!... waiting for completion\n");
 
-	sleep(5);
+	clock_gettime(CLOCK_REALTIME, &to);
+	to.tv_sec  += 10;
+	if (sem_timedwait(&ndComplete, &to) != 0) {
+		if (errno == ETIMEDOUT) {
+			printf("Timeout while waiting for ND command to complete...\n");
+		} else {
+			printf("Error calling sem_timedwait()... sleeping for 10 seconds instead\n");
+			sleep(10);
+		}
+	}
 
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conEnd() returned: %d", ret);
