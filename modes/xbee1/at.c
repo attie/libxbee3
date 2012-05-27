@@ -76,7 +76,7 @@ xbee_err xbee_s1_at_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	
-	if (!strncasecmp((char*)iPkt->data, "IS", 2)) {
+	if (!strncasecmp((char*)iPkt->atCommand, "IS", 2)) {
 		xbee_s1_io_parseInputs(xbee, iPkt, iPkt->data, iPkt->dataLen);
 	}
 	
