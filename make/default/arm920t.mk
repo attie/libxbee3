@@ -1,9 +1,10 @@
 ### libxbee configuration options:
 
 ### system install directories
-SYS_LIBDIR:=    /usr/lib
-SYS_INCDIR:=    /usr/include
-SYS_MANDIR:=    /usr/share/man
+SYS_ROOT?=      
+SYS_LIBDIR:=    $(SYS_ROOT)/usr/lib
+SYS_INCDIR:=    $(SYS_ROOT)/usr/include
+SYS_MANDIR:=    $(SYS_ROOT)/usr/share/man
 SYS_GROUP:=     root
 SYS_USER:=      root
 
