@@ -7,7 +7,7 @@ $(SYS_LIBDIR)/$(LIBNAME).%.$(LIBFULLREV): $(DESTDIR)/$(LIBNAME).%.$(LIBFULLREV)
 	$(INSTALL) -m 755 $^ $@
 
 $(SYS_LIBDIR)/$(LIBNAME).%: $(SYS_LIBDIR)/$(LIBNAME).%.$(LIBFULLREV)
-	$(SYMLINK) -fs $^ $@
+	$(SYMLINK) -fs $(shell basename $^) $@
 
 $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)): $(SYS_INCDIR)/%: %
 	$(INSTALL) -m 644 $^ $@
