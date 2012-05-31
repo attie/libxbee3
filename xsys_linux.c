@@ -51,9 +51,15 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 			return XBEE_EINVAL;
 	}
 	
-	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) return XBEE_EIO;
+	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) {
+		perror("open()");
+		return XBEE_EIO;
+	}
 	
-	if ((info->dev.f = fdopen(info->dev.fd, "r+")) == NULL) return XBEE_EIO;
+	if ((info->dev.f = fdopen(info->dev.fd, "r+")) == NULL) {
+		perror("fdopen()");
+		return XBEE_EIO;
+	}
 	
 	fflush(info->dev.f);
 	setvbuf(info->dev.f, NULL, _IONBF, BUFSIZ);

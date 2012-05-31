@@ -43,6 +43,7 @@ specifies which mode should be started. Three modes are currently provided and s
 .RB ' xbee1 "'   the mode used for Series 1 XBee modules"
 .RB ' xbee2 "'   the mode used for Series 2 XBee modules"
 .RB ' net "'     the network client"
+.RB ' debug "'   the debugger"
 .fi
 .in
 .sp
@@ -75,6 +76,14 @@ will terminate all remaining connections and free all data associated with the i
 .sp 0
 .BR "int " "  port               e.g:"
 27015
+.fi
+.in
+.sp
+.RB "'" debug "'"
+- this mode required one parameter:
+.in +4n
+.BR "char *" "target_mode        e.g:"
+"xbee1"
 .fi
 .in
 .SS Return Value

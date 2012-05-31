@@ -1,14 +1,15 @@
 ### libxbee configuration options:
 
 ### system install directories
-SYS_LIBDIR:=    /usr/lib
-SYS_INCDIR:=    /usr/include
-SYS_MANDIR:=    /usr/share/man
+SYS_ROOT?=      
+SYS_LIBDIR:=    $(SYS_ROOT)/usr/lib
+SYS_INCDIR:=    $(SYS_ROOT)/usr/include
+SYS_MANDIR:=    $(SYS_ROOT)/usr/share/man
 SYS_GROUP:=     root
 SYS_USER:=      root
 
 ### using this can create a smaller binary, by removing modes you won't use
-#MODELIST:=      xbee1 xbee2 net
+#MODELIST:=      xbee1 xbee2 net debug
 
 ### to use the 'install_html' rule, you must specify where to install the files to
 #SYS_HTMLDIR:=   /var/www/libxbee.doc

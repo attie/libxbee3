@@ -1,4 +1,5 @@
-<HTML><HEAD><TITLE>Manpage of XBEE_PKT</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XBEE_PKT</TITLE>
 </HEAD><BODY>
 <H1>XBEE_PKT</H1>
 Section: Linux Programmer's Manual (3)<BR>Updated: 04-Mar-2012<BR><A HREF="#index">Index</A>
@@ -12,7 +13,7 @@ xbee_pkt
 <H2>SYNOPSIS</H2>
 
 <PRE>
-#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;
+#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;
 
 struct xbee_pkt {
         struct xbee *xbee;
@@ -20,7 +21,7 @@ struct xbee_pkt {
 
         unsigned char status;
         unsigned char options;
-        unsigned char rssi; /* print as &quot;RSSI: -%d\n&quot; */
+        unsigned char rssi; /* print as &quot;RSSI: -%d\n&quot; - only valid for XBee 1 */
         unsigned char frameId;
         
         unsigned char atCommand[2];
@@ -139,8 +140,8 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 </DL>
 <HR>
 This document was created by
-<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 14:06:56 GMT, April 24, 2012
+Time: 09:02:29 GMT, May 18, 2012
 </BODY>
 </HTML>
