@@ -1,4 +1,5 @@
-<HTML><HEAD><TITLE>Manpage of XBEE_SETUP</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XBEE_SETUP</TITLE>
 </HEAD><BODY>
 <H1>XBEE_SETUP</H1>
 Section: Linux Programmer's Manual (3)<BR>Updated: 02-Mar-2012<BR><A HREF="#index">Index</A>
@@ -11,7 +12,7 @@ xbee_setup, xbee_vsetup, xbee_validate, xbee_shutdown
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
-<B>#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</B>
+<B>#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</B>
 
 <P>
 <B>xbee_err xbee_setup(struct xbee **</B><I>retXbee</I><B>, const char *</B><I>mode</I><B>, ...);</B>
@@ -44,6 +45,7 @@ specifies which mode should be started. Three modes are currently provided and s
 <PRE>
 '<B>xbee1</B>'   the mode used for Series 1 XBee modules
 '<B>xbee2</B>'   the mode used for Series 2 XBee modules
+'<B>xbee5</B>'   the mode used for Series 5 XBee modules (868 MHz)
 '<B>net</B>'     the network client
 </PRE>
 
@@ -64,7 +66,7 @@ will terminate all remaining connections and free all data associated with the i
 <A NAME="lbAE">&nbsp;</A>
 <H3>Modes</H3>
 
-'<B>xbee1</B>' and '<B>xbee2</B>'
+'<B>xbee1</B>', '<B>xbee2</B>' and '<B>xbee5</B>'
 
 - these modes require two parameters:
 
@@ -95,7 +97,7 @@ will terminate all remaining connections and free all data associated with the i
 <H3>Return Value</H3>
 
 On success these functions will return XBEE_ENONE, otherwise an error number from
-<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</I>)
+<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</I>)
 
 <A NAME="lbAG">&nbsp;</A>
 <H2>EXAMPLE</H2>
@@ -104,7 +106,7 @@ To setup libxbee with a Series 1 XBee, using /dev/ttyUSB0 at 57600 baud:
 <P>
 
 <PRE>
-#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;
+#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;
 
 xbee_err ret;
 struct xbee *xbee;
@@ -155,8 +157,8 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 </DL>
 <HR>
 This document was created by
-<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 20:32:56 GMT, April 23, 2012
+Time: 22:03:19 GMT, May 31, 2012
 </BODY>
 </HTML>
