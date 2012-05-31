@@ -89,6 +89,7 @@ struct xbee_conSettings {
 	unsigned char multicast        : 1;
 	unsigned char noBlock          : 1;
 	unsigned char catchAll         : 1;
+	unsigned char noRoute          : 1;
 	unsigned char broadcastRadius;
 };
 
