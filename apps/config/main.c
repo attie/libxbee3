@@ -67,11 +67,19 @@ void config_save(FILE *f, struct xbee_con *con) {
 				fprintf(stderr, "xbee_conRx(): %d - %s\n", ret, xbee_errorToStr(ret));
 				exit(1);
 			}
-			if (pkt->dataLen > 2) {
+			if (pkt->status != 0) {
+				fprintf(stderr, "xbee_conRx(): AT command returned error - %d\n", pkt->status);
+				exit(1);
+			}
+			if (pkt->atCommand[0] == achars[a] && pkt->atCommand[1] == bchars[b]) {
+				fprintf(stderr, "xbee_conRx(): AT command response mis-match\n");
+				exit(1);
+			}
+			if (pkt->dataLen > 0) {
 				fprintf(stderr, "\r%c%c...", achars[a], bchars[b]);
 				fflush(stderr);
 				fprintf(f, "%c%c =", achars[a], bchars[b]);
-				for (q = 2; q < pkt->dataLen; q++) {
+				for (q = 0; q < pkt->dataLen; q++) {
 					fprintf(f, " 0x%02X", pkt->data[q]);
 				}
 				fprintf(f, "\n");
