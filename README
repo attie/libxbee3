@@ -20,15 +20,15 @@ Alternatively, feel free to file an 'issue' on the project site:
   'xbee1'  => XBee Series 1   (802.15.4 / no meshing)
       http://goo.gl/10a45
       http://sprkfn.com/p8665
-			http://doc.libxbee.attie.co.uk/images/xbee1.jpg
+      http://doc.libxbee.attie.co.uk/images/xbee1.jpg
   'xbee2'  => XBee Series 2.5 (ZNet / DigiMesh) - formerly 'Series 2'
       http://goo.gl/fQbkt
       http://sprkfn.com/p8876
-			http://doc.libxbee.attie.co.uk/images/xbee2.jpg
+      http://doc.libxbee.attie.co.uk/images/xbee2.jpg
   'xbeeZB' => XBee Series 2   (ZigBee)
       http://goo.gl/TJmeQ
       http://sprkfn.com/p10414
-			http://doc.libxbee.attie.co.uk/images/xbeeZB.jpg
+      http://doc.libxbee.attie.co.uk/images/xbeeZB.jpg
 
 
 === Licensing ===

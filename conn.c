@@ -243,7 +243,7 @@ got2:
 		if (addr2->profile_id == 0xC105) goto got3;
 	}
 	
-	return XBEE_EFAILED; /* --- cluster id didn't match / isn't the default (0x0011) */
+	return XBEE_EFAILED; /* --- profile id didn't match / isn't the default (0xC105) */
 	
 got3:
 	/* try to match cluster id */
@@ -256,7 +256,7 @@ got3:
 		if (addr2->cluster_id == 0x0011) goto got4;
 	}
 	
-	return XBEE_EFAILED; /* --- profile id didn't match / isn't the default (0xC105) */
+	return XBEE_EFAILED; /* --- cluster id didn't match / isn't the default (0x0011) */
 	
 got4:
 	return XBEE_ENONE;   /* --- everything matched --- */
