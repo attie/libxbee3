@@ -35,6 +35,7 @@ void config_save(FILE *f, struct xbee_con *con) {
 	xbee_err ret;
 	unsigned char retVal;
 	struct xbee_pkt *pkt;
+	unsigned char cmd[3];
 	
 	l = sizeof(skip) / sizeof(*skip);
 	fprintf(stderr, "Skipping %d special commands:", l);
@@ -58,6 +59,9 @@ void config_save(FILE *f, struct xbee_con *con) {
 				fprintf(stderr, "xbee_conPurge(): %d - %s\n", ret, xbee_errorToStr(ret));
 				exit(1);
 			}
+			cmd[0] = achars[a];
+			cmd[1] = bchars[b];
+			cmd[2] = '\0';
 			if ((ret = xbee_conTx(con, &retVal, "%c%c", achars[a], bchars[b])) != XBEE_ENONE && ret != XBEE_ETX) {
 				fprintf(stderr, "xbee_conTx(): %d - %s\n", ret, xbee_errorToStr(ret));
 				exit(1);
@@ -67,11 +71,19 @@ void config_save(FILE *f, struct xbee_con *con) {
 				fprintf(stderr, "xbee_conRx(): %d - %s\n", ret, xbee_errorToStr(ret));
 				exit(1);
 			}
-			if (pkt->dataLen > 2) {
+			if (pkt->status != 0) {
+				fprintf(stderr, "xbee_conRx(): AT command returned error - %d\n", pkt->status);
+				exit(1);
+			}
+			if (strncasecmp(pkt->atCommand, cmd, 2)) {
+				fprintf(stderr, "xbee_conRx(): AT command response mis-match\n");
+				exit(1);
+			}
+			if (pkt->dataLen > 0) {
 				fprintf(stderr, "\r%c%c...", achars[a], bchars[b]);
 				fflush(stderr);
 				fprintf(f, "%c%c =", achars[a], bchars[b]);
-				for (q = 2; q < pkt->dataLen; q++) {
+				for (q = 0; q < pkt->dataLen; q++) {
 					fprintf(f, " 0x%02X", pkt->data[q]);
 				}
 				fprintf(f, "\n");

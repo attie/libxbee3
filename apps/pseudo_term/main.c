@@ -86,7 +86,7 @@ int parseAddress(int argc, char *argv[], struct xbee *xbee, struct remoteInfo *i
 			exit(1);
 		}
 		if (rawAddr < 0xFFFF) {
-			printf("16-bit address: 0x%04X\n", rawAddr);
+			printf("16-bit address: 0x%04X\n", (short)rawAddr);
 			addr.addr16_enabled = 1;
 			addr.addr16[0] = (rawAddr >> 8) & 0xFF;
 			addr.addr16[1] = rawAddr & 0xFF;
@@ -181,15 +181,15 @@ int getSx(struct xbee_con *con, char *command, int *addr) {
 		printf("xbee_conRx() - \"%s\": failed %d\n", command, ret);
 		return 2;
 	}
-	if (strncasecmp(command, pkt->data, 2) || pkt->dataLen != 6) {
+	if (strncasecmp(command, pkt->atCommand, 2) || pkt->dataLen != 4) {
 		printf("AT command \"%s\" returned invalid data...\n", command);
 		xbee_pktFree(pkt);
 		return 3;
 	}
-	*addr  = (pkt->data[2] << 24) & 0xFF000000;
-	*addr |= (pkt->data[3] << 16) & 0xFF0000;
-	*addr |= (pkt->data[4] << 8 ) & 0xFF00;
-	*addr |= (pkt->data[5]      ) & 0xFF;
+	*addr  = (pkt->data[0] << 24) & 0xFF000000;
+	*addr |= (pkt->data[1] << 16) & 0xFF0000;
+	*addr |= (pkt->data[2] << 8 ) & 0xFF00;
+	*addr |= (pkt->data[3]      ) & 0xFF;
 	xbee_pktFree(pkt);
 }
 
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]) {
 			int bufLen;
 			int bufGot;
 			
-			printf("- PT closed! - please use '%s'\n", ptsname(remote.ptfd));
+			printf("- PT closed! - please use '%s'\n", (char*)ptsname(remote.ptfd));
 			
 			/* disable blocking */
 			if ((fl = fcntl(remote.ptfd, F_GETFL)) == -1) {
