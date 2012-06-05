@@ -16,4 +16,4 @@ CONSTRUCTIONDIRS:=     $(BUILDDIR) $(DESTDIR)
 SYS_HEADERS:=          xbee.h
 
 ### the OS config can override this if any are incompatible
-MODELIST:=             xbee1 xbee2 net debug
+MODELIST:=             xbee1 xbee2 xbee5 net debug

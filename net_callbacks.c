@@ -407,6 +407,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 		if ((*pkt)->data[2] & 0x08) newSettings.multicast = 1;
 		if ((*pkt)->data[2] & 0x10) newSettings.noBlock = 1;
 		if ((*pkt)->data[2] & 0x20) newSettings.catchAll = 1;
+		if ((*pkt)->data[2] & 0x40) newSettings.noRoute = 1;
 		newSettings.broadcastRadius = (*pkt)->data[3];
 		
 		ret = xbee_conSettings(iCon, &newSettings, &oldSettings);
@@ -429,6 +430,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	if (iCon->settings.multicast)    buf[2] |= 0x08;
 	if (iCon->settings.noBlock)      buf[2] |= 0x10;
 	if (iCon->settings.catchAll)     buf[2] |= 0x20;
+	if (iCon->settings.noRoute)      buf[2] |= 0x40;
 	buf[3] = iCon->settings.broadcastRadius;
 	xbee_connTx(con, NULL, buf, sizeof(buf));
 	
