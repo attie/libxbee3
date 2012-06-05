@@ -106,6 +106,9 @@ struct xbee_conSettings {
 	unsigned char enableEncryption : 1;
 	unsigned char extendTimeout    : 1;
 	
+	/* XBee 5 options: */
+	unsigned char noRoute          : 1;
+
 	/* other */
 	unsigned char broadcastRadius;
 };
