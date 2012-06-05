@@ -5,7 +5,7 @@ VCPATH:=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC
 SDKPATH:=C:\Program Files\Microsoft SDKs\Windows\v6.0A
 
 ### using this can create a smaller binary, by removing modes you won't use
-#MODELIST:=             xbee1 xbee2
+#MODELIST:=             xbee1 xbee2 xbee5
 
 ### debug options
 #DEBUG:=/Zi /MTd

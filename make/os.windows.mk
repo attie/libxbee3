@@ -29,4 +29,4 @@ OPTIONS+=              XBEE_NO_NET_SERVER
 
 POST_BUILD:=           windows.mk
 
-MODELIST:=             xbee1 xbee2
+MODELIST:=             xbee1 xbee2 xbee5

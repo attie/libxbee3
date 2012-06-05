@@ -74,15 +74,13 @@ xbee_err xbee_s5_identify_rx_func(struct xbee *xbee, void *arg, unsigned char id
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s5_identify_rx  = {
-	.identifier = 0x95,
-	.func = xbee_s5_identify_rx_func,
-};
-struct xbee_modeConType xbee_s5_identify = {
-	.name = "Identify",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s5_identify_rx,
-	.txHandler = NULL,
-};
+void xbee_s5_identify_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x95;
+	conType->rxHandler->func = xbee_s5_identify_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s5_identify_rx;
+struct xbee_modeConType xbee_s5_identify = { "Identify", &xbee_s5_identify_rx, NULL, xbee_s5_identify_init };

@@ -47,7 +47,9 @@ xbee_err xbee_s5_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char ide
 	address->endpoints_enabled = 1;
 	address->endpoint_remote = buf->data[11];
 	address->endpoint_local = buf->data[12];
+#ifndef _WIN32
 #warning TODO - support cluster ID & profile ID
+#endif
 	
 	iPkt->options = buf->data[17];
 	
@@ -107,7 +109,9 @@ xbee_err xbee_s5_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 		iBuf->data[pos] = 0xE8; /* default to data... */    pos++;
 		iBuf->data[pos] = 0xE8; /* ... endpoint */          pos++;
 	}
+#ifndef _WIN32
 #warning TODO - support cluster ID & profile ID
+#endif
 	iBuf->data[pos] = 0x00; /* custerIDs are not... */    pos++;
 	iBuf->data[pos] = 0x11; /* ..supported by libxbee */  pos++;
 	iBuf->data[pos] = 0xC1; /* profileIDs are not... */   pos++;
@@ -128,21 +132,18 @@ xbee_err xbee_s5_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s5_dataExp_rx  = {
-	.identifier = 0x91,
-	.func = xbee_s5_dataExp_rx_func,
-};
-struct xbee_modeDataHandlerTx xbee_s5_dataExp_tx  = {
-	.identifier = 0x11,
-	.func = xbee_s5_dataExp_tx_func,
-};
-struct xbee_modeConType xbee_s5_dataExp = {
-	.name = "Data (explicit)",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_64_16OPT_EP,
-	.save_addr16 = 1,
-	.save_addr64 = 1,
-	.rxHandler = &xbee_s5_dataExp_rx,
-	.txHandler = &xbee_s5_dataExp_tx,
-};
+void xbee_s5_dataExp_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_64_16OPT_EP;
+	conType->save_addr16 = 1;
+	conType->save_addr64 = 1;
+	conType->rxHandler->identifier = 0x91;
+	conType->rxHandler->func = xbee_s5_dataExp_rx_func;
+	conType->txHandler->identifier = 0x11;
+	conType->txHandler->func = xbee_s5_dataExp_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s5_dataExp_rx;
+struct xbee_modeDataHandlerTx xbee_s5_dataExp_tx;
+struct xbee_modeConType xbee_s5_dataExp = { "Data (explicit)", &xbee_s5_dataExp_rx, &xbee_s5_dataExp_tx, xbee_s5_dataExp_init };
