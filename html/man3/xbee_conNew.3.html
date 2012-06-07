@@ -1,4 +1,5 @@
-<HTML><HEAD><TITLE>Manpage of XBEE_CONNEW</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XBEE_CONNEW</TITLE>
 </HEAD><BODY>
 <H1>XBEE_CONNEW</H1>
 Section: Linux Programmer's Manual (3)<BR>Updated: 02-Mar-2012<BR><A HREF="#index">Index</A>
@@ -11,7 +12,7 @@ xbee_conNew, xbee_conValidate, xbee_conEnd
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
-<B>#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</B>
+<B>#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</B>
 
 <P>
 <B>xbee_err xbee_conNew(struct xbee *</B><I>xbee</I><B>, struct xbee_con **</B><I>retCon</I><B>, const char *</B><I>type</I><B>, struct xbee_conAddress *</B><I>address</I><B>);</B>
@@ -67,20 +68,28 @@ is called, it will be permitted to complete, and then the connection will be ter
 
 
 &quot;Modem Status&quot;
+- Rx Only. Status updates from the XBee module.
 <P>
 &quot;Transmit Status&quot;
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
 <P>
 &quot;Local AT&quot;
+- Set/Get AT configuration from the local module.
 <P>
 &quot;Remote AT&quot;
+- Set/Get AT configuration from a remote module.
 <P>
 &quot;16-bit Data&quot;
+- 2-way communication with a remote module, using 16-bit addressing.
 <P>
 &quot;64-bit Data&quot;
+- 2-way communication with a remote module, using 64-bit addressing.
 <P>
 &quot;16-bit I/O&quot;
+- Rx Only. I/O samples received from a remote module, using 16-bit addressing.
 <P>
 &quot;64-bit I/O&quot;
+- Rx Only. I/O samples received from a remote module, using 64-bit addressing.
 
 
 <P>
@@ -88,34 +97,71 @@ is called, it will be permitted to complete, and then the connection will be ter
 
 
 &quot;Modem Status&quot;
+- Rx Only. Status updates from the XBee module.
 <P>
 &quot;Transmit Status&quot;
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
 <P>
 &quot;Local AT&quot;
+- Set/Get AT configuration from the local module.
 <P>
 &quot;Remote AT&quot;
+- Set/Get AT configuration from a remote module.
 <P>
 &quot;Data&quot;
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
 <P>
 &quot;Data (explicit)&quot;
+- 2-way communication with a remote module, with configurable endpoints. All data will be recieved using this connection type if AO=1.
 <P>
 &quot;I/O&quot;
+- Rx Only. I/O samples received from a remote module. Only if AO=0.
 <P>
 &quot;Identify&quot;
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
 
 
+<P>
+<B>xbee5</B>
+
+
+&quot;Modem Status&quot;
+- Rx Only. Status updates from the XBee module.
+<P>
+&quot;Transmit Status&quot;
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
+<P>
+&quot;Local AT&quot;
+- Set/Get AT configuration from the local module.
+<P>
+&quot;Remote AT&quot;
+- Set/Get AT configuration from a remote module.
+<P>
+&quot;Data&quot;
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
+<P>
+&quot;Data (explicit)&quot;
+- 2-way communication with a remote module, with configurable endpoints. All data will be recieved using this connection type if AO=1.
+<P>
+&quot;Identify&quot;
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+
+
+<P>
 <B>net</B>
 
 
 the connection types for
 <B>net</B>
 
-mode are determined by the mode running on the server.
+mode are determined by the mode running on the server. See
+<B><A HREF="../man3/xbee_conGetTypes.3.html">xbee_conGetTypes</A></B>(3).
+
 <A NAME="lbAF">&nbsp;</A>
 <H3>Return Value</H3>
 
 On success these functions will return XBEE_ENONE, otherwise an error number from
-<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</I>).
+<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</I>).
 
 Postponed termination due to an active callback is considered a success.
 <A NAME="lbAG">&nbsp;</A>
@@ -123,7 +169,7 @@ Postponed termination due to an active callback is considered a success.
 
 
 <PRE>
-#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;
+#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;
 
 struct xbee *xbee;
 struct xbee_con *con;
@@ -195,8 +241,8 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 </DL>
 <HR>
 This document was created by
-<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 20:32:55 GMT, April 23, 2012
+Time: 21:47:15 GMT, June 07, 2012
 </BODY>
 </HTML>

@@ -56,47 +56,90 @@ is called, it will be permitted to complete, and then the connection will be ter
 .B xbee1
 .in +4n
 "Modem Status"
+- Rx Only. Status updates from the XBee module.
 .sp 0
 "Transmit Status"
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
 .sp 0
 "Local AT"
+- Set/Get AT configuration from the local module.
 .sp 0
 "Remote AT"
+- Set/Get AT configuration from a remote module.
 .sp 0
 "16-bit Data"
+- 2-way communication with a remote module, using 16-bit addressing.
 .sp 0
 "64-bit Data"
+- 2-way communication with a remote module, using 64-bit addressing.
 .sp 0
 "16-bit I/O"
+- Rx Only. I/O samples received from a remote module, using 16-bit addressing.
 .sp 0
 "64-bit I/O"
+- Rx Only. I/O samples received from a remote module, using 64-bit addressing.
 .fi
 .in
 .sp
 .B xbee2
 .in +4n
 "Modem Status"
+- Rx Only. Status updates from the XBee module.
 .sp 0
 "Transmit Status"
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
 .sp 0
 "Local AT"
+- Set/Get AT configuration from the local module.
 .sp 0
 "Remote AT"
+- Set/Get AT configuration from a remote module.
 .sp 0
 "Data"
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
 .sp 0
 "Data (explicit)"
+- 2-way communication with a remote module, with configurable endpoints. All data will be recieved using this connection type if AO=1.
 .sp 0
 "I/O"
+- Rx Only. I/O samples received from a remote module. Only if AO=0.
 .sp 0
 "Identify"
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
 .fi
 .in
+.sp
+.B xbee5
+.in +4n
+"Modem Status"
+- Rx Only. Status updates from the XBee module.
+.sp 0
+"Transmit Status"
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
+.sp 0
+"Local AT"
+- Set/Get AT configuration from the local module.
+.sp 0
+"Remote AT"
+- Set/Get AT configuration from a remote module.
+.sp 0
+"Data"
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
+.sp 0
+"Data (explicit)"
+- 2-way communication with a remote module, with configurable endpoints. All data will be recieved using this connection type if AO=1.
+.sp 0
+"Identify"
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+.fi
+.in
+.sp
 .B net
 .in +4n
 the connection types for
 .B net
-mode are determined by the mode running on the server.
+mode are determined by the mode running on the server. See
+.BR xbee_conGetTypes (3).
 .SS Return Value
 On success these functions will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> ).
