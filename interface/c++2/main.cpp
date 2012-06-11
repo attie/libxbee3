@@ -5,13 +5,13 @@
 class myConnection: public libxbee::ConCallback {
 	public:
 		explicit myConnection(libxbee::XBee &parent, std::string type);
-		void xbee_conCallback(struct xbee_pkt *pkt, void **data);
+		void xbee_conCallback(struct xbee_pkt **pkt, void **data);
 };
 
 myConnection::myConnection(libxbee::XBee &parent, std::string type): libxbee::ConCallback(parent, type) { }
 
-void myConnection::xbee_conCallback(struct xbee_pkt *pkt, void **data) {
-	std::cout << "Callback\n";
+void myConnection::xbee_conCallback(struct xbee_pkt **pkt, void **data) {
+	std::cout << "Callback!!\n";
 }
 
 void a(libxbee::XBee &xbee) {
@@ -39,9 +39,13 @@ void c(libxbee::XBee &xbee) {
 int main(int argc, char *argv[]) {
 	libxbee::XBee xbee("xbee1", "/dev/ttyUSB0", 57600);
 
-	//a(xbee);
-	//b(xbee);
-	c(xbee);
+	try {
+		//a(xbee);
+		//b(xbee);
+		c(xbee);
+	} catch (xbee_err err) {
+		std::cout << "Error " << err << "\n";
+	}
 	
 	sleep(2);
 	

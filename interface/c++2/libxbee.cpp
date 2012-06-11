@@ -44,12 +44,28 @@ libxbee::Con *libxbee::XBee::conLocate(struct xbee_con *con) {
 	return NULL;
 }
 
+void libxbee::XBee::conRegister(ConCallback *con) {
+	xbee_err ret;
+	if ((ret = xbee_conValidate(con->getHnd())) != XBEE_ENONE) throw(ret);
+	conCallbackList.push_back(con);
+	conCallbackList.unique();
+}
+void libxbee::XBee::conUnregister(ConCallback *con) {
+	conCallbackList.remove(con);
+}
+libxbee::ConCallback *libxbee::XBee::conCallbackLocate(struct xbee_con *con) {
+	std::list<libxbee::ConCallback*>::iterator i;
+	for (i = conCallbackList.begin(); i != conCallbackList.end(); i++) {
+		if ((*i)->getHnd() == con) return (*i);
+	}
+	return NULL;
+}
+
 /* ========================================================================== */
 
 libxbee::Con::Con(libxbee::XBee &parent, std::string type) : parent(parent) {
 	xbee_err ret;
 	
-	std::cout << "B\n";
 	if ((xbee = parent.getHnd()) == NULL) throw(XBEE_EINVAL);
 	
 	if ((ret = xbee_conNew(xbee, &con, type.c_str(), NULL)) != XBEE_ENONE) throw(ret);
@@ -82,22 +98,32 @@ unsigned char libxbee::Con::Tx(std::string data) {
 	return retVal;
 }
 
+void libxbee::Con::xbee_conCallback(struct xbee_pkt **pkt, void **data) { }
+
 /* ========================================================================== */
 
-libxbee::ConCallback::ConCallback(XBee &parent, std::string type) : Con(parent, type) {
+libxbee::ConCallback::ConCallback(XBee &parent, std::string type) : parent(parent), Con(parent, type) {
 	xbee_err ret;
 	
+	try {
+		parent.conRegister(this);
+	} catch (xbee_err ret) {
+		throw(ret);
+	}
+	
 	if ((ret = xbee_conCallbackSet(this->getHnd(), libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
+}
+libxbee::ConCallback::~ConCallback(void) {
+	parent.conUnregister(this);
 }
 
 void libxbee::ConCallback::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	std::list<libxbee::XBee*>::iterator i;
 	for (i = libxbee::xbeeList.begin(); i != libxbee::xbeeList.end(); i++) {
 		if ((*i)->getHnd() == xbee) {
-			libxbee::Con *c;
-			libxbee::ConCallback *cb;
-			if ((c = (*i)->conLocate(con)) == NULL) break;
-			/* ... */
+			libxbee::ConCallback *c;
+			if ((c = (*i)->conCallbackLocate(con)) == NULL) break;
+			c->xbee_conCallback(pkt, data);
 			return;
 		}
 	}

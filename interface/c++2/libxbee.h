@@ -21,12 +21,17 @@ namespace libxbee {
 		private:
 			struct xbee *xbee;
 			std::list<Con*> conList;
+			std::list<ConCallback*> conCallbackList;
 			
 		public:
 			struct xbee *getHnd(void);
 			void conRegister(Con *con);
 			void conUnregister(Con *con);
 			Con *conLocate(struct xbee_con *con);
+
+			void conRegister(ConCallback *con);
+			void conUnregister(ConCallback *con);
+			ConCallback *conCallbackLocate(struct xbee_con *con);
 	};
 
 	class Con {
@@ -38,6 +43,7 @@ namespace libxbee {
 			XBee &parent;
 			struct xbee *xbee;
 			struct xbee_con *con;
+			virtual void xbee_conCallback(struct xbee_pkt **pkt, void **data);
 			
 		public:
 			struct xbee_con *getHnd(void);
@@ -46,12 +52,13 @@ namespace libxbee {
 
 	class ConCallback: public Con {
 		private:
+			XBee &parent;
 			static void libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data);
+			virtual void xbee_conCallback(struct xbee_pkt **pkt, void **data) = 0;
 			
 		public:
 			explicit ConCallback(XBee &parent, std::string type);
-			
-			virtual void xbee_conCallback(struct xbee_pkt *pkt, void **data) = 0;
+			~ConCallback(void);
 	};
 
 };
