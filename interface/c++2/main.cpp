@@ -6,11 +6,9 @@
 
 class myConnection: public libxbee::ConCallback {
 	public:
-		explicit myConnection(libxbee::XBee &parent, std::string type);
+		explicit myConnection(libxbee::XBee &parent, std::string type): libxbee::ConCallback(parent, type) {};
 		void xbee_conCallback(struct xbee_pkt **pkt, void **data);
 };
-
-myConnection::myConnection(libxbee::XBee &parent, std::string type): libxbee::ConCallback(parent, type) { }
 
 void myConnection::xbee_conCallback(struct xbee_pkt **pkt, void **data) {
 	std::cout << "Callback!!\n";
