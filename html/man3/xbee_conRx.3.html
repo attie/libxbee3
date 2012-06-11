@@ -60,8 +60,10 @@ except that it will busy-wait for upto 1 second, checking if there is a packet a
 <H3>Return Value</H3>
 
 On success this function will return XBEE_ENONE, otherwise an error number from
-<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</I>)
+<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</I>).
 
+<P>
+XBEE_ENOTEXISTS will be returned if there is no packet available to retrieved.
 <A NAME="lbAF">&nbsp;</A>
 <H2>EXAMPLE</H2>
 
@@ -123,6 +125,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 21:42:42 GMT, June 11, 2012
+Time: 21:45:26 GMT, June 11, 2012
 </BODY>
 </HTML>

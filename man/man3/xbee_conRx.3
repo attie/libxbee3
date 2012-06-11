@@ -50,7 +50,9 @@ is identical to
 except that it will busy-wait for upto 1 second, checking if there is a packet available.
 .SS Return Value
 On success this function will return XBEE_ENONE, otherwise an error number from
-.IR "enum xbee_errors" " (as specified in " <xbee.h> )
+.IR "enum xbee_errors" " (as specified in " <xbee.h> ).
+.sp
+XBEE_ENOTEXISTS will be returned if there is no packet available to retrieved.
 .SH EXAMPLE
 .in +4n
 .nf
