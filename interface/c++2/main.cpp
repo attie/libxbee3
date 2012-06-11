@@ -12,6 +12,11 @@ myConnection::myConnection(libxbee::XBee &parent, std::string type): libxbee::Co
 
 void myConnection::xbee_conCallback(struct xbee_pkt **pkt, void **data) {
 	std::cout << "Callback!!\n";
+	int i;
+	for (i = 0; i < (*pkt)->dataLen; i++) {
+		std::cout << (*pkt)->data[i];
+	}
+	std::cout << "\n";
 }
 
 void a(libxbee::XBee &xbee) {

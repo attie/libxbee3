@@ -24,7 +24,7 @@ new: clean
 	 @$(MAKE) --no-print-directory all
 
 run: main
-	XBEE_LOG_LEVEL=100 ./$^ $(RUNARGS)
+	./$^ $(RUNARGS)
 
 
 main: $(OBJS) $(OBJSPP) $(PLUGIN_OBJS)
