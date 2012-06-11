@@ -197,6 +197,7 @@ EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const ch
 EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len);
 EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
+EXPORT xbee_err xbee_conRxWait(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
 /* - */
 EXPORT xbee_err xbee_conPurge(struct xbee_con *con);
 /* - */
