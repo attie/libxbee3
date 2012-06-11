@@ -39,6 +39,8 @@ namespace libxbee {
 			explicit Con(XBee &parent, std::string type);
 			~Con(void);
 			
+			unsigned char operator<< (std::string data);
+			
 		private:
 			XBee &parent;
 			struct xbee *xbee;

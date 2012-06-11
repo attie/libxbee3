@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
 		myConnection con(xbee, "Local AT");
 
 		/* send data */
-		con.Tx("NI");
+		//con.Tx("NI"); /* like this */
+		con << "NI";    /* or like this */
 
 		sleep(1);
 	} catch (xbee_err err) {

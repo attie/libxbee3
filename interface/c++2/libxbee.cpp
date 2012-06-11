@@ -85,6 +85,10 @@ libxbee::Con::~Con(void) {
 	xbee_conEnd(con);
 }
 
+unsigned char libxbee::Con::operator<< (std::string data) {
+	return Tx(data);
+}
+
 struct xbee_con *libxbee::Con::getHnd(void) {
 	return con;
 }
