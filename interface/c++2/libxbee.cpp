@@ -264,3 +264,39 @@ void libxbee::Pkt::setHnd(struct xbee_pkt *pkt) {
 	if (this->pkt) xbee_pktFree(this->pkt);
 	this->pkt = pkt;
 }
+
+void *libxbee::Pkt::getData(const char *key) {
+	return getData(key, 0, 0);
+}
+void *libxbee::Pkt::getData(const char *key, int id) {
+	return getData(key, id, 0);
+}
+void *libxbee::Pkt::getData(const char *key, int id, int index) {
+	xbee_err ret;
+	void *p;
+	
+	if ((ret = xbee_pktDataGet(pkt, key, id, index, &p)) != XBEE_ENONE) throw(ret);
+	return p;
+}
+
+int libxbee::Pkt::getAnalog(int channel) {
+	return getAnalog(channel, 0);
+}
+int libxbee::Pkt::getAnalog(int channel, int index) {
+	xbee_err ret;
+	int value;
+	
+	if ((ret = xbee_pktAnalogGet(pkt, channel, index, &value)) != XBEE_ENONE) throw(ret);
+	return value;
+}
+
+bool libxbee::Pkt::getDigital(int channel) {
+	return getDigital(channel, 0);
+}
+bool libxbee::Pkt::getDigital(int channel, int index) {
+	xbee_err ret;
+	int value;
+	
+	if ((ret = xbee_pktDigitalGet(pkt, channel, index, &value)) != XBEE_ENONE) throw(ret);
+	return (bool)!!value;
+}

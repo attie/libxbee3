@@ -94,6 +94,16 @@ namespace libxbee {
 			void setHnd(struct xbee_pkt *pkt);
 			int size(void);
 			
+			/* use these two with care... */
+			void *getData(const char *key);
+			void *getData(const char *key, int id);
+			void *getData(const char *key, int id, int index);
+			
+			int getAnalog(int channel);
+			int getAnalog(int channel, int index);
+			bool getDigital(int channel);
+			bool getDigital(int channel, int index);
+			
 		private:
 			struct xbee_pkt *pkt;
 	};
