@@ -33,6 +33,7 @@ namespace libxbee {
 			void conRegister(Con *con);
 			void conUnregister(Con *con);
 			Con *conLocate(struct xbee_con *con);
+			std::list<std::string> getConTypes(void);
 			
 			std::string mode(void);
 	};

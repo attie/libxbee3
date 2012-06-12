@@ -42,6 +42,7 @@ void myConnection::xbee_conCallback(libxbee::Pkt **pkt) {
 int main(int argc, char *argv[]) {
 	int i;
 
+	/* get available libxbee modes */
 	try {
 		std::list<std::string> modes = libxbee::getModes();
 		std::list<std::string>::iterator i;
@@ -62,7 +63,22 @@ int main(int argc, char *argv[]) {
 		libxbee::XBee xbee("xbee1", "/dev/ttyUSB0", 57600);
 		std::cout << "Running libxbee in mode '" << xbee.mode() << "'\n";
 
+		
+		/* get available connection types */
+		try {
+			std::list<std::string> types = xbee.getConTypes();
+			std::list<std::string>::iterator i;
+			
+			std::cout << "Available connection types:\n";
+			for (i = types.begin(); i != types.end(); i++) {
+				std::cout << "  " << *i;
+			}
+			std::cout << "\n";
+		} catch (xbee_err ret) {
+			std::cout << "Error while retrieving connection types...\n";
+		}
 
+		
 		/* make a connection */
 #ifdef LOCAL_CONNECTION
   #ifdef USE_CALLBACKS

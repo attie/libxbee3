@@ -72,6 +72,21 @@ libxbee::Con *libxbee::XBee::conLocate(struct xbee_con *con) {
 	return NULL;
 }
 
+std::list<std::string> libxbee::XBee::getConTypes(void) {
+	xbee_err ret;
+	char **types;
+	int i;
+	std::list<std::string> typeList;
+	
+	if ((ret = xbee_conGetTypes(xbee, &types)) != XBEE_ENONE) throw(ret);
+	for (i = 0; types[i] != NULL; i++) {
+		typeList.push_back(std::string(types[i]));
+	}
+	free(types);
+	
+	return typeList;
+}
+
 std::string libxbee::XBee::mode(void) {
 	xbee_err ret;
 	const char *mode;
