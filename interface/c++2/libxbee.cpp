@@ -120,6 +120,31 @@ libxbee::Con::~Con(void) {
 	xbee_conEnd(con);
 }
 
+void libxbee::Con::xbee_conCallback(libxbee::Pkt **pkt) { }
+void libxbee::Con::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
+	std::list<libxbee::XBee*>::iterator i;
+	for (i = libxbee::xbeeList.begin(); i != libxbee::xbeeList.end(); i++) {
+		if ((*i)->getHnd() == xbee) {
+			libxbee::Con *c;
+			if ((c = (*i)->conLocate(con)) == NULL) break;
+			
+			libxbee::Pkt *pktClass = new libxbee::Pkt(*pkt);
+			
+			c->xbee_conCallback(&pktClass);
+			
+			/* if they took the packet, then don't free/delete it */
+			if (pktClass != NULL) {
+				delete pktClass;
+			}
+			
+			/* either way, libxbee doesn't need to free it, it was free'd just now or its the user's responsibility... */
+			*pkt = NULL;
+			return;
+		}
+	}
+	std::cerr << "  1#[" << __FILE__ << ":" << __LINE__ << "] " << __FUNCTION__ << "(): A connection called back to the C++ interface, but it wasnt found...\n";
+}
+
 unsigned char libxbee::Con::operator<< (std::string data) {
 	return Tx(data);
 }
@@ -163,30 +188,30 @@ void libxbee::Con::purge(void) {
 	if ((ret = xbee_conPurge(con)) != XBEE_ENONE) throw(ret);
 }
 
-void libxbee::Con::xbee_conCallback(libxbee::Pkt **pkt) { }
-void libxbee::Con::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	std::list<libxbee::XBee*>::iterator i;
-	for (i = libxbee::xbeeList.begin(); i != libxbee::xbeeList.end(); i++) {
-		if ((*i)->getHnd() == xbee) {
-			libxbee::Con *c;
-			if ((c = (*i)->conLocate(con)) == NULL) break;
-			
-			libxbee::Pkt *pktClass = new libxbee::Pkt(*pkt);
-			
-			c->xbee_conCallback(&pktClass);
-			
-			/* if they took the packet, then don't free/delete it */
-			if (pktClass != NULL) {
-				delete pktClass;
-			}
-			
-			/* either way, libxbee doesn't need to free it, it was free'd just now or its the user's responsibility... */
-			*pkt = NULL;
-			return;
-		}
-	}
-	std::cerr << "  1#[" << __FILE__ << ":" << __LINE__ << "] " << __FUNCTION__ << "(): A connection called back to the C++ interface, but it wasnt found...\n";
+void libxbee::Con::sleep(void) {
+	setSleep(CON_SLEEP);
 }
+void libxbee::Con::snooze(void) {
+	setSleep(CON_SNOOZE);
+	std::cout << "Sent for snooze\n";
+}
+void libxbee::Con::wake(void) {
+	setSleep(CON_AWAKE);
+}
+void libxbee::Con::setSleep(enum xbee_conSleepStates state) {
+	xbee_err ret;
+	
+	if ((ret = xbee_conSleepSet(con, state)) != XBEE_ENONE) throw(ret);
+}
+enum xbee_conSleepStates libxbee::Con::getSleep(void) {
+	xbee_err ret;
+	enum xbee_conSleepStates state;
+	
+	if ((ret = xbee_conSleepGet(con, &state)) != XBEE_ENONE) throw(ret);
+	
+	return state;
+}
+
 
 /* ========================================================================== */
 

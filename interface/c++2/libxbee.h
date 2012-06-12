@@ -62,6 +62,12 @@ namespace libxbee {
 			void Rx(Pkt &pkt, int *remainingPackets = NULL);
 			
 			void purge(void);
+			
+			void sleep(void);
+			void snooze(void);
+			void wake(void);
+			void setSleep(enum xbee_conSleepStates state);
+			enum xbee_conSleepStates getSleep(void);
 	};
 	
 	class ConCallback: public Con {
