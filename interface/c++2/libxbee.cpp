@@ -96,6 +96,25 @@ std::string libxbee::XBee::mode(void) {
 	return std::string(mode);
 }
 
+void libxbee::XBee::setLogTarget(FILE *f) {
+	xbee_err ret;
+	
+	if ((ret = xbee_logTargetSet(xbee, f)) != XBEE_ENONE) throw(ret);
+}
+void libxbee::XBee::setLogLevel(int level) {
+	xbee_err ret;
+	
+	if ((ret = xbee_logLevelSet(xbee, level)) != XBEE_ENONE) throw(ret);
+}
+int libxbee::XBee::getLogLevel(void) {
+	xbee_err ret;
+	int level;
+	
+	if ((ret = xbee_logLevelGet(xbee, &level)) != XBEE_ENONE) throw(ret);
+	
+	return level;
+}
+
 /* ========================================================================== */
 
 libxbee::Con::Con(libxbee::XBee &parent, std::string type, struct xbee_conAddress *address) : parent(parent) {

@@ -36,6 +36,10 @@ namespace libxbee {
 			std::list<std::string> getConTypes(void);
 			
 			std::string mode(void);
+			
+			void setLogTarget(FILE *f);
+			void setLogLevel(int level);
+			int getLogLevel(void);
 	};
 	
 	class Con {
