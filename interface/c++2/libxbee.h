@@ -67,6 +67,7 @@ namespace libxbee {
 		public:
 			explicit Pkt(struct xbee_pkt *pkt = NULL);
 			~Pkt(void);
+			
 			unsigned char operator[] (int index);
 			void operator<< (Con &con);
 			
