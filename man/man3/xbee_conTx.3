@@ -52,6 +52,9 @@ If the connection type supports ACKs, and they are not disabled for the connecti
 .I retVal
 is non-NULL, it will be updated with the return value. E.g: 0x04 - No response for a Remote AT connection.
 You should consult the manual for the remote device for information on the values that this may return.
+.sp
+.B NOTE:
+not all connection types are able to transmit. For example the 'Modem Status', 'Transmit Status' and 'I/O' connections.
 .SS Return Value
 On success these functions will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> )

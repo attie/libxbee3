@@ -22,6 +22,8 @@ xbee_conRx
 .B #include <xbee.h>
 .sp
 .BI "xbee_err xbee_conRx(struct xbee_con *" con ", struct xbee_pkt **" retPkt ", int *" remainingPackets ");"
+.sp
+.BI "xbee_err xbee_conRxWait(struct xbee_con *" con ", struct xbee_pkt **" retPkt ", int *" remainingPackets ");"
 .SH DESCRIPTION
 .BR xbee_conRx ()
 allows you to retrieve packets from an active connection.
@@ -41,9 +43,16 @@ will return
 .IR pkt " and " remainingPackets
 will not have been updated - see 
 .BR xbee_conCallbackSet (3).
+.sp
+.BR xbee_conRxWait ()
+is identical to
+.BR xbee_conRx (),
+except that it will busy-wait for upto 1 second, checking if there is a packet available.
 .SS Return Value
 On success this function will return XBEE_ENONE, otherwise an error number from
-.IR "enum xbee_errors" " (as specified in " <xbee.h> )
+.IR "enum xbee_errors" " (as specified in " <xbee.h> ).
+.sp
+XBEE_ENOTEXISTS will be returned if there is no packet available to retrieved.
 .SH EXAMPLE
 .in +4n
 .nf

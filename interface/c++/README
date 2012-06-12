@@ -1,9 +1,0 @@
-Simply run `make`, and it will build libxbee.o and libxbee_cpp.so.
-
-You can either install libxbee_cpp.so on your system, or include libxbee.o
-in your project.
-
-If you wish to cross compile the interface, you can edit the CROSS_COMPILE
-variable in the makefile, or provide it on the command line.
-
-The class prototype is provided in xbee.h, so no new headers are required.

@@ -61,8 +61,8 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 		return XBEE_EIO;
 	}
 	
-	fflush(info->dev.f);
 	setvbuf(info->dev.f, NULL, _IONBF, BUFSIZ);
+	fflush(info->dev.f);
 	
 	if (tcgetattr(info->dev.fd, &tc)) {
 		perror("tcgetattr()");
