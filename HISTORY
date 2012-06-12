@@ -9,6 +9,8 @@ v3.0.7 - in progress
 	* Fixed incorrect xbee_conTx() and xbee_convTx() behavior (was adding a '\0' byte)
 	* Fixed bug in AT tx & rx handlers
 	* Added support for XBee Series 5 modules
+	* Added xbee_conRxWait()
+	* Re-designed C++ class
 
 v3.0.6 - 25 Mar 2012
 	* Added C++ class

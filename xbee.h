@@ -217,6 +217,7 @@ EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const ch
 EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len);
 EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
+EXPORT xbee_err xbee_conRxWait(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
 /* - */
 EXPORT xbee_err xbee_conPurge(struct xbee_con *con);
 /* - */
@@ -275,71 +276,6 @@ EXPORT const char *xbee_errorToStr(xbee_err error);
 #ifdef __cplusplus
 
 } /* extern "C" */
-
-#include <vector>
-
-class libxbee {
-	private:
-		struct xbee *xbee;
-		std::vector<struct xbee_con *> connections;
-		
-		struct xbee_con *getCon(const unsigned int conId);
-	public:
-		libxbee(const char *mode, ...);
-		libxbee(const char *mode, va_list ap);
-		~libxbee();
-		
-		void attachEOFCallback(void (*eofCallback)(struct xbee *xbee, void *rxInfo));
-		
-		const char *mode(void);
-		
-		/* - */
-		
-		unsigned int conNew(const char *type);
-		unsigned int conNew(const char *type, struct xbee_conAddress *address);
-		
-		unsigned char conTx(const unsigned int conId, const char *format, ...);
-		unsigned char conTx(const unsigned int conId, const char *format, va_list ap);
-		unsigned char conTx(const unsigned int conId, const int len, const unsigned char *data);
-		
-		struct xbee_pkt *conRx(const unsigned int conId);
-		struct xbee_pkt *conRx(const unsigned int conId, int *remainingPackets);
-		
-		void conPurge(const unsigned int conId);
-		
-		enum xbee_conSleepStates conSleep(const unsigned int conId, enum xbee_conSleepStates state);
-		enum xbee_conSleepStates conSleep(const unsigned int conId);
-		
-		void *conData(const unsigned int conId);
-		void *conData(const unsigned int conId, void *newData);
-		
-		void conInfoGet(const unsigned int conId, struct xbee_conInfo *info);
-		
-		xbee_t_conCallback conCallbackSet(const unsigned int conId, xbee_t_conCallback newCallback);
-		xbee_t_conCallback conCallbackGet(const unsigned int conId);
-		
-		void conSettings(const unsigned int conId, struct xbee_conSettings *newSettings,struct xbee_conSettings *oldSettings);
-		
-		void conEnd(const unsigned int conId);
-		
-		/* - */
-		
-		void netStart(int port);
-		void netvStart(int fd);
-		void netStart(int port, int(*clientFilter)(struct xbee *xbee, const char *remoteHost));
-		void netvStart(int fd, int(*clientFilter)(struct xbee *xbee, const char *remoteHost));
-		
-		/* - */
-		
-		void logTargetSet(FILE *f);
-		FILE *logTargetGet(void);
-		void logLevelSet(int level);
-		int logLevelGet(void);
-		
-		void logDev(const char *file, int line, const char *function, int minLevel, const char *format, ...);
-};
-
-#define xbeep_log(xbee, ...) (xbee)->logDev(__FILE__,__LINE__,__FUNCTION__,__VA_ARGS__)
 
 #endif /* __cplusplus */
 

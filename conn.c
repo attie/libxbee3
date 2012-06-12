@@ -653,6 +653,21 @@ die:
 	
 	return ret;
 }
+EXPORT xbee_err xbee_conRxWait(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets) {
+	xbee_err ret;
+	int i;
+
+	ret = XBEE_EUNKNOWN;
+
+	/* 50ms * 20 = 1second */
+	for (i = 20; i > 0; i--) {
+		/* break on success, or any error other than XBEE_ENOTEXISTS (nothing to Rx) */
+		if ((ret = xbee_conRx(con, retPkt, remainingPackets)) != XBEE_ENOTEXISTS) break;
+		usleep(50000);
+	}
+
+	return ret;
+}
 
 /* ########################################################################## */
 
