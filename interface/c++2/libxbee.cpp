@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdarg.h>
 #include <iostream>
 
@@ -6,6 +7,23 @@
 /* ========================================================================== */
 
 std::list<libxbee::XBee*> libxbee::xbeeList;
+
+std::list<std::string> libxbee::getModes(void) {
+	xbee_err ret;
+	char **modes;
+	int i;
+	std::list<std::string> modeList;
+	
+	if ((ret = xbee_modeGetList(&modes)) != XBEE_ENONE) throw(ret);
+	for (i = 0; modes[i] != NULL; i++) {
+		modeList.push_back(std::string(modes[i]));
+	}
+	free(modes);
+	
+	return modeList;
+}
+
+/* ========================================================================== */
 
 libxbee::XBee::XBee(std::string mode) {
 	xbee_err ret;

@@ -43,6 +43,20 @@ int main(int argc, char *argv[]) {
 	int i;
 
 	try {
+		std::list<std::string> modes = libxbee::getModes();
+		std::list<std::string>::iterator i;
+		
+		std::cout << "Available libxbee modes:\n";
+		for (i = modes.begin(); i != modes.end(); i++) {
+			std::cout << "  " << *i;
+		}
+		std::cout << "\n";
+	} catch (xbee_err ret) {
+		std::cout << "Error while retrieving libxbee modes...\n";
+	}
+
+
+	try {
 
 		/* setup libxbee */
 		libxbee::XBee xbee("xbee1", "/dev/ttyUSB0", 57600);

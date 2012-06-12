@@ -15,6 +15,8 @@ namespace libxbee {
 	
 	extern std::list<XBee*> xbeeList;
 	
+	std::list<std::string> getModes(void);
+	
 	class XBee {
 		public:
 			explicit XBee(std::string mode);
