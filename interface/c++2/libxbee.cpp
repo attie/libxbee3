@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <iostream>
 
 #include "libxbee.h"
@@ -17,6 +18,13 @@ libxbee::XBee::XBee(std::string mode, std::string device, int baudrate) {
 	xbee_err ret;
 	
 	if ((ret = xbee_setup(&xbee, mode.c_str(), device.c_str(), baudrate)) != XBEE_ENONE) throw(ret);
+	
+	libxbee::xbeeList.push_back(this);
+}
+libxbee::XBee::XBee(std::string mode, va_list ap) {
+	xbee_err ret;
+	
+	if ((ret = xbee_vsetup(&xbee, mode.c_str(), ap)) != XBEE_ENONE) throw(ret);
 	
 	libxbee::xbeeList.push_back(this);
 }

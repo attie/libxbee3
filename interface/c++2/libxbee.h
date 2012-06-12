@@ -3,6 +3,8 @@
 
 #include <string>
 #include <list>
+#include <stdarg.h>
+
 #include <xbee.h>
 
 namespace libxbee {
@@ -17,6 +19,7 @@ namespace libxbee {
 		public:
 			explicit XBee(std::string mode);
 			explicit XBee(std::string mode, std::string device, int baudrate);
+			explicit XBee(std::string mode, va_list ap);
 			~XBee(void);
 			
 		private:
