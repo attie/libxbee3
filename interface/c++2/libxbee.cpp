@@ -212,6 +212,19 @@ enum xbee_conSleepStates libxbee::Con::getSleep(void) {
 	return state;
 }
 
+void libxbee::Con::getSettings(struct xbee_conSettings *settings) {
+	xbee_err ret;
+	if (settings == NULL) throw(XBEE_EINVAL);
+	
+	if ((ret = xbee_conSettings(con, NULL, settings)) != XBEE_ENONE) throw(ret);
+}
+void libxbee::Con::setSettings(struct xbee_conSettings *settings) {
+	xbee_err ret;
+	if (settings == NULL) throw(XBEE_EINVAL);
+	
+	if ((ret = xbee_conSettings(con, settings, NULL)) != XBEE_ENONE) throw(ret);
+}
+
 
 /* ========================================================================== */
 

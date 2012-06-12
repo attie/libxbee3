@@ -68,6 +68,9 @@ namespace libxbee {
 			void wake(void);
 			void setSleep(enum xbee_conSleepStates state);
 			enum xbee_conSleepStates getSleep(void);
+			
+			void getSettings(struct xbee_conSettings *settings);
+			void setSettings(struct xbee_conSettings *settings);
 	};
 	
 	class ConCallback: public Con {
