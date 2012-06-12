@@ -46,6 +46,7 @@ int main(int argc, char *argv[]) {
 
 		/* setup libxbee */
 		libxbee::XBee xbee("xbee1", "/dev/ttyUSB0", 57600);
+		std::cout << "Running libxbee in mode '" << xbee.mode() << "'\n";
 
 
 		/* make a connection */

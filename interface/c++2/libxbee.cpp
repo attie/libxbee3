@@ -46,6 +46,15 @@ libxbee::Con *libxbee::XBee::conLocate(struct xbee_con *con) {
 	return NULL;
 }
 
+std::string libxbee::XBee::mode(void) {
+	xbee_err ret;
+	const char *mode;
+	
+	if ((ret = xbee_modeGet(getHnd(), &mode)) != XBEE_ENONE) throw(ret);
+	
+	return std::string(mode);
+}
+
 /* ========================================================================== */
 
 libxbee::Con::Con(libxbee::XBee &parent, std::string type, struct xbee_conAddress *address) : parent(parent) {
