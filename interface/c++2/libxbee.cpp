@@ -157,6 +157,12 @@ void libxbee::Con::Rx(Pkt &pkt, int *remainingPackets) {
 	pkt.setHnd(raw_pkt);
 }
 
+void libxbee::Con::purge(void) {
+	xbee_err ret;
+	
+	if ((ret = xbee_conPurge(con)) != XBEE_ENONE) throw(ret);
+}
+
 void libxbee::Con::xbee_conCallback(libxbee::Pkt **pkt) { }
 void libxbee::Con::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	std::list<libxbee::XBee*>::iterator i;

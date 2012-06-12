@@ -60,6 +60,8 @@ namespace libxbee {
 			unsigned char Tx(std::string data);
 			unsigned char Tx(const unsigned char *buf, int len);
 			void Rx(Pkt &pkt, int *remainingPackets = NULL);
+			
+			void purge(void);
 	};
 	
 	class ConCallback: public Con {
