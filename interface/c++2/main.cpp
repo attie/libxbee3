@@ -14,6 +14,7 @@ class myConnection: public libxbee::ConCallback {
 	public:
 		explicit myConnection(libxbee::XBee &parent, std::string type, struct xbee_conAddress *address = NULL): libxbee::ConCallback(parent, type, address) {};
 		void xbee_conCallback(libxbee::Pkt **pkt);
+		std::string myData;
 };
 
 void myConnection::xbee_conCallback(libxbee::Pkt **pkt) {
@@ -23,6 +24,8 @@ void myConnection::xbee_conCallback(libxbee::Pkt **pkt) {
 		std::cout << (**pkt)[i];
 	}
 	std::cout << "\n";
+
+	std::cout << myData;
 
 	/* if you want to keep the packet, then you MUST do the following:
 	      libxbee::Pkt *myhandle = *pkt;
@@ -49,6 +52,7 @@ int main(int argc, char *argv[]) {
 #ifdef LOCAL_CONNECTION
   #ifdef USE_CALLBACKS
 		myConnection con(xbee, "Local AT"); /* with a callback */
+		con.myData = "Testing, 1... 2... 3...\n";
   #else
 		libxbee::Con con(xbee, "Local AT"); /* without a callback */
   #endif
@@ -66,6 +70,7 @@ int main(int argc, char *argv[]) {
 		addr.addr64[7] = 0xCB;
   #ifdef USE_CALLBACKS
 		myConnection con(xbee, "Remote AT", &addr); /* with a callback */
+		con.myData = "Testing, 1... 2... 3...\n";
   #else
 		libxbee::Con con(xbee, "Remote AT", &addr); /* without a callback */
   #endif
