@@ -43,7 +43,10 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)     \
                        $(addprefix $(MANDIR)/,$(SYS_MANPAGES))    \
                        $(addprefix $(HTMLDIR)/,$(SYS_HTMLPAGES))  \
                        xbee.h                                     \
-                       interface/c++/libxbee.cpp                  \
+                       interface/c++/xbeep.cpp                    \
+                       interface/c++/xbeep.h                      \
+                       interface/c++/libxbeep.o                   \
+                       interface/c++/libxbeep.so                  \
                        README HISTORY COPYING COPYING.LESSER
 
 CLEAN_FILES=           $(BUILDDIR)/*.o \
