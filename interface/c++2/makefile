@@ -1,51 +1,21 @@
-.PHONY: all clean new run
+#CROSS_COMPILE?=
 
-RUNARGS?=
+LIBDIR:=   ../..
+LIBDEPS:=  xbee.h
 
-BUILDDIR:=.build
+all: $(LIBDIR)/lib/libxbee.so libxbeep.so main
 
-SRCS:=$(wildcard *.c)
-OBJS:=$(addprefix $(BUILDDIR)/,$(SRCS:.c=.o))
-SRCSPP:=$(wildcard *.cpp)
-OBJSPP:=$(addprefix $(BUILDDIR)/,$(SRCSPP:.cpp=.o))
+main: main.cpp
+	$(CROSS_COMPILE)g++ $^ -o $@ -L. -L$(LIBDIR)/lib -lxbee -lxbeep -lpthread -lrt
 
-PLUGIN_SRCS:=$(wildcard plugins/*.c)
-PLUGIN_OBJS:=$(patsubst plugins/%,$(BUILDDIR)/plugin_%,$(PLUGIN_SRCS:.c=.o))
+libxbeep.so: libxbeep.o
+	$(CROSS_COMPILE)g++ -shared $^ -o $@ -L$(LIBDIR)/lib -lxbee -lpthread -lrt
 
-LIBS:=xbee rt pthread
-
-
-all: main
-
-clean:
-	rm -f $(BUILDDIR)/*.d $(BUILDDIR)/*.o
-
-new: clean
-	 @$(MAKE) --no-print-directory all
-
-run: main
-	./$^ $(RUNARGS)
+libxbeep.o: xbeep.cpp xbeep.h $(addprefix $(LIBDIR)/,$(LIBDEPS))
+	$(CROSS_COMPILE)g++ -I$(LIBDIR) $(filter %.cpp,$^) -c -o $@
 
 
-main: $(OBJS) $(OBJSPP) $(PLUGIN_OBJS)
-	g++ -g $(filter %.o,$^) -o $@ $(addprefix -l,$(LIBS))
+.PHONY: run
 
-
-$(OBJS): $(BUILDDIR)/%.o: %.c $(BUILDDIR)/%.d
-	gcc -g -c $(filter %.c,$^) -o $@
-$(OBJS:.o=.d): $(BUILDDIR)/%.d: %.c
-	gcc -MM -MT $(@:.d=.o) $(filter %.c,$^) -o $@
-
-$(OBJSPP): $(BUILDDIR)/%.o: %.cpp $(BUILDDIR)/%.d
-	g++ -g -c $(filter %.cpp,$^) -o $@
-$(OBJSPP:.o=.d): $(BUILDDIR)/%.d: %.cpp
-	g++ -MM -MT $(@:.d=.o) $(filter %.cpp,$^) -o $@
-
-
-$(PLUGIN_OBJS): $(BUILDDIR)/plugin_%.o: plugins/%.c $(BUILDDIR)/plugin_%.d
-	gcc -g -c $(filter %.c,$^) -o $@
-$(PLUGIN_OBJS:.o=.d): $(BUILDDIR)/plugin_%.d: plugins/%.c
-	gcc -MM -MT $(@:.d=.o) $(filter %.c,$^) -o $@
-
-
-include $(wildcard $(BUILDDIR)/*.d)
+run: main $(LIBDIR)/lib/libxbee.so libxbeep.so
+	LD_LIBRARY_PATH=$(LIBDIR)/lib:. ./main

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "libxbee.h"
+#include "xbeep.h"
 
 #define LOCAL_CONNECTION
 #define USE_CALLBACKS

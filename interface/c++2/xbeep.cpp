@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <iostream>
 
-#include "libxbee.h"
+#include "xbeep.h"
 
 /* ========================================================================== */
 
