@@ -45,7 +45,7 @@ namespace libxbee {
 			struct xbee *xbee;
 			struct xbee_con *con;
 			static void libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data);
-			virtual void xbee_conCallback(struct xbee_pkt **pkt, void **data);
+			virtual void xbee_conCallback(Pkt **pkt);
 			
 		public:
 			struct xbee_con *getHnd(void);
@@ -57,7 +57,7 @@ namespace libxbee {
 	class ConCallback: public Con {
 		private:
 			XBee &parent;
-			virtual void xbee_conCallback(struct xbee_pkt **pkt, void **data) = 0;
+			virtual void xbee_conCallback(Pkt **pkt) = 0;
 			
 		public:
 			explicit ConCallback(XBee &parent, std::string type, struct xbee_conAddress *address = NULL);

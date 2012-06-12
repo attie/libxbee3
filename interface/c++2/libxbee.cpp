@@ -105,14 +105,25 @@ void libxbee::Con::Rx(Pkt &pkt, int *remainingPackets) {
 	pkt.setHnd(raw_pkt);
 }
 
-void libxbee::Con::xbee_conCallback(struct xbee_pkt **pkt, void **data) { }
+void libxbee::Con::xbee_conCallback(libxbee::Pkt **pkt) { }
 void libxbee::Con::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	std::list<libxbee::XBee*>::iterator i;
 	for (i = libxbee::xbeeList.begin(); i != libxbee::xbeeList.end(); i++) {
 		if ((*i)->getHnd() == xbee) {
 			libxbee::Con *c;
 			if ((c = (*i)->conLocate(con)) == NULL) break;
-			c->xbee_conCallback(pkt, data);
+			
+			libxbee::Pkt *pktClass = new libxbee::Pkt(*pkt);
+			
+			c->xbee_conCallback(&pktClass);
+			
+			/* if they took the packet, then don't free/delete it */
+			if (pktClass != NULL) {
+				delete pktClass;
+			}
+			
+			/* either way, libxbee doesn't need to free it, it was free'd just now or its the user's responsibility... */
+			*pkt = NULL;
 			return;
 		}
 	}

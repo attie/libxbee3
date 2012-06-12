@@ -13,16 +13,24 @@
 class myConnection: public libxbee::ConCallback {
 	public:
 		explicit myConnection(libxbee::XBee &parent, std::string type, struct xbee_conAddress *address = NULL): libxbee::ConCallback(parent, type, address) {};
-		void xbee_conCallback(struct xbee_pkt **pkt, void **data);
+		void xbee_conCallback(libxbee::Pkt **pkt);
 };
 
-void myConnection::xbee_conCallback(struct xbee_pkt **pkt, void **data) {
+void myConnection::xbee_conCallback(libxbee::Pkt **pkt) {
 	std::cout << "Callback!!\n";
 	int i;
-	for (i = 0; i < (*pkt)->dataLen; i++) {
-		std::cout << (*pkt)->data[i];
+	for (i = 0; i < (*pkt)->size(); i++) {
+		std::cout << (**pkt)[i];
 	}
 	std::cout << "\n";
+
+	/* if you want to keep the packet, then you MUST do the following:
+	      libxbee::Pkt *myhandle = *pkt;
+	      *pkt = NULL;
+	   and then later, you MUST delete the packet to free up the memory:
+	      delete myhandle;
+
+	   if you do not want to keep the packet, then just leave everything as-is, and it will be free'd for you */
 }
 #endif /* USE_CALLBACKS */
 
