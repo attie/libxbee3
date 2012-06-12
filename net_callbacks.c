@@ -378,7 +378,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	int conIdentifier;
 	struct xbee_conSettings oldSettings;
 	struct xbee_con *iCon;
-	unsigned char buf[4];
+	unsigned char buf[5];
 	client = *data;
 	if (!client->started) return;
 	
@@ -397,18 +397,22 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	}
 	if (!iCon) goto err;
 	
-	if ((*pkt)->dataLen == 4) {
+	if ((*pkt)->dataLen == 5) {
 		struct xbee_conSettings newSettings;
 		
 		memset(&newSettings, 0, sizeof(newSettings));
-		if ((*pkt)->data[2] & 0x01) newSettings.disableAck = 1;
-		if ((*pkt)->data[2] & 0x02) newSettings.broadcast = 1;
+		if ((*pkt)->data[2] & 0x01) newSettings.noBlock = 1;
+		if ((*pkt)->data[2] & 0x02) newSettings.catchAll = 1;
 		if ((*pkt)->data[2] & 0x04) newSettings.queueChanges = 1;
-		if ((*pkt)->data[2] & 0x08) newSettings.multicast = 1;
-		if ((*pkt)->data[2] & 0x10) newSettings.noBlock = 1;
-		if ((*pkt)->data[2] & 0x20) newSettings.catchAll = 1;
-		if ((*pkt)->data[2] & 0x40) newSettings.noRoute = 1;
-		newSettings.broadcastRadius = (*pkt)->data[3];
+		if ((*pkt)->data[2] & 0x08) newSettings.disableAck = 1;
+		if ((*pkt)->data[2] & 0x10) newSettings.broadcast = 1;
+		if ((*pkt)->data[2] & 0x20) newSettings.multicast = 1;
+		if ((*pkt)->data[2] & 0x40) newSettings.disableRetries = 1;
+		if ((*pkt)->data[3] & 0x80) newSettings.enableEncryption = 1;
+		/* - */
+		if ((*pkt)->data[3] & 0x01) newSettings.extendTimeout = 1;
+		if ((*pkt)->data[3] & 0x02) newSettings.noRoute = 1;
+		newSettings.broadcastRadius = (*pkt)->data[4];
 		
 		ret = xbee_conSettings(iCon, &newSettings, &oldSettings);
 	} else {
@@ -424,14 +428,18 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	buf[0] = (*pkt)->frameId;
 	buf[1] = retVal;
 	buf[2] = 0;
-	if (iCon->settings.disableAck)   buf[2] |= 0x01;
-	if (iCon->settings.broadcast)    buf[2] |= 0x02;
-	if (iCon->settings.queueChanges) buf[2] |= 0x04;
-	if (iCon->settings.multicast)    buf[2] |= 0x08;
-	if (iCon->settings.noBlock)      buf[2] |= 0x10;
-	if (iCon->settings.catchAll)     buf[2] |= 0x20;
-	if (iCon->settings.noRoute)      buf[2] |= 0x40;
-	buf[3] = iCon->settings.broadcastRadius;
+	if (iCon->settings.noBlock)          buf[2] |= 0x01;
+	if (iCon->settings.catchAll)         buf[2] |= 0x02;
+	if (iCon->settings.queueChanges)     buf[2] |= 0x04;
+	if (iCon->settings.disableAck)       buf[2] |= 0x08;
+	if (iCon->settings.broadcast)        buf[2] |= 0x10;
+	if (iCon->settings.multicast)        buf[2] |= 0x20;
+	if (iCon->settings.disableRetries)   buf[2] |= 0x40;
+	if (iCon->settings.enableEncryption) buf[2] |= 0x80;
+	buf[3] = 0;
+	if (iCon->settings.extendTimeout)    buf[3] |= 0x01;
+	if (iCon->settings.noRoute)          buf[3] |= 0x02;
+	buf[4] = iCon->settings.broadcastRadius;
 	xbee_connTx(con, NULL, buf, sizeof(buf));
 	
 	return;
