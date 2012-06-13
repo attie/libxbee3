@@ -30,26 +30,26 @@ libxbee::XBee::XBee(std::string mode) {
 	
 	if ((ret = xbee_setup(&xbee, mode.c_str())) != XBEE_ENONE) throw(ret);
 	
-	libxbee::xbeeList.push_back(this);
+	xbeeList.push_back(this);
 }
 libxbee::XBee::XBee(std::string mode, std::string device, int baudrate) {
 	xbee_err ret;
 	
 	if ((ret = xbee_setup(&xbee, mode.c_str(), device.c_str(), baudrate)) != XBEE_ENONE) throw(ret);
 	
-	libxbee::xbeeList.push_back(this);
+	xbeeList.push_back(this);
 }
 libxbee::XBee::XBee(std::string mode, va_list ap) {
 	xbee_err ret;
 	
 	if ((ret = xbee_vsetup(&xbee, mode.c_str(), ap)) != XBEE_ENONE) throw(ret);
 	
-	libxbee::xbeeList.push_back(this);
+	xbeeList.push_back(this);
 }
 
 libxbee::XBee::~XBee(void) {
 	xbee_shutdown(xbee);
-	libxbee::xbeeList.remove(this);
+	xbeeList.remove(this);
 }
 
 struct xbee *libxbee::XBee::getHnd(void) {
@@ -65,7 +65,7 @@ void libxbee::XBee::conUnregister(Con *con) {
 	conList.remove(con);
 }
 libxbee::Con *libxbee::XBee::conLocate(struct xbee_con *con) {
-	std::list<libxbee::Con*>::iterator i;
+	std::list<Con*>::iterator i;
 	for (i = conList.begin(); i != conList.end(); i++) {
 		if ((*i)->getHnd() == con) return (*i);
 	}
@@ -117,7 +117,7 @@ int libxbee::XBee::getLogLevel(void) {
 
 /* ========================================================================== */
 
-libxbee::Con::Con(libxbee::XBee &parent, std::string type, struct xbee_conAddress *address) : parent(parent) {
+libxbee::Con::Con(XBee &parent, std::string type, struct xbee_conAddress *address) : parent(parent) {
 	xbee_err ret;
 	
 	if ((xbee = parent.getHnd()) == NULL) throw(XBEE_EINVAL);
@@ -139,15 +139,15 @@ libxbee::Con::~Con(void) {
 	xbee_conEnd(con);
 }
 
-void libxbee::Con::xbee_conCallback(libxbee::Pkt **pkt) { }
+void libxbee::Con::xbee_conCallback(Pkt **pkt) { }
 void libxbee::Con::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	std::list<libxbee::XBee*>::iterator i;
-	for (i = libxbee::xbeeList.begin(); i != libxbee::xbeeList.end(); i++) {
+	std::list<XBee*>::iterator i;
+	for (i = xbeeList.begin(); i != xbeeList.end(); i++) {
 		if ((*i)->getHnd() == xbee) {
-			libxbee::Con *c;
+			Con *c;
 			if ((c = (*i)->conLocate(con)) == NULL) break;
 			
-			libxbee::Pkt *pktClass = new libxbee::Pkt(*pkt);
+			Pkt *pktClass = new Pkt(*pkt);
 			
 			c->xbee_conCallback(&pktClass);
 			
@@ -250,7 +250,7 @@ void libxbee::Con::setSettings(struct xbee_conSettings *settings) {
 libxbee::ConCallback::ConCallback(XBee &parent, std::string type, struct xbee_conAddress *address) : parent(parent), Con(parent, type, address) {
 	xbee_err ret;
 	
-	if ((ret = xbee_conCallbackSet(this->getHnd(), libxbee::Con::libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
+	if ((ret = xbee_conCallbackSet(this->getHnd(), Con::libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
 }
 
 /* ========================================================================== */
