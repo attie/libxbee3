@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "xsys.h"
+#include "xbee.h"
 #include "xbeep.h"
 
 /* ========================================================================== */
