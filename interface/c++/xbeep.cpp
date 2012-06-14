@@ -247,7 +247,7 @@ void libxbee::Con::setSettings(struct xbee_conSettings *settings) {
 
 /* ========================================================================== */
 
-libxbee::ConCallback::ConCallback(XBee &parent, std::string type, struct xbee_conAddress *address) : parent(parent), Con(parent, type, address) {
+libxbee::ConCallback::ConCallback(XBee &parent, std::string type, struct xbee_conAddress *address) : Con(parent, type, address), parent(parent) {
 	xbee_err ret;
 	
 	if ((ret = xbee_conCallbackSet(this->getHnd(), Con::libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
