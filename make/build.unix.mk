@@ -51,7 +51,7 @@ $(BUILDDIR)/modes_%.d: .$(BUILDDIR).dir modes/%.c
 
 ###
 # these objects require special treatment
-$(BUILDDIR)/ver.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
+$(BUILDDIR)/ver.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d make/libconfig.mk
 	$(GCC) $(CFLAGS) $(VER_DEFINES) $*.c -c -o $@
 $(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
 	$(GCC) $(CFLAGS) -DMODELIST='$(addsuffix $(COMMA),$(addprefix &mode_,$(MODELIST))) NULL' $*.c -c -o $@
