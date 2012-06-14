@@ -1,25 +1,29 @@
 ### build rules follow... ###
 
 # generate the symlinks (libxbee.so -> libxbee.so.x.x.x)
-$(DESTDIR)/$(LIBNAME).a $(DESTDIR)/$(LIBNAME).so: $(DESTDIR)/$(LIBNAME).%: $(DESTDIR)/$(LIBNAME).%.$(LIBFULLREV)
+$(addprefix $(DESTDIR)/$(LIBNAME),.a .so p.a p.so): $(DESTDIR)/$(LIBNAME)%: $(DESTDIR)/$(LIBNAME)%.$(LIBFULLREV)
 	$(SYMLINK) -fs `basename $^` $@
 
 # generate the shared object & debug file
-$(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME).o
-	$(GCC) -shared -Wl,-soname,$(LIBNAME).so.$(LIBFULLREV) $(CLINKS) $(filter %.o,$^) -o $@
+$(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
+	$(GCC) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(CLINKS) $(filter %.o,$^) -o $@
 	$(OBJCOPY) --only-keep-debug $@ $@.dbg
 	$(OBJCOPY) --add-gnu-debuglink=$@.dbg $@
 	$(OBJCOPY) --strip-debug $@
 
 # generate the static library
-$(DESTDIR)/$(LIBNAME).a.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME).o
+$(addsuffix .$(LIBFULLREV),$(addprefix $(DESTDIR)/$(LIBNAME),.a p.a)): $(DESTDIR)/$(LIBNAME)%.a.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
 	$(AR) rcs $@ $(filter %.o,$^)
 
 # generate the 'libxbee' object file
 $(DESTDIR)/$(LIBNAME).o: .$(DESTDIR).dir $(addprefix $(BUILDDIR)/,__core.o __mode.o $(foreach mode,$(MODELIST),__mode_$(mode).o))
 	$(LD) -r -o $@ $(filter %.o,$^)
 
+$(DESTDIR)/$(LIBNAME)p.o: .$(DESTDIR).dir $(BUILDDIR)/__corep.o
+	$(LD) -r -o $@ $(filter %.o,$^)
+
 $(BUILDDIR)/__core.o: $(CORE_OBJS)
+$(BUILDDIR)/__corep.o: $(CORE_OBJSP)
 $(BUILDDIR)/__mode.o: $(MODE_OBJS)
 $(BUILDDIR)/__%.o:
 	$(LD) -r -o $@ $(filter %.o,$^)
@@ -53,7 +57,13 @@ $(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
 	$(GCC) $(CFLAGS) -DMODELIST='$(addsuffix $(COMMA),$(addprefix &mode_,$(MODELIST))) NULL' $*.c -c -o $@
 #####
 
-# build a core object & dep file
+# build C++ object & dep files
+$(CORE_OBJSP): $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
+	$(CXX) $(CPPFLAGS) $*.cpp -c -o $@
+$(BUILDDIR)/%.d: .$(BUILDDIR).dir %.cpp
+	$(CXX) -MM -MT $(@:.d=.o) $(filter %.cpp,$^) -o $@
+
+# build a core object & dep files
 $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
 	$(GCC) $(CFLAGS) $*.c -c -o $@
 $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.c

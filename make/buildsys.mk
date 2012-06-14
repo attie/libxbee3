@@ -28,6 +28,7 @@ config.mk:| $(DEFCONFIG)
 
 ### generate a list of the core sources (excluding xsys_*)
 CORE_SRCS:=$(filter-out xsys_%.c,$(wildcard *.c))
+CORE_SRCSP:=$(filter-out xsys_%.cpp,$(wildcard *.cpp))
 
 ### generate a list of the mode-core sources
 MODE_SRCS:=$(wildcard modes/*.c)
@@ -63,6 +64,7 @@ endif
 
 ### generate required object lists
 CORE_OBJS:=$(addprefix $(BUILDDIR)/,$(CORE_SRCS:.c=$(OBJEXT)))
+CORE_OBJSP:=$(addprefix $(BUILDDIR)/,$(CORE_SRCSP:.cpp=$(OBJEXT)))
 MODE_OBJS:=$(addprefix $(BUILDDIR)/,$(subst /,_,$(MODE_SRCS:.c=$(OBJEXT))))
 MODE_MODE_OBJS:=
 define mode_objs
@@ -73,11 +75,12 @@ $(foreach mode,$(MODELIST),$(eval $(call mode_objs,$(mode))))
 
 ### make the dep files precious
 .PRECIOUS: $(CORE_OBJS:$(OBJEXT)=$(DEPEXT))
+.PRECIOUS: $(CORE_OBJSP:$(OBJEXT)=$(DEPEXT))
 .PRECIOUS: $(MODE_OBJS:$(OBJEXT)=$(DEPEXT))
 .PRECIOUS: $(MODE_MODE_OBJS:$(OBJEXT)=$(DEPEXT))
 
 ### make all of the objects depend on the config file
-$(CORE_OBJS) $(MODE_OBJS) $(MODE_MODE_OBJS): config.mk
+$(CORE_OBJS) $(CORE_OBJSP) $(MODE_OBJS) $(MODE_MODE_OBJS): config.mk
 
 ### reset the default goal
 .DEFAULT_GOAL:=
