@@ -1,4 +1,4 @@
-v3.0.7 - in progress
+v3.0.7 - 14 Jun 2012
 	* Fixed initialization of frame mutexes
 	* Abstracted serial I/O further for Win32 port
 	* General tidy of codebase
