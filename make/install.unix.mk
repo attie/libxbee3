@@ -1,12 +1,12 @@
 ### install rules follow... ###
 
-$(SYS_LIBDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg: $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg
+$(SYS_LIBDIR)/%.so.$(LIBFULLREV).dbg: $(DESTDIR)/%.so.$(LIBFULLREV).dbg
 	$(INSTALL) -m 755 $^ $@
 
-$(SYS_LIBDIR)/$(LIBNAME).%.$(LIBFULLREV): $(DESTDIR)/$(LIBNAME).%.$(LIBFULLREV)
+$(SYS_LIBDIR)/$(LIBNAME)%.$(LIBFULLREV): $(DESTDIR)/$(LIBNAME)%.$(LIBFULLREV)
 	$(INSTALL) -m 755 $^ $@
 
-$(SYS_LIBDIR)/$(LIBNAME).%: $(SYS_LIBDIR)/$(LIBNAME).%.$(LIBFULLREV)
+$(SYS_LIBDIR)/$(LIBNAME)%: $(SYS_LIBDIR)/$(LIBNAME)%.$(LIBFULLREV)
 	$(SYMLINK) -fs $(shell basename $^) $@
 
 $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)): $(SYS_INCDIR)/%: %
