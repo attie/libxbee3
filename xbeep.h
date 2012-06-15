@@ -5,7 +5,9 @@
 #include <list>
 #include <stdarg.h>
 
+#ifndef __XBEE_H
 #include <xbee.h>
+#endif
 
 namespace libxbee {
 	class XBee;
