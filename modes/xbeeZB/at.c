@@ -160,8 +160,8 @@ struct xbee_modeConType xbee_sZB_localAt = {
 	.allowFrameId = 1,
 	.useTimeout = 1,
 	.timeout = {
-		.tv_sec = 0,
-		.tv_nsec = 250000000,
+		.tv_sec = 1,
+		.tv_nsec = 0,
 	},
 	.addressRules = ADDR_NONE,
 	.rxHandler = &xbee_sZB_localAt_rx,
@@ -183,8 +183,8 @@ struct xbee_modeConType xbee_sZB_remoteAt = {
 	.allowFrameId = 1,
 	.useTimeout = 1,
 	.timeout = {
-		.tv_sec = 0,
-		.tv_nsec = 750000000,
+		.tv_sec = 5,
+		.tv_nsec = 0,
 	},
 	.addressRules = ADDR_64_16OPT_NOEP,
 	.rxHandler = &xbee_sZB_remoteAt_rx,
