@@ -334,14 +334,16 @@ xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *a
 		/* skip ending connections */
 		if (con->ending) continue;
 		
+		/* next see if the connection and can be woken */
+		if (con->sleepState > alertLevel) continue; /* this connection is outside the 'acceptable wake limit' */
+		
 		/* keep track of the latest catch-all */
 		if (con->settings.catchAll) cCon = con;
 		
 		/* try to match the address */
 		if (xbee_conAddressCmp(&con->address, address) != XBEE_ENONE) continue;
 		
-		/* next see if the connection needs (and can be) woken */
-		if (con->sleepState > alertLevel) continue; /* this connection is outside the 'acceptable wake limit' */
+		/* is the connection dozing? */
 		if (con->sleepState != CON_AWAKE) {
 			/* this is designed to get the most recently created sleeping connection, NOT THE FIRST FOUND */
 			sCon = con;
