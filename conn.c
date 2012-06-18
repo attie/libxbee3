@@ -135,7 +135,8 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 		
 		if ((ret = _xbee_conLocate(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS && 
 		     ret != XBEE_ESLEEPING &&
-		     ret != XBEE_ECATCHALL) {
+		     ret != XBEE_ECATCHALL &&
+		     ret != XBEE_EMATCHLAST) {
 			if (ret == XBEE_ENONE) {
 				ret = XBEE_EEXISTS;
 			}
@@ -320,14 +321,16 @@ got4:
 
 xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	struct xbee_con *con;
-	struct xbee_con *sCon;
-	struct xbee_con *cCon;
+	struct xbee_con *sCon; /* <-- Sleeping connection */
+	struct xbee_con *cCon; /* <-- 'catchAll' */
+	struct xbee_con *lCon; /* <-- 'matchLast' */
 	xbee_err ret;
 	
 	if (!conList || !address) return XBEE_EMISSINGPARAM;
 	
 	sCon = NULL;
 	cCon = NULL;
+	lCon = NULL;
 	
 	if (needsLLLock) xbee_ll_lock(conList);
 	for (con = NULL; (ret = _xbee_ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
@@ -349,6 +352,14 @@ xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *a
 			sCon = con;
 			continue;
 		}
+		
+		/* is the connection a 'matchLast'? */
+		if (con->settings.matchLast) {
+			lCon = con;
+			continue;
+		}
+		
+		/* found a willing participant! */
 		break;
 	}
 	if (needsLLLock) xbee_ll_unlock(conList);
@@ -358,6 +369,9 @@ xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *a
 		if (sCon) {
 			con = sCon;
 			ret = XBEE_ESLEEPING;
+		} else if (lCon) {
+			con = lCon;
+			ret = XBEE_EMATCHLAST;
 		} else if (cCon) {
 			con = cCon;
 			ret = XBEE_ECATCHALL;

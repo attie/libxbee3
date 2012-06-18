@@ -182,7 +182,8 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		/* match the address to a connection */
 		if (((ret = xbee_conLocate(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE &&
 		      ret != XBEE_ESLEEPING &&
-		      ret != XBEE_ECATCHALL) ||
+		      ret != XBEE_ECATCHALL &&
+		      ret != XBEE_EMATCHLAST) ||
 		    !con) {
 			xbee_pktFree(pkt);
 			if (ret == XBEE_ENOTEXISTS) {

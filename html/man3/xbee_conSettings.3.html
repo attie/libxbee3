@@ -20,13 +20,28 @@ xbee_conSettings
 <P>
 <PRE>
 struct xbee_conSettings {
-        unsigned char disableAck       : 1;
-        unsigned char broadcast        : 1;
-        unsigned char queueChanges     : 1;
-        unsigned char multicast        : 1;
-        unsigned char noBlock          : 1;
-        unsigned char catchAll         : 1;
-        unsigned char noRoute          : 1;
+        /* libxbee options: */
+        unsigned char noBlock;
+        unsigned char catchAll;
+        unsigned char matchLast;
+        
+        /* generic options: */
+        unsigned char queueChanges; /* for AT connections */
+        unsigned char disableAck;   /* specific options for XBee 1 / causes use of FrameID 0x00 for others */
+        unsigned char broadcast;
+        
+        /* XBee 2 / ZNet options: */
+        unsigned char multicast;
+        
+        /* XBee ZigBee options: */
+        unsigned char disableRetries;
+        unsigned char enableEncryption;
+        unsigned char extendTimeout;
+        
+        /* XBee 5 options: */
+        unsigned char noRoute;
+
+        /* other */
         unsigned char broadcastRadius;
 };
 </PRE>
@@ -115,6 +130,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 22:03:18 GMT, May 31, 2012
+Time: 20:58:34 GMT, June 18, 2012
 </BODY>
 </HTML>

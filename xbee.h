@@ -97,6 +97,7 @@ struct xbee_conSettings {
 	/* libxbee options: */
 	unsigned char noBlock          : 1;
 	unsigned char catchAll         : 1;
+	unsigned char matchLast        : 1;
 	
 	/* generic options: */
 	unsigned char queueChanges     : 1; /* for AT connections */
@@ -181,6 +182,7 @@ enum xbee_errors {
 	
 	XBEE_ESLEEPING             = -27,
 	XBEE_ECATCHALL             = -28,
+	XBEE_EMATCHLAST            = -29,
 };
 typedef enum xbee_errors xbee_err;
 
