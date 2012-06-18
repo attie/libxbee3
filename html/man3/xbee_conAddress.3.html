@@ -17,19 +17,24 @@ xbee_conAddress
 
 struct xbee_conAddress {
         unsigned char addr16_enabled;
+        unsigned char addr16_wildcard;
         unsigned char addr16[2];
         
         unsigned char addr64_enabled;
+        unsigned char addr64_wildcard;
         unsigned char addr64[8];
         
         unsigned char endpoints_enabled;
+        unsigned char endpoints_wildcard;
         unsigned char endpoint_local;
         unsigned char endpoint_remote;
 
         unsigned char cluster_enabled;
+        unsigned char cluster_wildcard;
         unsigned short cluster_id;
 
         unsigned char profile_enabled;
+        unsigned char profile_wildcard;
         unsigned short profile_id;
 };
 </PRE>
@@ -67,7 +72,18 @@ address.addr64[7] = 0x26;
 
 
 <P>
-Endpoints are a feature of XBee Series 2 modules that are not present with XBee Series 1 modules.
+Endpoints are a feature of XBee Series 2 ZNet and ZigBee modules that are not present with XBee Series 1 modules.
+<P>
+The if both
+<B>enable</B> and <B>wildcard</B>
+
+flags are set for a class of address, then it will match with any compared address. This is not designed for use as a catch-all mechanism.
+Instead, you should use the
+<B>catchAll</B>
+
+flag (see
+<B><A HREF="../man3/xbee_conSettings.3.html">xbee_conSettings</A></B>(3)).
+
 <A NAME="lbAE">&nbsp;</A>
 <H2>AUTHOR</H2>
 
@@ -96,6 +112,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 14:40:24 GMT, May 09, 2012
+Time: 19:47:32 GMT, June 18, 2012
 </BODY>
 </HTML>

@@ -24,19 +24,24 @@ xbee_conAddress
 
 struct xbee_conAddress {
 	unsigned char addr16_enabled;
+	unsigned char addr16_wildcard;
 	unsigned char addr16[2];
 	
 	unsigned char addr64_enabled;
+	unsigned char addr64_wildcard;
 	unsigned char addr64[8];
 	
 	unsigned char endpoints_enabled;
+	unsigned char endpoints_wildcard;
 	unsigned char endpoint_local;
 	unsigned char endpoint_remote;
 
 	unsigned char cluster_enabled;
+	unsigned char cluster_wildcard;
 	unsigned short cluster_id;
 
 	unsigned char profile_enabled;
+	unsigned char profile_wildcard;
 	unsigned short profile_id;
 };
 .fi
@@ -67,7 +72,15 @@ address.addr64[7] = 0x26;
 .fi
 .in
 .sp
-Endpoints are a feature of XBee Series 2 modules that are not present with XBee Series 1 modules.
+Endpoints are a feature of XBee Series 2 ZNet and ZigBee modules that are not present with XBee Series 1 modules.
+.sp
+The if both
+.BR enable " and " wildcard
+flags are set for a class of address, then it will match with any compared address. This is not designed for use as a catch-all mechanism.
+Instead, you should use the
+.BR catchAll
+flag (see
+.BR xbee_conSettings (3)).
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"

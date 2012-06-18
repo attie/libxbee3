@@ -178,29 +178,49 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 	if (!address) return XBEE_EINVAL;
 	xbee_log(minLogLevel, "address @ %p...", address);
 	if (address->addr16_enabled) {
-		xbee_log(minLogLevel, "   16-bit address:  0x%02X%02X", address->addr16[0], address->addr16[1]);
+		if (address->addr16_wildcard) {
+			xbee_log(minLogLevel, "   16-bit address:  *");
+		} else {
+			xbee_log(minLogLevel, "   16-bit address:  0x%02X%02X", address->addr16[0], address->addr16[1]);
+		}
 	} else {
 		xbee_log(minLogLevel, "   16-bit address:  --");
 	}
 	if (address->addr64_enabled) {
-		xbee_log(minLogLevel, "   64-bit address:  0x%02X%02X%02X%02X 0x%02X%02X%02X%02X",
-		                      address->addr64[0], address->addr64[1], address->addr64[2], address->addr64[3],
-		                      address->addr64[4], address->addr64[5], address->addr64[6], address->addr64[7]);
+		if (address->addr64_wildcard) {
+			xbee_log(minLogLevel, "   64-bit address:  *");
+		} else {
+			xbee_log(minLogLevel, "   64-bit address:  0x%02X%02X%02X%02X 0x%02X%02X%02X%02X",
+			                    address->addr64[0], address->addr64[1], address->addr64[2], address->addr64[3],
+			                    address->addr64[4], address->addr64[5], address->addr64[6], address->addr64[7]);
+		}
 	} else {
 		xbee_log(minLogLevel, "   64-bit address:  --");
 	}
 	if (address->endpoints_enabled) {
-		xbee_log(minLogLevel, "   endpoints:       local(0x%02X) remote(0x%02X)", address->endpoint_local, address->endpoint_remote);
+		if (address->endpoints_wildcard) {
+			xbee_log(minLogLevel, "   endpoints:       *");
+		} else {
+			xbee_log(minLogLevel, "   endpoints:       local(0x%02X) remote(0x%02X)", address->endpoint_local, address->endpoint_remote);
+		}
 	} else {
 		xbee_log(minLogLevel, "   endpoints:       --");
 	}
 	if (address->profile_enabled) {
-		xbee_log(minLogLevel, "   profile ID:      0x%04X", address->profile_id);
+		if (address->profile_wildcard) {
+			xbee_log(minLogLevel, "   profile ID:      *");
+		} else {
+			xbee_log(minLogLevel, "   profile ID:      0x%04X", address->profile_id);
+		}
 	} else {
 		xbee_log(minLogLevel, "   profile ID:      ----");
 	}
 	if (address->cluster_enabled) {
-		xbee_log(minLogLevel, "   cluster ID:      0x%04X", address->cluster_id);
+		if (address->cluster_wildcard) {
+			xbee_log(minLogLevel, "   cluster ID:      *");
+		} else {
+			xbee_log(minLogLevel, "   cluster ID:      0x%04X", address->cluster_id);
+		}
 	} else {
 		xbee_log(minLogLevel, "   cluster ID:      ----");
 	}
@@ -208,14 +228,27 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 }
 
 xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2) {
-	/* first try to match the address */
+	/** first try to match the address **/
+	/* check for any wildcards */
+	if ((addr1->addr64_enabled && addr1->addr64_wildcard) ||
+	    (addr2->addr64_enabled && addr2->addr64_wildcard)) {
+		goto got0;
+	}
+	/* no 16/64 bit addresses */
 	if (!addr1->addr16_enabled && !addr2->addr16_enabled &&
 			!addr1->addr64_enabled && !addr2->addr64_enabled) {
 		goto got1;
 	}
+	/* both have 64 bit addresses (over rules 16bit addressed) */
 	if (addr1->addr64_enabled && addr2->addr64_enabled) {
 		if (!memcmp(addr1->addr64, addr2->addr64, 8)) goto got1;
 	}
+got0: /* <-- just a midpoint for wildcards */
+	if ((addr1->addr16_enabled && addr1->addr16_wildcard) ||
+	    (addr2->addr16_enabled && addr2->addr16_wildcard)) {
+		goto got1;
+	}
+	/* both have 16 bit addresses */
 	if (addr1->addr16_enabled && addr2->addr16_enabled) {
 		if (!memcmp(addr1->addr16, addr2->addr16, 2)) goto got1;
 	}
@@ -223,8 +256,15 @@ xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddres
 	return XBEE_EFAILED; /* --- no address match --- */
 	
 got1:
-	/* next try to match the endpoints */
+	/** next try to match the endpoints **/
+	/* check for any wildcards */
+	if ((addr1->endpoints_enabled && addr1->endpoints_wildcard) ||
+	    (addr2->endpoints_enabled && addr2->endpoints_wildcard)) {
+		goto got2;
+	}
+	/* no endpoints */
 	if (!addr1->endpoints_enabled && !addr2->endpoints_enabled) goto got2;
+	/* both have endpoints */
 	if (addr1->endpoints_enabled && addr2->endpoints_enabled) {
 		if (addr1->endpoint_local == addr2->endpoint_local) goto got2;
 #warning TODO - handle broadcast endpoint, but probably not here...
@@ -233,10 +273,18 @@ got1:
 	return XBEE_EFAILED; /* --- endpoints didn't match --- */
 	
 got2:
-	/* try to match the profile id */
+	/** try to match the profile id **/
+	/* check for any wildcards */
+	if ((addr1->profile_enabled && addr1->profile_wildcard) ||
+	    (addr2->profile_enabled && addr2->profile_wildcard)) {
+		goto got3;
+	}
+	/* no profile IDs */
 	if (!addr1->profile_enabled && !addr2->profile_enabled) goto got3;
+	/* both have profile IDs */
 	if (addr1->profile_enabled && addr2->profile_enabled) {
 		if (addr1->profile_id == addr2->profile_id) goto got3;
+	/* if only one has a profile ID, then is it using the default profile? */
 	} else if (addr1->profile_enabled) {
 		if (addr1->profile_id == 0xC105) goto got3;
 	} else if (addr2->profile_enabled) {
@@ -246,10 +294,18 @@ got2:
 	return XBEE_EFAILED; /* --- profile id didn't match / isn't the default (0xC105) */
 	
 got3:
-	/* try to match cluster id */
+	/** try to match cluster id **/
+	/* check for any wildcards */
+	if ((addr1->cluster_enabled && addr1->cluster_wildcard) ||
+	    (addr2->cluster_enabled && addr2->cluster_wildcard)) {
+		goto got4;
+	}
+	/* no cluster IDs */
 	if (!addr1->cluster_enabled && !addr2->cluster_enabled) goto got4;
+	/* both have cluster IDs */
 	if (addr1->cluster_enabled && addr2->cluster_enabled) {
 		if (addr1->cluster_id == addr2->cluster_id) goto got4;
+	/* if only one has a cluster ID, then is it using the default cluster? */
 	} else if (addr1->cluster_enabled) {
 		if (addr1->cluster_id == 0x0011) goto got4;
 	} else if (addr2->cluster_enabled) {

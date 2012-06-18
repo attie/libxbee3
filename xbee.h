@@ -65,19 +65,24 @@ enum xbee_conSleepStates {
 
 struct xbee_conAddress {
 	unsigned char addr16_enabled;
+	unsigned char addr16_wildcard;
 	unsigned char addr16[2];
 	
 	unsigned char addr64_enabled;
+	unsigned char addr64_wildcard;
 	unsigned char addr64[8];
 	
 	unsigned char endpoints_enabled;
+	unsigned char endpoints_wildcard;
 	unsigned char endpoint_local;
 	unsigned char endpoint_remote;
 	
 	unsigned char profile_enabled;
+	unsigned char profile_wildcard;
 	unsigned short profile_id;
 	
 	unsigned char cluster_enabled;
+	unsigned char cluster_wildcard;
 	unsigned short cluster_id;
 };
 
