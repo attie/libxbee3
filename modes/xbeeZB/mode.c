@@ -38,6 +38,7 @@
 #include "sensor.h"
 #include "identify.h"
 #include "ota.h"
+#include "zdo.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
 static xbee_err mode_shutdown(struct xbee *xbee);
@@ -66,6 +67,8 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	if ((ret = xsys_serialSetup(&data->serialInfo)) != XBEE_ENONE) goto die;
 	
+	if ((ret = xbee_sZB_zdo_init(xbee)) != XBEE_ENONE) goto die;
+	
 	return XBEE_ENONE;
 die:
 	mode_shutdown(xbee);
@@ -79,6 +82,8 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 	if (!xbee->mode || !xbee->modeData) return XBEE_EINVAL;
 	
 	data = xbee->modeData;
+	
+	xbee_sZB_zdo_shutdown(xbee);
 	
 	xsys_serialShutdown(&data->serialInfo);
 	if (data->serialInfo.device) free(data->serialInfo.device);

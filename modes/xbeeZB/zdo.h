@@ -1,5 +1,5 @@
-#ifndef __XBEE_MODE_MODE_H
-#define __XBEE_MODE_MODE_H
+#ifndef __XBEE_MODE_ZDO_H
+#define __XBEE_MODE_ZDO_H
 
 /*
 	libxbee - a C library to aid the use of Digi's XBee wireless modules
@@ -21,10 +21,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-struct xbee_modeData {
-	struct xbee_serialInfo serialInfo; /* keep serialInfo first, otherwise xbee_xbeeRxIo() and xbee_xbeeTxIo() will break */
-	struct xbee_zdoData *zdoData;
+struct xbee_zdoData {
+	struct xbee_con *con;
 };
 
-#endif /* __XBEE_MODE_MODE_H */
+xbee_err xbee_sZB_zdo_init(struct xbee *xbee);
+void xbee_sZB_zdo_shutdown(struct xbee *xbee);
+
+#endif /* __XBEE_MODE_ZDO_H */
 
