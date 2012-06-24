@@ -1,6 +1,10 @@
 #ifndef __XBEE_CPP_H
 #define __XBEE_CPP_H
 
+#ifndef __cplusplus
+#warning This header file is intended for use with C++
+#else
+
 #include <string>
 #include <list>
 #include <stdarg.h>
@@ -115,5 +119,7 @@ namespace libxbee {
 			EXPORT bool getDigital(int channel, int index);
 	};
 };
+
+#endif /* __cplusplus */
 
 #endif /* __XBEE_CPP_H */
