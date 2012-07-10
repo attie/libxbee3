@@ -101,7 +101,7 @@ xbee_err xbee_s5_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigne
 			if (ioMask & mask) {
 				if (len < 2) return XBEE_ELENGTH;
 				
-				if (xbee_pktAnalogAdd(pkt, channel, ((data[0] << 8) & 0x3F) | (data[1] & 0xFF))) {
+				if (xbee_pktAnalogAdd(pkt, channel, ((data[0] << 8) & 0x3F00) | (data[1] & 0xFF))) {
 					xbee_log(1,"Failed to add analog sample information to packet (channel A%d)", channel);
 				}
 				data += 2; len -= 2;
