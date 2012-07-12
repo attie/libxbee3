@@ -230,15 +230,15 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 
 xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2) {
 	/** first try to match the address **/
+	/* no 16/64 bit addresses */
+	if (!addr1->addr16_enabled && !addr2->addr16_enabled &&
+	    !addr1->addr64_enabled && !addr2->addr64_enabled) {
+		goto got1;
+	}
 	/* check for any wildcards */
 	if ((addr1->addr64_enabled && addr1->addr64_wildcard) ||
 	    (addr2->addr64_enabled && addr2->addr64_wildcard)) {
 		goto got0;
-	}
-	/* no 16/64 bit addresses */
-	if (!addr1->addr16_enabled && !addr2->addr16_enabled &&
-			!addr1->addr64_enabled && !addr2->addr64_enabled) {
-		goto got1;
 	}
 	/* both have 64 bit addresses (over rules 16bit addressed) */
 	if (addr1->addr64_enabled && addr2->addr64_enabled) {
