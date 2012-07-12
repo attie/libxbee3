@@ -14,7 +14,7 @@ include make/os.windows.mk
 
 # detect error
 else
-$(error Unknown OS, please see make/os_detect.mk)
+$(error Unknown OS ($(shell uname)), please see make/os_detect.mk)
 endif
 
 # some twisting
