@@ -17,7 +17,7 @@ clean:
 ifneq ($(CLEAN_FILES),)
 	$(RM) $(CLEAN_FILES)
 endif
-  
+
 distclean: clean
 	$(RM) $(patsubst %,.%.dir,$(CONSTRUCTIONDIRS))
 	$(RMDIR) $(CONSTRUCTIONDIRS)
