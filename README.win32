@@ -1,0 +1,11 @@
+To build and use libxbee for Windows, you will require the following software installed:
+  * Windows Vista, or Windows 7
+  * Visual C++ 2008 (or up)
+  * GnuWin Make
+  * Cygwin
+  * TortoiseGit
+  * msysgit
+
+You may need to do some of the following:
+	* Add "C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE" to your PATH
+
