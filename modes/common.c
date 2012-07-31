@@ -138,7 +138,7 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 	struct xbee_serialInfo *data;
 	
 	unsigned char c;
-	unsigned char chksum;
+	unsigned char chksumo, chksum;
 	int t;
 	xbee_err ret;
 	
@@ -154,7 +154,9 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		/* get the start delimiter (0x7E) */
 		do {
 			if ((ret = escaped_read(data, 1, &c, 0)) != XBEE_ENONE) return ret;
-			if (c != 0x7E) ESCAPER_PRINTF("======= pre-start data: 0x%02X =======\n", c);
+			if (c != 0x7E) {
+				xbee_log(200, "fluff between packets: 0x%02X\n", c);
+			}
 		} while (c != 0x7E);
 		ESCAPER_PRINTF("======= packet start =======\n");
 		
@@ -171,14 +173,15 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		if ((ret = escaped_read(data, iBuf->len, iBuf->data, 1)) != XBEE_ENONE) return ret;
 		
 		/* get the checksum */
-		if ((ret = escaped_read(data, 1, &chksum, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, 1, &chksumo, 1)) != XBEE_ENONE) return ret;
+		chksum = chksumo;
 		
 		/* check the checksum */
 		for (t = 0; t < iBuf->len; t++) {
 			chksum += iBuf->data[t];
 		}
 		if ((chksum & 0xFF) != 0xFF) {
-			xbee_log(1, "INVALID CHECKSUM... data loss has occured (packet length: %d)", iBuf->len);
+			xbee_log(1, "INVALID CHECKSUM (given: 0x%02X, result: 0x%02X)... data loss has occured (packet length: %d)", chksumo, chksum, iBuf->len);
 			for (t = 0; t < iBuf->len; t++) {
 				xbee_log(10, "  %3d: 0x%02X  %c", t, iBuf->data[t], ((iBuf->data[t] >= ' ' && iBuf->data[t] <= '~') ? iBuf->data[t] : '.'));
 			}

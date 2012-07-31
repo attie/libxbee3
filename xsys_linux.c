@@ -161,7 +161,7 @@ int xsys_serialShutdown(struct xbee_serialInfo *info) {
 
 int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) {
 	fd_set fds;
-	int ret;
+	int ret, retv;
 	int pos;
 	
 	if (!info || !dest) return XBEE_EMISSINGPARAM;
@@ -175,7 +175,11 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 			if (errno == EINTR) return XBEE_ESELECTINTERRUPTED;
 			return XBEE_ESELECT;
 		}
-		if ((ret = fread(&(dest[pos]), 1, len - pos, info->dev.f)) > 0) continue;
+		ret = 0;
+		while ((retv = fread(&(dest[pos + ret]), 1, len - ret - pos, info->dev.f)) > 0) {
+			ret += retv;
+		}
+		if (retv >= 0 && ret > 0) continue;
 		if (feof(info->dev.f)) {
 #ifndef linux
 /* for FreeBSD */
