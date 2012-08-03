@@ -5,10 +5,11 @@ $(addprefix $(DESTDIR)/$(LIBNAME),.a .so p.a p.so): $(DESTDIR)/$(LIBNAME)%: $(DE
 	$(SYMLINK) -fs `basename $^` $@
 
 # generate the shared object & debug file
-$(addsuffix .$(LIBFULLREV).dbg, $(addprefix $(DESTDIR)/$(LIBNAME),.so)): $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV).dbg: $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV)
-	$(OBJCOPY) --only-keep-debug $@ $@.dbg
-	$(OBJCOPY) --add-gnu-debuglink=$@.dbg $@
-	$(OBJCOPY) --strip-debug $@
+$(addsuffix .$(LIBFULLREV).dbg, $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV).dbg: $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV)
+	$(OBJCOPY) --only-keep-debug $^ $@
+	$(OBJCOPY) --add-gnu-debuglink=$@ $^
+	$(OBJCOPY) --strip-debug $^
+	touch $@
 
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so)):

@@ -25,10 +25,12 @@ CPPFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
 
-LIB_OUT=               $(DESTDIR)/$(LIBNAME).so  \
-                       $(DESTDIR)/$(LIBNAME).a   \
-                       $(DESTDIR)/$(LIBNAME)p.so \
-                       $(DESTDIR)/$(LIBNAME)p.a  \
+LIB_OUT=               $(DESTDIR)/$(LIBNAME).so                    \
+                       $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg  \
+                       $(DESTDIR)/$(LIBNAME).a                     \
+                       $(DESTDIR)/$(LIBNAME)p.so                   \
+                       $(DESTDIR)/$(LIBNAME)p.so.$(LIBFULLREV).dbg \
+                       $(DESTDIR)/$(LIBNAME)p.a                    \
                        $(addprefix $(HTMLDIR)/,$(SYS_HTMLPAGES))
 
 INSTALL_FILES=         $(SYS_LIBDIR)/$(LIBNAME).so.$(LIBFULLREV)                    \
