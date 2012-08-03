@@ -89,7 +89,7 @@ void xbee_sZB_zdo_callback(struct xbee *xbee, struct xbee_con *con, struct xbee_
 	}
 	
 	for (i = 0; i < (*pkt)->dataLen; i++) {
-		xbee_log(10 "%3d: 0x%02X", i, (*pkt)->data[i]);
+		xbee_log(10, "%3d: 0x%02X", i, (*pkt)->data[i]);
 	}
 }
 
