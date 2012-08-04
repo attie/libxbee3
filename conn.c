@@ -200,7 +200,7 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2) {
 	/* first try to match the address */
 	if (!addr1->addr16_enabled && !addr2->addr16_enabled &&
-			!addr1->addr64_enabled && !addr2->addr64_enabled) {
+	    !addr1->addr64_enabled && !addr2->addr64_enabled) {
 		goto got1;
 	}
 	if (addr1->addr64_enabled && addr2->addr64_enabled) {
