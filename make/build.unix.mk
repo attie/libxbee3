@@ -15,7 +15,7 @@ $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(DEST
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so)):
 	$(GCC) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(CLINKS) $(filter %.o,$^) -o $@
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),p.so)):
-	$(GXX) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(CLINKS) $(filter %.o,$^) -o $@
+	$(GXX) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(CXXLINKS) $(filter %.o,$^) -o $@
 
 # generate the static library
 $(addsuffix .$(LIBFULLREV),$(addprefix $(DESTDIR)/$(LIBNAME),.a p.a)): $(DESTDIR)/$(LIBNAME)%.a.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
@@ -65,7 +65,7 @@ $(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
 
 # build C++ object & dep files
 $(CORE_OBJSP): $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
-	$(GXX) $(CPPFLAGS) $*.cpp -c -o $@
+	$(GXX) $(CXXFLAGS) $*.cpp -c -o $@
 $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.cpp
 	$(GXX) -MM -MT $(@:.d=.o) $(filter %.cpp,$^) -o $@
 
