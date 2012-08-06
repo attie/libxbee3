@@ -24,6 +24,7 @@ CFLAGS+=               -Wno-variadic-macros
 CPPFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
+CPPLINKS+=             $(CLINKS)
 
 LIB_OUT=               $(DESTDIR)/$(LIBNAME).so                    \
                        $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg  \
