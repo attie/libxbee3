@@ -11,9 +11,9 @@ MKDIR=                 mkdir $* || true
 RM:=                   del /F
 RMDIR:=                del /F /Q
 
-DEBUG:=                /MT
+DEBUG?=                /MT
 CFLAGS+=               /nologo "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /RTCs /Gd $(DEBUG) $(addprefix /D,$(OPTIONS))
-CLINKS+=               /nologo "/LIBPATH:$(SDKPATH)\Lib" "/LIBPATH:$(VCPATH)\lib" /VERSION:$(LIBMAJ).$(LIBMIN)
+CLINKS+=               /nologo "/LIBPATH:$(SDKPATH)\Lib" "/LIBPATH:$(VCPATH)\lib" /VERSION:$(LIBMAJ).$(LIBMIN) $(LDBUG)
 FINLNK:=               /DLL
 
 LIB_OUT:=              $(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll
