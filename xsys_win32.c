@@ -60,6 +60,7 @@ HRESULT __stdcall DllCanUnloadNow(void) {
    when opening ports out of this range, you must specify '\\\\.\\COMx' */
 int xsys_serialSetup(struct xbee_serialInfo *info) {
   DCB tc;
+	DWORD ev_mask;
   COMMTIMEOUTS timeouts;
 	
 	if (!info) return XBEE_EMISSINGPARAM;
@@ -107,7 +108,9 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
   timeouts.WriteTotalTimeoutConstant = 0;
   SetCommTimeouts(info->dev, &timeouts);
 	
-  SetCommMask(info->dev, EV_RXCHAR);
+  GetCommMask(info->dev, &ev_mask);
+	ev_mask |= EV_RXCHAR | EV_ERR;
+  SetCommMask(info->dev, ev_mask);
 	
 	return XBEE_ENONE;
 }
@@ -122,15 +125,31 @@ int xsys_serialShutdown(struct xbee_serialInfo *info) {
 
 int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) {
 	int pos;
-	int ret;
+	int ret = 1;
 	int err;
 	
 	if (!info) return XBEE_EMISSINGPARAM;
 	if (info->dev == INVALID_HANDLE_VALUE) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
-		if (ReadFile(info->dev, &(dest[pos]), len - pos, &ret, NULL)) continue;
+		if (ret == 0) {
+			DWORD ev_mask;
+			ev_mask = EV_RXCHAR;
+			if (!WaitCommEvent(info->dev, &ev_mask, NULL)) {
+				err = GetLastError();
+				printf("waitCommEvent() err: %d\n", err);
+				return XBEE_EIO;
+			} else if (ev_mask & EV_ERR) {
+				return XBEE_EIO;
+			}
+		}
+		if (ReadFile(info->dev, &(dest[pos]), len - pos, &ret, NULL)) {
+			if (ret == 0) usleep(2000);
+			continue;
+		}
+		
 		err = GetLastError();
+		//printf("err: %d\n", err);
 #ifndef _WIN32
 #warning TODO - decide if err is due to device being removed (e.g: FTDI) and return XBEE_EOF
 #endif
