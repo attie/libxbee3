@@ -13,9 +13,9 @@ $(addsuffix .$(LIBFULLREV).dbg, $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(
 
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so)):
-	$(GCC) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(CLINKS) $(filter %.o,$^) -o $@
+	$(GCC) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CLINKS) -o $@
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),p.so)):
-	$(GXX) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(CLINKS) $(filter %.o,$^) -o $@
+	$(GXX) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CXXLINKS) -o $@
 
 # generate the static library
 $(addsuffix .$(LIBFULLREV),$(addprefix $(DESTDIR)/$(LIBNAME),.a p.a)): $(DESTDIR)/$(LIBNAME)%.a.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
@@ -65,9 +65,9 @@ $(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
 
 # build C++ object & dep files
 $(CORE_OBJSP): $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
-	$(CXX) $(CPPFLAGS) $*.cpp -c -o $@
+	$(GXX) $(CXXFLAGS) $*.cpp -c -o $@
 $(BUILDDIR)/%.d: .$(BUILDDIR).dir %.cpp
-	$(CXX) -MM -MT $(@:.d=.o) $(filter %.cpp,$^) -o $@
+	$(GXX) -MM -MT $(@:.d=.o) $(filter %.cpp,$^) -o $@
 
 # build a core object & dep files
 $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d

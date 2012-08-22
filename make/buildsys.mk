@@ -55,7 +55,9 @@ SYS_MANPAGES+=$$(wildcard $(MANDIR)/man$(patsubst $(MANDIR)/man%,%,$1)/*.$(patsu
 endef
 $(foreach dir,$(MAN_DIRS),$(eval $(call man_srcs,$(dir))))
 SYS_MANPAGES:=$(patsubst $(MANDIR)/%,%,$(SYS_MANPAGES))
+ifneq ($(shell which man2html),)
 SYS_HTMLPAGES:=$(addsuffix .html,$(SYS_MANPAGES)) index.html
+endif
 
 ### post
 ifneq ($(POST_BUILD),)

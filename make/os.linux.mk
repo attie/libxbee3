@@ -21,9 +21,10 @@ CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
 #CFLAGS+=              -pedantic
 CFLAGS+=               -fvisibility=hidden
 CFLAGS+=               -Wno-variadic-macros
-CPPFLAGS:=             $(CFLAGS)
+CXXFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
+CXXLINKS+=             $(CLINKS)
 
 LIB_OUT=               $(DESTDIR)/$(LIBNAME).so                    \
                        $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg  \
