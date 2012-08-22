@@ -33,21 +33,21 @@ HMODULE module = NULL;
 int attach_counter = 0;
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
-  if (dwReason == DLL_PROCESS_DETACH || dwReason == DLL_THREAD_DETACH) {
-    /* ensure that libxbee has been shut down nicely */
+	if (dwReason == DLL_PROCESS_DETACH || dwReason == DLL_THREAD_DETACH) {
+		/* ensure that libxbee has been shut down nicely */
 		attach_counter--;
 		if (!attach_counter) {
 			xbee_fini();
 		}
-  } else if (dwReason == DLL_PROCESS_ATTACH || dwReason == DLL_THREAD_ATTACH) {
+	} else if (dwReason == DLL_PROCESS_ATTACH || dwReason == DLL_THREAD_ATTACH) {
 		attach_counter++;
-    if (!module) {
-      /* keep a handle on the module */
-      module = (HMODULE)hModule;
+		if (!module) {
+			/* keep a handle on the module */
+			module = (HMODULE)hModule;
 			xbee_init();
-    }
-  }
-  return TRUE;
+		}
+	}
+	return TRUE;
 }
 
 HRESULT __stdcall DllCanUnloadNow(void) {
@@ -59,59 +59,59 @@ HRESULT __stdcall DllCanUnloadNow(void) {
 /* when opening COM1-COM9, you can specify 'COMx'
    when opening ports out of this range, you must specify '\\\\.\\COMx' */
 int xsys_serialSetup(struct xbee_serialInfo *info) {
-  DCB tc;
+	DCB tc;
 	DWORD ev_mask;
-  COMMTIMEOUTS timeouts;
-	
+	COMMTIMEOUTS timeouts;
+
 	if (!info) return XBEE_EMISSINGPARAM;
 	if (!info->device) return XBEE_EINVAL;
-	
-  info->dev = CreateFile(TEXT(info->device),
-                        GENERIC_READ | GENERIC_WRITE,
-                        0,    /* exclusive access */
-                        NULL, /* default security attributes */
-                        OPEN_EXISTING,
-												0,
-                        NULL);
-	
+
+	info->dev = CreateFile(TEXT(info->device),
+	                       GENERIC_READ | GENERIC_WRITE,
+	                       0,    /* exclusive access */
+	                       NULL, /* default security attributes */
+	                       OPEN_EXISTING,
+	                       0,
+	                       NULL);
+
 	if (info->dev == INVALID_HANDLE_VALUE) return XBEE_EIO;
-	
-  GetCommState(info->dev, &tc);
-  tc.BaudRate          = info->baudrate;
-  tc.fBinary           = TRUE;
-  tc.fParity           = FALSE;
-#ifdef XBEE_NO_RTSCTS
-  tc.fOutxCtsFlow      = FALSE;
-  tc.fRtsControl       = RTS_CONTROL_DISABLE;
-#else
-  tc.fOutxCtsFlow      = TRUE;
-  tc.fRtsControl       = RTS_CONTROL_ENABLE;
-#endif
-  tc.fOutxDsrFlow      = FALSE;
-  tc.fDtrControl       = DTR_CONTROL_DISABLE;
-  tc.fDsrSensitivity   = FALSE;
-  tc.fTXContinueOnXoff = FALSE;
-  tc.fOutX             = FALSE;
-  tc.fInX              = FALSE;
-  tc.fErrorChar        = FALSE;
-  tc.fNull             = FALSE;
-  tc.fAbortOnError     = FALSE;
-  tc.ByteSize          = 8;
-  tc.Parity            = NOPARITY;
-  tc.StopBits          = ONESTOPBIT;
-  SetCommState(info->dev, &tc);
-	
-  timeouts.ReadIntervalTimeout = MAXDWORD;
-  timeouts.ReadTotalTimeoutMultiplier = 0;
-  timeouts.ReadTotalTimeoutConstant = 0;
-  timeouts.WriteTotalTimeoutMultiplier = 0;
-  timeouts.WriteTotalTimeoutConstant = 0;
-  SetCommTimeouts(info->dev, &timeouts);
-	
-  GetCommMask(info->dev, &ev_mask);
+
+	GetCommState(info->dev, &tc);
+	tc.BaudRate          = info->baudrate;
+	tc.fBinary           = TRUE;
+	tc.fParity           = FALSE;
+	#ifdef XBEE_NO_RTSCTS
+	tc.fOutxCtsFlow      = FALSE;
+	tc.fRtsControl       = RTS_CONTROL_DISABLE;
+	#else
+	tc.fOutxCtsFlow      = TRUE;
+	tc.fRtsControl       = RTS_CONTROL_ENABLE;
+	#endif
+	tc.fOutxDsrFlow      = FALSE;
+	tc.fDtrControl       = DTR_CONTROL_DISABLE;
+	tc.fDsrSensitivity   = FALSE;
+	tc.fTXContinueOnXoff = FALSE;
+	tc.fOutX             = FALSE;
+	tc.fInX              = FALSE;
+	tc.fErrorChar        = FALSE;
+	tc.fNull             = FALSE;
+	tc.fAbortOnError     = FALSE;
+	tc.ByteSize          = 8;
+	tc.Parity            = NOPARITY;
+	tc.StopBits          = ONESTOPBIT;
+	SetCommState(info->dev, &tc);
+
+	timeouts.ReadIntervalTimeout = MAXDWORD;
+	timeouts.ReadTotalTimeoutMultiplier = 0;
+	timeouts.ReadTotalTimeoutConstant = 0;
+	timeouts.WriteTotalTimeoutMultiplier = 0;
+	timeouts.WriteTotalTimeoutConstant = 0;
+	SetCommTimeouts(info->dev, &timeouts);
+
+	GetCommMask(info->dev, &ev_mask);
 	ev_mask |= EV_RXCHAR | EV_ERR;
-  SetCommMask(info->dev, ev_mask);
-	
+	SetCommMask(info->dev, ev_mask);
+
 	return XBEE_ENONE;
 }
 
@@ -284,5 +284,5 @@ int clock_gettime(int X, struct timeval *tv) {
 /* ######################################################################### */
 
 xbee_err xbee_serialSetup(struct xbee_serialInfo *info) {
-  return XBEE_ENOTIMPLEMENTED;
+	return XBEE_ENOTIMPLEMENTED;
 }
