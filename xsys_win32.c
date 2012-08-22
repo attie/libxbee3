@@ -140,6 +140,7 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 				printf("waitCommEvent() err: %d\n", err);
 				return XBEE_EIO;
 			} else if (ev_mask & EV_ERR) {
+				ClearCommError(info->dev, NULL, NULL);
 				return XBEE_EIO;
 			}
 		}
