@@ -181,8 +181,18 @@ int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) 
 int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
 	DWORD dwMiliseconds;
 	if (timeout) {
+		struct timespec now;
+		
+		/* calculate epoch miliseconds */
 		dwMiliseconds  = timeout->tv_sec * 1000;
 		dwMiliseconds += timeout->tv_nsec / 1000000;
+		
+		/* offset that from 'now' */
+		clock_gettime(CLOCK_REALTIME, &now);
+		dwMiliseconds -= now.tv_sec * 1000;
+		dwMiliseconds -= now.tv_nsec / 1000000;
+		
+		/* dwMiliseconds should now hold the number of ms from NOW */
 	} else {
 		dwMiliseconds = 0;
 	}
@@ -252,6 +262,8 @@ int clock_gettime(int X, struct timeval *tv) {
 	static int initialized = 0;
 	static BOOL usePerformanceCounter = 0;
 
+	memset(tv, 0, sizeof(*tv));
+	
 	if (!initialized) {
 		LARGE_INTEGER performanceFrequency;
 		initialized = 1;
