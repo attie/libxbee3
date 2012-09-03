@@ -102,11 +102,11 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	SetCommState(info->dev, &tc);
 
 	/* setup some timeouts to keep things moving (damn windows) */
-	timeouts.ReadIntervalTimeout = 250;
-	timeouts.ReadTotalTimeoutMultiplier = 50;
-	timeouts.ReadTotalTimeoutConstant = 250;
-	timeouts.WriteTotalTimeoutMultiplier = 50;
-	timeouts.WriteTotalTimeoutConstant = 250;
+	timeouts.ReadIntervalTimeout = 50;
+	timeouts.ReadTotalTimeoutMultiplier = 5;
+	timeouts.ReadTotalTimeoutConstant = 25;
+	timeouts.WriteTotalTimeoutMultiplier = 5;
+	timeouts.WriteTotalTimeoutConstant = 25;
 	SetCommTimeouts(info->dev, &timeouts);
 
 	return XBEE_ENONE;
