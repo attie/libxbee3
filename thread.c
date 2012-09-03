@@ -28,6 +28,11 @@
 #include "log.h"
 #include "ll.h"
 
+#ifdef _WIN32
+#include "rx.h"
+#include "tx.h"
+#endif /* _WIN32 */
+
 struct xbee_ll_head *threadList = NULL;
 xsys_thread_key threadInfoKey;
 
@@ -156,6 +161,17 @@ xbee_err xbee_threadJoin(struct xbee *xbee, struct xbee_threadInfo *thread, xbee
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 
 	if (thread->active != 0) return XBEE_EINUSE;
+
+#ifdef _WIN32
+	if (!strcmp(thread->funcName, "xbee_rx")) {
+		FlushFileBuffers(((struct xbee_serialInfo *)xbee->modeData)->dev);
+		CloseHandle(((struct xbee_serialInfo *)xbee->modeData)->dev);
+	} else if (!strcmp(thread->funcName, "xbee_rxHandler")) {
+		xsys_sem_post(&xbee->iface.rx->sem);
+	} else if (!strcmp(thread->funcName, "xbee_tx")) {
+		xsys_sem_post(&xbee->iface.tx->sem);
+	}
+#endif /* _WIN32 */
 
 	if (xsys_thread_join(thread->tid, (void**)retVal)) return XBEE_ETHREAD;
 
