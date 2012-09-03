@@ -101,16 +101,13 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	tc.StopBits          = ONESTOPBIT;
 	SetCommState(info->dev, &tc);
 
-	timeouts.ReadIntervalTimeout = MAXDWORD;
-	timeouts.ReadTotalTimeoutMultiplier = 0;
-	timeouts.ReadTotalTimeoutConstant = 0;
-	timeouts.WriteTotalTimeoutMultiplier = 0;
-	timeouts.WriteTotalTimeoutConstant = 0;
+	/* setup some timeouts to keep things moving (damn windows) */
+	timeouts.ReadIntervalTimeout = 250;
+	timeouts.ReadTotalTimeoutMultiplier = 50;
+	timeouts.ReadTotalTimeoutConstant = 250;
+	timeouts.WriteTotalTimeoutMultiplier = 50;
+	timeouts.WriteTotalTimeoutConstant = 250;
 	SetCommTimeouts(info->dev, &timeouts);
-
-	GetCommMask(info->dev, &ev_mask);
-	ev_mask |= EV_RXCHAR | EV_ERR;
-	SetCommMask(info->dev, ev_mask);
 
 	return XBEE_ENONE;
 }
@@ -132,24 +129,16 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 	if (info->dev == INVALID_HANDLE_VALUE) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
-		if (ret == 0) {
-			DWORD ev_mask;
-			ev_mask = EV_RXCHAR;
-			if (!WaitCommEvent(info->dev, &ev_mask, NULL)) {
-				err = GetLastError();
-				printf("waitCommEvent() err: %d\n", err);
-				return XBEE_EIO;
-			} else if (ev_mask & EV_ERR) {
-				ClearCommError(info->dev, NULL, NULL);
-				return XBEE_EIO;
-			}
-		}
 		if (ReadFile(info->dev, &(dest[pos]), len - pos, &ret, NULL)) {
 			if (ret == 0) usleep(2000);
 			continue;
 		}
 		
 		err = GetLastError();
+		if (err == ERROR_ACCESS_DENIED || err == ERROR_OPERATION_ABORTED) {
+			/* this seems to happen when an FTDI is unplugged */
+			return XBEE_EEOF;
+		}
 		//printf("err: %d\n", err);
 #ifndef _WIN32
 #warning TODO - decide if err is due to device being removed (e.g: FTDI) and return XBEE_EOF
