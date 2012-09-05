@@ -1,5 +1,8 @@
 v3.0.8 - in progress
 	* Fixed analog input values
+	* Fixed 100% CPU usage on Windows
+	* Fixed serial I/O bugs on Windows
+	* Fixed Win32 implementation of xsys_sem_timedwait()
 
 v3.0.7 - 14 Jun 2012
 	* Fixed initialization of frame mutexes
