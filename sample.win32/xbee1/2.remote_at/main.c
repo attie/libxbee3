@@ -40,6 +40,9 @@ int main(void) {
 	char txRet;
 	xbee_err ret;
 
+	/* if this doesn't work, try something like the following:
+		xbee_setup(&xbee, "xbee1", "\\\\.\\COM25", 57600);
+	*/
 	if ((ret = xbee_setup(&xbee, "xbee1", "COM8", 57600)) != XBEE_ENONE) {
 		printf("ret: %d (%s)\n", ret, xbee_errorToStr(ret));
 		return ret;

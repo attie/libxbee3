@@ -9,3 +9,6 @@ To build and use libxbee for Windows, you will require the following software in
 You may need to do some of the following:
 	* Add "C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE" to your PATH
 
+When running libxbee, you may need to address your COM port as shown below.
+I believe this to be the case for any port above number 8 (ish).
+	xbee_setup(&xbee, "xbee1", "\\\\.\\COM25", 57600);
