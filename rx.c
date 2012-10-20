@@ -202,6 +202,13 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xbee_log(15, "matched packet with con @ %p", con);
 		xbee_conLogAddress(xbee, 16, &address);
 		
+		if (conType->rxHandler->funcPost) {
+			xbee_err ret;
+			if ((ret = conType->rxHandler->funcPost(xbee, con, pkt)) != XBEE_ENONE) {
+				xbee_log(1, "funcPost() failed for con @ %p - returned %d\n", con, ret);
+			}
+		}
+		
 		/* wake the connection if necessary */
 		if (con->sleepState != CON_AWAKE) {
 			con->sleepState = CON_AWAKE;

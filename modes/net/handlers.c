@@ -24,6 +24,7 @@
 
 #include "../../internal.h"
 #include "../../xbee_int.h"
+#include "../../log.h"
 #include "../../mode.h"
 #include "../../conn.h"
 #include "../../pkt.h"
@@ -99,6 +100,13 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	
 	if (iPkt->dataLen > 0) {
 		memcpy(iPkt->data, &buf->data[pos], iPkt->dataLen);    pos += iPkt->dataLen;
+	}
+	
+	if (conType->rxHandler->funcPost) {
+		xbee_err ret;
+		if ((ret = conType->rxHandler->funcPost(xbee, con, iPkt)) != XBEE_ENONE) {
+			xbee_log(1, "funcPost() failed for con @ %p - returned %d\n", con, ret);
+		}
 	}
 	
 	*pkt = iPkt;

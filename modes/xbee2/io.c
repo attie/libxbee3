@@ -146,11 +146,18 @@ xbee_err xbee_s2_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 	return XBEE_ENONE;
 }
 
+xbee_err xbee_s2_io_rx_funcPost(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt *pkt) {
+	xbee_s2_io_parseInputs(xbee, pkt, pkt->data, pkt->dataLen);
+	
+	return XBEE_ENONE;
+}
+
 /* ######################################################################### */
 
 struct xbee_modeDataHandlerRx xbee_s2_io_rx  = {
 	.identifier = 0x92,
 	.func = xbee_s2_io_rx_func,
+	.funcPost = xbee_s2_io_rx_funcPost,
 };
 struct xbee_modeConType xbee_s2_io = {
 	.name = "I/O",

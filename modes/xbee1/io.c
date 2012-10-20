@@ -126,11 +126,18 @@ xbee_err xbee_s1_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 	return XBEE_ENONE;
 }
 
+xbee_err xbee_s1_io_rx_funcPost(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt *pkt) {
+	xbee_s1_io_parseInputs(xbee, pkt, pkt->data, pkt->dataLen);
+	
+	return XBEE_ENONE;
+}
+
 /* ######################################################################### */
 
 struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
 	.identifier = 0x83,
 	.func = xbee_s1_io_rx_func,
+	.funcPost = xbee_s1_io_rx_funcPost,
 };
 struct xbee_modeConType xbee_s1_16bitIo = {
 	.name = "16-bit I/O",
@@ -146,6 +153,7 @@ struct xbee_modeConType xbee_s1_16bitIo = {
 struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
 	.identifier = 0x82,
 	.func = xbee_s1_io_rx_func,
+	.funcPost = xbee_s1_io_rx_funcPost,
 };
 struct xbee_modeConType xbee_s1_64bitIo = {
 	.name = "64-bit I/O",

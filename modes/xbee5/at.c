@@ -74,11 +74,15 @@ xbee_err xbee_s5_at_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	
-	if (!strncasecmp((char*)iPkt->atCommand, "IS", 2)) {
-		xbee_s5_io_parseInputs(xbee, iPkt, iPkt->data, iPkt->dataLen);
-	}
-	
 	*pkt = iPkt;
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_s5_at_rx_funcPost(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt *pkt) {
+	if (!strncasecmp((char*)pkt->atCommand, "IS", 2)) {
+		xbee_s5_io_parseInputs(xbee, pkt, pkt->data, pkt->dataLen);
+	}
 	
 	return XBEE_ENONE;
 }
@@ -141,6 +145,7 @@ xbee_err xbee_s5_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 struct xbee_modeDataHandlerRx xbee_s5_localAt_rx  = {
 	.identifier = 0x88,
 	.func = xbee_s5_at_rx_func,
+	.funcPost = xbee_s5_at_rx_funcPost,
 };
 struct xbee_modeDataHandlerTx xbee_s5_localAt_tx  = {
 	.identifier = 0x08,
@@ -164,6 +169,7 @@ struct xbee_modeConType xbee_s5_localAt = {
 struct xbee_modeDataHandlerRx xbee_s5_remoteAt_rx  = {
 	.identifier = 0x97,
 	.func = xbee_s5_at_rx_func,
+	.funcPost = xbee_s5_at_rx_funcPost,
 };
 struct xbee_modeDataHandlerTx xbee_s5_remoteAt_tx  = {
 	.identifier = 0x17,
