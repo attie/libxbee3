@@ -116,12 +116,26 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 	/* grab the returned data (an in-order list of the back channel endpoints, starting at 0x01) */
 	if ((ret = xbee_conRx(bc_start, &pkt, NULL)) != XBEE_ENONE) goto done;
 	
-	callbackCount = pkt->data[0];
+	/* pick out the remote system's mode name, and try to locate it */
+	for (i = 0; i < pkt->dataLen && pkt->data[i] != '\0'; i++);
+	if (i > 0) {
+		if ((data->serverModeName = malloc(sizeof(char) * (i + 1))) == NULL) {
+			ret = XBEE_ENOMEM;
+			goto done;
+		}
+		strncpy(data->serverModeName, (char*)pkt->data, i);
+		
+		if (xbee_modeRetrieve(data->serverModeName, &data->serverMode) != XBEE_ENONE) {
+			xbee_log(-10, "WARNING: remote mode '%s' is not avaliable on this system... Some packets may not be fully processed", data->serverModeName);
+		}
+	}
+	
+	callbackCount = pkt->data[i + 1];
 	
 	memset(&address, 0, sizeof(address));
 	address.endpoints_enabled = 1;
 	
-	for (pos = 1, i = 1; pos < pkt->dataLen && i < callbackCount + 1; pos += slen + 1, i++) {
+	for (pos = i + 2, i = 1; pos < pkt->dataLen && i < callbackCount + 1; pos += slen + 1, i++) {
 		char *name;
 		struct xbee_con **retCon;
 		
@@ -157,7 +171,11 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 
 		/* if we dont know about that type, then continue - unlikely, but possible
 		   e.g: if XBEE_NO_NET_STRICT_VERSIONS is set */
-		if (!retCon) continue;
+		if (!retCon) {
+			xbee_log(-10, "WARNING: the remote system specified a support function that we don't know about! there may be dragons coming...");
+			xbee_log(1, "  unknown function name: '%s'", name);
+			continue;
+		}
 		
 		/* setup the connection */
 		address.endpoint_local = i;
@@ -166,6 +184,8 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 		
 		/* add it to the conList */
 		xbee_ll_add_tail(data->conList, *retCon);
+		
+		xbee_log(5, "registered support function '%s'", name);
 	}
 	
 	/* check that we aren't missing any connections */
@@ -191,8 +211,9 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 	int typeCount;
 	unsigned char retVal;
 	struct xbee_pkt *pkt;
-	int i, pos, slen;
+	int i, o, pos, slen;
 	struct xbee_modeConType newConType;
+	const struct xbee_modeConType *localVersion;
 	
 	char *mName;
 	struct xbee_modeDataHandlerRx *rx;
@@ -237,6 +258,16 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 			memcpy(&newConType, &xbee_net_frontchannel_template    , sizeof(newConType));
 		}
 		
+		localVersion = NULL;
+		if (data->serverMode && data->serverMode->conTypes) {
+			for (o = 0; data->serverMode->conTypes[o]->name; o++) {
+				if (!strcasecmp(data->serverMode->conTypes[o]->name, name)) {
+					localVersion = data->serverMode->conTypes[o];
+					break;
+				}
+			}
+		}
+		
 		/* can we receive? */
 		if (flags & 0x02) {
 			if ((rx = malloc(sizeof(*rx))) == NULL) { ret = XBEE_ENOMEM; break; }
@@ -244,6 +275,10 @@ static xbee_err prepare_conTypes(struct xbee *xbee) {
 			
 			rx->identifier = i;
 			rx->func = xbee_net_frontchannel_rx_func;
+			
+			/* pull in the post-processing function */
+			if (localVersion) rx->funcPost = localVersion->rxHandler->funcPost;
+			
 			rx->needsFree = 1;
 			
 			newConType.rxHandler = rx;
@@ -328,6 +363,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 		free(data->netInfo.txBuf);
 	}
 	
+	if (data->serverModeName) free(data->serverModeName);
 	free(data);
 
 	return XBEE_ENONE;
