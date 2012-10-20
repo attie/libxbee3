@@ -32,6 +32,7 @@
 #include "ll.h"
 
 xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo) {
+	static char logColor = 1;
 	size_t memSize;
 	struct xbee_rxInfo *info;
 	
@@ -44,6 +45,10 @@ xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo) {
 	memset(info, 0, memSize);
 	info->bufList = xbee_ll_alloc();
 	xsys_sem_init(&info->sem);
+	
+	/* give it a log color */
+	info->logColor = logColor;
+	if (logColor++ > 7) logColor = 7;
 	
 	*nInfo = info;
 	
@@ -89,9 +94,9 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 #ifdef XBEE_LOG_RX
 		{
 			/* format: tx[0x0000000000000000] */
-			char label[32]; /* enough space for a 64-bit pointer */
+			char label[42]; /* enough space for a 64-bit pointer and ANSI color codes */
 			
-			snprintf(label, sizeof(label), "rx[%p]", info);
+			snprintf(label, sizeof(label), "rx[%c[%dm%p%c[0m]", 27, 30 + info->logColor, info,  27);
 			xbee_logData(25, label, buf->data, buf->len);
 		}
 #endif /* XBEE_LOG_RX */
