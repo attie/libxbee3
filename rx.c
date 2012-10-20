@@ -88,11 +88,11 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 		
 #ifdef XBEE_LOG_RX
 		{
-			int i;
-			xbee_log(25, "rx[%p] length: %d", info, buf->len);
-			for (i = 0; i < buf->len; i++) {
-				xbee_log(25, "rx[%p]: %3d 0x%02X [%c]", info, i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
-			}
+			/* format: tx[0x0000000000000000] */
+			char label[32]; /* enough space for a 64-bit pointer */
+			
+			snprintf(label, sizeof(label), "rx[%p]", info);
+			xbee_logData(25, label, buf->data, buf->len);
 		}
 #endif /* XBEE_LOG_RX */
 		
