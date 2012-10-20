@@ -39,9 +39,12 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	int dataLen;
 	struct xbee_modeConType *conType;
 	struct xbee_con *con;
+	int conIdentifier;
 	
 	if (!xbee || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	if (buf->len < 3) return XBEE_ELENGTH;
+	
+	conIdentifier = (((buf->data[1] << 8) & 0xFF) | (buf->data[2] & 0xFF));
 	
 	conType = NULL;
 	for (i = 0; xbee->iface.conTypes[i].name; i++) {
@@ -53,7 +56,7 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	if (!conType) return XBEE_EINVAL;
 	
 	for (con = NULL; xbee_ll_get_next(conType->conList, con, (void **)&con) == XBEE_ENONE && con; ) {
-		if (con->conIdentifier == (((buf->data[1] << 8) & 0xFF) | (buf->data[2] & 0xFF))) break;
+		if (con->conIdentifier == conIdentifier) break;
 	}
 	if (!con) return XBEE_EINVAL;
 	
