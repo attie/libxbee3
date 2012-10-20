@@ -139,9 +139,13 @@ xbee_err xbee_sZB_io_rx_func(struct xbee *xbee, void *arg, unsigned char identif
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	
-	xbee_sZB_io_parseInputs(xbee, iPkt, iPkt->data, iPkt->dataLen);
-	
 	*pkt = iPkt;
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_sZB_io_rx_funcPost(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt *pkt) {
+	xbee_sZB_io_parseInputs(xbee, pkt, pkt->data, pkt->dataLen);
 	
 	return XBEE_ENONE;
 }
@@ -151,6 +155,7 @@ xbee_err xbee_sZB_io_rx_func(struct xbee *xbee, void *arg, unsigned char identif
 struct xbee_modeDataHandlerRx xbee_sZB_io_rx  = {
 	.identifier = 0x92,
 	.func = xbee_sZB_io_rx_func,
+	.funcPost = xbee_sZB_io_rx_funcPost,
 };
 struct xbee_modeConType xbee_sZB_io = {
 	.name = "I/O",
