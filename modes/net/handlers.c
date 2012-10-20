@@ -24,6 +24,7 @@
 
 #include "../../internal.h"
 #include "../../xbee_int.h"
+#include "../../log.h"
 #include "../../mode.h"
 #include "../../conn.h"
 #include "../../pkt.h"
@@ -39,9 +40,12 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	int dataLen;
 	struct xbee_modeConType *conType;
 	struct xbee_con *con;
+	int conIdentifier;
 	
 	if (!xbee || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	if (buf->len < 3) return XBEE_ELENGTH;
+	
+	conIdentifier = (((buf->data[1] << 8) & 0xFF) | (buf->data[2] & 0xFF));
 	
 	conType = NULL;
 	for (i = 0; xbee->iface.conTypes[i].name; i++) {
@@ -53,7 +57,7 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	if (!conType) return XBEE_EINVAL;
 	
 	for (con = NULL; xbee_ll_get_next(conType->conList, con, (void **)&con) == XBEE_ENONE && con; ) {
-		if (con->conIdentifier == (((buf->data[1] << 8) & 0xFF) | (buf->data[2] & 0xFF))) break;
+		if (con->conIdentifier == conIdentifier) break;
 	}
 	if (!con) return XBEE_EINVAL;
 	
@@ -96,6 +100,13 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	
 	if (iPkt->dataLen > 0) {
 		memcpy(iPkt->data, &buf->data[pos], iPkt->dataLen);    pos += iPkt->dataLen;
+	}
+	
+	if (conType->rxHandler->funcPost) {
+		xbee_err ret;
+		if ((ret = conType->rxHandler->funcPost(xbee, con, iPkt)) != XBEE_ENONE) {
+			xbee_log(1, "funcPost() failed for con @ %p - returned %d\n", con, ret);
+		}
 	}
 	
 	*pkt = iPkt;

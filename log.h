@@ -52,5 +52,8 @@ xbee_err xbee_logFree(struct xbee_log *log);
 xbee_err _xbee_log(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, char *format, ...);
 #define xbee_log(...) _xbee_log(__FILE__, __LINE__, __FUNCTION__, xbee, __VA_ARGS__)
 
+xbee_err _xbee_logData(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, char *label, unsigned char *data, size_t length);
+#define xbee_logData(minLevel, label, data, length) _xbee_logData(__FILE__, __LINE__, __FUNCTION__, xbee, minLevel, label, data, length)
+
 #endif /* XBEE_DISABLE_LOGGING */
 #endif /* __XBEE_LOG_H */

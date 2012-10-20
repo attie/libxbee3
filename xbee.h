@@ -44,7 +44,12 @@ struct timespec {
   long    tv_nsec;   /* nanoseconds */
 };
 # endif
-#endif 
+
+#else /* _W32 */
+
+#include <sys/time.h>
+
+#endif /* WIN32 */
 
 /* ######################################################################### */
 

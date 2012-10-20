@@ -202,4 +202,47 @@ xbee_err _xbee_log(const char *file, int line, const char *function, struct xbee
 	return ret;
 }
 
+xbee_err _xbee_logData(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, char *label, unsigned char *data, size_t length) {
+	int i;
+	int l;
+	/* format:
+		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00  | ........
+	*/
+	char lineBufA[41];
+	char lineBufB[9];
+	
+	/* prepare the format string */
+	for (l = 0; l < sizeof(lineBufA) - 1; l++) {
+		switch (l % 5) {
+			case 0: case 2: case 3:
+				lineBufA[l] = '0'; break;
+			case 1:
+				lineBufA[l] = 'x'; break;
+			case 4:
+				lineBufA[l] = ' '; break;
+		}
+	}
+	lineBufA[l] = '\0';
+	lineBufB[sizeof(lineBufB) - 1] = '\0';
+	
+	xbee_log(25, "%s length: %d", label, length);
+	
+	for (i = 0; i < length; i += l) {
+		/* fill in the data */
+		for (l = 0; l < 8 && i + l < length; l++) {
+			snprintf(&(lineBufA[(5 * l) + 2]), 3, "%02X", data[i + l]);
+			lineBufA[(5 * l) + 4] = ' ';
+			lineBufB[l] = ((data[i + l] >= ' ' && data[i + l] <= '~')?data[i + l]:'.');
+		}
+		/* wipe out the unneeded space */
+		for (; l < 8; l++) {
+			strncpy(&(lineBufA[5 * l]), "     ", 6);
+			lineBufB[l] = ' ';
+		}
+		xbee_log(25, "%s: 0x%04X : %s | %s", label, i, lineBufA, lineBufB);
+	}
+	
+	return XBEE_ENONE;
+}
+
 #endif /* XBEE_DISABLE_LOGGING */

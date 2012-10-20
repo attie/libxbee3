@@ -146,6 +146,7 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 	}
 
 	memSize = 0;
+	memSize += strlen(xbee->mode->name) + 1;
 	for (i = 1; xbee_netServerCallbacks[i].callback; i++) {
 		memSize += strlen(xbee_netServerCallbacks[i].name) + 1;
 	}
@@ -169,8 +170,10 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 	iBuf->len = bufLen;
 	iBuf->data[0] = (*pkt)->frameId;
 	iBuf->data[1] = 0x00; /* <-- success */
-	iBuf->data[2] = callbackCount - 1; /* -1 cos we started at 1, not 0 */
-	for (i = 1, o = 3; i < callbackCount; i++) {
+	o = 2;
+	o += snprintf((char *)&(iBuf->data[o]), iBuf->len - o, "%s", xbee->mode->name) + 1;
+	iBuf->data[o] = callbackCount - 1; o++; /* -1 cos we started at 1, not 0 */
+	for (i = 1; i < callbackCount; i++) {
 		o += snprintf((char *)&(iBuf->data[o]), iBuf->len - o, "%s", xbee_netServerCallbacks[i].name) + 1;
 	}
 	

@@ -34,6 +34,9 @@ struct xbee_modeNetInfo {
 struct xbee_modeData {
 	struct xbee_modeNetInfo netInfo;
 	
+	char *serverModeName;
+	const struct xbee_mode *serverMode;
+	
 	struct xbee_ll_head *conList;
 
 	struct xbee_con *bc_conValidate;
