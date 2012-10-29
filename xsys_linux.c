@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 
 int xsys_serialSetup(struct xbee_serialInfo *info) {
@@ -162,6 +163,7 @@ int xsys_serialShutdown(struct xbee_serialInfo *info) {
 int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) {
 	fd_set fds;
 	int ret, retv;
+	struct timeval to;
 	int pos;
 	
 	if (!info || !dest) return XBEE_EMISSINGPARAM;
@@ -171,9 +173,14 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 		FD_ZERO(&fds);
 		FD_SET(info->dev.fd, &fds);
 		
-		if (select(info->dev.fd + 1, &fds, NULL, NULL, NULL) == -1) {
+		/* allow waiting for up-to 2 seconds */
+		memset(&to, 0, sizeof(to));
+		to.tv_sec = 2;
+		if ((retv = select(info->dev.fd + 1, &fds, NULL, NULL, &to)) == -1) {
 			if (errno == EINTR) return XBEE_ESELECTINTERRUPTED;
 			return XBEE_ESELECT;
+		} else if (retv == 0) {
+			return XBEE_ETIMEOUT;
 		}
 		ret = 0;
 		while ((retv = fread(&(dest[pos + ret]), 1, len - ret - pos, info->dev.f)) > 0) {

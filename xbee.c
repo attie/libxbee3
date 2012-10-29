@@ -100,6 +100,20 @@ die1:
 
 xbee_err xbee_free(struct xbee *xbee) {
 	xbee_ll_ext_item(xbeeList, xbee);
+	xbee->die = 1;
+	
+	if (xbee->iface.rx) {
+		xsys_sem_post(&xbee->iface.rx->sem);
+	}
+	if (xbee->iface.tx) {
+		xsys_sem_post(&xbee->iface.tx->sem);
+	}
+	
+	/* sleep for 4 seconds because:
+	     the rx thread should timeout every 2-ish econds
+	     the rxHandler thread will need to run round one more time to clean up
+	     the tx thread will need to run round one more time to clean up */
+	sleep(4);
 	
 	xbee_threadDestroyMine(xbee);
 	

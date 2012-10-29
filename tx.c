@@ -104,7 +104,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 		free(buf);
 	}
 	
-	return XBEE_ENONE;
+	return XBEE_ESHUTDOWN;
 }
 
 /* ######################################################################### */

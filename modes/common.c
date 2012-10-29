@@ -43,7 +43,7 @@
 
 /* ######################################################################### */
 
-static xbee_err escaped_read(struct xbee_serialInfo *info, int len, unsigned char *dest, int escaped) {
+static xbee_err escaped_read(struct xbee_serialInfo *info, int len, unsigned char *dest, int escaped, int *dieFlag) {
 	int pos;
 	int rlen;
 #ifdef XBEE_API2
@@ -63,7 +63,15 @@ static xbee_err escaped_read(struct xbee_serialInfo *info, int len, unsigned cha
 	
 	do {
 		rlen = len - pos;
-		if ((err = xsys_serialRead(info, rlen, &(dest[pos]))) != XBEE_ENONE) return err;
+		if ((err = xsys_serialRead(info, rlen, &(dest[pos]))) != XBEE_ENONE) {
+			if (err == XBEE_ETIMEOUT) {
+				/* if we don't have a dieFlag, or it isn't set, then we don't care about the timeout... so loop! */
+				if (!dieFlag || !*dieFlag) continue;
+				/* otherwise, we were told to die... :( */
+				return XBEE_ESHUTDOWN;
+			}
+			return err;
+		}
 		
 #ifdef XBEE_API2
 		/* ########################### */
@@ -153,7 +161,7 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 	while (1) {
 		/* get the start delimiter (0x7E) */
 		do {
-			if ((ret = escaped_read(data, 1, &c, 0)) != XBEE_ENONE) return ret;
+			if ((ret = escaped_read(data, 1, &c, 0, &xbee->die)) != XBEE_ENONE) return ret;
 			if (c != 0x7E) {
 				xbee_log(200, "fluff between packets: 0x%02X\n", c);
 			}
@@ -161,7 +169,7 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		ESCAPER_PRINTF("======= packet start =======\n");
 		
 		/* get the length (2 bytes) */
-		if ((ret = escaped_read(data, 2, iBuf->data, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, 2, iBuf->data, 1, &xbee->die)) != XBEE_ENONE) return ret;
 		t = ((iBuf->data[0] << 8) & 0xFF00) | (iBuf->data[1] & 0xFF);
 		if (t > XBEE_MAX_BUFFERLEN) {
 			xbee_log(1, "OVERSIZED PACKET... data loss has occured (packet length: %d)", t);
@@ -170,10 +178,10 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		iBuf->len = t;
 		
 		/* get the data! */
-		if ((ret = escaped_read(data, iBuf->len, iBuf->data, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, iBuf->len, iBuf->data, 1, &xbee->die)) != XBEE_ENONE) return ret;
 		
 		/* get the checksum */
-		if ((ret = escaped_read(data, 1, &chksumo, 1)) != XBEE_ENONE) return ret;
+		if ((ret = escaped_read(data, 1, &chksumo, 1, &xbee->die)) != XBEE_ENONE) return ret;
 		chksum = chksumo;
 		
 		/* check the checksum */

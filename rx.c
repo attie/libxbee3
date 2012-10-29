@@ -85,6 +85,8 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 				*restart = 0;
 				if (info->eofCallback) info->eofCallback(xbee, info);
 				return XBEE_EEOF;
+			} else if (ret == XBEE_ESHUTDOWN && xbee->die) {
+				break;
 			}
 			xbee_log(1, "rx() returned %d (%s)... retrying in 10 ms", ret, xbee_errorToStr(ret));
 			usleep(10000); /* 10 ms */
@@ -110,7 +112,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 		if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
 	}
 	
-	return XBEE_ENONE;
+	return XBEE_ESHUTDOWN;
 }
 
 /* ######################################################################### */
@@ -154,6 +156,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		/* get the next buffer */
 		if ((ret = xbee_ll_ext_head(info->bufList, (void**)&buf)) != XBEE_ENONE && ret != XBEE_ERANGE) return XBEE_ELINKEDLIST;
+		ret = XBEE_ENONE;
 		if (!buf) continue;
 		
 		/* check we actually have some data to work with... */
@@ -248,5 +251,6 @@ done:
 		free(buf);
 	}
 	
+	if (xbee->die && ret == XBEE_ENONE) return XBEE_ESHUTDOWN;
 	return ret;
 }
