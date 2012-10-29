@@ -155,6 +155,18 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	
 	xbee_mutex_lock(&log->mutex);
 	
+#ifndef XBEE_LOG_NO_COLOR
+	if (!xbee) {
+		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[90m:%c[0m %s\n",
+			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27,                   tBuf);
+	} else if (xbee_validate(xbee) == XBEE_ENONE) {
+		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[0m %c[35m%p%c[90m:%c[0m %s\n",
+			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27,     tBuf);
+	} else {
+		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[31m !%c[35m%p%c[31m!%c[90m:%c[0m %s\n",
+			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27, 27, tBuf);
+	}
+#else
 	if (!xbee) {
 		fprintf(log->f, "%s%3d#[%s:%d] %s(): %s\n",      preStr, minLevel, file, line, function,       tBuf);
 	} else if (xbee_validate(xbee) == XBEE_ENONE) {
@@ -162,6 +174,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	} else {
 		fprintf(log->f, "%s%3d#[%s:%d] %s() !%p!: %s\n", preStr, minLevel, file, line, function, xbee, tBuf);
 	}
+#endif
 	
 	xbee_mutex_unlock(&log->mutex);
 	
