@@ -153,7 +153,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xsys_sem_wait(&info->sem);
 		
 		/* get the next buffer */
-		if (xbee_ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if ((ret = xbee_ll_ext_head(info->bufList, (void**)&buf)) != XBEE_ENONE && ret != XBEE_ERANGE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
 		/* check we actually have some data to work with... */

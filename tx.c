@@ -79,7 +79,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 	
 	while (!xbee->die) {
 		if (xsys_sem_wait(&info->sem) != 0) return XBEE_ESEMAPHORE;
-		if (xbee_ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if ((ret = xbee_ll_ext_head(info->bufList, (void**)&buf)) != XBEE_ENONE && ret != XBEE_ERANGE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
 #ifdef XBEE_LOG_TX
