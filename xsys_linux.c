@@ -33,8 +33,8 @@
 #include <sys/types.h>
 
 int xsys_serialSetup(struct xbee_serialInfo *info) {
-  struct termios tc;
-  speed_t chosenbaud;
+	struct termios tc;
+	speed_t chosenbaud;
 	
 	if (!info) return XBEE_EMISSINGPARAM;
 	
@@ -69,52 +69,52 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 		return XBEE_ESETUP;
 	}
 	
-  /* input flags */
-  tc.c_iflag &= ~ IGNBRK;           /* enable ignoring break */
-  tc.c_iflag &= ~(IGNPAR | PARMRK); /* disable parity checks */
-  tc.c_iflag &= ~ INPCK;            /* disable parity checking */
-  tc.c_iflag &= ~ ISTRIP;           /* disable stripping 8th bit */
-  tc.c_iflag &= ~(INLCR | ICRNL);   /* disable translating NL <-> CR */
-  tc.c_iflag &= ~ IGNCR;            /* disable ignoring CR */
-  tc.c_iflag &= ~(IXON | IXOFF);    /* disable XON/XOFF flow control */
-  /* output flags */
-  tc.c_oflag &= ~ OPOST;            /* disable output processing */
-  tc.c_oflag &= ~(ONLCR | OCRNL);   /* disable translating NL <-> CR */
-#ifdef linux
-/* not for FreeBSD */
-  tc.c_oflag &= ~ OFILL;            /* disable fill characters */
-#endif /* linux */
-  /* control flags */
-  tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
-  tc.c_cflag |=   CREAD;            /* enable reciever */
-  tc.c_cflag &= ~ PARENB;           /* disable parity */
-  tc.c_cflag &= ~ CSTOPB;           /* disable 2 stop bits */
-  tc.c_cflag &= ~ CSIZE;            /* remove size flag... */
-  tc.c_cflag |=   CS8;              /* ...enable 8 bit characters */
-  tc.c_cflag |=   HUPCL;            /* enable lower control lines on close - hang up */
-#ifdef XBEE_NO_RTSCTS
-  tc.c_cflag &= ~ CRTSCTS;          /* disable hardware CTS/RTS flow control */
-#else
-  tc.c_cflag |=   CRTSCTS;          /* enable hardware CTS/RTS flow control */
-#endif
-  /* local flags */
-  tc.c_lflag &= ~ ISIG;             /* disable generating signals */
-  tc.c_lflag &= ~ ICANON;           /* disable canonical mode - line by line */
-  tc.c_lflag &= ~ ECHO;             /* disable echoing characters */
-  tc.c_lflag &= ~ ECHONL;           /* ??? */
-  tc.c_lflag &= ~ NOFLSH;           /* disable flushing on SIGINT */
-  tc.c_lflag &= ~ IEXTEN;           /* disable input processing */
+	/* input flags */
+	tc.c_iflag &= ~ IGNBRK;           /* enable ignoring break */
+	tc.c_iflag &= ~(IGNPAR | PARMRK); /* disable parity checks */
+	tc.c_iflag &= ~ INPCK;            /* disable parity checking */
+	tc.c_iflag &= ~ ISTRIP;           /* disable stripping 8th bit */
+	tc.c_iflag &= ~(INLCR | ICRNL);   /* disable translating NL <-> CR */
+	tc.c_iflag &= ~ IGNCR;            /* disable ignoring CR */
+	tc.c_iflag &= ~(IXON | IXOFF);    /* disable XON/XOFF flow control */
+	/* output flags */
+	tc.c_oflag &= ~ OPOST;            /* disable output processing */
+	tc.c_oflag &= ~(ONLCR | OCRNL);   /* disable translating NL <-> CR */
+	#ifdef linux
+	/* not for FreeBSD */
+	tc.c_oflag &= ~ OFILL;            /* disable fill characters */
+	#endif /* linux */
+	/* control flags */
+	tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
+	tc.c_cflag |=   CREAD;            /* enable reciever */
+	tc.c_cflag &= ~ PARENB;           /* disable parity */
+	tc.c_cflag &= ~ CSTOPB;           /* disable 2 stop bits */
+	tc.c_cflag &= ~ CSIZE;            /* remove size flag... */
+	tc.c_cflag |=   CS8;              /* ...enable 8 bit characters */
+	tc.c_cflag |=   HUPCL;            /* enable lower control lines on close - hang up */
+	#ifdef XBEE_NO_RTSCTS
+	tc.c_cflag &= ~ CRTSCTS;          /* disable hardware CTS/RTS flow control */
+	#else
+	tc.c_cflag |=   CRTSCTS;          /* enable hardware CTS/RTS flow control */
+	#endif
+	/* local flags */
+	tc.c_lflag &= ~ ISIG;             /* disable generating signals */
+	tc.c_lflag &= ~ ICANON;           /* disable canonical mode - line by line */
+	tc.c_lflag &= ~ ECHO;             /* disable echoing characters */
+	tc.c_lflag &= ~ ECHONL;           /* ??? */
+	tc.c_lflag &= ~ NOFLSH;           /* disable flushing on SIGINT */
+	tc.c_lflag &= ~ IEXTEN;           /* disable input processing */
 
-  /* control characters */
-  memset(tc.c_cc,0,sizeof(tc.c_cc));
+	/* control characters */
+	memset(tc.c_cc,0,sizeof(tc.c_cc));
 	
 	/* set i/o baud rate */
-  if (cfsetspeed(&tc, chosenbaud)) {
+	if (cfsetspeed(&tc, chosenbaud)) {
 		perror("cfsetspeed()");
 		return XBEE_ESETUP;
 	}
 	
-  if (tcsetattr(info->dev.fd, TCSAFLUSH, &tc)) {
+	if (tcsetattr(info->dev.fd, TCSAFLUSH, &tc)) {
 		perror("tcsetattr()");
 		return XBEE_ESETUP;
 	}
@@ -122,10 +122,10 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	/* enable input & output transmission */
 #ifdef linux
 /* for Linux */
-  if (tcflow(info->dev.fd, TCOON | TCION)) {
+	if (tcflow(info->dev.fd, TCOON | TCION)) {
 #else
 /* for FreeBSD */
-  if (tcflow(info->dev.fd, TCOON)) {
+	if (tcflow(info->dev.fd, TCOON)) {
 #endif
 		perror("tcflow()");
 		return XBEE_ESETUP;
