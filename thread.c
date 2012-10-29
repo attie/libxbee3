@@ -78,13 +78,15 @@ void *threadFunc(struct xbee_threadInfo *thread) {
 			xbee_log(10, "thread %p, function %s() returned without error...", thread, thread->funcName, ret);
 		}
 		if (!restart || !thread->run) break;
-		if (thread->restartDelay != 0) {
+		if (xbee->die) {
+			xbee_log(20, "NOT restarting thread %p, function %s() - libxbee instance has been marked for death...", thread, thread->funcName);
+		} else if (thread->restartDelay != 0) {
 			xbee_log(20, "restarting thread %p, function %s() in %d us...", thread, thread->funcName, thread->restartDelay);
 			usleep(thread->restartDelay);
 		} else {
 			xbee_log(20, "restarting thread %p, function %s() with zero delay...", thread, thread->funcName);
 		}
-	} while (thread->run);
+	} while (thread->run && !xbee->die);
 	
 	thread->active = 0;
 	
