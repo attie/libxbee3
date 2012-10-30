@@ -411,7 +411,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 		if ((*pkt)->data[2] & 0x10) newSettings.broadcast = 1;
 		if ((*pkt)->data[2] & 0x20) newSettings.multicast = 1;
 		if ((*pkt)->data[2] & 0x40) newSettings.disableRetries = 1;
-		if ((*pkt)->data[3] & 0x80) newSettings.enableEncryption = 1;
+		if ((*pkt)->data[2] & 0x80) newSettings.enableEncryption = 1;
 		/* - */
 		if ((*pkt)->data[3] & 0x01) newSettings.extendTimeout = 1;
 		if ((*pkt)->data[3] & 0x02) newSettings.noRoute = 1;
