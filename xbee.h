@@ -188,6 +188,7 @@ enum xbee_errors {
 	XBEE_ESLEEPING             = -27,
 	XBEE_ECATCHALL             = -28,
 	XBEE_EMATCHLAST            = -29,
+	XBEE_ESHUTDOWN             = -30,
 };
 typedef enum xbee_errors xbee_err;
 

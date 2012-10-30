@@ -35,31 +35,11 @@
 xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
-	int i;
 	int pos;
 	int dataLen;
-	struct xbee_modeConType *conType;
-	struct xbee_con *con;
-	int conIdentifier;
 	
 	if (!xbee || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	if (buf->len < 3) return XBEE_ELENGTH;
-	
-	conIdentifier = (((buf->data[1] << 8) & 0xFF) | (buf->data[2] & 0xFF));
-	
-	conType = NULL;
-	for (i = 0; xbee->iface.conTypes[i].name; i++) {
-		if (!xbee->iface.conTypes[i].rxHandler) continue;
-		if (xbee->iface.conTypes[i].rxHandler->identifier != identifier) continue;
-		conType = &(xbee->iface.conTypes[i]);
-		break;
-	}
-	if (!conType) return XBEE_EINVAL;
-	
-	for (con = NULL; xbee_ll_get_next(conType->conList, con, (void **)&con) == XBEE_ENONE && con; ) {
-		if (con->conIdentifier == conIdentifier) break;
-	}
-	if (!con) return XBEE_EINVAL;
 	
 	pos = 3;
 	
@@ -78,35 +58,28 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	address->endpoints_enabled = !!(buf->data[pos] & 0x04);
 	                                                         pos++;
 	if (address->addr16_enabled) {
-		address->addr16[0] = buf->data[pos];              pos++;
-		address->addr16[1] = buf->data[pos];              pos++;
+		address->addr16[0] = buf->data[pos];                   pos++;
+		address->addr16[1] = buf->data[pos];                   pos++;
 	}
 	if (address->addr64_enabled) {
-		address->addr64[0] = buf->data[pos];              pos++;
-		address->addr64[1] = buf->data[pos];              pos++;
-		address->addr64[2] = buf->data[pos];              pos++;
-		address->addr64[3] = buf->data[pos];              pos++;
-		address->addr64[4] = buf->data[pos];              pos++;
-		address->addr64[5] = buf->data[pos];              pos++;
-		address->addr64[6] = buf->data[pos];              pos++;
-		address->addr64[7] = buf->data[pos];              pos++;
+		address->addr64[0] = buf->data[pos];                   pos++;
+		address->addr64[1] = buf->data[pos];                   pos++;
+		address->addr64[2] = buf->data[pos];                   pos++;
+		address->addr64[3] = buf->data[pos];                   pos++;
+		address->addr64[4] = buf->data[pos];                   pos++;
+		address->addr64[5] = buf->data[pos];                   pos++;
+		address->addr64[6] = buf->data[pos];                   pos++;
+		address->addr64[7] = buf->data[pos];                   pos++;
 	}
-	if ((iPkt)->address.endpoints_enabled) {
-		iPkt->address.endpoint_local =  buf->data[pos];        pos++;
-		iPkt->address.endpoint_remote = buf->data[pos];        pos++;
+	if (address->endpoints_enabled) {
+		address->endpoint_local =  buf->data[pos];             pos++;
+		address->endpoint_remote = buf->data[pos];             pos++;
 	}
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;
 	iPkt->atCommand[1] = buf->data[pos];                     pos++;
 	
 	if (iPkt->dataLen > 0) {
 		memcpy(iPkt->data, &buf->data[pos], iPkt->dataLen);    pos += iPkt->dataLen;
-	}
-	
-	if (conType->rxHandler->funcPost) {
-		xbee_err ret;
-		if ((ret = conType->rxHandler->funcPost(xbee, con, iPkt)) != XBEE_ENONE) {
-			xbee_log(1, "funcPost() failed for con @ %p - returned %d\n", con, ret);
-		}
 	}
 	
 	*pkt = iPkt;
