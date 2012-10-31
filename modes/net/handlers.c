@@ -53,10 +53,19 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	iPkt->options =      buf->data[pos];                     pos++;
 	iPkt->rssi =         buf->data[pos];                     pos++;
 	iPkt->frameId =      buf->data[pos];                     pos++;
-	address->addr16_enabled =    !!(buf->data[pos] & 0x01);
-	address->addr64_enabled =    !!(buf->data[pos] & 0x02);
-	address->endpoints_enabled = !!(buf->data[pos] & 0x04);
-	                                                         pos++;
+	address->addr16_enabled =     !!(buf->data[pos] & 0x01);
+	address->addr64_enabled =     !!(buf->data[pos] & 0x02);
+	address->endpoints_enabled =  !!(buf->data[pos] & 0x04);
+	address->profile_enabled =    !!(buf->data[pos] & 0x08);
+	address->cluster_enabled =    !!(buf->data[pos] & 0x10);
+	/* -- */
+	address->addr16_wildcard =    !!(buf->data[pos] & 0x20);
+	address->addr64_wildcard =    !!(buf->data[pos] & 0x40);
+	address->endpoints_wildcard = !!(buf->data[pos] & 0x80);
+                                                           pos++;
+	address->profile_wildcard =   !!(buf->data[pos] & 0x01);
+	address->cluster_wildcard =   !!(buf->data[pos] & 0x02);
+                                                           pos++;
 	if (address->addr16_enabled) {
 		address->addr16[0] = buf->data[pos];                   pos++;
 		address->addr16[1] = buf->data[pos];                   pos++;
@@ -74,6 +83,14 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	if (address->endpoints_enabled) {
 		address->endpoint_local =  buf->data[pos];             pos++;
 		address->endpoint_remote = buf->data[pos];             pos++;
+	}
+	if (address->profile_enabled) {
+		address->profile_id  = ((buf->data[pos] << 8) & 0xFF00); pos++;
+		address->profile_id |= ((buf->data[pos]) & 0xFF); pos++;
+	}
+	if (address->cluster_enabled) {
+		address->cluster_id  = ((buf->data[pos] << 8) & 0xFF00); pos++;
+		address->cluster_id |= ((buf->data[pos]) & 0xFF); pos++;
 	}
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;
 	iPkt->atCommand[1] = buf->data[pos];                     pos++;

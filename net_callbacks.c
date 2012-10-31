@@ -72,6 +72,8 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	if ((*pkt)->address.addr16_enabled)    memSize += 2;
 	if ((*pkt)->address.addr64_enabled)    memSize += 8;
 	if ((*pkt)->address.endpoints_enabled) memSize += 2;
+	if ((*pkt)->address.profile_enabled)   memSize += 2;
+	if ((*pkt)->address.cluster_enabled)   memSize += 2;
 	
 	if ((buf = malloc(memSize)) == NULL) {
 		xbee_log(1, "MALLOC FAILED... dataloss has occured");
@@ -86,9 +88,18 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	buf[pos] = (*pkt)->rssi;                             pos++;
 	buf[pos] = (*pkt)->frameId;                          pos++;
 	buf[pos] = 0;
-	if ((*pkt)->address.addr16_enabled)    buf[pos] |= 0x01;
-	if ((*pkt)->address.addr64_enabled)    buf[pos] |= 0x02;
-	if ((*pkt)->address.endpoints_enabled) buf[pos] |= 0x04;
+	if ((*pkt)->address.addr16_enabled)     buf[pos] |= 0x01;
+	if ((*pkt)->address.addr64_enabled)     buf[pos] |= 0x02;
+	if ((*pkt)->address.endpoints_enabled)  buf[pos] |= 0x04;
+	if ((*pkt)->address.profile_enabled)    buf[pos] |= 0x08;
+	if ((*pkt)->address.cluster_enabled)    buf[pos] |= 0x10;
+	/* -- */
+	if ((*pkt)->address.addr16_wildcard)    buf[pos] |= 0x20;
+	if ((*pkt)->address.addr64_wildcard)    buf[pos] |= 0x40;
+	if ((*pkt)->address.endpoints_wildcard) buf[pos] |= 0x80;
+	                                                     pos++;
+	if ((*pkt)->address.profile_wildcard)   buf[pos] |= 0x01;
+	if ((*pkt)->address.cluster_wildcard)   buf[pos] |= 0x02;
 	                                                     pos++;
 	if ((*pkt)->address.addr16_enabled) {
 		buf[pos] = (*pkt)->address.addr16[0];              pos++;
@@ -107,6 +118,14 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	if ((*pkt)->address.endpoints_enabled) {
 		buf[pos] = (*pkt)->address.endpoint_local;         pos++;
 		buf[pos] = (*pkt)->address.endpoint_remote;        pos++;
+	}
+	if ((*pkt)->address.profile_enabled) {
+		buf[pos] = ((*pkt)->address.profile_id >> 8) & 0xFF; pos++;
+		buf[pos] = ((*pkt)->address.profile_id) & 0xFF;      pos++;
+	}
+	if ((*pkt)->address.cluster_enabled) {
+		buf[pos] = ((*pkt)->address.cluster_id >> 8) & 0xFF; pos++;
+		buf[pos] = ((*pkt)->address.cluster_id) & 0xFF;      pos++;
 	}
 	buf[pos] = (*pkt)->atCommand[0];                     pos++;
 	buf[pos] = (*pkt)->atCommand[1];                     pos++;
@@ -387,7 +406,7 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	
 	retVal = 0x02;
 	
-	if ((*pkt)->dataLen != 2 && (*pkt)->dataLen != 4) {
+	if ((*pkt)->dataLen != 2 && (*pkt)->dataLen != 5) {
 		goto err;
 	}
 	
@@ -406,15 +425,16 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 		memset(&newSettings, 0, sizeof(newSettings));
 		if ((*pkt)->data[2] & 0x01) newSettings.noBlock = 1;
 		if ((*pkt)->data[2] & 0x02) newSettings.catchAll = 1;
-		if ((*pkt)->data[2] & 0x04) newSettings.queueChanges = 1;
-		if ((*pkt)->data[2] & 0x08) newSettings.disableAck = 1;
-		if ((*pkt)->data[2] & 0x10) newSettings.broadcast = 1;
-		if ((*pkt)->data[2] & 0x20) newSettings.multicast = 1;
-		if ((*pkt)->data[2] & 0x40) newSettings.disableRetries = 1;
-		if ((*pkt)->data[2] & 0x80) newSettings.enableEncryption = 1;
+		if ((*pkt)->data[2] & 0x04) newSettings.matchLast = 1;
+		if ((*pkt)->data[2] & 0x08) newSettings.queueChanges = 1;
+		if ((*pkt)->data[2] & 0x10) newSettings.disableAck = 1;
+		if ((*pkt)->data[2] & 0x20) newSettings.broadcast = 1;
+		if ((*pkt)->data[2] & 0x40) newSettings.multicast = 1;
+		if ((*pkt)->data[2] & 0x80) newSettings.disableRetries = 1;
 		/* - */
-		if ((*pkt)->data[3] & 0x01) newSettings.extendTimeout = 1;
-		if ((*pkt)->data[3] & 0x02) newSettings.noRoute = 1;
+		if ((*pkt)->data[3] & 0x01) newSettings.enableEncryption = 1;
+		if ((*pkt)->data[3] & 0x02) newSettings.extendTimeout = 1;
+		if ((*pkt)->data[3] & 0x04) newSettings.noRoute = 1;
 		newSettings.broadcastRadius = (*pkt)->data[4];
 		
 		ret = xbee_conSettings(iCon, &newSettings, &oldSettings);
@@ -433,15 +453,16 @@ void xbee_net_conSettings(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	buf[2] = 0;
 	if (iCon->settings.noBlock)          buf[2] |= 0x01;
 	if (iCon->settings.catchAll)         buf[2] |= 0x02;
-	if (iCon->settings.queueChanges)     buf[2] |= 0x04;
-	if (iCon->settings.disableAck)       buf[2] |= 0x08;
-	if (iCon->settings.broadcast)        buf[2] |= 0x10;
-	if (iCon->settings.multicast)        buf[2] |= 0x20;
-	if (iCon->settings.disableRetries)   buf[2] |= 0x40;
-	if (iCon->settings.enableEncryption) buf[2] |= 0x80;
+	if (iCon->settings.matchLast)        buf[2] |= 0x04;
+	if (iCon->settings.queueChanges)     buf[2] |= 0x08;
+	if (iCon->settings.disableAck)       buf[2] |= 0x10;
+	if (iCon->settings.broadcast)        buf[2] |= 0x20;
+	if (iCon->settings.multicast)        buf[2] |= 0x40;
+	if (iCon->settings.disableRetries)   buf[2] |= 0x80;
 	buf[3] = 0;
-	if (iCon->settings.extendTimeout)    buf[3] |= 0x01;
-	if (iCon->settings.noRoute)          buf[3] |= 0x02;
+	if (iCon->settings.enableEncryption) buf[3] |= 0x01;
+	if (iCon->settings.extendTimeout)    buf[3] |= 0x02;
+	if (iCon->settings.noRoute)          buf[3] |= 0x04;
 	buf[4] = iCon->settings.broadcastRadius;
 	xbee_connTx(con, NULL, buf, sizeof(buf));
 	

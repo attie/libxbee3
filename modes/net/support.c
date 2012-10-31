@@ -185,7 +185,7 @@ xbee_err xbee_netSupport_conSleepGet(struct xbee_con *con) {
 xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettings *newSettings) {
 	xbee_err ret;
 	unsigned char conTypeId;
-	unsigned char buf[4];
+	unsigned char buf[5];
 	unsigned char txRet;
 	struct xbee_pkt *pkt;
 	struct xbee_modeData *data;
@@ -201,14 +201,21 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 	
 	if (newSettings != NULL) {
 		buf[2] = 0;
-		if (newSettings->disableAck)   buf[2] |= 0x01;
-		if (newSettings->broadcast)    buf[2] |= 0x02;
-		if (newSettings->queueChanges) buf[2] |= 0x04;
-		if (newSettings->multicast)    buf[2] |= 0x08;
-		if (newSettings->noBlock)      buf[2] |= 0x10;
-		if (newSettings->catchAll)     buf[2] |= 0x20;
-		
-		buf[3] = newSettings->broadcastRadius;
+		if (newSettings->noBlock)          buf[2] |= 0x01;
+		if (newSettings->catchAll)         buf[2] |= 0x02;
+		if (newSettings->matchLast)        buf[2] |= 0x04;
+		if (newSettings->queueChanges)     buf[2] |= 0x08;
+		if (newSettings->disableAck)       buf[2] |= 0x10;
+		if (newSettings->broadcast)        buf[2] |= 0x20;
+		if (newSettings->multicast)        buf[2] |= 0x40;
+		if (newSettings->disableRetries)   buf[2] |= 0x80;
+		/* - */
+		buf[3] = 0;
+		if (newSettings->enableEncryption) buf[3] |= 0x01;
+		if (newSettings->extendTimeout)    buf[3] |= 0x02;
+		if (newSettings->noRoute)          buf[3] |= 0x04;
+
+		buf[4] = newSettings->broadcastRadius;
 		
 		xbee_connTx(data->bc_conSettings, &txRet, buf, sizeof(buf));
 	} else {
@@ -217,14 +224,21 @@ xbee_err xbee_netSupport_conSettings(struct xbee_con *con, struct xbee_conSettin
 	
 	if (xbee_conRx(data->bc_conSettings, &pkt, NULL) != XBEE_ENONE || !pkt) return XBEE_EREMOTE;
 	
-	if (txRet == 0 && pkt->dataLen == 2) {
-		con->settings.disableAck =   !!(pkt->data[0] & 0x01);
-		con->settings.broadcast =    !!(pkt->data[0] & 0x02);
-		con->settings.queueChanges = !!(pkt->data[0] & 0x04);
-		con->settings.multicast =    !!(pkt->data[0] & 0x08);
-		con->settings.noBlock =      !!(pkt->data[0] & 0x10);
-		con->settings.catchAll =     !!(pkt->data[0] & 0x20);
-		con->settings.broadcastRadius = pkt->data[1];
+	if (txRet == 0 && pkt->dataLen == 3) {
+		con->settings.noBlock =          !!(pkt->data[0] & 0x01);
+		con->settings.catchAll =         !!(pkt->data[0] & 0x02);
+		con->settings.matchLast =        !!(pkt->data[0] & 0x04);
+		con->settings.queueChanges =     !!(pkt->data[0] & 0x08);
+		con->settings.disableAck =       !!(pkt->data[0] & 0x10);
+		con->settings.broadcast =        !!(pkt->data[0] & 0x20);
+		con->settings.multicast =        !!(pkt->data[0] & 0x40);
+		con->settings.disableRetries =   !!(pkt->data[0] & 0x80);
+		/* - */
+		con->settings.enableEncryption = !!(pkt->data[1] & 0x01);
+		con->settings.extendTimeout =    !!(pkt->data[1] & 0x02);
+		con->settings.noRoute =          !!(pkt->data[1] & 0x04);
+
+		con->settings.broadcastRadius = pkt->data[2];
 		ret = XBEE_ENONE;
 	} else {
 		ret = XBEE_EREMOTE;
