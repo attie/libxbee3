@@ -33,14 +33,22 @@
 #include "handlers.h"
 
 xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+/* see the counterpart Tx function
+		net_handlers.c - xbee_netServer_fc_tx_func() */
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
-	int pos;
+	int pos, required;
 	int dataLen;
 	
+	required = 11;
+
 	if (!xbee || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
-	if (buf->len < 3) return XBEE_ELENGTH;
+	if (buf->len < required) return XBEE_ELENGTH;
 	
+	/* buf->data[0] is identifier
+	   buf->data[1] is (conIdentifier >> 8) & 0xFF
+	   buf->data[2] is conIdentifier & 0xFF */
+
 	pos = 3;
 	
 	dataLen =           (buf->data[pos] << 8) & 0xFF00;      pos++;
@@ -66,6 +74,19 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	address->profile_wildcard =   !!(buf->data[pos] & 0x01);
 	address->cluster_wildcard =   !!(buf->data[pos] & 0x02);
                                                            pos++;
+
+	if (address->addr16_enabled)    required += 2;
+	if (address->addr64_enabled)    required += 8;
+	if (address->endpoints_enabled) required += 2;
+	if (address->profile_enabled)   required += 2;
+	if (address->cluster_enabled)   required += 2;
+	/* and the AT command */        required += 2;
+	
+	if (buf->len < required || buf->len - required < iPkt->dataLen) {
+		xbee_pktFree(iPkt);
+		return XBEE_ELENGTH;
+	}
+
 	if (address->addr16_enabled) {
 		address->addr16[0] = buf->data[pos];                   pos++;
 		address->addr16[1] = buf->data[pos];                   pos++;
@@ -105,6 +126,8 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 }
 
 xbee_err xbee_net_frontchannel_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
+/* see the counterpart Tx function
+		net_handlers.c - xbee_netServer_fc_rx_func() */
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	size_t memSize;
