@@ -68,7 +68,7 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	/* this will need updating if struct xbee_pkt changes */
 	/* 9 = dataLen[2] + status + settings + rssi + frameId + address flags + atCommand[2] */
 	/* dataLen can be inferred */
-	memSize = 9 + (*pkt)->dataLen + 1;
+	memSize = 9 + (*pkt)->dataLen;
 	if ((*pkt)->address.addr16_enabled)    memSize += 2;
 	if ((*pkt)->address.addr64_enabled)    memSize += 8;
 	if ((*pkt)->address.endpoints_enabled) memSize += 2;
@@ -113,7 +113,6 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	if ((*pkt)->dataLen > 0) {
 		memcpy(&buf[pos], (*pkt)->data, (*pkt)->dataLen);  pos += (*pkt)->dataLen;
 	}
-	buf[pos] = '\0';
 	
 	xbee_connTx((struct xbee_con *)(*data), NULL, buf, memSize);
 	
