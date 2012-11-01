@@ -130,6 +130,11 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	buf[pos] = (*pkt)->atCommand[0];                     pos++;
 	buf[pos] = (*pkt)->atCommand[1];                     pos++;
 	if ((*pkt)->dataLen > 0) {
+		if (pos + (*pkt)->dataLen > memSize) {
+			xbee_log(1, "Allocated buffer is too small... dataloss has occured");
+			free(buf);
+			return;
+		}
 		memcpy(&buf[pos], (*pkt)->data, (*pkt)->dataLen);  pos += (*pkt)->dataLen;
 	}
 	
