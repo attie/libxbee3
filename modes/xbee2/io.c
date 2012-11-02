@@ -139,8 +139,6 @@ xbee_err xbee_s2_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	
-	xbee_s2_io_parseInputs(xbee, iPkt, iPkt->data, iPkt->dataLen);
-	
 	*pkt = iPkt;
 	
 	return XBEE_ENONE;
