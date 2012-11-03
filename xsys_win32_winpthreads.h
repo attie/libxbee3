@@ -1407,7 +1407,7 @@ static int pthread_rwlockattr_setpshared(pthread_rwlockattr_t *a, int s)
 #define sigsuspend(...) (pthread_testcancel(), sigsuspend(__VA_ARGS__))
 #define sigwait(...) (pthread_testcancel(), sigwait(__VA_ARGS__))
 #define sigwaitinfo(...) (pthread_testcancel(), sigwaitinfo(__VA_ARGS__))
-#define sleep(...) (pthread_testcancel(), sleep(__VA_ARGS__))
+//#define sleep(...) (pthread_testcancel(), sleep(__VA_ARGS__))
 //#define Sleep(...) (pthread_testcancel(), Sleep(__VA_ARGS__))
 #define system(...) (pthread_testcancel(), system(__VA_ARGS__))
 

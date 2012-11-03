@@ -68,7 +68,7 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	/* this will need updating if struct xbee_pkt changes */
 	/* 9 = dataLen[2] + status + settings + rssi + frameId + address flags + atCommand[2] */
 	/* dataLen can be inferred */
-	memSize = 9 + (*pkt)->dataLen + 1;
+	memSize = 9 + (*pkt)->dataLen;
 	if ((*pkt)->address.addr16_enabled)    memSize += 2;
 	if ((*pkt)->address.addr64_enabled)    memSize += 8;
 	if ((*pkt)->address.endpoints_enabled) memSize += 2;
@@ -111,9 +111,13 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	buf[pos] = (*pkt)->atCommand[0];                     pos++;
 	buf[pos] = (*pkt)->atCommand[1];                     pos++;
 	if ((*pkt)->dataLen > 0) {
+		if (pos + (*pkt)->dataLen > memSize) {
+			xbee_log(1, "Allocated buffer is too small... dataloss has occured");
+			free(buf);
+			return;
+		}
 		memcpy(&buf[pos], (*pkt)->data, (*pkt)->dataLen);  pos += (*pkt)->dataLen;
 	}
-	buf[pos] = '\0';
 	
 	xbee_connTx((struct xbee_con *)(*data), NULL, buf, memSize);
 	
@@ -146,6 +150,7 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 	}
 
 	memSize = 0;
+	memSize += strlen(xbee->mode->name) + 1;
 	for (i = 1; xbee_netServerCallbacks[i].callback; i++) {
 		memSize += strlen(xbee_netServerCallbacks[i].name) + 1;
 	}
@@ -169,8 +174,10 @@ void xbee_net_start(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **p
 	iBuf->len = bufLen;
 	iBuf->data[0] = (*pkt)->frameId;
 	iBuf->data[1] = 0x00; /* <-- success */
-	iBuf->data[2] = callbackCount - 1; /* -1 cos we started at 1, not 0 */
-	for (i = 1, o = 3; i < callbackCount; i++) {
+	o = 2;
+	o += snprintf((char *)&(iBuf->data[o]), iBuf->len - o, "%s", xbee->mode->name) + 1;
+	iBuf->data[o] = callbackCount - 1; o++; /* -1 cos we started at 1, not 0 */
+	for (i = 1; i < callbackCount; i++) {
 		o += snprintf((char *)&(iBuf->data[o]), iBuf->len - o, "%s", xbee_netServerCallbacks[i].name) + 1;
 	}
 	

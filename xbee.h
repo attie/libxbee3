@@ -44,7 +44,12 @@ struct timespec {
   long    tv_nsec;   /* nanoseconds */
 };
 # endif
-#endif 
+
+#else /* _W32 */
+
+#include <sys/time.h>
+
+#endif /* WIN32 */
 
 /* ######################################################################### */
 
@@ -156,6 +161,8 @@ enum xbee_errors {
 	
 	XBEE_ESLEEPING             = -27,
 	XBEE_ECATCHALL             = -28,
+	
+	XBEE_ESHUTDOWN             = -29,
 };
 typedef enum xbee_errors xbee_err;
 

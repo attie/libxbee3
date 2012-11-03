@@ -15,6 +15,7 @@ SDKPATH:=C:\Program Files\Microsoft SDKs\Windows\v6.0A
 #OPTIONS+=       XBEE_DISABLE_LOGGING
 
 ### use for more precise logging options
+OPTIONS+=       XBEE_LOG_NO_COLOR
 #OPTIONS+=       XBEE_LOG_LEVEL=100
 #OPTIONS+=       XBEE_LOG_RX
 #OPTIONS+=       XBEE_LOG_TX

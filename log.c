@@ -155,6 +155,18 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	
 	xbee_mutex_lock(&log->mutex);
 	
+#ifndef XBEE_LOG_NO_COLOR
+	if (!xbee) {
+		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[90m:%c[0m %s\n",
+			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27,                   tBuf);
+	} else if (xbee_validate(xbee) == XBEE_ENONE) {
+		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[0m %c[35m%p%c[90m:%c[0m %s\n",
+			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27,     tBuf);
+	} else {
+		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[31m !%c[35m%p%c[31m!%c[90m:%c[0m %s\n",
+			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27, 27, tBuf);
+	}
+#else
 	if (!xbee) {
 		fprintf(log->f, "%s%3d#[%s:%d] %s(): %s\n",      preStr, minLevel, file, line, function,       tBuf);
 	} else if (xbee_validate(xbee) == XBEE_ENONE) {
@@ -162,6 +174,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	} else {
 		fprintf(log->f, "%s%3d#[%s:%d] %s() !%p!: %s\n", preStr, minLevel, file, line, function, xbee, tBuf);
 	}
+#endif
 	
 	xbee_mutex_unlock(&log->mutex);
 	
@@ -200,6 +213,49 @@ xbee_err _xbee_log(const char *file, int line, const char *function, struct xbee
 	va_end(ap);
 	
 	return ret;
+}
+
+xbee_err _xbee_logData(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, char *label, unsigned char *data, size_t length) {
+	int i;
+	int l;
+	/* format:
+		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00  | ........
+	*/
+	char lineBufA[41];
+	char lineBufB[9];
+	
+	/* prepare the format string */
+	for (l = 0; l < sizeof(lineBufA) - 1; l++) {
+		switch (l % 5) {
+			case 0: case 2: case 3:
+				lineBufA[l] = '0'; break;
+			case 1:
+				lineBufA[l] = 'x'; break;
+			case 4:
+				lineBufA[l] = ' '; break;
+		}
+	}
+	lineBufA[l] = '\0';
+	lineBufB[sizeof(lineBufB) - 1] = '\0';
+	
+	xbee_log(25, "%s length: %d", label, length);
+	
+	for (i = 0; i < length; i += l) {
+		/* fill in the data */
+		for (l = 0; l < 8 && i + l < length; l++) {
+			snprintf(&(lineBufA[(5 * l) + 2]), 3, "%02X", data[i + l]);
+			lineBufA[(5 * l) + 4] = ' ';
+			lineBufB[l] = ((data[i + l] >= ' ' && data[i + l] <= '~')?data[i + l]:'.');
+		}
+		/* wipe out the unneeded space */
+		for (; l < 8; l++) {
+			strncpy(&(lineBufA[5 * l]), "     ", 6);
+			lineBufB[l] = ' ';
+		}
+		xbee_log(25, "%s: 0x%04X : %s | %s", label, i, lineBufA, lineBufB);
+	}
+	
+	return XBEE_ENONE;
 }
 
 #endif /* XBEE_DISABLE_LOGGING */

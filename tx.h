@@ -22,6 +22,7 @@
 */
 
 struct xbee_txInfo {
+	char logColor;
 	struct xbee_ll_head *bufList;
 	xsys_sem sem;
 	void *ioArg;

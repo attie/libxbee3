@@ -32,6 +32,7 @@
 #include "ll.h"
 
 xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo) {
+	static char logColor = 1;
 	size_t memSize;
 	struct xbee_rxInfo *info;
 	
@@ -44,6 +45,10 @@ xbee_err xbee_rxAlloc(struct xbee_rxInfo **nInfo) {
 	memset(info, 0, memSize);
 	info->bufList = xbee_ll_alloc();
 	xsys_sem_init(&info->sem);
+	
+	/* give it a log color */
+	info->logColor = logColor;
+	if (logColor++ > 7) logColor = 7;
 	
 	*nInfo = info;
 	
@@ -80,6 +85,8 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 				*restart = 0;
 				if (info->eofCallback) info->eofCallback(xbee, info);
 				return XBEE_EEOF;
+			} else if (ret == XBEE_ESHUTDOWN && xbee->die) {
+				break;
 			}
 			xbee_log(1, "rx() returned %d (%s)... retrying in 10 ms", ret, xbee_errorToStr(ret));
 			usleep(10000); /* 10 ms */
@@ -88,11 +95,15 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 		
 #ifdef XBEE_LOG_RX
 		{
-			int i;
-			xbee_log(25, "rx[%p] length: %d", info, buf->len);
-			for (i = 0; i < buf->len; i++) {
-				xbee_log(25, "rx[%p]: %3d 0x%02X [%c]", info, i, buf->data[i], ((buf->data[i] >= ' ' && buf->data[i] <= '~')?buf->data[i]:'.'));
-			}
+			/* format: tx[0x0000000000000000] */
+			char label[42]; /* enough space for a 64-bit pointer and ANSI color codes */
+			
+#ifdef XBEE_LOG_NO_COLOR
+			snprintf(label, sizeof(label), "rx[%p]", info);
+#else
+			snprintf(label, sizeof(label), "rx[%c[%dm%p%c[0m]", 27, 30 + info->logColor, info,  27);
+#endif
+			xbee_logData(25, label, buf->data, buf->len);
 		}
 #endif /* XBEE_LOG_RX */
 		
@@ -101,7 +112,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 		if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
 	}
 	
-	return XBEE_ENONE;
+	return XBEE_ESHUTDOWN;
 }
 
 /* ######################################################################### */
@@ -144,7 +155,8 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xsys_sem_wait(&info->sem);
 		
 		/* get the next buffer */
-		if (xbee_ll_ext_head(info->bufList, (void**)&buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+		if ((ret = xbee_ll_ext_head(info->bufList, (void**)&buf)) != XBEE_ENONE && ret != XBEE_ERANGE) return XBEE_ELINKEDLIST;
+		ret = XBEE_ENONE;
 		if (!buf) continue;
 		
 		/* check we actually have some data to work with... */
@@ -197,6 +209,13 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		xbee_log(15, "matched packet with con @ %p", con);
 		xbee_conLogAddress(xbee, 16, &address);
 		
+		if (conType->rxHandler->funcPost) {
+			xbee_err ret;
+			if ((ret = conType->rxHandler->funcPost(xbee, con, pkt)) != XBEE_ENONE) {
+				xbee_log(1, "funcPost() failed for con @ %p - returned %d\n", con, ret);
+			}
+		}
+		
 		/* wake the connection if necessary */
 		if (con->sleepState != CON_AWAKE) {
 			con->sleepState = CON_AWAKE;
@@ -232,5 +251,6 @@ done:
 		free(buf);
 	}
 	
+	if (xbee->die && ret == XBEE_ENONE) return XBEE_ESHUTDOWN;
 	return ret;
 }

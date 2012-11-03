@@ -25,6 +25,7 @@
 #include "internal.h"
 #include "xbee_int.h"
 #include "net.h"
+#include "log.h"
 #include "net_handlers.h"
 #include "pkt.h"
 #include "mode.h"
@@ -33,6 +34,8 @@
 #ifndef XBEE_NO_NET_SERVER
 
 xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+/* see the counterpart Tx function
+		modes/net/handlers.c - xbee_net_frontchannel_tx_func() */
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	int pos;
@@ -45,8 +48,8 @@ xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char i
 	
 	iPkt->frameId = buf->data[1];
 	address->addr16_enabled = 1;
-	address->addr16[0] = buf->data[2];
-	address->addr16[1] = buf->data[3];
+	address->addr16[0] = buf->data[2]; /* (conIdentifier >> 8) & 0xFF */
+	address->addr16[1] = buf->data[3]; /* conIdentifier & 0xFF */
 	
 	iPkt->dataLen = buf->len - pos;
 	if (iPkt->dataLen > 0) {
@@ -60,6 +63,8 @@ xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char i
 }
 
 xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
+/* see the counterpart Tx function
+		modes/net/handlers.c - xbee_net_frontchannel_rx_func() */
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	size_t memSize;
@@ -92,7 +97,7 @@ xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void
 
 /* ######################################################################### */
 
-#endif /* XBEE_NO_NET_SERVER - thie following code is used by the client too */
+#endif /* XBEE_NO_NET_SERVER - the following code is used by the client too */
 
 xbee_err xbee_netServer_bc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;

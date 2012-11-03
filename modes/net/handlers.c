@@ -24,6 +24,7 @@
 
 #include "../../internal.h"
 #include "../../xbee_int.h"
+#include "../../log.h"
 #include "../../mode.h"
 #include "../../conn.h"
 #include "../../pkt.h"
@@ -32,31 +33,22 @@
 #include "handlers.h"
 
 xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+/* see the counterpart Tx function
+		net_handlers.c - xbee_netServer_fc_tx_func() */
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
-	int i;
-	int pos;
+	int pos, required;
 	int dataLen;
-	struct xbee_modeConType *conType;
-	struct xbee_con *con;
 	
+	required = 10;
+
 	if (!xbee || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
-	if (buf->len < 3) return XBEE_ELENGTH;
+	if (buf->len < required) return XBEE_ELENGTH;
 	
-	conType = NULL;
-	for (i = 0; xbee->iface.conTypes[i].name; i++) {
-		if (!xbee->iface.conTypes[i].rxHandler) continue;
-		if (xbee->iface.conTypes[i].rxHandler->identifier != identifier) continue;
-		conType = &(xbee->iface.conTypes[i]);
-		break;
-	}
-	if (!conType) return XBEE_EINVAL;
-	
-	for (con = NULL; xbee_ll_get_next(conType->conList, con, (void **)&con) == XBEE_ENONE && con; ) {
-		if (con->conIdentifier == (((buf->data[1] << 8) & 0xFF) | (buf->data[2] & 0xFF))) break;
-	}
-	if (!con) return XBEE_EINVAL;
-	
+	/* buf->data[0] is identifier
+	   buf->data[1] is (conIdentifier >> 8) & 0xFF
+	   buf->data[2] is conIdentifier & 0xFF */
+
 	pos = 3;
 	
 	dataLen =           (buf->data[pos] << 8) & 0xFF00;      pos++;
@@ -71,25 +63,35 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	iPkt->frameId =      buf->data[pos];                     pos++;
 	address->addr16_enabled =    !!(buf->data[pos] & 0x01);
 	address->addr64_enabled =    !!(buf->data[pos] & 0x02);
-	address->endpoints_enabled = !!(buf->data[pos] & 0x04);
-	                                                         pos++;
+	address->endpoints_enabled = !!(buf->data[pos] & 0x04);  pos++;
+
+	if (address->addr16_enabled)    required += 2;
+	if (address->addr64_enabled)    required += 8;
+	if (address->endpoints_enabled) required += 2;
+	/* and the AT command */        required += 2;
+	
+	if (buf->len < required || buf->len - required < iPkt->dataLen) {
+		xbee_pktFree(iPkt);
+		return XBEE_ELENGTH;
+	}
+
 	if (address->addr16_enabled) {
-		address->addr16[0] = buf->data[pos];              pos++;
-		address->addr16[1] = buf->data[pos];              pos++;
+		address->addr16[0] = buf->data[pos];                   pos++;
+		address->addr16[1] = buf->data[pos];                   pos++;
 	}
 	if (address->addr64_enabled) {
-		address->addr64[0] = buf->data[pos];              pos++;
-		address->addr64[1] = buf->data[pos];              pos++;
-		address->addr64[2] = buf->data[pos];              pos++;
-		address->addr64[3] = buf->data[pos];              pos++;
-		address->addr64[4] = buf->data[pos];              pos++;
-		address->addr64[5] = buf->data[pos];              pos++;
-		address->addr64[6] = buf->data[pos];              pos++;
-		address->addr64[7] = buf->data[pos];              pos++;
+		address->addr64[0] = buf->data[pos];                   pos++;
+		address->addr64[1] = buf->data[pos];                   pos++;
+		address->addr64[2] = buf->data[pos];                   pos++;
+		address->addr64[3] = buf->data[pos];                   pos++;
+		address->addr64[4] = buf->data[pos];                   pos++;
+		address->addr64[5] = buf->data[pos];                   pos++;
+		address->addr64[6] = buf->data[pos];                   pos++;
+		address->addr64[7] = buf->data[pos];                   pos++;
 	}
-	if ((iPkt)->address.endpoints_enabled) {
-		iPkt->address.endpoint_local =  buf->data[pos];        pos++;
-		iPkt->address.endpoint_remote = buf->data[pos];        pos++;
+	if (address->endpoints_enabled) {
+		address->endpoint_local =  buf->data[pos];             pos++;
+		address->endpoint_remote = buf->data[pos];             pos++;
 	}
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;
 	iPkt->atCommand[1] = buf->data[pos];                     pos++;
@@ -104,6 +106,8 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 }
 
 xbee_err xbee_net_frontchannel_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
+/* see the counterpart Tx function
+		net_handlers.c - xbee_netServer_fc_rx_func() */
 	struct xbee_buf *iBuf;
 	size_t bufLen;
 	size_t memSize;

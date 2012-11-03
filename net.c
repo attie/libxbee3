@@ -337,6 +337,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 			/* YES - THIS IS BACKWARDS... think about it */
 			if (conType->rxHandler) {
 				if ((tx = malloc(sizeof(*tx))) == NULL) { ret = XBEE_ENOMEM; break; } /* !!! */
+				memset(tx, 0, sizeof(*tx));
 				
 				tx->identifier = o;
 				tx->func = xbee_netServer_fc_tx_func;
@@ -348,6 +349,7 @@ xbee_err xbee_netServerThread(struct xbee *xbee, int *restart, void *arg) {
 			/* YES - THIS IS BACKWARDS... think about it */
 			if (conType->txHandler) {
 				if ((rx = malloc(sizeof(*rx))) == NULL) { ret = XBEE_ENOMEM; break; } /* !!! */
+				memset(rx, 0, sizeof(*rx));
 				
 				rx->identifier = o;
 				rx->func = xbee_netServer_fc_rx_func;

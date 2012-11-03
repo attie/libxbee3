@@ -139,9 +139,13 @@ xbee_err xbee_s2_io_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 	}
 	iPkt->data[iPkt->dataLen] = '\0';
 	
-	xbee_s2_io_parseInputs(xbee, iPkt, iPkt->data, iPkt->dataLen);
-	
 	*pkt = iPkt;
+	
+	return XBEE_ENONE;
+}
+
+xbee_err xbee_s2_io_rx_funcPost(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt *pkt) {
+	xbee_s2_io_parseInputs(xbee, pkt, pkt->data, pkt->dataLen);
 	
 	return XBEE_ENONE;
 }
