@@ -5,7 +5,7 @@
 #define __XBEE_XSYS_LINUX_H
 
 /*
-	libxbee - a C library to aid the use of Digi's XBee wireless modules
+	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
 	          running in API mode.
 
 	Copyright (C) 2009 onwards  Attie Grande (attie@attie.co.uk)
