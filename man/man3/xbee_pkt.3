@@ -25,18 +25,20 @@ xbee_pkt
 struct xbee_pkt {
 	struct xbee *xbee;
 	struct xbee_con *con;
+	const char *conType;
 
 	unsigned char status;
 	unsigned char options;
-	unsigned char rssi; /* print as "RSSI: -%d\\n" - only valid for XBee 1 */
+	unsigned char rssi; /* print as "RSSI: -%d\n" - only valid for XBee 1 */
 	unsigned char frameId;
+	struct xbee_conAddress address;
 	
 	unsigned char atCommand[2];
 	
-	void *dataItems;    /* do NOT access this */
+	void *dataItems; /* do NOT access this item */
 	
 	int dataLen;
-	unsigned char data[];
+	unsigned char data[1];
 };
 .fi
 .SH DESCRIPTION
