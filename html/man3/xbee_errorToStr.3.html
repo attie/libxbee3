@@ -1,4 +1,5 @@
-<HTML><HEAD><TITLE>Manpage of XBEE_ERRORTOSTR</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XBEE_ERRORTOSTR</TITLE>
 </HEAD><BODY>
 <H1>XBEE_ERRORTOSTR</H1>
 Section: Linux Programmer's Manual (3)<BR>Updated: 04-Mar-2012<BR><A HREF="#index">Index</A>
@@ -11,7 +12,7 @@ xbee_errorToStr, xbee_errors, xbee_err
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
-<B>#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</B>
+<B>#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</B>
 
 <P>
 <B>const char *xbee_errorToStr(xbee_err </B><I>error</I><B>);</B>
@@ -57,6 +58,9 @@ enum xbee_errors {
         XBEE_EREMOTE               = -26,
         
         XBEE_ESLEEPING             = -27,
+        XBEE_ECATCHALL             = -28,
+        
+        XBEE_ESHUTDOWN             = -29,
 };
 </PRE>
 
@@ -107,8 +111,8 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 </DL>
 <HR>
 This document was created by
-<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 20:32:55 GMT, April 23, 2012
+Time: 10:00:09 GMT, November 07, 2012
 </BODY>
 </HTML>
