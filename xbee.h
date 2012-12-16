@@ -184,6 +184,8 @@ EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap)
 EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo));
 EXPORT xbee_err xbee_shutdown(struct xbee *xbee);
 
+EXPORT xbee_err xbee_dataSet(struct xbee *xbee, void *newData, void **oldData);
+EXPORT xbee_err xbee_dataGet(struct xbee *xbee, void **curData);
 
 /* ######################################################################### */
 /* --- mode.c --- */

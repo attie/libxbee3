@@ -4,6 +4,7 @@ v3.0.8 - in progress
 	* Added coloring for tx/rx events in the log to help with debugging
 	* Network interface now exchanges the server's mode as well
 	* I/O packets now have the extra metadata when running as a network client
+	* Added xbee_dataSet() and xbee_dataGet() functions
 
 v3.0.7 - 14 Jun 2012
 	* Fixed initialization of frame mutexes
