@@ -7,6 +7,7 @@ v3.0.8 - in progress
 	* Fixed 100% CPU usage on Windows
 	* Fixed serial I/O bugs on Windows
 	* Fixed Win32 implementation of xsys_sem_timedwait()
+	* Added xbee_dataSet() and xbee_dataGet() functions
 
 v3.0.7 - 14 Jun 2012
 	* Fixed initialization of frame mutexes

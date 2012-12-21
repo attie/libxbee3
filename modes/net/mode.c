@@ -124,6 +124,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 			goto done;
 		}
 		strncpy(data->serverModeName, (char*)pkt->data, i);
+		data->serverModeName[i] = '\0';
 		
 		if (xbee_modeRetrieve(data->serverModeName, &data->serverMode) != XBEE_ENONE) {
 			xbee_log(-10, "WARNING: remote mode '%s' is not avaliable on this system... Some packets may not be fully processed", data->serverModeName);

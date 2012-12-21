@@ -42,6 +42,8 @@ struct xbee {
 	struct xbee_netInfo *netInfo; /* used by the network interface, if not NULL, it is active */
 	
 	struct xbee_interface iface;
+
+	void *userData;
 };
 
 xbee_err xbee_alloc(struct xbee **nXbee);
