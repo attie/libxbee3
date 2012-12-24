@@ -230,7 +230,7 @@ EXPORT xbee_err xbee_dataSet(struct xbee *xbee, void *newData, void **oldData) {
 EXPORT xbee_err xbee_dataGet(struct xbee *xbee, void **curData) {
 	if (!xbee || !curData) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
-	if (xbee_conValidate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*curData = xbee->userData;
 	return XBEE_ENONE;
