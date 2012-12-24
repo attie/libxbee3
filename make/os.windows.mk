@@ -25,8 +25,6 @@ VER_DEFINES:=          /DLIB_REVISION="\"$(LIBFULLREV)\""                      \
                        /DLIB_COMMITTER="\"-- unknown --\""                     \
                        /DLIB_BUILDTIME="\"$(shell date /T) $(shell time /T)\""
 
-OPTIONS+=              XBEE_NO_NET_SERVER
-
 POST_BUILD:=           windows.mk
 
 MODELIST:=             xbee1 xbee2 xbee5
