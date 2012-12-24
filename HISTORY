@@ -1,4 +1,4 @@
-v3.0.8 - in progress
+v3.0.8 - 24 Dec 2012
 	* Fixed analog input values
 	* Improved logging format for large data blocks
 	* Added coloring for tx/rx events in the log to help with debugging
