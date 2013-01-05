@@ -89,7 +89,7 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
 	tc.c_cflag |=   CREAD;            /* enable reciever */
 	tc.c_cflag &= ~ PARENB;           /* disable parity */
-	if (chosenbaud == B115200) {
+	if (info->baudrate >= 115200) {
 		tc.c_cflag |=   CSTOPB;         /* enable 2 stop bits for the high baudrate */
 	} else {
 		tc.c_cflag &= ~ CSTOPB;         /* disable 2 stop bits */
