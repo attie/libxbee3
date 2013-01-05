@@ -98,7 +98,11 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	tc.fAbortOnError     = FALSE;
 	tc.ByteSize          = 8;
 	tc.Parity            = NOPARITY;
-	tc.StopBits          = ONESTOPBIT;
+	if (info->baudrate >= 115200) {
+		tc.StopBits        = TWOSTOPBITS;
+	} else {
+		tc.StopBits        = ONESTOPBIT;
+	}
 	SetCommState(info->dev, &tc);
 
 	/* setup some timeouts to keep things moving (damn windows) */
