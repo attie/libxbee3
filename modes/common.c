@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -139,8 +140,8 @@ static xbee_err escaped_read(struct xbee_serialInfo *info, int len, unsigned cha
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
-	struct xbee_buf *iBuf;
+xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
+	struct xbee_tbuf *iBuf;
 	void *p;
 	
 	struct xbee_serialInfo *data;
@@ -166,7 +167,11 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 				xbee_log(200, "fluff between packets: 0x%02X\n", c);
 			}
 		} while (c != 0x7E);
-		ESCAPER_PRINTF("======= packet start =======\n");
+		
+		if (clock_gettime(CLOCK_REALTIME, &iBuf->ts) != 0) {
+			memset(&iBuf->ts, 0, sizeof(iBuf->ts));
+		}
+		ESCAPER_PRINTF("======= packet start @ %ld.%09d =======\n", iBuf->ts.tv_sec, iBuf->ts.tv_nsec);
 		
 		/* get the length (2 bytes) */
 		if ((ret = escaped_read(data, 2, iBuf->data, 1, &xbee->die)) != XBEE_ENONE) return ret;

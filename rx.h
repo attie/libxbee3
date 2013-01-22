@@ -26,7 +26,7 @@ struct xbee_rxInfo {
 	struct xbee_ll_head *bufList;
 	xsys_sem sem;
 	void *ioArg;
-	xbee_err (*ioFunc)(struct xbee *xbee, void *arg, struct xbee_buf **buf);
+	xbee_err (*ioFunc)(struct xbee *xbee, void *arg, struct xbee_tbuf **buf);
 	void (*eofCallback)(struct xbee *xbee, struct xbee_rxInfo *rxInfo);
 	void *handlerArg;
 	struct xbee_frameBlock *fBlock;
