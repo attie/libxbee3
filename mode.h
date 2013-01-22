@@ -26,7 +26,7 @@ struct xbee_modeDataHandlerRx {
 	xbee_err (*func)(struct xbee *xbee,
 	                 void *arg,
 	                 unsigned char identifier,
-	     /* IN */    struct xbee_buf *buf,
+	     /* IN */    struct xbee_tbuf *buf,
 	     /* OUT */   struct xbee_frameInfo *frameInfo,
 	     /* OUT */   struct xbee_conAddress *address,
 	     /* OUT */   struct xbee_pkt **pkt);
@@ -123,7 +123,7 @@ struct xbee_mode {
 	xbee_err (* const prepare)(struct xbee *xbee);
 	xbee_err (* const shutdown)(struct xbee *xbee);
 	
-	xbee_err (* const rx_io)(struct xbee *xbee, void *arg, struct xbee_buf **buf); /* retrieves raw buffers from the I/O device */
+	xbee_err (* const rx_io)(struct xbee *xbee, void *arg, struct xbee_tbuf **buf); /* retrieves raw buffers from the I/O device */
 	xbee_err (* const tx_io)(struct xbee *xbee, void *arg, struct xbee_buf *buf); /* transmits raw buffers to the I/O device */
 	
 	xbee_err (* const thread)(struct xbee *xbee, int *restart, void *arg);

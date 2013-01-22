@@ -21,7 +21,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf);
+xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_tbuf **buf);
 xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf);
 
 #endif /* __XBEE_MODE_COMMON_H */

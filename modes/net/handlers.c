@@ -32,7 +32,7 @@
 #include "../../net_handlers.h"
 #include "handlers.h"
 
-xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 /* see the counterpart Tx function
 		net_handlers.c - xbee_netServer_fc_tx_func() */
 	struct xbee_pkt *iPkt;

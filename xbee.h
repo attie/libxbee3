@@ -135,6 +135,9 @@ struct xbee_pkt {
 	unsigned char options;
 	unsigned char rssi; /* print as "RSSI: -%d\n" - only valid for XBee 1 */
 	unsigned char frameId;
+
+	struct timespec timestamp;
+
 	struct xbee_conAddress address;
 	
 	unsigned char atCommand[2];
@@ -210,6 +213,8 @@ EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap)
 EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo));
 EXPORT xbee_err xbee_shutdown(struct xbee *xbee);
 
+EXPORT xbee_err xbee_dataSet(struct xbee *xbee, void *newData, void **oldData);
+EXPORT xbee_err xbee_dataGet(struct xbee *xbee, void **curData);
 
 /* ######################################################################### */
 /* --- mode.c --- */

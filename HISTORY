@@ -1,9 +1,13 @@
-v3.0.8 - in progress
+v3.0.9 - in progress
+	* Fixed high baudrate corruption issues
+
+v3.0.8 - 24 Dec 2012
 	* Fixed analog input values
 	* Improved logging format for large data blocks
 	* Added coloring for tx/rx events in the log to help with debugging
 	* Network interface now exchanges the server's mode as well
 	* I/O packets now have the extra metadata when running as a network client
+	* Added xbee_dataSet() and xbee_dataGet() functions
 
 v3.0.7 - 14 Jun 2012
 	* Fixed initialization of frame mutexes
