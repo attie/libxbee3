@@ -31,6 +31,9 @@ struct xbee_pkt {
 	unsigned char options;
 	unsigned char rssi; /* print as "RSSI: -%d\n" - only valid for XBee 1 */
 	unsigned char frameId;
+
+	struct timespec timestamp;
+
 	struct xbee_conAddress address;
 	
 	unsigned char atCommand[2];
