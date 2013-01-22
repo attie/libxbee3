@@ -33,7 +33,7 @@
 
 #ifndef XBEE_NO_NET_SERVER
 
-xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 /* see the counterpart Tx function
 		modes/net/handlers.c - xbee_net_frontchannel_tx_func() */
 	struct xbee_pkt *iPkt;
@@ -99,7 +99,7 @@ xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void
 
 #endif /* XBEE_NO_NET_SERVER - the following code is used by the client too */
 
-xbee_err xbee_netServer_bc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_buf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_netServer_bc_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	int pos;

@@ -70,7 +70,7 @@ xbee_err xbee_rxFree(struct xbee_rxInfo *info) {
 xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
 	struct xbee_rxInfo *info;
-	struct xbee_buf *buf;
+	struct xbee_tbuf *buf;
 	
 	info = arg;
 	if (!info->bufList || !info->ioFunc) {
@@ -120,7 +120,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
 	struct xbee_rxInfo *info;
-	struct xbee_buf *buf;
+	struct xbee_tbuf *buf;
 	
 	struct xbee_modeConType *conType;
 	
@@ -187,6 +187,11 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		if (info->fBlock && frameInfo.active != 0 && conType && conType->allowFrameId != 0) {
 			pkt->frameId = frameInfo.id;
+		}
+
+		/* if the packet handler didn't fill in the timestamp, then we should do it here */
+		if (pkt->timestamp.tv_sec == 0 && pkt->timestamp.tv_nsec == 0) {
+			memcpy(&pkt->timestamp, &buf->ts, sizeof(buf->ts));
 		}
 		
 		xbee_log(12, "received '%s' type packet...", conType->name);

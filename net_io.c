@@ -39,11 +39,11 @@
 
 /* ######################################################################### */
 
-xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
+xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 	char c;
 	char length[2];
 	int pos, len, ret;
-	struct xbee_buf *iBuf;
+	struct xbee_tbuf *iBuf;
 	int fd;
 	
 	if (!xbee || !buf) return XBEE_EMISSINGPARAM;
@@ -77,6 +77,9 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
 		xbee_ll_add_tail(needsFree, iBuf);
 		
 		iBuf->len = len;
+
+#warning TODO - need to actually provide the timestamp over the network interface
+		memset(&iBuf->ts, 0, sizeof(iBuf->ts));
 		
 		for (pos = 0; pos < iBuf->len; pos += ret) {
 			ret = recv(fd, &(iBuf->data[pos]), iBuf->len - pos, MSG_NOSIGNAL);

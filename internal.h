@@ -43,6 +43,12 @@ struct xbee_buf {
 	unsigned char data[1];
 };
 
+struct xbee_tbuf {
+	struct timespec ts;
+	size_t len;
+	unsigned char data[1];
+};
+
 struct xbee_serialInfo {
 	char *device;
 	int baudrate;

@@ -86,7 +86,7 @@ die:
 
 /* ######################################################################### */
 
-xbee_err xbee_debugRxIo(struct xbee *xbee, void *arg, struct xbee_buf **buf) {
+xbee_err xbee_debugRxIo(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 	for (;;) {
 		sleep(60*60*24);
 	}
