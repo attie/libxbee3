@@ -167,6 +167,7 @@ void xbee_s1_localAt_init(struct xbee_modeConType *conType) {
 	conType->addressRules = ADDR_NONE;
 	conType->rxHandler->identifier = 0x88;
 	conType->rxHandler->func = xbee_s1_at_rx_func;
+	conType->rxHandler->funcPost = xbee_s1_at_rx_funcPost;
 	conType->txHandler->identifier = 0x08;
 	conType->txHandler->func = xbee_s1_at_tx_func;
 }
@@ -185,6 +186,7 @@ void xbee_s1_remoteAt_init(struct xbee_modeConType *conType) {
 	conType->addressRules = ADDR_16XOR64_NOEP;
 	conType->rxHandler->identifier = 0x97;
 	conType->rxHandler->func = xbee_s1_at_rx_func;
+	conType->rxHandler->funcPost = xbee_s1_at_rx_funcPost;
 	conType->txHandler->identifier = 0x17;
 	conType->txHandler->func = xbee_s1_at_tx_func;
 }

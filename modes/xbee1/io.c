@@ -139,6 +139,7 @@ void xbee_s1_16bitIo_init(struct xbee_modeConType *conType) {
 	conType->addressRules = ADDR_16_ONLY;
 	conType->rxHandler->identifier = 0x83;
 	conType->rxHandler->func = xbee_s1_io_rx_func;
+	conType->rxHandler->funcPost = xbee_s1_io_rx_funcPost;
 }
 struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx;
 struct xbee_modeConType xbee_s1_16bitIo = { "16-bit I/O", &xbee_s1_16bitIo_rx, NULL, xbee_s1_16bitIo_init};
@@ -152,6 +153,7 @@ void xbee_s1_64bitIo_init(struct xbee_modeConType *conType) {
 	conType->addressRules = ADDR_64_ONLY;
 	conType->rxHandler->identifier = 0x82;
 	conType->rxHandler->func = xbee_s1_io_rx_func;
+	conType->rxHandler->funcPost = xbee_s1_io_rx_funcPost;
 }
 struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx;
 struct xbee_modeConType xbee_s1_64bitIo = { "64-bit I/O", &xbee_s1_64bitIo_rx, NULL, xbee_s1_64bitIo_init };

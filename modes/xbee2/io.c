@@ -159,6 +159,7 @@ void xbee_s2_io_init(struct xbee_modeConType *conType) {
 	conType->addressRules = ADDR_16OR64_NOEP;
 	conType->rxHandler->identifier = 0x92;
 	conType->rxHandler->func = xbee_s2_io_rx_func;
+	conType->rxHandler->funcPost = xbee_s2_io_rx_funcPost;
 }
 struct xbee_modeDataHandlerRx xbee_s2_io_rx;
 struct xbee_modeConType xbee_s2_io = { "I/O", &xbee_s2_io_rx, NULL, xbee_s2_io_init };
