@@ -37,19 +37,19 @@ extern "C" {
 
 #define CLOCK_REALTIME      0
 
-# if !defined(_WIN32) && !defined(__XBEE_INTERNAL_H)
+#if !defined(WIN_PTHREADS) && !defined(XBEE_NODEF_TIMESPEC)
 /* i still hate windows */
 struct timespec {
   time_t  tv_sec;    /* seconds */
   long    tv_nsec;   /* nanoseconds */
 };
-# endif
+#endif /* !WIN_PTHREADS && !XBEE_NODEF_TIMESPEC */
 
-#else /* _W32 */
+#else /* !_WIN32 */
 
 #include <sys/time.h>
 
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 /* ######################################################################### */
 
