@@ -56,6 +56,16 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, dataLen)) != XBEE_ENONE) return ret;
 	
+	iPkt->timestamp.tv_sec =    (buf->data[pos] << 24);      pos++;
+	iPkt->timestamp.tv_sec |=   (buf->data[pos] << 16);      pos++;
+	iPkt->timestamp.tv_sec |=   (buf->data[pos] <<  8);      pos++;
+	iPkt->timestamp.tv_sec |=   (buf->data[pos]      );      pos++;
+	iPkt->timestamp.tv_sec &= 0xFFFFFFFF;
+	iPkt->timestamp.tv_nsec =   (buf->data[pos] << 24);      pos++;
+	iPkt->timestamp.tv_nsec |=  (buf->data[pos] << 16);      pos++;
+	iPkt->timestamp.tv_nsec |=  (buf->data[pos] <<  8);      pos++;
+	iPkt->timestamp.tv_nsec |=  (buf->data[pos]      );      pos++;
+	iPkt->timestamp.tv_nsec &= 0xFFFFFFFF;
 	iPkt->dataLen =      dataLen;
 	iPkt->status =       buf->data[pos];                     pos++;
 	iPkt->options =      buf->data[pos];                     pos++;

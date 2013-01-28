@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <xbee.h>
 
@@ -29,7 +30,7 @@ void myCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void *
 		printf("too short...\n");
 		return;
 	}
-	printf("rx: [%s] @ %ld.%09d\n", (*pkt)->data, (*pkt)->timestamp.tv_sec, (*pkt)->timestamp.tv_nsec);
+	printf("rx: [%s] @ %ld.%09ld - %s\n", (*pkt)->data, (*pkt)->timestamp.tv_sec, (*pkt)->timestamp.tv_nsec, ctime(&((*pkt)->timestamp.tv_sec)));
 }
 
 int main(void) {

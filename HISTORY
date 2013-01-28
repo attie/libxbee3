@@ -1,6 +1,6 @@
 v3.0.9 - in progress
 	* Fixed high baudrate corruption issues
-	* Added a timestamp from clock_gettime() to all incoming packets (not on the network client yet)
+	* Added a timestamp from clock_gettime() to all incoming packets
 	* Fixed missing xbee_pktAnalogGet() and xbee_pktDigitalGet() functionality on Windows
 	* Fixed DLL version number on Windows
 	* Fixed broken ifdef around timespec definition
