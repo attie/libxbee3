@@ -111,7 +111,10 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 
 xbee_err xbee_txQueueBuffer(struct xbee_txInfo *info, struct xbee_buf *buf) {
 	if (xbee_ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
-	if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
+	if (xsys_sem_post(&info->sem) != 0) {
+		xbee_ll_ext_item(info->bufList, buf);
+		return XBEE_ESEMAPHORE;
+	}
 	return XBEE_ENONE;
 }
 
@@ -132,5 +135,8 @@ xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len)
 	
 	con->info.countTx++;
 	
-	return xbee_txQueueBuffer(con->iface->tx, oBuf);
+	ret = xbee_txQueueBuffer(con->iface->tx, oBuf);
+	if (ret != XBEE_ENONE) free(oBuf);
+
+	return ret;
 }
