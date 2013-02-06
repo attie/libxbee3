@@ -175,6 +175,7 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 		fprintf(log->f, "%s%3d#[%s:%d] %s() !%p!: %s\n", preStr, minLevel, file, line, function, xbee, tBuf);
 	}
 #endif
+	fflush(log->f);
 	
 	xbee_mutex_unlock(&log->mutex);
 	
