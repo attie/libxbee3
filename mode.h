@@ -47,7 +47,7 @@ struct xbee_modeDataHandlerTx {
 	     /* IN */    struct xbee_conSettings *settings,
 	     /* IN */    const unsigned char *buf,
 	     /* IN */    int len,
-	     /* OUT */   struct xbee_buf **oBuf);
+	     /* OUT */   struct xbee_sbuf **oBuf);
 	unsigned char needsFree;
 };
 
@@ -124,7 +124,7 @@ struct xbee_mode {
 	xbee_err (* const shutdown)(struct xbee *xbee);
 	
 	xbee_err (* const rx_io)(struct xbee *xbee, void *arg, struct xbee_tbuf **buf); /* retrieves raw buffers from the I/O device */
-	xbee_err (* const tx_io)(struct xbee *xbee, void *arg, struct xbee_buf *buf); /* transmits raw buffers to the I/O device */
+	xbee_err (* const tx_io)(struct xbee *xbee, void *arg, struct xbee_sbuf *buf); /* transmits raw buffers to the I/O device */
 	
 	xbee_err (* const thread)(struct xbee *xbee, int *restart, void *arg);
 	

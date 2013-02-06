@@ -69,7 +69,7 @@ xbee_err xbee_txFree(struct xbee_txInfo *info) {
 xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 	xbee_err ret;
 	struct xbee_txInfo *info;
-	struct xbee_buf *buf;
+	struct xbee_sbuf *buf;
 	
 	info = arg;
 	if (!info->ioFunc) {
@@ -100,8 +100,12 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);
 			continue;
 		}
-		
-		free(buf);
+
+		if (xbee_ll_ext_item(needsFree, buf) == XBEE_ENONE) {
+			free(buf);
+		} else {
+			xsys_sem_post(&buf->sem);
+		}
 	}
 	
 	return XBEE_ESHUTDOWN;
@@ -109,28 +113,60 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 
 /* ######################################################################### */
 
-xbee_err xbee_txQueueBuffer(struct xbee_txInfo *info, struct xbee_buf *buf) {
+xbee_err xbee_txQueueBuffer(struct xbee_txInfo *info, struct xbee_sbuf *buf) {
 	if (xbee_ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
-	if (xsys_sem_post(&info->sem) != 0) return XBEE_ESEMAPHORE;
+	if (xsys_sem_post(&info->sem) != 0) {
+		xbee_ll_ext_item(info->bufList, buf);
+		return XBEE_ESEMAPHORE;
+	}
 	return XBEE_ENONE;
 }
 
 /* ######################################################################### */
 
-xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len) {
+xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len, int waitForAck) {
 	xbee_err ret;
-	struct xbee_buf *oBuf;
+	struct xbee *xbee;
+	struct xbee_sbuf *oBuf;
 	
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (!con->conType) return XBEE_EINVAL;
 	if (!con->conType->txHandler || !con->conType->txHandler->func) return XBEE_ENOTIMPLEMENTED;
-	
+	xbee = con->xbee;
+
 	oBuf = NULL;
 	if ((ret = con->conType->txHandler->func(con->xbee, con, con->iface->tx->ioArg, con->conType->txHandler->identifier, con->frameId, &con->address, &con->settings, buf, len, &oBuf)) != XBEE_ENONE) return ret;
 	
 	if (!oBuf) return XBEE_EUNKNOWN;
+
+	if (waitForAck) xsys_sem_init(&oBuf->sem);
 	
 	con->info.countTx++;
 	
-	return xbee_txQueueBuffer(con->iface->tx, oBuf);
+	if ((ret = xbee_txQueueBuffer(con->iface->tx, oBuf)) != XBEE_ENONE) {
+		if (waitForAck) xsys_sem_destroy(&oBuf->sem);
+		free(oBuf);
+		return ret;
+	}
+
+	if (waitForAck) {
+		int ret;
+
+		ret = xsys_sem_wait(&oBuf->sem);
+
+		/* perform this atomically */
+		xbee_ll_lock(needsFree);
+		xsys_sem_destroy(&oBuf->sem);
+		if (ret != 0) {
+			xbee_log(25, "[%p] Unable to wait for transfer to occur... The conType timeout may not be sufficient.", con);
+			_xbee_ll_add_tail(needsFree, oBuf, 0);
+		} else {
+			free(oBuf);
+		}
+		xbee_ll_unlock(needsFree);
+	} else {
+		xbee_ll_add_tail(needsFree, oBuf);
+	}
+
+	return XBEE_ENONE;
 }

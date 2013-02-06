@@ -49,11 +49,13 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 	if (!xbee || !buf) return XBEE_EMISSINGPARAM;
 	
 	if (arg) {
+		/* this is on the server end */
 		struct xbee_netClientInfo *info;
 		info = arg;
 		if (xbee != info->xbee) return XBEE_EINVAL;
 		fd = info->fd;
 	} else {
+		/* this is on the client end */
 		struct xbee_modeData *info;
 		info = xbee->modeData;
 		fd = info->netInfo.fd;
@@ -78,7 +80,6 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 		
 		iBuf->len = len;
 
-#warning TODO - need to actually provide the timestamp over the network interface
 		memset(&iBuf->ts, 0, sizeof(iBuf->ts));
 		
 		for (pos = 0; pos < iBuf->len; pos += ret) {
@@ -140,7 +141,7 @@ eof:
 	return XBEE_EEOF;
 }
 
-xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
+xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	int pos, ret;
 	int fd;
 	size_t txSize;
@@ -153,6 +154,7 @@ xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 	if (!xbee || !buf) return XBEE_EMISSINGPARAM;
 	
 	if (arg) {
+		/* this is on the server end */
 		struct xbee_netClientInfo *info;
 		info = arg;
 		if (xbee != info->xbee) return XBEE_EINVAL;
@@ -161,6 +163,7 @@ xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
 		txBufSize = &info->txBufSize;
 		txBuf = &info->txBuf;
 	} else {
+		/* this is on the client end */
 		struct xbee_modeData *info;
 		info = xbee->modeData;
 		fd = info->netInfo.fd;

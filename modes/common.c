@@ -278,11 +278,11 @@ static xbee_err escaped_write(struct xbee_serialInfo *info, int len, unsigned ch
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
+xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	struct xbee_serialInfo *data;
 	size_t txSize;
 	size_t memSize;
-	struct xbee_buf *iBuf;
+	struct xbee_sbuf *iBuf;
 	unsigned char chksum;
 	int pos;
 

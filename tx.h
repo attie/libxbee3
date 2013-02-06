@@ -26,14 +26,14 @@ struct xbee_txInfo {
 	struct xbee_ll_head *bufList;
 	xsys_sem sem;
 	void *ioArg;
-	xbee_err (*ioFunc)(struct xbee *xbee, void *arg, struct xbee_buf *buf);
+	xbee_err (*ioFunc)(struct xbee *xbee, void *arg, struct xbee_sbuf *buf);
 };
 
 xbee_err xbee_txAlloc(struct xbee_txInfo **nInfo);
 xbee_err xbee_txFree(struct xbee_txInfo *info);
 
 xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg);
-xbee_err xbee_txQueueBuffer(struct xbee_txInfo *info, struct xbee_buf *buf);
-xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len);
+xbee_err xbee_txQueueBuffer(struct xbee_txInfo *info, struct xbee_sbuf *buf);
+xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len, int waitForAck);
 
 #endif /* __XBEE_TX_H */

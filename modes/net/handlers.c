@@ -56,6 +56,16 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, dataLen)) != XBEE_ENONE) return ret;
 	
+	iPkt->timestamp.tv_sec =    (buf->data[pos] << 24);      pos++;
+	iPkt->timestamp.tv_sec |=   (buf->data[pos] << 16);      pos++;
+	iPkt->timestamp.tv_sec |=   (buf->data[pos] <<  8);      pos++;
+	iPkt->timestamp.tv_sec |=   (buf->data[pos]      );      pos++;
+	iPkt->timestamp.tv_sec &= 0xFFFFFFFF;
+	iPkt->timestamp.tv_nsec =   (buf->data[pos] << 24);      pos++;
+	iPkt->timestamp.tv_nsec |=  (buf->data[pos] << 16);      pos++;
+	iPkt->timestamp.tv_nsec |=  (buf->data[pos] <<  8);      pos++;
+	iPkt->timestamp.tv_nsec |=  (buf->data[pos]      );      pos++;
+	iPkt->timestamp.tv_nsec &= 0xFFFFFFFF;
 	iPkt->dataLen =      dataLen;
 	iPkt->status =       buf->data[pos];                     pos++;
 	iPkt->options =      buf->data[pos];                     pos++;
@@ -125,10 +135,10 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_net_frontchannel_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
+xbee_err xbee_net_frontchannel_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_sbuf **oBuf) {
 /* see the counterpart Tx function
 		net_handlers.c - xbee_netServer_fc_rx_func() */
-	struct xbee_buf *iBuf;
+	struct xbee_sbuf *iBuf;
 	size_t bufLen;
 	size_t memSize;
 	int pos;

@@ -43,6 +43,12 @@ struct xbee_buf {
 	unsigned char data[1];
 };
 
+struct xbee_sbuf {
+	xsys_sem sem;
+	size_t len;
+	unsigned char data[1];
+};
+
 struct xbee_tbuf {
 	struct timespec ts;
 	size_t len;
@@ -55,7 +61,7 @@ struct xbee_serialInfo {
 	xsys_serialDev dev;
 	
 	size_t txBufSize;
-	struct xbee_buf *txBuf;
+	struct xbee_sbuf *txBuf;
 };
 
 #define LH fprintf(stderr, "LOG_HERE: %s:%d\n", __FILE__, __LINE__);

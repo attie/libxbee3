@@ -66,9 +66,9 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	size_t memSize;
 	
 	/* this will need updating if struct xbee_pkt changes */
-	/* 10 = dataLen[2] + status + settings + rssi + frameId + address flags + atCommand[2] */
+	/* 18 = dataLen[2] + timestamp(8) + status + options(2) + rssi + frameId + address flags + atCommand[2] */
 	/* dataLen can be inferred */
-	memSize = 10 + (*pkt)->dataLen;
+	memSize = 18 + (*pkt)->dataLen;
 	if ((*pkt)->address.addr16_enabled)    memSize += 2;
 	if ((*pkt)->address.addr64_enabled)    memSize += 8;
 	if ((*pkt)->address.endpoints_enabled) memSize += 2;
@@ -83,6 +83,14 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	pos = 0;
 	buf[pos] = ((*pkt)->dataLen >> 8) & 0xFF;            pos++;
 	buf[pos] = (*pkt)->dataLen & 0xFF;                   pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_sec  >> 24) & 0xFF; pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_sec  >> 16) & 0xFF; pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_sec  >>  8) & 0xFF; pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_sec       ) & 0xFF; pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_nsec >> 24) & 0xFF; pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_nsec >> 16) & 0xFF; pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_nsec >>  8) & 0xFF; pos++;
+	buf[pos] = ((*pkt)->timestamp.tv_nsec      ) & 0xFF; pos++;
 	buf[pos] = (*pkt)->status;                           pos++;
 	buf[pos] = (*pkt)->options;                          pos++;
 	buf[pos] = (*pkt)->rssi;                             pos++;

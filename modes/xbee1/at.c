@@ -89,8 +89,8 @@ xbee_err xbee_s1_at_rx_funcPost(struct xbee *xbee, struct xbee_con *con, struct 
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
-	struct xbee_buf *iBuf;
+xbee_err xbee_s1_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_sbuf **oBuf) {
+	struct xbee_sbuf *iBuf;
 	size_t bufLen;
 	unsigned char *addr16;
 	unsigned char *addr64;
