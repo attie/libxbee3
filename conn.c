@@ -554,7 +554,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 		}
 	}
 	
-	if ((ret = xbee_txHandler(con, buf, len)) != XBEE_ENONE) goto done;
+	if ((ret = xbee_txHandler(con, buf, len, waitForAck)) != XBEE_ENONE) goto done;
 
 	if (waitForAck) {
 		struct timespec to;

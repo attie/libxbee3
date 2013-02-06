@@ -3,6 +3,7 @@ v3.0.9 - in progress
 	* Added a timestamp from clock_gettime() to all incoming packets
 	* Fixed broken ifdef around timespec definition
 	* Improved performance when locating a Frame ID
+	* Fixed a corner-case where timeouts occur prematurely if the packet transmission is delayed
 
 v3.0.8 - 24 Dec 2012
 	* Fixed analog input values

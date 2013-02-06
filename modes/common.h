@@ -22,6 +22,6 @@
 */
 
 xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_tbuf **buf);
-xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf);
+xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_sbuf *buf);
 
 #endif /* __XBEE_MODE_COMMON_H */

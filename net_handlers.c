@@ -62,10 +62,10 @@ xbee_err xbee_netServer_fc_rx_func(struct xbee *xbee, void *arg, unsigned char i
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
+xbee_err xbee_netServer_fc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_sbuf **oBuf) {
 /* see the counterpart Tx function
 		modes/net/handlers.c - xbee_net_frontchannel_rx_func() */
-	struct xbee_buf *iBuf;
+	struct xbee_sbuf *iBuf;
 	size_t bufLen;
 	size_t memSize;
 	int pos;
@@ -142,8 +142,8 @@ xbee_err xbee_netServer_bc_rx_func(struct xbee *xbee, void *arg, unsigned char i
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_netServer_bc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
-	struct xbee_buf *iBuf;
+xbee_err xbee_netServer_bc_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_sbuf **oBuf) {
+	struct xbee_sbuf *iBuf;
 	size_t bufLen;
 	size_t memSize;
 	int pos;

@@ -22,6 +22,6 @@
 */
 
 xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_tbuf **buf);
-xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf);
+xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_sbuf *buf);
 
 #endif /* __XBEE_NET_IO_H */
