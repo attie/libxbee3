@@ -41,39 +41,31 @@ define mode_rule
 .PRECIOUS: $$(BUILDDIR)/modes_$1_%.d
 $$(BUILDDIR)/__mode_$1.o: .$$(BUILDDIR).dir $(MODE_$1_OBJS)
 	$$(LD) -r -o $$@ $$(filter %.o,$$^)
-$$(BUILDDIR)/modes_$1_%.o: .$$(BUILDDIR).dir  $$(BUILDDIR)/modes_$1_%.d
-	$$(GCC) $$(CFLAGS) modes/$1/$$*.c -c -o $$@
-$$(BUILDDIR)/modes_$1_%.d: .$$(BUILDDIR).dir modes/$1/%.c
-	$$(GCC) -MM -MT $$(@:.d=.o) $$(filter %.c,$$^) -o $$@
+$$(BUILDDIR)/modes_$1_%.o: .$$(BUILDDIR).dir
+	$$(GCC) $$(CFLAGS) -MMD modes/$1/$$*.c -c -o $$@
 endef
 $(foreach mode,$(MODELIST),$(eval $(call mode_rule,$(mode))))
 #####
 
 # build the common mode code
-$(BUILDDIR)/modes_%.o: .$(BUILDDIR).dir $(BUILDDIR)/modes_%.d
-	$(GCC) $(CFLAGS) modes/$*.c -c -o $@
-$(BUILDDIR)/modes_%.d: .$(BUILDDIR).dir modes/%.c
-	$(GCC) -MM -MT $(@:.d=.o) $(filter %.c,$^) -o $@
+$(BUILDDIR)/modes_%.o: .$(BUILDDIR).dir
+	$(GCC) $(CFLAGS) -MMD modes/$*.c -c -o $@
 
 ###
 # these objects require special treatment
-$(BUILDDIR)/ver.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d make/libconfig.mk
-	$(GCC) $(CFLAGS) $(VER_DEFINES) $*.c -c -o $@
-$(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
-	$(GCC) $(CFLAGS) -DMODELIST='$(addsuffix $(COMMA),$(addprefix &mode_,$(MODELIST))) NULL' $*.c -c -o $@
+$(BUILDDIR)/ver.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir make/libconfig.mk
+	$(GCC) $(CFLAGS) -MMD $(VER_DEFINES) $*.c -c -o $@
+$(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir
+	$(GCC) $(CFLAGS) -MMD -DMODELIST='$(addsuffix $(COMMA),$(addprefix &mode_,$(MODELIST))) NULL' $*.c -c -o $@
 #####
 
 # build C++ object & dep files
-$(CORE_OBJSP): $(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
-	$(GXX) $(CXXFLAGS) $*.cpp -c -o $@
-$(BUILDDIR)/%.d: .$(BUILDDIR).dir %.cpp
-	$(GXX) -MM -MT $(@:.d=.o) $(filter %.cpp,$^) -o $@
+$(CORE_OBJSP): $(BUILDDIR)/%.o: .$(BUILDDIR).dir
+	$(GXX) $(CXXFLAGS) -MMD $*.cpp -c -o $@
 
 # build a core object & dep files
-$(BUILDDIR)/%.o: .$(BUILDDIR).dir $(BUILDDIR)/%.d
-	$(GCC) $(CFLAGS) $*.c -c -o $@
-$(BUILDDIR)/%.d: .$(BUILDDIR).dir %.c
-	$(GCC) -MM -MT $(@:.d=.o) $(filter %.c,$^) -o $@
+$(BUILDDIR)/%.o: .$(BUILDDIR).dir
+	$(GCC) $(CFLAGS) -MMD $*.c -c -o $@
 
 # include all the dep files avaliable
 -include $(wildcard $(BUILDDIR)/*.d)

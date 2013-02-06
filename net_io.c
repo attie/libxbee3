@@ -141,7 +141,7 @@ eof:
 	return XBEE_EEOF;
 }
 
-xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
+xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	int pos, ret;
 	int fd;
 	size_t txSize;

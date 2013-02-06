@@ -4,6 +4,8 @@ v3.0.9 - in progress
 	* Fixed missing xbee_pktAnalogGet() and xbee_pktDigitalGet() functionality on Windows
 	* Fixed DLL version number on Windows
 	* Fixed broken ifdef around timespec definition
+	* Improved performance when locating a Frame ID
+	* Fixed a corner-case where timeouts occur prematurely if the packet transmission is delayed
 
 v3.0.8 - 24 Dec 2012
 	* Fixed analog input values

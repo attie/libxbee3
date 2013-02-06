@@ -64,8 +64,8 @@ xbee_err xbee_s5_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char ide
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_s5_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_buf **oBuf) {
-	struct xbee_buf *iBuf;
+xbee_err xbee_s5_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_sbuf **oBuf) {
+	struct xbee_sbuf *iBuf;
 	size_t bufLen;
 	int pos;
 	size_t memSize;

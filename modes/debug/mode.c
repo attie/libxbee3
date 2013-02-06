@@ -92,7 +92,7 @@ xbee_err xbee_debugRxIo(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 	}
 }
 
-xbee_err xbee_debugTxIo(struct xbee *xbee, void *arg, struct xbee_buf *buf) {
+xbee_err xbee_debugTxIo(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	int i;
 	fprintf(stderr,   "------ Packet Tx: ------\n");
 	for (i = 0; i < buf->len; i++) {

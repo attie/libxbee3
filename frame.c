@@ -27,6 +27,7 @@
 #include "frame.h"
 #include "conn.h"
 #include "ll.h"
+#include "log.h"
 
 /* ########################################################################## */
 
@@ -78,11 +79,12 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 	ret = XBEE_ENONE;
 	
 	xbee_mutex_lock(&fBlock->mutex);
-	for (i = 0, o = fBlock->lastFrame; i < fBlock->numFrames; i++, o++) {
+	for (i = 0, o = fBlock->lastFrame + 1; i < fBlock->numFrames; i++, o++) {
 		o %= fBlock->numFrames;
 		if (o == 0) continue; /* skip '0x00', this indicates that no ACK is requested */
 		if (fBlock->frame[o].inUse) continue;
 		
+		fBlock->lastFrame = o;
 		fBlock->frame[o].con = con;
 		fBlock->frame[o].inUse = 1;
 		con->frameId = fBlock->frame[o].id;
@@ -96,20 +98,22 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, unsigned char *retVal, struct timespec *timeout) {
 	xbee_err ret;
 	struct xbee_frame *frame;
-	int i;
+	int i, o;
 	
 	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
+
 	ret = XBEE_EINVAL;
 	xbee_mutex_lock(&fBlock->mutex);
 	frame = NULL;
-	for (i = 0; i < fBlock->numFrames; i++) {
-		if (!fBlock->frame[i].inUse) continue;
-		if (fBlock->frame[i].con != con) continue;
-		if (fBlock->frame[i].id != con->frameId) {
+	for (i = 0, o = fBlock->lastFrame; i < fBlock->numFrames; i++, o--) {
+		if (o < 0) o = fBlock->numFrames - 1;
+		if (!fBlock->frame[o].inUse) continue;
+		if (fBlock->frame[o].con != con) continue;
+		if (fBlock->frame[o].id != con->frameId) {
 			ret = XBEE_ESTALE;
 			break;
 		}
-		frame = &fBlock->frame[i];
+		frame = &fBlock->frame[o];
 		break;
 	}
 	xbee_mutex_unlock(&fBlock->mutex);
