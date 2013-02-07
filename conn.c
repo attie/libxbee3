@@ -227,8 +227,8 @@ got2:
 
 xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	struct xbee_con *con;
-	struct xbee_con *sCon;
-	struct xbee_con *cCon;
+	struct xbee_con *sCon; /* <-- Sleeping connection */
+	struct xbee_con *cCon; /* <-- 'catchAll' */
 	xbee_err ret;
 	
 	if (!conList || !address) return XBEE_EMISSINGPARAM;
@@ -256,6 +256,8 @@ xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *a
 			sCon = con;
 			continue;
 		}
+
+		/* found a willing participant! */
 		break;
 	}
 	if (needsLLLock) xbee_ll_unlock(conList);
