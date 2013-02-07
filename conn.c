@@ -194,18 +194,31 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 	} else {
 		xbee_log(minLogLevel, "   endpoints:       --");
 	}
+	if (address->profile_enabled) {
+		xbee_log(minLogLevel, "   profile ID:      0x%04X", address->profile_id);
+	} else {
+		xbee_log(minLogLevel, "   profile ID:      ----");
+	}
+	if (address->cluster_enabled) {
+		xbee_log(minLogLevel, "   cluster ID:      0x%04X", address->cluster_id);
+	} else {
+		xbee_log(minLogLevel, "   cluster ID:      ----");
+	}
 	return XBEE_ENONE;
 }
 
 xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2) {
-	/* first try to match the address */
+	/** first try to match the address **/
+	/* no 16/64 bit addresses */
 	if (!addr1->addr16_enabled && !addr2->addr16_enabled &&
 	    !addr1->addr64_enabled && !addr2->addr64_enabled) {
 		goto got1;
 	}
+	/* both have 64 bit addresses (over rules 16bit addressed) */
 	if (addr1->addr64_enabled && addr2->addr64_enabled) {
 		if (!memcmp(addr1->addr64, addr2->addr64, 8)) goto got1;
 	}
+	/* both have 16 bit addresses */
 	if (addr1->addr16_enabled && addr2->addr16_enabled) {
 		if (!memcmp(addr1->addr16, addr2->addr16, 2)) goto got1;
 	}
@@ -213,15 +226,50 @@ xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddres
 	return XBEE_EFAILED; /* --- no address match --- */
 	
 got1:
-	/* next try to match the endpoints */
+	/** next try to match the endpoints **/
+	/* no endpoints */
 	if (!addr1->endpoints_enabled && !addr2->endpoints_enabled) goto got2;
+	/* both have endpoints */
 	if (addr1->endpoints_enabled && addr2->endpoints_enabled) {
 		if (addr1->endpoint_local == addr2->endpoint_local) goto got2;
+#warning TODO - handle broadcast endpoint, but probably not here...
 	}
 	
-	return XBEE_EFAILED; /* --- endpoints didnt match --- */
+	return XBEE_EFAILED; /* --- endpoints didn't match --- */
 	
 got2:
+	/** try to match the profile id **/
+	/* no profile IDs */
+	if (!addr1->profile_enabled && !addr2->profile_enabled) goto got3;
+	/* both have profile IDs */
+	if (addr1->profile_enabled && addr2->profile_enabled) {
+		if (addr1->profile_id == addr2->profile_id) goto got3;
+	/* if only one has a profile ID, then is it using the default profile? */
+	} else if (addr1->profile_enabled) {
+		if (addr1->profile_id == 0xC105) goto got3;
+	} else if (addr2->profile_enabled) {
+		if (addr2->profile_id == 0xC105) goto got3;
+	}
+	
+	return XBEE_EFAILED; /* --- profile id didn't match / isn't the default (0xC105) */
+	
+got3:
+	/** try to match cluster id **/
+	/* no cluster IDs */
+	if (!addr1->cluster_enabled && !addr2->cluster_enabled) goto got4;
+	/* both have cluster IDs */
+	if (addr1->cluster_enabled && addr2->cluster_enabled) {
+		if (addr1->cluster_id == addr2->cluster_id) goto got4;
+	/* if only one has a cluster ID, then is it using the default cluster? */
+	} else if (addr1->cluster_enabled) {
+		if (addr1->cluster_id == 0x0011) goto got4;
+	} else if (addr2->cluster_enabled) {
+		if (addr2->cluster_id == 0x0011) goto got4;
+	}
+	
+	return XBEE_EFAILED; /* --- cluster id didn't match / isn't the default (0x0011) */
+	
+got4:
 	return XBEE_ENONE;   /* --- everything matched --- */
 }
 
