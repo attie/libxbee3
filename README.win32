@@ -1,13 +1,17 @@
 To build and use libxbee for Windows, you will require the following software installed:
-  * Windows Vista, or Windows 7
-  * Visual C++ 2008 (or up)
-  * GnuWin Make
-  * Cygwin
-  * TortoiseGit
-  * msysgit
+	* Windows Vista, or Windows 7
+	* Microsoft Visual C++ 2008 (or up)
+	* Microsoft Windows SDK
+	* CygWin
+		- Core Utils
+		- Make
+		- Which
+	* TortoiseGit
+	* msysgit
 
 You may need to do some of the following:
-	* Add "C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE" to your PATH
+	* If you get an error for missing 'mspdb100.dll'
+		- Add "C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE" to your PATH
 
 When running libxbee, you may need to address your COM port as shown below.
 I believe this to be the case for any port above number 8 (ish).
