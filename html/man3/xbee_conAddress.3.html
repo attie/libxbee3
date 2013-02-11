@@ -1,4 +1,5 @@
-<HTML><HEAD><TITLE>Manpage of XBEE_CONADDRESS</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XBEE_CONADDRESS</TITLE>
 </HEAD><BODY>
 <H1>XBEE_CONADDRESS</H1>
 Section: Linux Programmer's Manual (3)<BR>Updated: 04-Mar-2012<BR><A HREF="#index">Index</A>
@@ -12,7 +13,7 @@ xbee_conAddress
 <H2>SYNOPSIS</H2>
 
 <PRE>
-#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;
+#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;
 
 struct xbee_conAddress {
         unsigned char addr16_enabled;
@@ -24,6 +25,12 @@ struct xbee_conAddress {
         unsigned char endpoints_enabled;
         unsigned char endpoint_local;
         unsigned char endpoint_remote;
+
+        unsigned char cluster_enabled;
+        unsigned short cluster_id;
+
+        unsigned char profile_enabled;
+        unsigned short profile_id;
 };
 </PRE>
 
@@ -33,7 +40,7 @@ struct xbee_conAddress {
 The
 <B>xbee_conAddress</B>
 
-struct contains details on the network address for a remote node. It is recommended that you initialize it by calling
+struct contains details on the network address for a remote node. It is recommended that you initialize it to zero by calling
 <B>memset</B>()
 
 before you fill it in and call
@@ -45,6 +52,8 @@ The data is ordered with the MSB of the address, in the first byte of the array.
 E.g: the 64-bit address 0x0013A200 0x40081826 would be initialized like so:
 
 <PRE>
+memset(&amp;address, 0, sizeof(address));
+
 address.addr64_enabled = 1;
 address.addr64[0] = 0x00;
 address.addr64[1] = 0x13;
@@ -58,7 +67,7 @@ address.addr64[7] = 0x26;
 
 
 <P>
-Endpoints are a feature of XBee Series 2 modules that are not present with XBee Series 1 modules.
+Endpoints are a feature of XBee Series 2 ZNet and ZigBee modules that are not present with XBee Series 1 modules.
 <A NAME="lbAE">&nbsp;</A>
 <H2>AUTHOR</H2>
 
@@ -72,6 +81,7 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 
 <B><A HREF="../man3/xbee_conSleepGet.3.html">xbee_conSleepGet</A></B>(3)
 
+<P>
 
 <HR>
 <A NAME="index">&nbsp;</A><H2>Index</H2>
@@ -84,8 +94,8 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 </DL>
 <HR>
 This document was created by
-<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 20:32:54 GMT, April 23, 2012
+Time: 14:13:06 GMT, February 07, 2013
 </BODY>
 </HTML>

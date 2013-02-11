@@ -1,5 +1,5 @@
 /*
-	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
+	libxbee - a C library to aid the use of Digi's XBee wireless modules
 	          running in API mode.
 
 	Copyright (C) 2009 onwards  Attie Grande (attie@attie.co.uk)
@@ -37,6 +37,7 @@
 #include "io.h"
 #include "sensor.h"
 #include "identify.h"
+#include "ota.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
 static xbee_err mode_shutdown(struct xbee *xbee);
@@ -90,7 +91,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
-xbee_err xbee_s2_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_sZB_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	xbee_err ret;
 	
 	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
@@ -102,9 +103,7 @@ xbee_err xbee_s2_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned c
 		goto die1;
 	}
 	
-#ifndef _WIN32
 #warning TODO - currently missing out on the resolved network address, retry count, and discovery status
-#endif
 	frameInfo->active = 1;
 	frameInfo->id = buf->data[1];
 	frameInfo->retVal = buf->data[5];
@@ -117,20 +116,22 @@ done:
 
 /* ######################################################################### */
 
-void xbee_s2_transmitStatus_init(struct xbee_modeConType *conType) {
-	/* we REALLY have to babysit Windows... */
-	conType->allowFrameId = 1;
-	conType->useTimeout = 0;
-	conType->addressRules = ADDR_NONE;
-	conType->rxHandler->identifier = 0x8B;
-	conType->rxHandler->func = xbee_s2_transmitStatus_rx_func;
-}
-struct xbee_modeDataHandlerRx xbee_s2_transmitStatus_rx;
-struct xbee_modeConType xbee_s2_transmitStatus = { "Transmit Status", &xbee_s2_transmitStatus_rx, NULL, xbee_s2_transmitStatus_init };
+struct xbee_modeDataHandlerRx xbee_sZB_transmitStatus_rx  = {
+	.identifier = 0x8B,
+	.func = xbee_sZB_transmitStatus_rx_func,
+};
+struct xbee_modeConType xbee_sZB_transmitStatus = {
+	.name = "Transmit Status",
+	.allowFrameId = 1,
+	.useTimeout = 0,
+	.addressRules = ADDR_NONE,
+	.rxHandler = &xbee_sZB_transmitStatus_rx,
+	.txHandler = NULL,
+};
 
 /* ######################################################################### */
 
-xbee_err xbee_s2_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_sZB_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 
@@ -151,43 +152,46 @@ xbee_err xbee_s2_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char
 
 /* ######################################################################### */
 
-void xbee_s2_modemStatus_init(struct xbee_modeConType *conType) {
-	/* we REALLY have to babysit Windows... */
-	conType->allowFrameId = 0;
-	conType->useTimeout = 0;
-	conType->addressRules = ADDR_NONE;
-	conType->rxHandler->identifier = 0x8A;
-	conType->rxHandler->func = xbee_s2_modemStatus_rx_func;
-}
-struct xbee_modeDataHandlerRx xbee_s2_modemStatus_rx;
-struct xbee_modeConType xbee_s2_modemStatus = { "Modem Status", &xbee_s2_modemStatus_rx, NULL, xbee_s2_modemStatus_init };
+struct xbee_modeDataHandlerRx xbee_sZB_modemStatus_rx  = {
+	.identifier = 0x8A,
+	.func = xbee_sZB_modemStatus_rx_func,
+};
+struct xbee_modeConType xbee_sZB_modemStatus = {
+	.name = "Modem Status",
+	.allowFrameId = 0,
+	.useTimeout = 0,
+	.addressRules = ADDR_NONE,
+	.rxHandler = &xbee_sZB_modemStatus_rx,
+	.txHandler = NULL,
+};
 
 /* ######################################################################### */
 
 static const struct xbee_modeConType *conTypes[] = {
-	&xbee_s2_modemStatus,
-	&xbee_s2_transmitStatus,
-	&xbee_s2_localAt,
-	&xbee_s2_remoteAt,
-	&xbee_s2_data,
-	&xbee_s2_dataExp,
-	&xbee_s2_io,
-	&xbee_s2_sensor,
-	&xbee_s2_identify,
+	&xbee_sZB_transmitStatus,
+	&xbee_sZB_modemStatus,
+	&xbee_sZB_localAt,
+	&xbee_sZB_remoteAt,
+	&xbee_sZB_data,
+	&xbee_sZB_dataExp,
+	&xbee_sZB_io,
+	&xbee_sZB_sensor,
+	&xbee_sZB_identify,
+	&xbee_sZB_ota,
 	NULL
 };
 
-const struct xbee_mode mode_xbee2 = {
-	/* .name = */ "xbee2",
+const struct xbee_mode mode_xbeeZB = {
+	.name = "xbeeZB",
 	
-	/* .conTypes = */ conTypes,
+	.conTypes = conTypes,
 	
-	/* .init = */ init,
-	/* .prepare = */ NULL,
-	/* .shutdown = */ mode_shutdown,
+	.init = init,
+	.prepare = NULL,
+	.shutdown = mode_shutdown,
 	
-	/* .rx_io = */ xbee_xbeeRxIo,
-	/* .tx_io = */ xbee_xbeeTxIo,
+	.rx_io = xbee_xbeeRxIo,
+	.tx_io = xbee_xbeeTxIo,
 	
-	/* .thread = */ NULL,
+	.thread = NULL,
 };
