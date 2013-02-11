@@ -27,4 +27,4 @@ VER_DEFINES:=          /DLIB_REVISION="\"$(LIBFULLREV)\""                      \
 
 POST_BUILD:=           windows.mk
 
-MODELIST:=             xbee1 xbee2 xbee5
+MODELIST:=             xbee1 xbee2 xbeeZB xbee5

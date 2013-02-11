@@ -80,15 +80,13 @@ xbee_err xbee_sZB_identify_rx_func(struct xbee *xbee, void *arg, unsigned char i
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_sZB_identify_rx  = {
-	.identifier = 0x95,
-	.func = xbee_sZB_identify_rx_func,
-};
-struct xbee_modeConType xbee_sZB_identify = {
-	.name = "Identify",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_sZB_identify_rx,
-	.txHandler = NULL,
-};
+void xbee_sZB_identify_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x95;
+	conType->rxHandler->func = xbee_sZB_identify_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_sZB_identify_rx;
+struct xbee_modeConType xbee_sZB_identify = { "Identify", &xbee_sZB_identify_rx, NULL, xbee_sZB_identify_init };

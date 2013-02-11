@@ -232,7 +232,9 @@ got1:
 	/* both have endpoints */
 	if (addr1->endpoints_enabled && addr2->endpoints_enabled) {
 		if (addr1->endpoint_local == addr2->endpoint_local) goto got2;
+#ifndef _WIN32
 #warning TODO - handle broadcast endpoint, but probably not here...
+#endif
 	}
 	
 	return XBEE_EFAILED; /* --- endpoints didn't match --- */

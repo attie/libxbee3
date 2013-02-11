@@ -96,6 +96,8 @@ xbee_err xbee_sZB_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg,
 	int pos;
 	size_t memSize;
 	
+	unsigned char addr16_default[] = { 0xFF, 0xFE };
+	
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 	
 	if (len < 2) return XBEE_ELENGTH; /* must have the AT command... */
@@ -111,7 +113,7 @@ xbee_err xbee_sZB_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg,
 			if (address->addr16_enabled) {
 				addr16 = &(address->addr16[0]);
 			} else {
-				addr16 = (unsigned char[]){ 0xFF, 0xFE };
+				addr16 = addr16_default;
 			}
 			break;
 		default: return XBEE_EINVAL;
@@ -151,48 +153,38 @@ xbee_err xbee_sZB_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg,
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_sZB_localAt_rx  = {
-	.identifier = 0x88,
-	.func = xbee_sZB_at_rx_func,
-	.funcPost = xbee_sZB_at_rx_funcPost,
-};
-struct xbee_modeDataHandlerTx xbee_sZB_localAt_tx  = {
-	.identifier = 0x08,
-	.func = xbee_sZB_at_tx_func,
-};
-struct xbee_modeConType xbee_sZB_localAt = {
-	.name = "Local AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 1,
-		.tv_nsec = 0,
-	},
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_sZB_localAt_rx,
-	.txHandler = &xbee_sZB_localAt_tx,
-};
+void xbee_sZB_localAt_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 1;
+	conType->timeout.tv_nsec = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x88;
+	conType->rxHandler->func = xbee_sZB_at_rx_func;
+	conType->rxHandler->funcPost = xbee_sZB_at_rx_funcPost;
+	conType->txHandler->identifier = 0x08;
+	conType->txHandler->func = xbee_sZB_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_sZB_localAt_rx;
+struct xbee_modeDataHandlerTx xbee_sZB_localAt_tx;
+struct xbee_modeConType xbee_sZB_localAt = { "Local AT", &xbee_sZB_localAt_rx, &xbee_sZB_localAt_tx, xbee_sZB_localAt_init };
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_sZB_remoteAt_rx  = {
-	.identifier = 0x97,
-	.func = xbee_sZB_at_rx_func,
-	.funcPost = xbee_sZB_at_rx_funcPost,
-};
-struct xbee_modeDataHandlerTx xbee_sZB_remoteAt_tx  = {
-	.identifier = 0x17,
-	.func = xbee_sZB_at_tx_func,
-};
-struct xbee_modeConType xbee_sZB_remoteAt = {
-	.name = "Remote AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 5,
-		.tv_nsec = 0,
-	},
-	.addressRules = ADDR_64_16OPT_NOEP,
-	.rxHandler = &xbee_sZB_remoteAt_rx,
-	.txHandler = &xbee_sZB_remoteAt_tx,
-};
+void xbee_sZB_remoteAt_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 5;
+	conType->timeout.tv_nsec = 0;
+	conType->addressRules = ADDR_64_16OPT_NOEP;
+	conType->rxHandler->identifier = 0x97;
+	conType->rxHandler->func = xbee_sZB_at_rx_func;
+	conType->rxHandler->funcPost = xbee_sZB_at_rx_funcPost;
+	conType->txHandler->identifier = 0x17;
+	conType->txHandler->func = xbee_sZB_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_sZB_remoteAt_rx;
+struct xbee_modeDataHandlerTx xbee_sZB_remoteAt_tx;
+struct xbee_modeConType xbee_sZB_remoteAt = { "Remote AT", &xbee_sZB_remoteAt_rx, &xbee_sZB_remoteAt_tx, xbee_sZB_remoteAt_init };

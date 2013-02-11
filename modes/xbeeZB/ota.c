@@ -40,7 +40,9 @@ xbee_err xbee_sZB_ota_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, 2)) != XBEE_ENONE) return ret;
 	
+#ifndef _WIN32
 #warning TODO - check that these are the correct addresses to be using
+#endif
 	address->addr64_enabled = 1;
 	memcpy(address->addr64, &(buf->data[1]), 8);
 	address->addr16_enabled = 1;
@@ -60,15 +62,13 @@ xbee_err xbee_sZB_ota_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_sZB_ota_rx  = {
-	.identifier = 0xA0,
-	.func = xbee_sZB_ota_rx_func,
-};
-struct xbee_modeConType xbee_sZB_ota = {
-	.name = "OTA Update Status",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_16OR64_NOEP,
-	.rxHandler = &xbee_sZB_ota_rx,
-	.txHandler = NULL,
-};
+void xbee_sZB_ota_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_16OR64_NOEP;
+	conType->rxHandler->identifier = 0xA0;
+	conType->rxHandler->func = xbee_sZB_ota_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_sZB_ota_rx;
+struct xbee_modeConType xbee_sZB_ota = { "OTA Update Status", &xbee_sZB_ota_rx, NULL, xbee_sZB_ota_init };

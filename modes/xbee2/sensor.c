@@ -58,15 +58,13 @@ xbee_err xbee_s2_sensor_rx_func(struct xbee *xbee, void *arg, unsigned char iden
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s2_sensor_rx  = {
-	.identifier = 0x94,
-	.func = xbee_s2_sensor_rx_func,
-};
-struct xbee_modeConType xbee_s2_sensor = {
-	.name = "Sensor",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_16OR64_NOEP,
-	.rxHandler = &xbee_s2_sensor_rx,
-	.txHandler = NULL,
-};
+void xbee_s2_sensor_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_16OR64_NOEP;
+	conType->rxHandler->identifier = 0x94;
+	conType->rxHandler->func = xbee_s2_sensor_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s2_sensor_rx;
+struct xbee_modeConType xbee_s2_sensor = { "Sensor", &xbee_s2_sensor_rx, NULL, xbee_s2_sensor_init };
