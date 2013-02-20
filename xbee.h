@@ -23,6 +23,7 @@
 
 #ifndef EXPORT
 #define EXPORT
+#define XBEE_EXPORT_DEFINED
 #endif
 
 #ifdef __cplusplus
@@ -290,5 +291,10 @@ EXPORT const char *xbee_errorToStr(xbee_err error);
 } /* extern "C" */
 
 #endif /* __cplusplus */
+
+#ifdef XBEE_EXPORT_DEFINED
+#undef EXPORT
+#undef XBEE_EXPORT_DEFINED
+#endif
 
 #endif /* __XBEE_H */
