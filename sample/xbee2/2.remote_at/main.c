@@ -18,6 +18,13 @@
 	along with libxbee. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+   This sample is very similar to the simple AT sample, instead of
+   communicating with the local XBee, an attempt is made to communicate
+   with a remote XBee. You should change the address below to match your
+   remote XBee.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,6 +52,9 @@ int main(void) {
 		return ret;
 	}
 
+	/* this is the 64-bit address of the remote XBee module
+	   it should be entered with the MSB first, so the address below is
+	   SH = 0x0013A200    SL = 0x40081826 */
 	memset(&address, 0, sizeof(address));
 	address.addr64_enabled = 1;
 	address.addr64[0] = 0x00;
