@@ -67,6 +67,8 @@ struct xbee_modeConType xbee_s2_sensor = {
 	.allowFrameId = 0,
 	.useTimeout = 0,
 	.addressRules = ADDR_16OR64_NOEP,
+	.save_addr16 = 1,
+	.save_addr64 = 1,
 	.rxHandler = &xbee_s2_sensor_rx,
 	.txHandler = NULL,
 };

@@ -193,6 +193,7 @@ struct xbee_modeConType xbee_sZB_remoteAt = {
 		.tv_nsec = 0,
 	},
 	.addressRules = ADDR_64_16OPT_NOEP,
+	.save_addr16 = 1,
 	.rxHandler = &xbee_sZB_remoteAt_rx,
 	.txHandler = &xbee_sZB_remoteAt_tx,
 };

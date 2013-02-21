@@ -192,6 +192,7 @@ struct xbee_modeConType xbee_s2_remoteAt = {
 		.tv_nsec = 750000000,
 	},
 	.addressRules = ADDR_64_16OPT_NOEP,
+	.save_addr16 = 1,
 	.rxHandler = &xbee_s2_remoteAt_rx,
 	.txHandler = &xbee_s2_remoteAt_tx,
 };

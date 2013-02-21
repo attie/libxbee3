@@ -162,7 +162,6 @@ struct xbee_modeConType xbee_sZB_dataExp = {
 	.useTimeout = 0,
 	.addressRules = ADDR_64_16OPT_EPOPT,
 	.save_addr16 = 1,
-	.save_addr64 = 1,
 	.rxHandler = &xbee_sZB_dataExp_rx,
 	.txHandler = &xbee_sZB_dataExp_tx,
 };

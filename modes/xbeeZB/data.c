@@ -134,7 +134,6 @@ struct xbee_modeConType xbee_sZB_data = {
 	.useTimeout = 0,
 	.addressRules = ADDR_64_16OPT_NOEP,
 	.save_addr16 = 1,
-	.save_addr64 = 1,
 	.rxHandler = &xbee_sZB_data_rx,
 	.txHandler = &xbee_sZB_data_tx,
 };

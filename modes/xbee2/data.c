@@ -132,7 +132,6 @@ struct xbee_modeConType xbee_s2_data = {
 	.useTimeout = 0,
 	.addressRules = ADDR_64_16OPT_NOEP,
 	.save_addr16 = 1,
-	.save_addr64 = 1,
 	.rxHandler = &xbee_s2_data_rx,
 	.txHandler = &xbee_s2_data_tx,
 };

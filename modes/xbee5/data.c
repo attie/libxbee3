@@ -121,9 +121,7 @@ struct xbee_modeConType xbee_s5_data = {
 	.name = "Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
-	.addressRules = ADDR_64_16OPT_NOEP,
-	.save_addr16 = 1,
-	.save_addr64 = 1,
+	.addressRules = ADDR_64_ONLY,
 	.rxHandler = &xbee_s5_data_rx,
 	.txHandler = &xbee_s5_data_tx,
 };

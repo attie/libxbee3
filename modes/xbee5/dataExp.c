@@ -150,8 +150,6 @@ struct xbee_modeConType xbee_s5_dataExp = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.addressRules = ADDR_64_REQUIRED | ADDR_16_NOTALLOW,
-	.save_addr16 = 1,
-	.save_addr64 = 1,
 	.rxHandler = &xbee_s5_dataExp_rx,
 	.txHandler = &xbee_s5_dataExp_tx,
 };
