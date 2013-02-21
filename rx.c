@@ -96,11 +96,11 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 #ifdef XBEE_LOG_RX
 		{
 			/* format: tx[0x0000000000000000] */
-			char label[42]; /* enough space for a 64-bit pointer and ANSI color codes */
-			
 #ifdef XBEE_LOG_NO_COLOR
+			char label[23]; /* enough space for a 64-bit pointer */
 			snprintf(label, sizeof(label), "Rx[%p]", info);
 #else
+			char label[42]; /* enough space for a 64-bit pointer and ANSI color codes */
 			snprintf(label, sizeof(label), "Rx[%c[%dm%p%c[0m]", 27, 30 + info->logColor, info,  27);
 #endif
 			xbee_logData(25, label, buf->data, buf->len);
