@@ -1,6 +1,7 @@
 /config.mk
 /tags
 *~
+.*.swp
 
 lib
 .build
