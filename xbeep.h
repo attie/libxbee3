@@ -33,6 +33,11 @@
 #include <xbee.h>
 #endif
 
+#ifndef EXPORT
+#define EXPORT
+#define XBEE_EXPORT_DEFINED
+#endif
+
 namespace libxbee {
 	class XBee;
 	class Con;
@@ -139,6 +144,11 @@ namespace libxbee {
 			EXPORT bool getDigital(int channel, int index);
 	};
 };
+
+#ifdef XBEE_EXPORT_DEFINED
+#undef EXPORT
+#undef XBEE_EXPORT_DEFINED
+#endif
 
 #endif /* __cplusplus */
 
