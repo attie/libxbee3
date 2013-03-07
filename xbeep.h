@@ -82,6 +82,7 @@ namespace libxbee {
 			EXPORT void operator>> (Pkt &pkt);
 			
 		private:
+			friend class XBee;
 			friend class ConCallback;
 			
 			XBee &parent;

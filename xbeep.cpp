@@ -70,6 +70,14 @@ EXPORT libxbee::XBee::XBee(std::string mode, va_list ap) {
 }
 
 EXPORT libxbee::XBee::~XBee(void) {
+	std::list<Con*>::iterator con;
+
+	for (con = conList.begin(); con != conList.end(); con++) {
+		(*con)->xbee = NULL;
+		xbee_conEnd((*con)->con);
+		(*con)->con = NULL;
+	}
+
 	xbee_shutdown(xbee);
 	xbeeList.remove(this);
 }
@@ -157,8 +165,8 @@ EXPORT libxbee::Con::Con(XBee &parent, std::string type, struct xbee_conAddress 
 	}
 }
 EXPORT libxbee::Con::~Con(void) {
-	parent.conUnregister(this);
-	xbee_conEnd(con);
+	if (xbee != NULL) parent.conUnregister(this);
+	if (con != NULL) xbee_conEnd(con);
 }
 
 EXPORT void libxbee::Con::xbee_conCallback(Pkt **pkt) { }
@@ -194,6 +202,7 @@ EXPORT void libxbee::Con::operator>> (Pkt &pkt) {
 }
 
 EXPORT struct xbee_con *libxbee::Con::getHnd(void) {
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	return con;
 }
 
@@ -201,6 +210,7 @@ EXPORT unsigned char libxbee::Con::Tx(std::string data) {
 	unsigned char retVal;
 	xbee_err ret;
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_connTx(con, &retVal, (const unsigned char*)data.c_str(), data.size())) != XBEE_ENONE) throw(ret);
 	
 	return retVal;
@@ -209,6 +219,7 @@ EXPORT unsigned char libxbee::Con::Tx(const unsigned char *buf, int len) {
 	unsigned char retVal;
 	xbee_err ret;
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_connTx(con, &retVal, buf, len)) != XBEE_ENONE) throw(ret);
 	
 	return retVal;
@@ -218,6 +229,7 @@ EXPORT void libxbee::Con::Rx(Pkt &pkt, int *remainingPackets) {
 	struct xbee_pkt *raw_pkt;
 	xbee_err ret;
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_conRx(con, &raw_pkt, remainingPackets)) != XBEE_ENONE) throw(ret);
 	
 	pkt.setHnd(raw_pkt);
@@ -226,6 +238,7 @@ EXPORT void libxbee::Con::Rx(Pkt &pkt, int *remainingPackets) {
 EXPORT void libxbee::Con::purge(void) {
 	xbee_err ret;
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_conPurge(con)) != XBEE_ENONE) throw(ret);
 }
 
@@ -242,12 +255,14 @@ EXPORT void libxbee::Con::wake(void) {
 EXPORT void libxbee::Con::setSleep(enum xbee_conSleepStates state) {
 	xbee_err ret;
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_conSleepSet(con, state)) != XBEE_ENONE) throw(ret);
 }
 EXPORT enum xbee_conSleepStates libxbee::Con::getSleep(void) {
 	xbee_err ret;
 	enum xbee_conSleepStates state;
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_conSleepGet(con, &state)) != XBEE_ENONE) throw(ret);
 	
 	return state;
@@ -257,12 +272,14 @@ EXPORT void libxbee::Con::getSettings(struct xbee_conSettings *settings) {
 	xbee_err ret;
 	if (settings == NULL) throw(XBEE_EINVAL);
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_conSettings(con, NULL, settings)) != XBEE_ENONE) throw(ret);
 }
 EXPORT void libxbee::Con::setSettings(struct xbee_conSettings *settings) {
 	xbee_err ret;
 	if (settings == NULL) throw(XBEE_EINVAL);
 	
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
 	if ((ret = xbee_conSettings(con, settings, NULL)) != XBEE_ENONE) throw(ret);
 }
 
@@ -272,7 +289,8 @@ EXPORT void libxbee::Con::setSettings(struct xbee_conSettings *settings) {
 EXPORT libxbee::ConCallback::ConCallback(XBee &parent, std::string type, struct xbee_conAddress *address) : Con(parent, type, address), parent(parent) {
 	xbee_err ret;
 	
-	if ((ret = xbee_conCallbackSet(this->getHnd(), Con::libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
+	if ((ret = xbee_conCallbackSet(con, Con::libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
 }
 
 /* ========================================================================== */
