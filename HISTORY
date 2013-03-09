@@ -6,6 +6,7 @@ v3.0.9 - in progress
 	* Fixed a corner-case where timeouts occur prematurely if the packet transmission is delayed
 	* Added 'Sensor' connection type for XBee Series 2 modules
 	* Implemented fundamental xbeeZB support - ZDO, etc will need to be implemented separately for now
+	* Enhanced C++ usability
 
 v3.0.8 - 24 Dec 2012
 	* Fixed analog input values
