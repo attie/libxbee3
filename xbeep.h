@@ -125,6 +125,7 @@ namespace libxbee {
 			
 			EXPORT unsigned char operator[] (int index);
 			EXPORT void operator<< (Con &con);
+			EXPORT void operator>> (std::string &str);
 			
 		private:
 			struct xbee_pkt *pkt;
@@ -134,6 +135,7 @@ namespace libxbee {
 			EXPORT void setHnd(struct xbee_pkt *pkt);
 			EXPORT int size(void);
 			
+			EXPORT std::string getData(void);
 			/* use these two with care... */
 			EXPORT void *getData(const char *key);
 			EXPORT void *getData(const char *key, int id);

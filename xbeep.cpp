@@ -310,6 +310,9 @@ EXPORT unsigned char libxbee::Pkt::operator[] (int index) {
 EXPORT void libxbee::Pkt::operator<< (Con &con) {
 	con.Rx(*this);
 }
+EXPORT void libxbee::Pkt::operator>> (std::string &str) {
+	str = getData();
+}
 
 EXPORT int libxbee::Pkt::size(void) {
 	if (pkt == NULL) throw(XBEE_EINVAL);
@@ -324,6 +327,9 @@ EXPORT void libxbee::Pkt::setHnd(struct xbee_pkt *pkt) {
 	this->pkt = pkt;
 }
 
+EXPORT std::string libxbee::Pkt::getData(void) {
+	return std::string((char*)pkt->data, pkt->dataLen);
+}
 EXPORT void *libxbee::Pkt::getData(const char *key) {
 	return getData(key, 0, 0);
 }
