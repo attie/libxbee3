@@ -80,6 +80,7 @@ namespace libxbee {
 			
 			EXPORT unsigned char operator<< (std::string data);
 			EXPORT void operator>> (Pkt &pkt);
+			EXPORT void operator>> (std::string &pkt);
 			
 		private:
 			friend class XBee;

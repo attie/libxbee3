@@ -200,6 +200,11 @@ EXPORT unsigned char libxbee::Con::operator<< (std::string data) {
 EXPORT void libxbee::Con::operator>> (Pkt &pkt) {
 	return Rx(pkt);
 }
+EXPORT void libxbee::Con::operator>> (std::string &pkt) {
+	libxbee::Pkt p;
+	p << *this;
+	p >> pkt;
+}
 
 EXPORT struct xbee_con *libxbee::Con::getHnd(void) {
 	if (con == NULL) throw(XBEE_ESHUTDOWN);
