@@ -34,7 +34,12 @@ extern "C" {
 #include <stdarg.h>
 
 #ifdef _WIN32
+#ifndef ETIMEDOUT
+/* only define this if it hasn't been given already...
+   xsys_win32_winpthreads.h will provide it, as do some more
+   recent versions of VS */
 #define ETIMEDOUT           110
+#endif
 
 #define CLOCK_REALTIME      0
 
