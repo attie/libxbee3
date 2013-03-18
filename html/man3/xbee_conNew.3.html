@@ -134,6 +134,41 @@ is called, it will be permitted to complete, and then the connection will be ter
 
 
 <P>
+<B>xbeeZB</B>
+
+
+&quot;Modem Status&quot;
+- Rx Only. Status updates from the XBee module.
+<P>
+&quot;Transmit Status&quot;
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
+<P>
+&quot;Local AT&quot;
+- Set/Get AT configuration from the local module.
+<P>
+&quot;Remote AT&quot;
+- Set/Get AT configuration from a remote module.
+<P>
+&quot;Data&quot;
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
+<P>
+&quot;Data (explicit)&quot;
+- 2-way communication with a remote module, with configurable endpoint, cluster and profile IDs. All data will be recieved using this connection type if AO=1.
+<P>
+&quot;I/O&quot;
+- Rx Only. I/O samples received from a remote module. Only if AO=0.
+<P>
+&quot;Identify&quot;
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+<P>
+&quot;Sensor&quot;
+- Rx Only. Used for receiving sensor samples. Only if AO=0.
+<P>
+&quot;OTA Update Status&quot;
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+
+
+<P>
 <B>xbee5</B>
 
 
@@ -255,6 +290,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 11:23:48 GMT, March 18, 2013
+Time: 14:52:20 GMT, March 18, 2013
 </BODY>
 </HTML>
