@@ -230,6 +230,7 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList);
 /* - */
 EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address);
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con);
+EXPORT xbee_err xbee_conGetXBee(struct xbee_con *con, struct xbee **xbee);
 /* - */
 EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...);
 EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);

@@ -17,13 +17,15 @@
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
 .TH XBEE_CONNEW 3  02-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
-xbee_conNew, xbee_conValidate, xbee_conEnd
+xbee_conNew, xbee_conValidate, xbee_conGetXBee, xbee_conEnd
 .SH SYNOPSIS
 .B #include <xbee.h>
 .sp
 .BI "xbee_err xbee_conNew(struct xbee *" xbee ", struct xbee_con **" retCon ", const char *" type ", struct xbee_conAddress *" address ");"
 .sp
 .BI "xbee_err xbee_conValidate(struct xbee_con *" con ");"
+.sp
+.BI "xbee_err xbee_conGetXBee(struct xbee_con *" con ", struct xbee **" xbee ");"
 .sp
 .BI "xbee_err xbee_conEnd(struct xbee_con *" con ");"
 .ad b
@@ -46,6 +48,10 @@ may be safely provided.
 .sp
 .BR xbee_conValidate ()
 allows you to confirm that your handle points to a valid libxbee connection.
+.sp
+.BR xbee_conGetXBee ()
+allows you to retrieve the libxbee instance that was provided when the connection was created by calling
+.BR xbee_conNew ().
 .sp
 .BR xbee_conEnd ()
 will terminate a connection, and free any memory that is associated with it, including any un-fetched packets.

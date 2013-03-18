@@ -448,6 +448,17 @@ EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 	return XBEE_ENONE;
 }
 
+EXPORT xbee_err xbee_conGetXBee(struct xbee_con *con, struct xbee **xbee) {
+	if (!con || !xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+
+	*xbee = con->xbee;
+
+	return XBEE_ENONE;
+}
+
 /* ########################################################################## */
 
 xbee_err xbee_conWake(struct xbee_con *con) {
