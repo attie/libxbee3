@@ -173,23 +173,23 @@ EXPORT void libxbee::Con::xbee_conCallback(Pkt **pkt) { }
 EXPORT void libxbee::Con::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	std::list<XBee*>::iterator i;
 	for (i = xbeeList.begin(); i != xbeeList.end(); i++) {
-		if ((*i)->getHnd() == xbee) {
-			Con *c;
-			if ((c = (*i)->conLocate(con)) == NULL) break;
-			
-			Pkt *pktClass = new Pkt(*pkt);
-			
-			c->xbee_conCallback(&pktClass);
-			
-			/* if they took the packet, then don't free/delete it */
-			if (pktClass != NULL) {
-				delete pktClass;
-			}
-			
-			/* either way, libxbee doesn't need to free it, it was free'd just now or its the user's responsibility... */
-			*pkt = NULL;
-			return;
+		if ((*i)->getHnd() != xbee) continue;
+		
+		Con *c;
+		if ((c = (*i)->conLocate(con)) == NULL) break;
+		
+		Pkt *pktClass = new Pkt(*pkt);
+		
+		c->xbee_conCallback(&pktClass);
+		
+		/* if they took the packet, then don't free/delete it */
+		if (pktClass != NULL) {
+			delete pktClass;
 		}
+		
+		/* either way, libxbee doesn't need to free it, it was free'd just now or its the user's responsibility... */
+		*pkt = NULL;
+		return;
 	}
 	std::cerr << "  1#[" << __FILE__ << ":" << __LINE__ << "] " << __FUNCTION__ << "(): A connection called back to the C++ interface, but it wasnt found...\n";
 }
