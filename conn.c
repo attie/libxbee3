@@ -770,6 +770,17 @@ EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 
 /* ########################################################################## */
 
+EXPORT xbee_err xbee_conTypeGet(struct xbee_con *con, char **type) {
+	if (!con || !type) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	*type = con->conType->name;
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
 EXPORT xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info) {
 	if (!con || !info) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS

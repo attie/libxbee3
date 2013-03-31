@@ -246,6 +246,8 @@ EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates 
 EXPORT xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData);
 EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData);
 /* - */
+EXPORT xbee_err xbee_conTypeGet(struct xbee_con *con, char **type);
+/* - */
 EXPORT xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info);
 /* - */
 EXPORT xbee_err xbee_conCallbackSet(struct xbee_con *con, xbee_t_conCallback newCallback, xbee_t_conCallback *oldCallback);
