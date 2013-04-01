@@ -349,6 +349,12 @@ EXPORT void *libxbee::Pkt::getData(const char *key, int id, int index) {
 	return p;
 }
 
+EXPORT std::string libxbee::Pkt::getATCommand(void) {
+	std::string type(pkt->conType);
+	if (type != "Local AT" && type != "Remote AT") throw(XBEE_EINVAL);
+	return std::string((char*)pkt->atCommand, 2);
+}
+
 EXPORT int libxbee::Pkt::getAnalog(int channel) {
 	return getAnalog(channel, 0);
 }

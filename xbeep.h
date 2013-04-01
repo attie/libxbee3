@@ -137,10 +137,12 @@ namespace libxbee {
 			EXPORT int size(void);
 			
 			EXPORT std::string getData(void);
-			/* use these two with care... */
+			/* use these three with care... */
 			EXPORT void *getData(const char *key);
 			EXPORT void *getData(const char *key, int id);
 			EXPORT void *getData(const char *key, int id, int index);
+			
+			EXPORT std::string getATCommand(void);
 			
 			EXPORT int getAnalog(int channel);
 			EXPORT int getAnalog(int channel, int index);
