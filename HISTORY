@@ -8,6 +8,8 @@ v3.0.9 - in progress
 	* Implemented fundamental xbeeZB support - ZDO, etc will need to be implemented separately for now
 	* Enhanced C++ usability
 	* Added xbee_conTypeGet()
+	* Added support for a larger range of standard baud rates on Linux and BSD
+	* Added support for arbitrary baud rates on Linux and BSD (see config.mk to enable)
 
 v3.0.8 - 24 Dec 2012
 	* Fixed analog input values

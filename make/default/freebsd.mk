@@ -39,6 +39,9 @@ SYS_USER:=      root
 ### un-comment to turn off hardware flow control
 #OPTIONS+=       XBEE_NO_RTSCTS
 
+### un-comment to allow arbitrary baud rates - drivers may still reject them
+#OPTIONS+=       XBEE_ALLOW_ARB_BAUD
+
 ### un-comment to use API mode 2
 #OPTIONS+=       XBEE_API2
 #OPTIONS+=       XBEE_API2_DEBUG
