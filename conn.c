@@ -630,7 +630,9 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 		} else {
 			to.tv_sec += 1; /* default 1 second timeout */
 		}
-		if (xbee_frameWait(con->xbee->fBlock, con, pret, &to) != XBEE_ENONE || *pret != 0) ret = XBEE_ETX;
+		if ((ret = xbee_frameWait(con->xbee->fBlock, con, pret, &to)) == XBEE_ENONE) {
+			if (*pret != 0) ret = XBEE_ETX;
+		}
 	}
 	
 done:
