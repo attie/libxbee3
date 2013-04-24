@@ -331,6 +331,12 @@ EXPORT void libxbee::Pkt::setHnd(struct xbee_pkt *pkt) {
 	if (this->pkt) xbee_pktFree(this->pkt);
 	this->pkt = pkt;
 }
+EXPORT struct xbee_pkt *libxbee::Pkt::dropHnd(void) {
+	struct xbee_pkt *t;
+	t = this->pkt;
+	this->pkt = NULL;
+	return t;
+}
 
 EXPORT std::string libxbee::Pkt::getData(void) {
 	return std::string((char*)pkt->data, pkt->dataLen);

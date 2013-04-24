@@ -134,6 +134,10 @@ namespace libxbee {
 		public:
 			EXPORT struct xbee_pkt *getHnd(void);
 			EXPORT void setHnd(struct xbee_pkt *pkt);
+			
+			/* when calling this function, YOU become responsible for freeing the previously held packet */
+			EXPORT struct xbee_pkt *dropHnd(void);
+			
 			EXPORT int size(void);
 			
 			EXPORT std::string getData(void);
