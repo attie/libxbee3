@@ -101,6 +101,8 @@ libxbee connection functions
 .sp 0                         
 .BR xbee_conValidate "(3)     - validate a connection handle"
 .sp 0                         
+.BR xbee_conGetXBee "(3)      - retrieve the libxbee instance associated with a connection"
+.sp 0                         
 .BR xbee_conEnd "(3)          - close a connection"
 .sp                           
 .BR xbee_conTx "(3)           - transmit a message (using printf-style arguments)"
@@ -124,6 +126,8 @@ libxbee connection functions
 .BR xbee_conCallbackSet "(3)  - configure a callback for a connection"
 .sp 0                         
 .BR xbee_conCallbackGet "(3)  - retrieve the callback configured for a connection"
+.sp                           
+.BR xbee_conTypeGet "(3)      - retrieve the type of the connection, as provided when calling " xbee_conNew (3)
 .sp                           
 .BR xbee_conInfoGet "(3)      - retrieve the information stored with a connection (e.g: tx/rx counters)"
 .sp                           

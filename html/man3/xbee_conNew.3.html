@@ -8,7 +8,7 @@ Section: Linux Programmer's Manual (3)<BR>Updated: 02-Mar-2012<BR><A HREF="#inde
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 
-xbee_conNew, xbee_conValidate, xbee_conEnd
+xbee_conNew, xbee_conValidate, xbee_conGetXBee, xbee_conEnd
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
@@ -19,6 +19,9 @@ xbee_conNew, xbee_conValidate, xbee_conEnd
 
 <P>
 <B>xbee_err xbee_conValidate(struct xbee_con *</B><I>con</I><B>);</B>
+
+<P>
+<B>xbee_err xbee_conGetXBee(struct xbee_con *</B><I>con</I><B>, struct xbee **</B><I>xbee</I><B>);</B>
 
 <P>
 <B>xbee_err xbee_conEnd(struct xbee_con *</B><I>con</I><B>);</B>
@@ -53,6 +56,12 @@ may be safely provided.
 <B>xbee_conValidate</B>()
 
 allows you to confirm that your handle points to a valid libxbee connection.
+<P>
+<B>xbee_conGetXBee</B>()
+
+allows you to retrieve the libxbee instance that was provided when the connection was created by calling
+<B>xbee_conNew</B>().
+
 <P>
 <B>xbee_conEnd</B>()
 
@@ -121,6 +130,41 @@ is called, it will be permitted to complete, and then the connection will be ter
 - Rx Only. Used for receiving sensor samples. Only if AO=0.
 <P>
 &quot;Identify&quot;
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+
+
+<P>
+<B>xbeeZB</B>
+
+
+&quot;Modem Status&quot;
+- Rx Only. Status updates from the XBee module.
+<P>
+&quot;Transmit Status&quot;
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
+<P>
+&quot;Local AT&quot;
+- Set/Get AT configuration from the local module.
+<P>
+&quot;Remote AT&quot;
+- Set/Get AT configuration from a remote module.
+<P>
+&quot;Data&quot;
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
+<P>
+&quot;Data (explicit)&quot;
+- 2-way communication with a remote module, with configurable endpoint, cluster and profile IDs. All data will be recieved using this connection type if AO=1.
+<P>
+&quot;I/O&quot;
+- Rx Only. I/O samples received from a remote module. Only if AO=0.
+<P>
+&quot;Identify&quot;
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+<P>
+&quot;Sensor&quot;
+- Rx Only. Used for receiving sensor samples. Only if AO=0.
+<P>
+&quot;OTA Update Status&quot;
 - Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
 
 
@@ -246,6 +290,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 23:02:52 GMT, February 06, 2013
+Time: 14:52:20 GMT, March 18, 2013
 </BODY>
 </HTML>

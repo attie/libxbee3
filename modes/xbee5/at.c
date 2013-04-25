@@ -167,7 +167,7 @@ void xbee_s5_remoteAt_init(struct xbee_modeConType *conType) {
 	conType->useTimeout = 1;
 	conType->timeout.tv_sec = 0;
 	conType->timeout.tv_nsec = 750000000;
-	conType->addressRules = ADDR_64_16OPT_NOEP;
+	conType->addressRules = ADDR_64_ONLY;
 	conType->rxHandler->identifier = 0x97;
 	conType->rxHandler->func = xbee_s5_at_rx_func;
 	conType->rxHandler->funcPost = xbee_s5_at_rx_funcPost;

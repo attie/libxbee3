@@ -15,13 +15,15 @@
 .\" 
 .\" You should have received a copy of the GNU Lesser General Public License
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
-.TH XBEE_CONINFOGET 3  04-Mar-2012 "GNU" "Linux Programmer's Manual"
+.TH XBEE_CONINFOGET 3  31-Mar-2013 "GNU" "Linux Programmer's Manual"
 .SH NAME
 xbee_conInfoGet, xbee_conInfo
 .SH SYNOPSIS
 .B #include <xbee.h>
 .sp
 .BI "xbee_err xbee_conInfoGet(struct xbee_con *" con ", struct xbee_conInfo *" info ");"
+.sp
+.BI "xbee_err xbee_conTypeGet(struct xbee_con *" con ", char **" type ");"
 .sp
 .nf
 struct xbee_conInfo {
@@ -37,6 +39,10 @@ provides you with access to the statistical information stored with the connecti
 .I info
 should be pre-allocated storage to receive the
 .IR "struct xbee_conInfo" .
+.sp
+.BR xbee_conTypeGet ()
+allows you to retrieve the type of the connection that was provided when calling
+.BR xbee_conNew ().
 .SS Return Value
 On success this function will return XBEE_ENONE, otherwise an error number from
 .IR "enum xbee_errors" " (as specified in " <xbee.h> )

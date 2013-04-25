@@ -39,12 +39,16 @@ $(BUILDDIR)/__%.o:
 define mode_rule
 # build a mode's object & dep file
 .PRECIOUS: $$(BUILDDIR)/modes_$1_%.d
-$$(BUILDDIR)/__mode_$1.o: .$$(BUILDDIR).dir $(MODE_$1_OBJS)
-	$$(LD) -r -o $$@ $$(filter %.o,$$^)
-$$(BUILDDIR)/modes_$1_%.o: .$$(BUILDDIR).dir
-	$$(GCC) $$(CFLAGS) -MMD modes/$1/$$*.c -c -o $$@
+$$(BUILDDIR)/__mode_$1.o: $(MODE_$1_OBJS)
+$$(MODE_$1_OBJS): $$(BUILDDIR)/modes_$1_%.o: modes/$1/%.c
 endef
 $(foreach mode,$(MODELIST),$(eval $(call mode_rule,$(mode))))
+
+# static/common rules for the modes
+$(BUILDDIR)/__plugin_%.o: .$(BUILDDIR).dir
+	$(LD) -r -o $@ $(filter %.o,$^)
+$(MODE_MODE_OBJS): $(BUILDDIR)/modes_%.o: .$(BUILDDIR).dir
+	$(GCC) $(CFLAGS) -MMD $(filter %.c,$^) -c -o $@
 #####
 
 # build the common mode code

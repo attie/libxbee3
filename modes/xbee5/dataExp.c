@@ -37,9 +37,6 @@ xbee_err xbee_s5_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char ide
 	
 	if (buf->len < 18) return XBEE_ELENGTH;
 	
-	/* ClusterID (2 bytes) */
-	/* ProfileID (2 bytes) */
-	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 18)) != XBEE_ENONE) return ret;
 	
 	address->addr64_enabled = 1;
@@ -47,9 +44,10 @@ xbee_err xbee_s5_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char ide
 	address->endpoints_enabled = 1;
 	address->endpoint_remote = buf->data[11];
 	address->endpoint_local = buf->data[12];
-#ifndef _WIN32
-#warning TODO - support cluster ID & profile ID
-#endif
+	address->cluster_enabled = 1;
+	address->cluster_id = ((buf->data[13] << 8) & 0xFF00) | (buf->data[14] & 0xFF);
+	address->profile_enabled = 1;
+	address->profile_id = ((buf->data[15] << 8) & 0xFF00) | (buf->data[16] & 0xFF);
 	
 	iPkt->options = buf->data[17];
 	
@@ -109,13 +107,20 @@ xbee_err xbee_s5_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 		iBuf->data[pos] = 0xE8; /* default to data... */    pos++;
 		iBuf->data[pos] = 0xE8; /* ... endpoint */          pos++;
 	}
-#ifndef _WIN32
-#warning TODO - support cluster ID & profile ID
-#endif
-	iBuf->data[pos] = 0x00; /* custerIDs are not... */    pos++;
-	iBuf->data[pos] = 0x11; /* ..supported by libxbee */  pos++;
-	iBuf->data[pos] = 0xC1; /* profileIDs are not... */   pos++;
-	iBuf->data[pos] = 0x05; /* ..supported by libxbee */  pos++;
+	if (address->cluster_enabled) {
+		iBuf->data[pos] = (address->cluster_id >> 8) & 0xFF;  pos++;
+		iBuf->data[pos] =  address->cluster_id       & 0xFF;  pos++;
+	} else {
+		iBuf->data[pos] = 0x00; /* custerID 0x0011... */      pos++;
+		iBuf->data[pos] = 0x11; /* ... (default) */           pos++;
+	}
+	if (address->cluster_enabled) {
+		iBuf->data[pos] = (address->profile_id >> 8) & 0xFF;  pos++;
+		iBuf->data[pos] =  address->profile_id       & 0xFF;  pos++;
+	} else {
+		iBuf->data[pos] = 0xC1; /* profileID 0xC105... */     pos++;
+		iBuf->data[pos] = 0x05; /* ... (default) */           pos++;
+	}
 	iBuf->data[pos] = settings->broadcastRadius;          pos++;
 	iBuf->data[pos] = 0;
 	if (settings->disableAck) iBuf->data[pos] |= 0x01;
@@ -136,9 +141,7 @@ void xbee_s5_dataExp_init(struct xbee_modeConType *conType) {
 	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
-	conType->addressRules = ADDR_64_16OPT_EP;
-	conType->save_addr16 = 1;
-	conType->save_addr64 = 1;
+	conType->addressRules = ADDR_64_REQUIRED | ADDR_16_NOTALLOW;
 	conType->rxHandler->identifier = 0x91;
 	conType->rxHandler->func = xbee_s5_dataExp_rx_func;
 	conType->txHandler->identifier = 0x11;

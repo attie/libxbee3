@@ -33,6 +33,11 @@
 #include <xbee.h>
 #endif
 
+#ifndef EXPORT
+#define EXPORT
+#define XBEE_EXPORT_DEFINED
+#endif
+
 namespace libxbee {
 	class XBee;
 	class Con;
@@ -75,8 +80,10 @@ namespace libxbee {
 			
 			EXPORT unsigned char operator<< (std::string data);
 			EXPORT void operator>> (Pkt &pkt);
+			EXPORT void operator>> (std::string &pkt);
 			
 		private:
+			friend class XBee;
 			friend class ConCallback;
 			
 			XBee &parent;
@@ -119,6 +126,7 @@ namespace libxbee {
 			
 			EXPORT unsigned char operator[] (int index);
 			EXPORT void operator<< (Con &con);
+			EXPORT void operator>> (std::string &str);
 			
 		private:
 			struct xbee_pkt *pkt;
@@ -126,12 +134,19 @@ namespace libxbee {
 		public:
 			EXPORT struct xbee_pkt *getHnd(void);
 			EXPORT void setHnd(struct xbee_pkt *pkt);
+			
+			/* when calling this function, YOU become responsible for freeing the previously held packet */
+			EXPORT struct xbee_pkt *dropHnd(void);
+			
 			EXPORT int size(void);
 			
-			/* use these two with care... */
+			EXPORT std::string getData(void);
+			/* use these three with care... */
 			EXPORT void *getData(const char *key);
 			EXPORT void *getData(const char *key, int id);
 			EXPORT void *getData(const char *key, int id, int index);
+			
+			EXPORT std::string getATCommand(void);
 			
 			EXPORT int getAnalog(int channel);
 			EXPORT int getAnalog(int channel, int index);
@@ -139,6 +154,11 @@ namespace libxbee {
 			EXPORT bool getDigital(int channel, int index);
 	};
 };
+
+#ifdef XBEE_EXPORT_DEFINED
+#undef EXPORT
+#undef XBEE_EXPORT_DEFINED
+#endif
 
 #endif /* __cplusplus */
 

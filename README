@@ -77,8 +77,10 @@ flags are also necessary for newer versions of Ubuntu, and possibly others.
 === Interfacing ===
 I have provided the ability to interface with libxbee from a number of languages
 other than 'C'. The source, and sample code for these interfaces  can be found
-in '/interfaces'. Currently the following languages are supported:
-  C++
+in '/interfaces'. Currently the following languages are supported or in
+development:
+  C++ (see /xbeep.cpp and /xbeep.h)
+  Java
 
 
 === Samples ===

@@ -67,6 +67,8 @@ void xbee_sZB_ota_init(struct xbee_modeConType *conType) {
 	conType->allowFrameId = 0;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_16OR64_NOEP;
+	conType->save_addr16 = 1;
+	conType->save_addr64 = 1;
 	conType->rxHandler->identifier = 0xA0;
 	conType->rxHandler->func = xbee_sZB_ota_rx_func;
 }

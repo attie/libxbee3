@@ -450,6 +450,17 @@ EXPORT xbee_err xbee_conValidate(struct xbee_con *con) {
 	return XBEE_ENONE;
 }
 
+EXPORT xbee_err xbee_conGetXBee(struct xbee_con *con, struct xbee **xbee) {
+	if (!con || !xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+
+	*xbee = con->xbee;
+
+	return XBEE_ENONE;
+}
+
 /* ########################################################################## */
 
 xbee_err xbee_conWake(struct xbee_con *con) {
@@ -623,7 +634,9 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 		} else {
 			to.tv_sec += 1; /* default 1 second timeout */
 		}
-		if (xbee_frameWait(con->xbee->fBlock, con, pret, &to) != XBEE_ENONE || *pret != 0) ret = XBEE_ETX;
+		if ((ret = xbee_frameWait(con->xbee->fBlock, con, pret, &to)) == XBEE_ENONE) {
+			if (*pret != 0) ret = XBEE_ETX;
+		}
 	}
 	
 done:
@@ -758,6 +771,17 @@ EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData) {
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	*curData = con->userData;
+	return XBEE_ENONE;
+}
+
+/* ########################################################################## */
+
+EXPORT xbee_err xbee_conTypeGet(struct xbee_con *con, char **type) {
+	if (!con || !type) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	*type = con->conType->name;
 	return XBEE_ENONE;
 }
 

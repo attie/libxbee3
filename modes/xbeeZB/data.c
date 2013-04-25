@@ -125,6 +125,7 @@ void xbee_sZB_data_init(struct xbee_modeConType *conType) {
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_64_16OPT_NOEP;
+	conType->save_addr16 = 1;
 	conType->rxHandler->identifier = 0x90;
 	conType->rxHandler->func = xbee_sZB_data_rx_func;
 	conType->txHandler->identifier = 0x10;

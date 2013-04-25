@@ -136,12 +136,8 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 	
 	xbee_mutex_lock(&fBlock->mutex);
 	frame->con = NULL;
-	if (retVal) {
-		if (ret == XBEE_ENONE) {
-			*retVal = frame->retVal;
-		} else if (ret == XBEE_ETIMEOUT) {
-			*retVal = XBEE_ETIMEOUT;
-		}
+	if (retVal && ret == XBEE_ENONE) {
+		*retVal = frame->retVal;
 	}
 	xbee_mutex_unlock(&fBlock->mutex);
 	

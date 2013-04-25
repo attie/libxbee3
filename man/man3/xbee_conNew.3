@@ -17,13 +17,15 @@
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
 .TH XBEE_CONNEW 3  02-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
-xbee_conNew, xbee_conValidate, xbee_conEnd
+xbee_conNew, xbee_conValidate, xbee_conGetXBee, xbee_conEnd
 .SH SYNOPSIS
 .B #include <xbee.h>
 .sp
 .BI "xbee_err xbee_conNew(struct xbee *" xbee ", struct xbee_con **" retCon ", const char *" type ", struct xbee_conAddress *" address ");"
 .sp
 .BI "xbee_err xbee_conValidate(struct xbee_con *" con ");"
+.sp
+.BI "xbee_err xbee_conGetXBee(struct xbee_con *" con ", struct xbee **" xbee ");"
 .sp
 .BI "xbee_err xbee_conEnd(struct xbee_con *" con ");"
 .ad b
@@ -46,6 +48,10 @@ may be safely provided.
 .sp
 .BR xbee_conValidate ()
 allows you to confirm that your handle points to a valid libxbee connection.
+.sp
+.BR xbee_conGetXBee ()
+allows you to retrieve the libxbee instance that was provided when the connection was created by calling
+.BR xbee_conNew ().
 .sp
 .BR xbee_conEnd ()
 will terminate a connection, and free any memory that is associated with it, including any un-fetched packets.
@@ -108,6 +114,40 @@ is called, it will be permitted to complete, and then the connection will be ter
 - Rx Only. Used for receiving sensor samples. Only if AO=0.
 .sp 0
 "Identify"
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+.fi
+.in
+.sp
+.B xbeeZB
+.in +4n
+"Modem Status"
+- Rx Only. Status updates from the XBee module.
+.sp 0
+"Transmit Status"
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
+.sp 0
+"Local AT"
+- Set/Get AT configuration from the local module.
+.sp 0
+"Remote AT"
+- Set/Get AT configuration from a remote module.
+.sp 0
+"Data"
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
+.sp 0
+"Data (explicit)"
+- 2-way communication with a remote module, with configurable endpoint, cluster and profile IDs. All data will be recieved using this connection type if AO=1.
+.sp 0
+"I/O"
+- Rx Only. I/O samples received from a remote module. Only if AO=0.
+.sp 0
+"Identify"
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+.sp 0
+"Sensor"
+- Rx Only. Used for receiving sensor samples. Only if AO=0.
+.sp 0
+"OTA Update Status"
 - Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
 .fi
 .in

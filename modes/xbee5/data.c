@@ -113,14 +113,12 @@ void xbee_s5_data_init(struct xbee_modeConType *conType) {
 	/* we REALLY have to babysit Windows... */
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
-	conType->addressRules = ADDR_64_16OPT_NOEP;
-	conType->save_addr16 = 1;
-	conType->save_addr64 = 1;
+	conType->addressRules = ADDR_64_ONLY;
 	conType->rxHandler->identifier = 0x90;
 	conType->rxHandler->func = xbee_s5_data_rx_func;
 	conType->txHandler->identifier = 0x10;
 	conType->txHandler->func = xbee_s5_data_tx_func;
-};
+}
 struct xbee_modeDataHandlerRx xbee_s5_data_rx;
 struct xbee_modeDataHandlerTx xbee_s5_data_tx;
 struct xbee_modeConType xbee_s5_data = { "Data", &xbee_s5_data_rx, &xbee_s5_data_tx, xbee_s5_data_init };

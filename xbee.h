@@ -23,6 +23,7 @@
 
 #ifndef EXPORT
 #define EXPORT
+#define XBEE_EXPORT_DEFINED
 #endif
 
 #ifdef __cplusplus
@@ -229,6 +230,7 @@ EXPORT xbee_err xbee_conGetTypes(struct xbee *xbee, char ***retList);
 /* - */
 EXPORT xbee_err xbee_conNew(struct xbee *xbee, struct xbee_con **retCon, const char *type, struct xbee_conAddress *address);
 EXPORT xbee_err xbee_conValidate(struct xbee_con *con);
+EXPORT xbee_err xbee_conGetXBee(struct xbee_con *con, struct xbee **xbee);
 /* - */
 EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...);
 EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);
@@ -243,6 +245,8 @@ EXPORT xbee_err xbee_conSleepGet(struct xbee_con *con, enum xbee_conSleepStates 
 /* - */
 EXPORT xbee_err xbee_conDataSet(struct xbee_con *con, void *newData, void **oldData);
 EXPORT xbee_err xbee_conDataGet(struct xbee_con *con, void **curData);
+/* - */
+EXPORT xbee_err xbee_conTypeGet(struct xbee_con *con, char **type);
 /* - */
 EXPORT xbee_err xbee_conInfoGet(struct xbee_con *con, struct xbee_conInfo *info);
 /* - */
@@ -295,5 +299,10 @@ EXPORT const char *xbee_errorToStr(xbee_err error);
 } /* extern "C" */
 
 #endif /* __cplusplus */
+
+#ifdef XBEE_EXPORT_DEFINED
+#undef EXPORT
+#undef XBEE_EXPORT_DEFINED
+#endif
 
 #endif /* __XBEE_H */

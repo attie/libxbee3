@@ -1,6 +1,8 @@
 /config.mk
 /tags
+/cscope.out
 *~
+.*.swp
 
 lib
 .build

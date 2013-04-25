@@ -157,6 +157,8 @@ void xbee_s2_io_init(struct xbee_modeConType *conType) {
 	conType->allowFrameId = 0;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_16OR64_NOEP;
+	conType->save_addr16 = 1;
+	conType->save_addr64 = 1;
 	conType->rxHandler->identifier = 0x92;
 	conType->rxHandler->func = xbee_s2_io_rx_func;
 	conType->rxHandler->funcPost = xbee_s2_io_rx_funcPost;

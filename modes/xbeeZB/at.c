@@ -179,6 +179,7 @@ void xbee_sZB_remoteAt_init(struct xbee_modeConType *conType) {
 	conType->timeout.tv_sec = 5;
 	conType->timeout.tv_nsec = 0;
 	conType->addressRules = ADDR_64_16OPT_NOEP;
+	conType->save_addr16 = 1;
 	conType->rxHandler->identifier = 0x97;
 	conType->rxHandler->func = xbee_sZB_at_rx_func;
 	conType->rxHandler->funcPost = xbee_sZB_at_rx_funcPost;

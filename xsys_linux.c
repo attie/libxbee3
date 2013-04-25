@@ -40,7 +40,25 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
 	
 	switch (info->baudrate) {
+#ifdef B134
+		case 134:    chosenbaud = B134;    break;
+#endif
+#ifdef B150
+		case 150:    chosenbaud = B150;    break;
+#endif
+#ifdef B200
+		case 200:    chosenbaud = B200;    break;
+#endif
+#ifdef B300
+		case 300:    chosenbaud = B300;    break;
+#endif
+#ifdef B600
+		case 600:    chosenbaud = B600;    break;
+#endif
 		case 1200:   chosenbaud = B1200;   break;
+#ifdef B1800
+		case 1800:   chosenbaud = B1800;   break;
+#endif
 		case 2400:   chosenbaud = B2400;   break;
 		case 4800:   chosenbaud = B4800;   break;
 		case 9600:   chosenbaud = B9600;   break;
@@ -48,8 +66,27 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 		case 38400:  chosenbaud = B38400;  break;
 		case 57600:  chosenbaud = B57600;  break;
 		case 115200: chosenbaud = B115200; break;
+#ifdef B230400
+		case 230400: chosenbaud = B230400; break;
+#endif
+#ifdef B460800
+		case 460800: chosenbaud = B460800; break;
+#endif
+#ifdef B500000
+		case 500000: chosenbaud = B500000; break;
+#endif
+#ifdef B576000
+		case 576000: chosenbaud = B576000; break;
+#endif
+#ifdef B921600
+		case 921600: chosenbaud = B921600; break;
+#endif
 		default:
+#ifdef XBEE_ALLOW_ARB_BAUD
+			chosenbaud = info->baudrate;
+#else
 			return XBEE_EINVAL;
+#endif
 	}
 	
 	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) {
