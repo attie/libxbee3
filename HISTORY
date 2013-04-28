@@ -11,6 +11,7 @@ v3.0.9 - in progress
 	* Added support for a larger range of standard baud rates on Linux and BSD
 	* Added support for arbitrary baud rates on Linux and BSD (see config.mk to enable)
 	* xbee_conTx() and relations now return XBEE_ETIMEOUT directly instead of via the retVal parameter
+	* Improved handling of Tx status frames
 
 v3.0.8 - 24 Dec 2012
 	* Fixed analog input values

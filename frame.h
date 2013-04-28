@@ -27,12 +27,16 @@ struct xbee_frameInfo {
 	int retVal;
 };
 
+#define XBEE_FRAME_STATUS_SCHEDULED 0x01
+#define XBEE_FRAME_STATUS_WAITING   0x02
+#define XBEE_FRAME_STATUS_COMPLETE  0x04
+
 struct xbee_frame {
 	xsys_sem sem;
 	struct xbee_con *con;
 	unsigned char id;
 	unsigned char retVal;
-	unsigned char inUse;
+	unsigned char status;
 };
 
 struct xbee_frameBlock {
