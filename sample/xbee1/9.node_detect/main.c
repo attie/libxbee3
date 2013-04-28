@@ -90,7 +90,7 @@ int main(void) {
 		return ret;
 	}
 
-	if ((ret = xbee_conTx(con, &txRet, "ND")) != XBEE_ENONE && (ret != XBEE_ETX && txRet != XBEE_ETIMEOUT)) {
+	if ((ret = xbee_conTx(con, &txRet, "ND")) != XBEE_ENONE && (ret != XBEE_ETX && ret != XBEE_ETIMEOUT)) {
 		xbee_log(xbee, -1, "xbee_conTx() returned: %d-%d", ret, txRet);
 		return ret;
 	}
