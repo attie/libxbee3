@@ -221,18 +221,20 @@ EXPORT unsigned char libxbee::Con::Tx(std::string data) {
 	xbee_err ret;
 	
 	if (con == NULL) throw(XBEE_ESHUTDOWN);
-	if ((ret = xbee_connTx(con, &retVal, (const unsigned char*)data.c_str(), data.size())) != XBEE_ENONE) throw(ret);
-	
-	return retVal;
+	if ((ret = xbee_connTx(con, &retVal, (const unsigned char*)data.c_str(), data.size())) == XBEE_ENONE) return retVal;
+
+	if (ret == XBEE_ETX) throw(libxbee::xbee_etx(ret, retVal));
+	throw(ret);
 }
 EXPORT unsigned char libxbee::Con::Tx(const unsigned char *buf, int len) {
 	unsigned char retVal;
 	xbee_err ret;
 	
 	if (con == NULL) throw(XBEE_ESHUTDOWN);
-	if ((ret = xbee_connTx(con, &retVal, buf, len)) != XBEE_ENONE) throw(ret);
-	
-	return retVal;
+	if ((ret = xbee_connTx(con, &retVal, buf, len)) == XBEE_ENONE) return retVal;
+
+	if (ret == XBEE_ETX) throw(libxbee::xbee_etx(ret, retVal));
+	throw(ret);
 }
 
 EXPORT void libxbee::Con::Rx(Pkt &pkt, int *remainingPackets) {
