@@ -1,3 +1,6 @@
+v3.0.10 - in progress
+	* Fixed xbee_frameWait()
+
 v3.0.9 - 29 Apr 2013
 	* Fixed high baudrate corruption issues
 	* Added a timestamp from clock_gettime() to all incoming packets

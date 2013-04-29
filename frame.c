@@ -138,9 +138,9 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 	xbee_mutex_lock(&fBlock->mutex);
 	con->frameId = 0;
 	frame->con = NULL;
-	if (frame->status & XBEE_FRAME_STATUS_COMPLETE && retVal && ret == XBEE_ENONE) {
+	if (frame->status & XBEE_FRAME_STATUS_COMPLETE && ret == XBEE_ENONE) {
 		frame->status = 0;
-		*retVal = frame->retVal;
+		if (retVal) *retVal = frame->retVal;
 	} else {
 		frame->status &= ~XBEE_FRAME_STATUS_WAITING;
 	}
