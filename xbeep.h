@@ -47,6 +47,13 @@ namespace libxbee {
 	extern std::list<XBee*> xbeeList;
 	
 	std::list<std::string> getModes(void);
+
+	class xbee_etx {
+		public:
+			EXPORT explicit xbee_etx(xbee_err ret, unsigned char retVal): ret(ret), retVal(retVal) { };
+			const xbee_err ret;
+			const unsigned char retVal;
+	};
 	
 	class EXPORT XBee {
 		public:
