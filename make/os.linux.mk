@@ -17,7 +17,7 @@ INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER) -DT
 MAN2HTML:=             man2html
 
 DEBUG:=                -g
-CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
+CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS)) -DLIBXBEE_BUILD
 #CFLAGS+=              -pedantic
 CFLAGS+=               -fvisibility=hidden
 CFLAGS+=               -Wno-variadic-macros

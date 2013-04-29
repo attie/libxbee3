@@ -22,7 +22,12 @@
 #include <stdarg.h>
 #include <iostream>
 
+#ifdef LIBXBEE_BUILD
 #include "xsys.h"
+#else
+#define EXPORT
+#endif
+
 #include "xbee.h"
 #include "xbeep.h"
 
