@@ -12,7 +12,7 @@ RM:=                   del /F
 RMDIR:=                del /F /Q
 
 DEBUG?=                /MT
-CFLAGS+=               /nologo "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /RTCs /Gd $(DEBUG) $(addprefix /D,$(OPTIONS))
+CFLAGS+=               /nologo "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /RTCs /Gd $(DEBUG) $(addprefix /D,$(OPTIONS)) /DLIBXBEE_BUILD
 CLINKS+=               /nologo "/LIBPATH:$(SDKPATH)\Lib" "/LIBPATH:$(VCPATH)\lib" /VERSION:$(LIBMAJ).$(LIBMIN) $(LDBUG)
 FINLNK:=               /DLL
 
