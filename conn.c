@@ -53,6 +53,8 @@ xbee_err xbee_conAlloc(struct xbee_con **nCon) {
 	memset(con, 0, memSize);
 	con->pktList = xbee_ll_alloc();
 	xsys_sem_init(&con->callbackSem);
+	xsys_sem_init(&con->bioSem);
+	xsys_mutex_init(&con->bioMutex);
 	xsys_mutex_init(&con->txMutex);
 	
 	if ((ret = xbee_ll_add_tail(conList, con)) != XBEE_ENONE) {
@@ -104,6 +106,8 @@ static xbee_err _xbee_conFree(struct xbee_con *con) {
 	xbee_mutex_lock(&con->txMutex);
 	
 	xsys_mutex_destroy(&con->txMutex);
+	xsys_mutex_destroy(&con->bioMutex);
+	xsys_sem_destroy(&con->bioSem);
 	xsys_sem_destroy(&con->callbackSem);
 	xbee_ll_free(con->pktList, (void(*)(void*))xbee_pktFree);
 	
@@ -648,6 +652,7 @@ xbee_err xbee_conLinkPacket(struct xbee_con *con, struct xbee_pkt *pkt) {
 	if (!con || !pkt) return XBEE_EMISSINGPARAM;
 	if ((ret = xbee_ll_add_tail(con->pktList, pkt)) != XBEE_ENONE) return ret;
 	if (con->callback) return xbee_conCallbackProd(con);
+	xsys_sem_post(&con->bioSem);
 	return XBEE_ENONE;
 }
 
@@ -661,21 +666,33 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	if (con->callback != NULL) return XBEE_EINVAL;
 	
+	if (con->settings.noBlock) {
+		if (xsys_mutex_trylock(&con->bioMutex)) {
+			return XBEE_EINUSE;
+		}
+	} else {
+		xsys_mutex_lock(&con->bioMutex);
+	}
+
 	ret = XBEE_ENONE;
 	remain = 0;
 	
 	xbee_ll_lock(con->pktList);
-	if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
-	if (remain == 0) {
-		*retPkt = NULL;
-		ret = XBEE_ENOTEXISTS;
-		goto die;
+	if (con->settings.noBlock) {
+		if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
+		if (remain == 0) {
+			*retPkt = NULL;
+			ret = XBEE_ENOTEXISTS;
+			goto die;
+		}
 	}
+	xsys_sem_wait(&con->bioSem);
 	_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
 	_xbee_pktUnlink(con, pkt, 0);
 	*retPkt = pkt;
 die:
 	xbee_ll_unlock(con->pktList);
+	xbee_mutex_unlock(&con->bioMutex);
 
 	if (remainingPackets) *remainingPackets = (remain > 0 ? remain - 1 : 0);
 	
@@ -684,6 +701,10 @@ die:
 EXPORT xbee_err xbee_conRxWait(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets) {
 	xbee_err ret;
 	int i;
+
+	if (!con->settings.noBlock) {
+		return xbee_conRx(con, retPkt, remainingPackets);
+	}
 
 	ret = XBEE_EUNKNOWN;
 

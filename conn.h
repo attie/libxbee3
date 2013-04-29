@@ -39,6 +39,10 @@ struct xbee_con {
 	xbee_t_conCallback callback;
 	struct xbee_threadInfo *callbackThread;
 	xsys_sem callbackSem;
+
+	/* these two are use for blocking I/O */
+	xsys_sem bioSem;
+	xsys_mutex bioMutex;
 	
 	xsys_mutex txMutex;
 	unsigned char frameId;
