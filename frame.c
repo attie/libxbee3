@@ -82,11 +82,11 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 	for (i = 0, o = fBlock->lastFrame + 1; i < fBlock->numFrames; i++, o++) {
 		o %= fBlock->numFrames;
 		if (o == 0) continue; /* skip '0x00', this indicates that no ACK is requested */
-		if (fBlock->frame[o].inUse) continue;
+		if (fBlock->frame[o].status) continue;
 		
 		fBlock->lastFrame = o;
 		fBlock->frame[o].con = con;
-		fBlock->frame[o].inUse = 1;
+		fBlock->frame[o].status = XBEE_FRAME_STATUS_SCHEDULED;
 		con->frameId = fBlock->frame[o].id;
 		break;
 	}
@@ -107,13 +107,14 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 	frame = NULL;
 	for (i = 0, o = fBlock->lastFrame; i < fBlock->numFrames; i++, o--) {
 		if (o < 0) o = fBlock->numFrames - 1;
-		if (!fBlock->frame[o].inUse) continue;
+		if (!fBlock->frame[o].status) continue;
 		if (fBlock->frame[o].con != con) continue;
 		if (fBlock->frame[o].id != con->frameId) {
 			ret = XBEE_ESTALE;
 			break;
 		}
 		frame = &fBlock->frame[o];
+		frame->status |= XBEE_FRAME_STATUS_WAITING;
 		break;
 	}
 	xbee_mutex_unlock(&fBlock->mutex);
@@ -135,9 +136,13 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 	}
 	
 	xbee_mutex_lock(&fBlock->mutex);
+	con->frameId = 0;
 	frame->con = NULL;
-	if (retVal && ret == XBEE_ENONE) {
+	if (frame->status & XBEE_FRAME_STATUS_COMPLETE && retVal && ret == XBEE_ENONE) {
+		frame->status = 0;
 		*retVal = frame->retVal;
+	} else {
+		frame->status &= ~XBEE_FRAME_STATUS_WAITING;
 	}
 	xbee_mutex_unlock(&fBlock->mutex);
 	
@@ -153,31 +158,28 @@ xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, u
 	if (frameId == 0) return XBEE_ENONE;
 	
 	xbee_mutex_lock(&fBlock->mutex);
+
 	frame = NULL;
 	for (i = 0; i < fBlock->numFrames; i++) {
-		if (!fBlock->frame[i].inUse) continue;
+		if (!fBlock->frame[i].status) continue;
 		if (fBlock->frame[i].id != frameId) continue;
 		
 		frame = &fBlock->frame[i];
 		break;
 	}
+
 	if (!frame) {
 		ret = XBEE_EINVAL;
-		goto done;
-	}
-	
-	if (!frame->con) {
+	} else if (frame->con && (frame->status & XBEE_FRAME_STATUS_WAITING)) {
+		ret = XBEE_ENONE;
+		frame->status |= XBEE_FRAME_STATUS_COMPLETE;
+		frame->retVal = retVal;
+		xsys_sem_post(&frame->sem);
+	} else {
 		ret = XBEE_ETIMEOUT;
-		goto done;
+		frame->status = 0;
 	}
-	
-	frame->retVal = retVal;
-	xsys_sem_post(&frame->sem);
-	
-	ret = XBEE_ENONE;
-	
-done:
-	if (frame) frame->inUse = 0;
+
 	xbee_mutex_unlock(&fBlock->mutex);
 	
 	return ret;
