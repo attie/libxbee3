@@ -700,11 +700,22 @@ EXPORT xbee_err xbee_conRxWait(struct xbee_con *con, struct xbee_pkt **retPkt, i
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conPurge(struct xbee_con *con) {
+	xbee_err ret;
+	unsigned int remain;
 	struct xbee_pkt *pkt;
-	while (xbee_conRx(con, &pkt, NULL) == XBEE_ENONE && pkt) {
+
+	xbee_ll_lock(con->pktList);
+	if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
+	while (remain > 0) {
+		_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
+		_xbee_pktUnlink(con, pkt, 0);
 		xbee_pktFree(pkt);
+		if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
 	}
-	return XBEE_ENONE;
+
+die:
+	xbee_ll_unlock(con->pktList);
+	return ret;
 }
 
 /* ########################################################################## */
