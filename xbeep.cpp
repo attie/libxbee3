@@ -202,13 +202,29 @@ EXPORT void libxbee::Con::libxbee_callbackFunction(struct xbee *xbee, struct xbe
 EXPORT unsigned char libxbee::Con::operator<< (std::string data) {
 	return Tx(data);
 }
+EXPORT unsigned char libxbee::Con::operator<< (std::vector<unsigned char> data) {
+	return Tx(data);
+}
+EXPORT unsigned char libxbee::Con::operator<< (std::vector<char> data) {
+	return Tx(data);
+}
 EXPORT void libxbee::Con::operator>> (Pkt &pkt) {
 	return Rx(pkt);
 }
-EXPORT void libxbee::Con::operator>> (std::string &pkt) {
+EXPORT void libxbee::Con::operator>> (std::string &data) {
 	libxbee::Pkt p;
 	p << *this;
-	p >> pkt;
+	p >> data;
+}
+EXPORT void libxbee::Con::operator>> (std::vector<unsigned char> &data) {
+	libxbee::Pkt p;
+	p << *this;
+	p >> data;
+}
+EXPORT void libxbee::Con::operator>> (std::vector<char> &data) {
+	libxbee::Pkt p;
+	p << *this;
+	p >> data;
 }
 
 EXPORT struct xbee_con *libxbee::Con::getHnd(void) {
@@ -217,14 +233,13 @@ EXPORT struct xbee_con *libxbee::Con::getHnd(void) {
 }
 
 EXPORT unsigned char libxbee::Con::Tx(std::string data) {
-	unsigned char retVal;
-	xbee_err ret;
-	
-	if (con == NULL) throw(XBEE_ESHUTDOWN);
-	if ((ret = xbee_connTx(con, &retVal, (const unsigned char*)data.c_str(), data.size())) == XBEE_ENONE) return retVal;
-
-	if (ret == XBEE_ETX) throw(libxbee::xbee_etx(ret, retVal));
-	throw(ret);
+	return Tx((const unsigned char *)data.c_str(), data.size());
+}
+EXPORT unsigned char libxbee::Con::Tx(std::vector<unsigned char> data) {
+	return Tx(&(data[0]), data.size());
+}
+EXPORT unsigned char libxbee::Con::Tx(std::vector<char> data) {
+	return Tx((unsigned char *)&(data[0]), data.size());
 }
 EXPORT unsigned char libxbee::Con::Tx(const unsigned char *buf, int len) {
 	unsigned char retVal;
@@ -331,8 +346,14 @@ EXPORT unsigned char libxbee::Pkt::operator[] (int index) {
 EXPORT void libxbee::Pkt::operator<< (Con &con) {
 	con.Rx(*this);
 }
-EXPORT void libxbee::Pkt::operator>> (std::string &str) {
-	str = getData();
+EXPORT void libxbee::Pkt::operator>> (std::string &data) {
+	data = getData();
+}
+EXPORT void libxbee::Pkt::operator>> (std::vector<unsigned char> &data) {
+	data = getVector();
+}
+EXPORT void libxbee::Pkt::operator>> (std::vector<char> &data) {
+	data = getVector2();
 }
 
 EXPORT int libxbee::Pkt::size(void) {
@@ -356,6 +377,20 @@ EXPORT struct xbee_pkt *libxbee::Pkt::dropHnd(void) {
 
 EXPORT std::string libxbee::Pkt::getData(void) {
 	return std::string((char*)pkt->data, pkt->dataLen);
+}
+EXPORT std::vector<unsigned char> libxbee::Pkt::getVector(void) {
+	std::vector<unsigned char> data;
+	for (int i = 0; i < pkt->dataLen; i++) {
+		data.push_back(pkt->data[i]);
+	}
+	return data;
+}
+EXPORT std::vector<char> libxbee::Pkt::getVector2(void) {
+	std::vector<char> data;
+	for (int i = 0; i < pkt->dataLen; i++) {
+		data.push_back((char)pkt->data[i]);
+	}
+	return data;
 }
 EXPORT void *libxbee::Pkt::getData(const char *key) {
 	return getData(key, 0, 0);
