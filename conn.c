@@ -567,6 +567,7 @@ EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const u
 }
 xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len) {
 	int waitForAck;
+	int abandonFrame;
 	xbee_err ret;
 	unsigned char myret;
 	unsigned char *pret;
@@ -599,6 +600,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 	} else {
 		xbee_mutex_lock(&con->txMutex);
 	}
+	abandonFrame = !!con->settings.noWaitForAck;
 	
 	if (!con->conType->allowFrameId) {
 		waitForAck = 0;
@@ -606,7 +608,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 	} else {
 		waitForAck = !(con->settings.disableAck || con->settings.broadcast); /* cache it, incase it changes */
 		if (waitForAck) {
-			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con)) != XBEE_ENONE) {
+			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con, abandonFrame)) != XBEE_ENONE) {
 				ret = XBEE_ENOFREEFRAMEID;
 				goto done;
 			}
@@ -617,7 +619,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 	
 	if ((ret = xbee_txHandler(con, buf, len, waitForAck)) != XBEE_ENONE) goto done;
 
-	if (waitForAck) {
+	if (waitForAck && !abandonFrame) {
 		struct timespec to;
 		clock_gettime(CLOCK_REALTIME, &to);
 		if (con->conType->useTimeout) {

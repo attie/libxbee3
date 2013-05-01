@@ -71,7 +71,7 @@ xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock) {
 
 /* ########################################################################## */
 
-xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con) {
+xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon) {
 	xbee_err ret;
 	int i, o;
 	
@@ -85,8 +85,12 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 		if (fBlock->frame[o].status) continue;
 		
 		fBlock->lastFrame = o;
-		fBlock->frame[o].con = con;
 		fBlock->frame[o].status = XBEE_FRAME_STATUS_SCHEDULED;
+		if (abandon) {
+			fBlock->frame[o].status |= XBEE_FRAME_STATUS_ABANDONED;
+		} else {
+			fBlock->frame[o].con = con;
+		}
 		con->frameId = fBlock->frame[o].id;
 		break;
 	}
@@ -170,6 +174,8 @@ xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, u
 
 	if (!frame) {
 		ret = XBEE_EINVAL;
+	} else if (frame->status & XBEE_FRAME_STATUS_ABANDONED) {
+		frame->status = 0;
 	} else if (frame->con && (frame->status & XBEE_FRAME_STATUS_WAITING)) {
 		ret = XBEE_ENONE;
 		frame->status |= XBEE_FRAME_STATUS_COMPLETE;

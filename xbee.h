@@ -103,6 +103,7 @@ struct xbee_conSettings {
 	/* libxbee options: */
 	unsigned char noBlock          : 1;
 	unsigned char catchAll         : 1;
+	unsigned char noWaitForAck     : 1;
 	
 	/* generic options: */
 	unsigned char queueChanges     : 1; /* for AT connections */
