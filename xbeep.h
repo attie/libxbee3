@@ -104,6 +104,7 @@ namespace libxbee {
 			EXPORT unsigned char Tx(std::string data);
 			EXPORT unsigned char Tx(const unsigned char *buf, int len);
 			EXPORT void Rx(Pkt &pkt, int *remainingPackets = NULL);
+			EXPORT int RxAvailable(void);
 			
 			EXPORT void purge(void);
 			

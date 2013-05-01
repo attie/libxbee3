@@ -246,6 +246,15 @@ EXPORT void libxbee::Con::Rx(Pkt &pkt, int *remainingPackets) {
 	
 	pkt.setHnd(raw_pkt);
 }
+EXPORT int libxbee::Con::RxAvailable(void) {
+	int remainingPackets;
+	xbee_err ret;
+
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
+	if ((ret = xbee_conRx(con, NULL, &remainingPackets)) != XBEE_ENONE) throw(ret);
+
+	return remainingPackets;
+}
 
 EXPORT void libxbee::Con::purge(void) {
 	xbee_err ret;

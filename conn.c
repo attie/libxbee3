@@ -655,25 +655,28 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *
 	xbee_err ret;
 	unsigned int remain;
 	struct xbee_pkt *pkt;
-	if (!con || !retPkt) return XBEE_EMISSINGPARAM;
+	if (!con) return XBEE_EMISSINGPARAM;
+	if (!retPkt && !remainingPackets) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if (con->callback != NULL) return XBEE_EINVAL;
+	if (retPkt != NULL && con->callback != NULL) return XBEE_EINVAL;
 	
 	ret = XBEE_ENONE;
 	remain = 0;
 	
 	xbee_ll_lock(con->pktList);
 	if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
-	if (remain == 0) {
-		*retPkt = NULL;
-		ret = XBEE_ENOTEXISTS;
-		goto die;
+	if (retPkt != NULL) {
+		if (remain == 0) {
+			*retPkt = NULL;
+			ret = XBEE_ENOTEXISTS;
+			goto die;
+		}
+		_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
+		_xbee_pktUnlink(con, pkt, 0);
+		*retPkt = pkt;
 	}
-	_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
-	_xbee_pktUnlink(con, pkt, 0);
-	*retPkt = pkt;
 die:
 	xbee_ll_unlock(con->pktList);
 
