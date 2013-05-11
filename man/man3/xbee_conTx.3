@@ -17,15 +17,17 @@
 .\" along with this program. If not, see <http://www.gnu.org/licenses/>.
 .TH XBEE_CONTX 3  04-Mar-2012 "GNU" "Linux Programmer's Manual"
 .SH NAME
-xbee_conTx, xbee_convTx, xbee_connTx
+xbee_conTx, xbee_convTx, xbee_connTx, xbee_conxTx, xbee_convxTx, xbee_connxTx
 .SH SYNOPSIS
 .B #include <xbee.h>
 .sp
 .BI "xbee_err xbee_conTx(struct xbee_con *" con ", unsigned char *" retVal ", const char *" format ", " ... ");"
-.sp
 .BI "xbee_err xbee_convTx(struct xbee_con *" con ", unsigned char *" retVal ", const char *" format ", va_list " args ");"
-.sp
 .BI "xbee_err xbee_connTx(struct xbee_con *" con ", unsigned char *" retVal ", const unsigned char *" buf ", int " len ");"
+.sp
+.BI "xbee_err xbee_conxTx(struct xbee_con *" con ", unsigned char *" retVal ", unsigned char *" frameId ", const char *" format ", " ... ");"
+.BI "xbee_err xbee_convxTx(struct xbee_con *" con ", unsigned char *" retVal ", unsigned char *" frameId ", const char *" format ", va_list " args ");"
+.BI "xbee_err xbee_connxTx(struct xbee_con *" con ", unsigned char *" retVal ", unsigned char *" frameId ", const unsigned char *" buf ", int " len ");"
 .SH DESCRIPTION
 This collection of functions allow you to transmit data via an existing connection.
 .sp
@@ -47,6 +49,10 @@ as this will terminate the format string early
 .sp
 .BR xbee_connTx ()
 accepts a buffer and a length instead, allowing you to build the message yourself.
+.sp
+The 'x' variants namely
+.BR xbee_conxTx "(), " xbee_convxTx "() and " xbee_connxTx
+can be used if you want to know what frame ID was used for the transmission.
 .sp
 If the connection type supports ACKs, and they are not disabled for the connection, and if
 .I retVal

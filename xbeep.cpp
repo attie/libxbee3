@@ -233,20 +233,32 @@ EXPORT struct xbee_con *libxbee::Con::getHnd(void) {
 }
 
 EXPORT unsigned char libxbee::Con::Tx(std::string data) {
-	return Tx((const unsigned char *)data.c_str(), data.size());
+	return Tx((unsigned char *)NULL, (const unsigned char *)data.c_str(), data.size());
 }
 EXPORT unsigned char libxbee::Con::Tx(std::vector<unsigned char> data) {
-	return Tx(&(data[0]), data.size());
+	return Tx((unsigned char *)NULL, &(data[0]), data.size());
 }
 EXPORT unsigned char libxbee::Con::Tx(std::vector<char> data) {
-	return Tx((unsigned char *)&(data[0]), data.size());
+	return Tx((unsigned char *)NULL, (unsigned char *)&(data[0]), data.size());
 }
 EXPORT unsigned char libxbee::Con::Tx(const unsigned char *buf, int len) {
+	return Tx((unsigned char *)NULL, buf, len);
+}
+EXPORT unsigned char libxbee::Con::Tx(unsigned char *frameId, std::string data) {
+	return Tx(frameId, (const unsigned char *)data.c_str(), data.size());
+}
+EXPORT unsigned char libxbee::Con::Tx(unsigned char *frameId, std::vector<unsigned char> data) {
+	return Tx(frameId, &(data[0]), data.size());
+}
+EXPORT unsigned char libxbee::Con::Tx(unsigned char *frameId, std::vector<char> data) {
+	return Tx(frameId, (unsigned char *)&(data[0]), data.size());
+}
+EXPORT unsigned char libxbee::Con::Tx(unsigned char *frameId, const unsigned char *buf, int len) {
 	unsigned char retVal;
 	xbee_err ret;
 	
 	if (con == NULL) throw(XBEE_ESHUTDOWN);
-	if ((ret = xbee_connTx(con, &retVal, buf, len)) == XBEE_ENONE) return retVal;
+	if ((ret = xbee_connxTx(con, &retVal, frameId, buf, len)) == XBEE_ENONE) return retVal;
 
 	if (ret == XBEE_ETX) throw(libxbee::xbee_etx(ret, retVal));
 	throw(ret);
