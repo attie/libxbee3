@@ -207,7 +207,7 @@ EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
 	return XBEE_ENONE;
 }
 
-EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo)) {
+EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, xbee_t_eofCallback eofCallback) {
       if (!xbee || !eofCallback) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
       if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;

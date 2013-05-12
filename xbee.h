@@ -207,11 +207,13 @@ EXPORT extern const char libxbee_buildtime[];
 
 /* ######################################################################### */
 /* --- xbee.c --- */
+typedef void (*xbee_t_eofCallback)(struct xbee *xbee, void *rxInfo);
+
 EXPORT void xbee_freeMemory(void *ptr); /* <-- this is for STUPID windows */
 EXPORT xbee_err xbee_validate(struct xbee *xbee);
 EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...);
 EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap);
-EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo));
+EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, xbee_t_eofCallback eofCallback);
 EXPORT xbee_err xbee_shutdown(struct xbee *xbee);
 
 EXPORT xbee_err xbee_dataSet(struct xbee *xbee, void *newData, void **oldData);
