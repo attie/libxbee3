@@ -30,7 +30,7 @@ int main(void) {
 	struct xbee_con *con;
 	struct xbee_pkt *pkt;
 	struct xbee_conAddress address;
-	char txRet;
+	unsigned char txRet;
 	int i;
 	xbee_err ret;
 

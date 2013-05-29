@@ -45,7 +45,7 @@ int main(void) {
 	void *d;
 	struct xbee *xbee;
 	struct xbee_con *con;
-	char txRet;
+	unsigned char txRet;
 	xbee_err ret;
 
 	/* setup libxbee, using the USB to Serial adapter '/dev/ttyUSB0' at 57600 baud */
