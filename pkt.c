@@ -180,7 +180,7 @@ xbee_err xbee_pktDataKeyGet(struct xbee_pkt *pkt, const char *key, int id, struc
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	xbee_ll_lock(pkt->dataItems);
-	ret = XBEE_EFAILED;
+	ret = XBEE_ENOTEXISTS;
 	for (k = NULL; (_xbee_ll_get_next(pkt->dataItems, k, (void**)&k, 0) == XBEE_ENONE) && k; ) {
 		if (!strncasecmp(key, k->name, PKT_DATAKEY_MAXLEN)) {
 			if (id == -1 || id == k->id) {
