@@ -22,11 +22,15 @@ xbee_conTx, xbee_convTx, xbee_connTx, xbee_conxTx, xbee_convxTx, xbee_connxTx
 .B #include <xbee.h>
 .sp
 .BI "xbee_err xbee_conTx(struct xbee_con *" con ", unsigned char *" retVal ", const char *" format ", " ... ");"
+.sp 0
 .BI "xbee_err xbee_convTx(struct xbee_con *" con ", unsigned char *" retVal ", const char *" format ", va_list " args ");"
+.sp 0
 .BI "xbee_err xbee_connTx(struct xbee_con *" con ", unsigned char *" retVal ", const unsigned char *" buf ", int " len ");"
 .sp
 .BI "xbee_err xbee_conxTx(struct xbee_con *" con ", unsigned char *" retVal ", unsigned char *" frameId ", const char *" format ", " ... ");"
+.sp 0
 .BI "xbee_err xbee_convxTx(struct xbee_con *" con ", unsigned char *" retVal ", unsigned char *" frameId ", const char *" format ", va_list " args ");"
+.sp 0
 .BI "xbee_err xbee_connxTx(struct xbee_con *" con ", unsigned char *" retVal ", unsigned char *" frameId ", const unsigned char *" buf ", int " len ");"
 .SH DESCRIPTION
 This collection of functions allow you to transmit data via an existing connection.
