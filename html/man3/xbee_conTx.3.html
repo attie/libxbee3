@@ -93,12 +93,21 @@ On success these functions will return XBEE_ENONE, otherwise an error number fro
 
 struct xbee *xbee;
 struct xbee_con *con;
+xbee_err ret;
+unsigned char retVal;
 
 /* initialize xbee, using xbee_setup() */
 
 /* initialize con, using xbee_conNew() */
 
-if (xbee_conTx(con, &quot;Hello World! it is %d!&quot;, 2012) != XBEE_ENONE) return;
+if ((ret = xbee_conTx(con, &amp;retVal, &quot;Hello World! it is %d!&quot;, 2012)) != XBEE_ENONE) {
+        if (ret == XBEE_ETX) {
+                fprintf(stderr, &quot;a transmission error occured... (0x%02X)\n&quot;, retVal);
+        } else {
+                fprintf(stderr, &quot;an error occured... %s\n&quot;, xbee_errorToStr(ret));
+        }
+        return ret;
+}
 </PRE>
 
 
@@ -134,6 +143,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 17:36:48 GMT, May 30, 2013
+Time: 12:28:12 GMT, June 13, 2013
 </BODY>
 </HTML>

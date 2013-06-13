@@ -75,12 +75,21 @@ On success these functions will return XBEE_ENONE, otherwise an error number fro
 
 struct xbee *xbee;
 struct xbee_con *con;
+xbee_err ret;
+unsigned char retVal;
 
 /* initialize xbee, using xbee_setup() */
 
 /* initialize con, using xbee_conNew() */
 
-if (xbee_conTx(con, "Hello World! it is %d!", 2012) != XBEE_ENONE) return;
+if ((ret = xbee_conTx(con, &retVal, "Hello World! it is %d!", 2012)) != XBEE_ENONE) {
+	if (ret == XBEE_ETX) {
+		fprintf(stderr, "a transmission error occured... (0x%02X)\\n", retVal);
+	} else {
+		fprintf(stderr, "an error occured... %s\\n", xbee_errorToStr(ret));
+	}
+	return ret;
+}
 .fi
 .in
 .SH AUTHOR
