@@ -97,7 +97,7 @@ xbee_err xbee_s5_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigne
 		}
 
 		mask = 0x010000;
-		for (channel = 0; channel <= 6; channel++, mask <<= 1) {
+		for (channel = 0; channel <= 5; channel++, mask <<= 1) {
 			if (ioMask & mask) {
 				if (len < 2) return XBEE_ELENGTH;
 				
