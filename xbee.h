@@ -78,6 +78,7 @@ struct xbee_conAddress {
 	unsigned char addr16_enabled;
 	unsigned char addr16[2];
 	
+	/* for XBee S6 modules, the IP address is stored it bytes 4,5,6 & 7 */
 	unsigned char addr64_enabled;
 	unsigned char addr64[8];
 	
@@ -85,9 +86,11 @@ struct xbee_conAddress {
 	unsigned char endpoint_local;
 	unsigned char endpoint_remote;
 	
+	/* for XBee S6 modules, this stores the destination port */
 	unsigned char profile_enabled;
 	unsigned short profile_id;
 	
+	/* for XBee S6 modules, this stores the source port */
 	unsigned char cluster_enabled;
 	unsigned short cluster_id;
 };
@@ -120,6 +123,9 @@ struct xbee_conSettings {
 	
 	/* XBee 5 options: */
 	unsigned char noRoute          : 1;
+
+	/* XBee 6 options: */
+	unsigned char noKeepOpen       : 1; /* when set, the TCP socket will be closed immediately after transmission */
 
 	/* other */
 	unsigned char broadcastRadius;

@@ -6,6 +6,7 @@ v3.0.10 - in progress
 	* Added noWaitForAck flag so that xbee_conTx() will return straight away - useful for AT connections
 	* Added xbee_conxTx() and friends to allow tracking of frame IDs
 	* Transmit Status connections can now have callbacks
+	* Added support for WiFi modules (Series 6)
 
 v3.0.9 - 29 Apr 2013
 	* Fixed high baudrate corruption issues
