@@ -56,6 +56,7 @@ struct xbee_modeConType {
 	struct xbee_modeDataHandlerRx *rxHandler;
 	struct xbee_modeDataHandlerTx *txHandler;
 	void (*init)(struct xbee_modeConType *conType);
+	xbee_err (*onCreate)(struct xbee *xbee, struct xbee_con *con);
 	
 	int nameNeedsFree;
 	

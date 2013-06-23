@@ -26,8 +26,25 @@
 #include "../../xbee_int.h"
 #include "../../mode.h"
 #include "../../pkt.h"
+#include "../../conn.h"
 #include "../common.h"
 #include "dataIP.h"
+
+xbee_err xbee_s6_dataIP_onCreate(struct xbee *xbee, struct xbee_con *con) {
+	if (!xbee || !con) return XBEE_EMISSINGPARAM;
+
+	/* ensure we override the default profile and cluster IDs that would be used in xbee_conAddressCmp() */
+	if (!con->address.profile_enabled) {
+		con->address.profile_enabled = 1;
+		con->address.profile_id = 0x2616;
+	}
+	if (!con->address.cluster_enabled) {
+		con->address.cluster_enabled = 1;
+		con->address.cluster_id = 0x2616;
+	}
+
+	return XBEE_ENONE;
+}
 
 xbee_err xbee_s6_dataIP_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
@@ -150,4 +167,6 @@ struct xbee_modeConType xbee_s6_dataIP = {
 	.addressRules = ADDR_64_REQUIRED | ADDR_16_NOTALLOW,
 	.rxHandler = &xbee_s6_dataIP_rx,
 	.txHandler = &xbee_s6_dataIP_tx,
+
+	.onCreate = xbee_s6_dataIP_onCreate,
 };
