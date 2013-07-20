@@ -118,6 +118,31 @@ is called, it will be permitted to complete, and then the connection will be ter
 .fi
 .in
 .sp
+.B xbee3
+.in +4n
+"Modem Status"
+- Rx Only. Status updates from the XBee module.
+.sp 0
+"Transmit Status"
+- Rx Only. Transmit status responses. These are handled for you, but you may wish to access them anyway.
+.sp 0
+"Local AT"
+- Set/Get AT configuration from the local module.
+.sp 0
+"Remote AT"
+- Set/Get AT configuration from a remote module.
+.sp 0
+"Data"
+- 2-way communication with a remote module. All data will be recieved using this connection type if AO=0.
+.sp 0
+"Data (explicit)"
+- 2-way communication with a remote module, with configurable endpoints. All data will be recieved using this connection type if AO=1.
+.sp 0
+"Identify"
+- Rx on the Coordinator Only. Identifies new nodes as they join the network. Only if AO=0.
+.fi
+.in
+.sp
 .B xbeeZB
 .in +4n
 "Modem Status"
