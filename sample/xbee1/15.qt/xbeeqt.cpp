@@ -24,9 +24,8 @@ libxbee::ConQt::ConQt(libxbee::XBee &parent, std::string type, struct xbee_conAd
 	/* nothing */
 }
 void libxbee::ConQt::xbee_conCallback(libxbee::Pkt **pkt) {
-	struct xbee_pkt *raw_pkt = (*pkt)->getHnd();
+	libxbee::Pkt *kept_pkt = *pkt;
 	*pkt = NULL;
-	libxbee::Pkt *new_pkt = new libxbee::Pkt(raw_pkt);
 
-	emit Rx(new_pkt);
+	emit Rx(kept_pkt);
 }
