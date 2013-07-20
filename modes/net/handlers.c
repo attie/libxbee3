@@ -40,8 +40,8 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	int pos, required;
 	int dataLen;
 	
-	/* required = identifier + conIdentifier(2) + dataLen(2) + timestamp(8) + status + options + rssi + frameId + address flags */
-	required = 17;
+	/* required = identifier + conIdentifier(2) + address flags + timestamp(8) + status + options + rssi + frameId */
+	required = 16;
 
 	if (!xbee || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
 	if (buf->len < required) return XBEE_ELENGTH;
@@ -55,8 +55,24 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	/* the following data should match the format found in
 	    net_callbacks.c - xbee_net_toClient() */
 
-	dataLen =           (buf->data[pos] << 8) & 0xFF00;      pos++;
-	dataLen |=           buf->data[pos] & 0xFF;              pos++;
+	address->addr16_enabled =     !!(buf->data[pos] & 0x01);
+	address->addr64_enabled =     !!(buf->data[pos] & 0x02);
+	address->endpoints_enabled =  !!(buf->data[pos] & 0x04);
+	address->profile_enabled =    !!(buf->data[pos] & 0x08);
+	address->cluster_enabled =    !!(buf->data[pos] & 0x10);
+                                                           pos++;
+
+	if (address->addr16_enabled)    required += 2;
+	if (address->addr64_enabled)    required += 8;
+	if (address->endpoints_enabled) required += 2;
+	if (address->profile_enabled)   required += 2;
+	if (address->cluster_enabled)   required += 2;
+	/* and the AT command */        required += 2;
+	
+	if (buf->len < required) {
+		return XBEE_ELENGTH;
+	}
+	dataLen = buf->len - required;
 	
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, dataLen)) != XBEE_ENONE) return ret;
 	
@@ -75,25 +91,8 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	iPkt->options =               buf->data[pos];              pos++;
 	iPkt->rssi =                  buf->data[pos];              pos++;
 	iPkt->frameId =               buf->data[pos];              pos++;
-	address->addr16_enabled =     !!(buf->data[pos] & 0x01);
-	address->addr64_enabled =     !!(buf->data[pos] & 0x02);
-	address->endpoints_enabled =  !!(buf->data[pos] & 0x04);
-	address->profile_enabled =    !!(buf->data[pos] & 0x08);
-	address->cluster_enabled =    !!(buf->data[pos] & 0x10);
 	/* -- */
-                                                           pos++;
 
-	if (address->addr16_enabled)    required += 2;
-	if (address->addr64_enabled)    required += 8;
-	if (address->endpoints_enabled) required += 2;
-	if (address->profile_enabled)   required += 2;
-	if (address->cluster_enabled)   required += 2;
-	/* and the AT command */        required += 2;
-	
-	if (buf->len < required || buf->len - required < iPkt->dataLen) {
-		xbee_pktFree(iPkt);
-		return XBEE_ELENGTH;
-	}
 
 	if (address->addr16_enabled) {
 		address->addr16[0] = buf->data[pos];                   pos++;
@@ -115,11 +114,11 @@ xbee_err xbee_net_frontchannel_rx_func(struct xbee *xbee, void *arg, unsigned ch
 	}
 	if (address->profile_enabled) {
 		address->profile_id  = ((buf->data[pos] << 8) & 0xFF00); pos++;
-		address->profile_id |= ((buf->data[pos]) & 0xFF); pos++;
+		address->profile_id |= ((buf->data[pos]) & 0xFF);        pos++;
 	}
 	if (address->cluster_enabled) {
 		address->cluster_id  = ((buf->data[pos] << 8) & 0xFF00); pos++;
-		address->cluster_id |= ((buf->data[pos]) & 0xFF); pos++;
+		address->cluster_id |= ((buf->data[pos]) & 0xFF);        pos++;
 	}
 	iPkt->atCommand[0] = buf->data[pos];                     pos++;
 	iPkt->atCommand[1] = buf->data[pos];                     pos++;
