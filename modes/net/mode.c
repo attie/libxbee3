@@ -141,7 +141,7 @@ static xbee_err prepare_backchannel(struct xbee *xbee) {
 		struct xbee_con **retCon;
 		
 		name = (char *)&(pkt->data[pos]);
-		slen = strlen(name);
+		slen = strnlen(name, pkt->dataLen - pos);
 		
 		/* check for a buffer overflow */
 		if (slen > pkt->dataLen - pos) {
