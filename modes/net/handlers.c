@@ -179,11 +179,11 @@ struct xbee_modeDataHandlerTx xbee_net_frontchannel_tx = {
 };
 */
 
-/* this one allows frame IDs */
+/* this one does not allow frame IDs */
 struct xbee_modeConType xbee_net_frontchannel_template = {
 	.name = NULL,
 	.internal = 0,
-	.allowFrameId = 1,
+	.allowFrameId = 0,
 	.useTimeout = 1,
 	.timeout = {
 		.tv_sec = 5,
@@ -193,11 +193,11 @@ struct xbee_modeConType xbee_net_frontchannel_template = {
 	.txHandler = NULL,
 };
 
-/* this one does not allow frame IDs */
+/* this one allows frame IDs */
 struct xbee_modeConType xbee_net_frontchannel_template_fid = {
 	.name = NULL,
 	.internal = 0,
-	.allowFrameId = 0,
+	.allowFrameId = 1,
 	.useTimeout = 1,
 	.timeout = {
 		.tv_sec = 5,
