@@ -295,12 +295,13 @@ xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	txSize = 4 + buf->len;
 	memSize = txSize + sizeof(*iBuf);
 	
-	iBuf = data->txBuf;
-	if (!iBuf || data->txBufSize < memSize) {
-		if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
-		data->txBuf = iBuf;
+	if (!data->txBuf || data->txBufSize < memSize) {
+		void *p;
+		if ((p = realloc(data->txBuf, memSize)) == NULL) return XBEE_ENOMEM;
+		data->txBuf = p;
 		data->txBufSize = memSize;
 	}
+	iBuf = data->txBuf;
 	
 	iBuf->len = txSize;
 	iBuf->data[0] = 0x7E;
