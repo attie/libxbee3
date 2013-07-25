@@ -44,33 +44,52 @@ xbee_err xbee_sZB_identify_rx_func(struct xbee *xbee, void *arg, unsigned char i
 	
 	iPkt->dataLen = buf->len - 12;
 	if (iPkt->dataLen > 0) {
+		const int NIstart = 10;
+		int NIend;
+
 		memcpy(iPkt->data, &(buf->data[12]), iPkt->dataLen);
 		
-		if (iPkt->dataLen > 2) {
-			xbee_pktDataAdd(iPkt, "Address (16-bit)", 0, &(iPkt->data[0]), NULL);
-		}
+		if (iPkt->dataLen < 2) goto done;
+		xbee_pktDataAdd(iPkt, "Address (16-bit)", 0, &(iPkt->data[0]), NULL);
 		
-		if (iPkt->dataLen > 10) {
-			xbee_pktDataAdd(iPkt, "Address (64-bit)", 0, &(iPkt->data[2]), NULL);
+		if (iPkt->dataLen < 10) goto done;
+		xbee_pktDataAdd(iPkt, "Address (64-bit)", 0, &(iPkt->data[2]), NULL);
+
+		if ((addr = malloc(sizeof(*addr))) != NULL) {
+			memset(addr, 0, sizeof(*addr));
+			addr->addr16_enabled = 1;
+			memcpy(addr->addr16, &(iPkt->data[0]), 2);
+			addr->addr64_enabled = 1;
+			memcpy(addr->addr64, &(iPkt->data[2]), 8);
 			
-			if ((addr = malloc(sizeof(*addr))) != NULL) {
-				memset(addr, 0, sizeof(*addr));
-				addr->addr16_enabled = 1;
-				memcpy(addr->addr16, &(iPkt->data[0]), 2);
-				addr->addr64_enabled = 1;
-				memcpy(addr->addr64, &(iPkt->data[2]), 8);
-				
-				if (xbee_pktDataAdd(iPkt, "Address", 0, addr, free) != XBEE_ENONE) {
-					free(addr);
-				}
+			if (xbee_pktDataAdd(iPkt, "Address", 0, addr, free) != XBEE_ENONE) {
+				free(addr);
 			}
 		}
 		
-		if (iPkt->dataLen > 11) {
-			/* just point into the packet data */
-			xbee_pktDataAdd(iPkt, "NI", 0, &(iPkt->data[10]), NULL);
-		}
+		if (iPkt->dataLen < 11) goto done;
+		/* just point into the packet data */
+		xbee_pktDataAdd(iPkt, "NI", 0, &(iPkt->data[NIstart]), NULL);
+		for (NIend = NIstart; iPkt->data[NIend] != '\0' && NIend < iPkt->dataLen; NIend++);
+		NIend++; /* step over the nul */
+
+		if (iPkt->dataLen < NIend + 2) goto done;
+		xbee_pktDataAdd(iPkt, "Parent Address", 0, &(iPkt->data[NIend + 1]), NULL);
+
+		if (iPkt->dataLen < NIend + 3) goto done;
+		xbee_pktDataAdd(iPkt, "Device Type", 0, &(iPkt->data[NIend + 3]), NULL);
+
+		if (iPkt->dataLen < NIend + 4) goto done;
+		xbee_pktDataAdd(iPkt, "Source Event", 0, &(iPkt->data[NIend + 4]), NULL);
+
+		if (iPkt->dataLen < NIend + 6) goto done;
+		xbee_pktDataAdd(iPkt, "Profile ID", 0, &(iPkt->data[NIend + 5]), NULL);
+
+		if (iPkt->dataLen < NIend + 8) goto done;
+		xbee_pktDataAdd(iPkt, "Manufacturer ID", 0, &(iPkt->data[NIend + 7]), NULL);
 	}
+
+done:
 	iPkt->data[iPkt->dataLen] = '\0';
 	
 	*pkt = iPkt;

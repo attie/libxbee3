@@ -88,6 +88,7 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 /* ######################################################################### */
 
 xbee_err xbee_s1_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+	struct xbee_pkt *iPkt;
 	xbee_err ret;
 
 	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
@@ -102,6 +103,15 @@ xbee_err xbee_s1_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned c
 	frameInfo->active = 1;
 	frameInfo->id = buf->data[1];
 	frameInfo->retVal = buf->data[2];
+
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, 2)) != XBEE_ENONE) return ret;
+	
+	iPkt->dataLen = 2;
+	iPkt->data[0] = buf->data[1];
+	iPkt->data[1] = buf->data[2];
+	iPkt->data[iPkt->dataLen] = '\0';
+	
+	*pkt = iPkt;
 	
 	goto done;
 die1:

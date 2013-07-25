@@ -25,30 +25,49 @@ xbee_conRx
 
 <B>xbee_conRx</B>()
 
-allows you to retrieve packets from an active connection.
-<I>retPkt</I>
+allows you to retrieve information from an active connection.
+<I>con</I>
+
+must be non-NULL, and must point at a valid connection. At least one of
+<I>retPkt</I> and <I>remainingPackets</I>
 
 must be non-NULL.
-<I>remainingPackets</I>
-
-may optionally be non-NULL, in which case it will be set to the number of packets remaining in the connection's buffer.
 <P>
-You must not forget to call
+<I>retPkt</I>
+
+may optionally be non-NULL, in which case the next packet in the connection's buffer is returned to you.
+If you receive a packet from a connection, you must not forget to call
 <B><A HREF="../man3/xbee_pktFree.3.html">xbee_pktFree</A></B>(3)
 
-on the returned packet.
+when you are finished with it.
+If
+<I>retPkt</I>
+
+is non-NULL, and a callback has been configured for the connection, then
+<B>XBEE_EINVAL</B>
+
+will be returned and neither
+<I>retPkt</I> or <I>remainingPackets</I>
+
+will have been updated - see
+<B><A HREF="../man3/xbee_conCallbackSet.3.html">xbee_conCallbackSet</A></B>(3)
+
+for more information.
 <P>
-If a connection has callbacks enabled, 
+<I>remainingPackets</I>
+
+may also optionally be non-NULL. If it is non-NULL, then it will be populated with the number of packets that are currently in the connection's buffer.
+<P>
+When a callback is enabled,
 <B>xbee_conRx</B>()
 
-will return
-<B>XBEE_EINVAL</B>,
+may be called with
+<I>retPkt</I>
 
-<I>pkt</I> and <I>remainingPackets</I>
+set to NULL, and
+<I>remainingPackets</I>
 
-will not have been updated - see 
-<B><A HREF="../man3/xbee_conCallbackSet.3.html">xbee_conCallbackSet</A></B>(3).
-
+set as non-NULL.
 <P>
 <B>xbee_conRxWait</B>()
 
@@ -125,6 +144,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 21:45:26 GMT, June 11, 2012
+Time: 17:19:31 GMT, May 01, 2013
 </BODY>
 </HTML>

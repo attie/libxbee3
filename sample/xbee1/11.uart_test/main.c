@@ -42,7 +42,7 @@ int main(void) {
 	void *d;
 	struct xbee *xbee;
 	struct xbee_con *con;
-	char txRet;
+	unsigned char txRet;
 	xbee_err ret;
 	int i, o, t;
 

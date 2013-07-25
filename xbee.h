@@ -103,6 +103,7 @@ struct xbee_conSettings {
 	/* libxbee options: */
 	unsigned char noBlock          : 1;
 	unsigned char catchAll         : 1;
+	unsigned char noWaitForAck     : 1;
 	
 	/* generic options: */
 	unsigned char queueChanges     : 1; /* for AT connections */
@@ -206,11 +207,13 @@ EXPORT extern const char libxbee_buildtime[];
 
 /* ######################################################################### */
 /* --- xbee.c --- */
+typedef void (*xbee_t_eofCallback)(struct xbee *xbee, void *rxInfo);
+
 EXPORT void xbee_freeMemory(void *ptr); /* <-- this is for STUPID windows */
 EXPORT xbee_err xbee_validate(struct xbee *xbee);
 EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...);
 EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap);
-EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, void (*eofCallback)(struct xbee *xbee, void *rxInfo));
+EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, xbee_t_eofCallback eofCallback);
 EXPORT xbee_err xbee_shutdown(struct xbee *xbee);
 
 EXPORT xbee_err xbee_dataSet(struct xbee *xbee, void *newData, void **oldData);
@@ -235,6 +238,10 @@ EXPORT xbee_err xbee_conGetXBee(struct xbee_con *con, struct xbee **xbee);
 EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...);
 EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len);
+EXPORT xbee_err xbee_conxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, ...);
+EXPORT xbee_err xbee_convxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, va_list args);
+EXPORT xbee_err xbee_connxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const unsigned char *buf, int len);
+/* - */
 EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
 EXPORT xbee_err xbee_conRxWait(struct xbee_con *con, struct xbee_pkt **retPkt, int *remainingPackets);
 /* - */

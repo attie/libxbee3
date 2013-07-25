@@ -26,23 +26,37 @@ xbee_conRx
 .BI "xbee_err xbee_conRxWait(struct xbee_con *" con ", struct xbee_pkt **" retPkt ", int *" remainingPackets ");"
 .SH DESCRIPTION
 .BR xbee_conRx ()
-allows you to retrieve packets from an active connection.
-.I retPkt
+allows you to retrieve information from an active connection.
+.I con
+must be non-NULL, and must point at a valid connection. At least one of
+.IR retPkt " and " remainingPackets
 must be non-NULL.
-.I remainingPackets
-may optionally be non-NULL, in which case it will be set to the number of packets remaining in the connection's buffer.
 .sp
-You must not forget to call
+.I retPkt
+may optionally be non-NULL, in which case the next packet in the connection's buffer is returned to you.
+If you receive a packet from a connection, you must not forget to call
 .BR xbee_pktFree (3)
-on the returned packet.
+when you are finished with it.
+If
+.I retPkt
+is non-NULL, and a callback has been configured for the connection, then
+.B XBEE_EINVAL
+will be returned and neither
+.IR retPkt " or " remainingPackets
+will have been updated - see
+.BR xbee_conCallbackSet (3)
+for more information.
 .sp
-If a connection has callbacks enabled, 
+.I remainingPackets
+may also optionally be non-NULL. If it is non-NULL, then it will be populated with the number of packets that are currently in the connection's buffer.
+.sp
+When a callback is enabled,
 .BR xbee_conRx ()
-will return
-.BR XBEE_EINVAL ,
-.IR pkt " and " remainingPackets
-will not have been updated - see 
-.BR xbee_conCallbackSet (3).
+may be called with
+.I retPkt
+set to NULL, and
+.I remainingPackets
+set as non-NULL.
 .sp
 .BR xbee_conRxWait ()
 is identical to

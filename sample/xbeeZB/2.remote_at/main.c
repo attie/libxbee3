@@ -44,7 +44,7 @@ int main(void) {
 	struct xbee *xbee;
 	struct xbee_con *con;
 	struct xbee_conAddress address;
-	char txRet;
+	unsigned char txRet;
 	xbee_err ret;
 
 	if ((ret = xbee_setup(&xbee, "xbeeZB", "/dev/ttyUSB1", 57600)) != XBEE_ENONE) {

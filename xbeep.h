@@ -27,6 +27,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 #include <stdarg.h>
 
 #ifndef __XBEE_H
@@ -47,6 +48,13 @@ namespace libxbee {
 	extern std::list<XBee*> xbeeList;
 	
 	std::list<std::string> getModes(void);
+
+	class xbee_etx {
+		public:
+			EXPORT explicit xbee_etx(xbee_err ret, unsigned char retVal): ret(ret), retVal(retVal) { };
+			const xbee_err ret;
+			const unsigned char retVal;
+	};
 	
 	class EXPORT XBee {
 		public:
@@ -79,8 +87,12 @@ namespace libxbee {
 			EXPORT ~Con(void);
 			
 			EXPORT unsigned char operator<< (std::string data);
+			EXPORT unsigned char operator<< (std::vector<unsigned char> data);
+			EXPORT unsigned char operator<< (std::vector<char> data);
 			EXPORT void operator>> (Pkt &pkt);
-			EXPORT void operator>> (std::string &pkt);
+			EXPORT void operator>> (std::string &data);
+			EXPORT void operator>> (std::vector<unsigned char> &data);
+			EXPORT void operator>> (std::vector<char> &data);
 			
 		private:
 			friend class XBee;
@@ -95,8 +107,15 @@ namespace libxbee {
 		public:
 			EXPORT struct xbee_con *getHnd(void);
 			EXPORT unsigned char Tx(std::string data);
+			EXPORT unsigned char Tx(std::vector<unsigned char> data);
+			EXPORT unsigned char Tx(std::vector<char> data);
 			EXPORT unsigned char Tx(const unsigned char *buf, int len);
+			EXPORT unsigned char Tx(unsigned char *frameId, std::string data);
+			EXPORT unsigned char Tx(unsigned char *frameId, std::vector<unsigned char> data);
+			EXPORT unsigned char Tx(unsigned char *frameId, std::vector<char> data);
+			EXPORT unsigned char Tx(unsigned char *frameId, const unsigned char *buf, int len);
 			EXPORT void Rx(Pkt &pkt, int *remainingPackets = NULL);
+			EXPORT int RxAvailable(void);
 			
 			EXPORT void purge(void);
 			
@@ -126,7 +145,9 @@ namespace libxbee {
 			
 			EXPORT unsigned char operator[] (int index);
 			EXPORT void operator<< (Con &con);
-			EXPORT void operator>> (std::string &str);
+			EXPORT void operator>> (std::string &data);
+			EXPORT void operator>> (std::vector<unsigned char> &data);
+			EXPORT void operator>> (std::vector<char> &data);
 			
 		private:
 			struct xbee_pkt *pkt;
@@ -141,6 +162,8 @@ namespace libxbee {
 			EXPORT int size(void);
 			
 			EXPORT std::string getData(void);
+			EXPORT std::vector<unsigned char> getVector(void);
+			EXPORT std::vector<char> getVector2(void);
 			/* use these three with care... */
 			EXPORT void *getData(const char *key);
 			EXPORT void *getData(const char *key, int id);

@@ -30,6 +30,7 @@ struct xbee_frameInfo {
 #define XBEE_FRAME_STATUS_SCHEDULED 0x01
 #define XBEE_FRAME_STATUS_WAITING   0x02
 #define XBEE_FRAME_STATUS_COMPLETE  0x04
+#define XBEE_FRAME_STATUS_ABANDONED 0x08
 
 struct xbee_frame {
 	xsys_sem sem;
@@ -49,7 +50,7 @@ struct xbee_frameBlock {
 xbee_err xbee_frameBlockAlloc(struct xbee_frameBlock **nfBlock);
 xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock);
 
-xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con);
+xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon);
 xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, unsigned char *retVal, struct timespec *timeout);
 xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, unsigned char retVal);
 

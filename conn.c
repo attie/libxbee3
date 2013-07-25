@@ -498,8 +498,8 @@ xbee_err xbee_conWake(struct xbee_con *con) {
 
 /* ########################################################################## */
 
-xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args);
-xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len);
+xbee_err _xbee_connxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const unsigned char *buf, int len);
+xbee_err _xbee_convxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, va_list args);
 
 EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const char *format, ...) {
 	xbee_err ret;
@@ -511,27 +511,42 @@ EXPORT xbee_err xbee_conTx(struct xbee_con *con, unsigned char *retVal, const ch
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
 	va_start(ap, format);
-	ret = _xbee_convTx(con, retVal, format, ap);
+	ret = _xbee_convxTx(con, retVal, NULL, format, ap);
+	va_end(ap);
+	
+	return ret;
+}
+EXPORT xbee_err xbee_conxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, ...) {
+	xbee_err ret;
+	va_list ap;
+	
+	if (!con || !format) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	
+	va_start(ap, format);
+	ret = _xbee_convxTx(con, retVal, frameId, format, ap);
 	va_end(ap);
 	
 	return ret;
 }
 
 EXPORT xbee_err xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args) {
+	return xbee_convxTx(con, retVal, NULL, format, args);
+}
+EXPORT xbee_err xbee_convxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, va_list args) {
 	if (!con || !format) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-
-	return _xbee_convTx(con, retVal, format, args);
+	return _xbee_convxTx(con, retVal, frameId, format, args);
 }
-xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *format, va_list args) {
+EXPORT xbee_err _xbee_convxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, va_list args) {
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
 	va_list args1;
-	
-	if (!con || !format) return XBEE_EMISSINGPARAM;
 	
 	va_copy(args1, args);
 	bufLen = vsnprintf(NULL, 0, format, args1);
@@ -551,7 +566,7 @@ xbee_err _xbee_convTx(struct xbee_con *con, unsigned char *retVal, const char *f
 		outLen = 0;
 	}
 	
-	ret = _xbee_connTx(con, retVal, (unsigned char*)buf, outLen);
+	ret = _xbee_connxTx(con, retVal, frameId, (unsigned char*)buf, outLen);
 	
 die:
 	if (buf) free(buf);
@@ -559,16 +574,20 @@ die:
 }
 
 EXPORT xbee_err xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len) {
+	return xbee_connxTx(con, retVal, NULL, buf, len);
+}
+EXPORT xbee_err xbee_connxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const unsigned char *buf, int len) {
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (len < 0) return XBEE_EINVAL;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	
-	return _xbee_connTx(con, retVal, buf, len);
+	return _xbee_connxTx(con, retVal, frameId, buf, len);
 }
-xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigned char *buf, int len) {
+xbee_err _xbee_connxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const unsigned char *buf, int len) {
 	int waitForAck;
+	int abandonFrame;
 	xbee_err ret;
 	unsigned char myret;
 	unsigned char *pret;
@@ -603,6 +622,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 	} else {
 		xbee_mutex_lock(&con->txMutex);
 	}
+	abandonFrame = !!con->settings.noWaitForAck;
 	
 	if (!con->conType->allowFrameId) {
 		waitForAck = 0;
@@ -610,7 +630,7 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 	} else {
 		waitForAck = !(con->settings.disableAck || con->settings.broadcast); /* cache it, incase it changes */
 		if (waitForAck) {
-			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con)) != XBEE_ENONE) {
+			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con, abandonFrame)) != XBEE_ENONE) {
 				ret = XBEE_ENOFREEFRAMEID;
 				goto done;
 			}
@@ -618,10 +638,11 @@ xbee_err _xbee_connTx(struct xbee_con *con, unsigned char *retVal, const unsigne
 			con->frameId = 0; /* status response disabled */
 		}
 	}
+	if (frameId) *frameId = con->frameId;
 	
 	if ((ret = xbee_txHandler(con, buf, len, waitForAck)) != XBEE_ENONE) goto done;
 
-	if (waitForAck) {
+	if (waitForAck && !abandonFrame) {
 		struct timespec to;
 		clock_gettime(CLOCK_REALTIME, &to);
 		if (con->conType->useTimeout) {
@@ -659,25 +680,28 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *
 	xbee_err ret;
 	unsigned int remain;
 	struct xbee_pkt *pkt;
-	if (!con || !retPkt) return XBEE_EMISSINGPARAM;
+	if (!con) return XBEE_EMISSINGPARAM;
+	if (!retPkt && !remainingPackets) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_conValidate(con) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
-	if (con->callback != NULL) return XBEE_EINVAL;
+	if (retPkt != NULL && con->callback != NULL) return XBEE_EINVAL;
 	
 	ret = XBEE_ENONE;
 	remain = 0;
 	
 	xbee_ll_lock(con->pktList);
 	if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
-	if (remain == 0) {
-		*retPkt = NULL;
-		ret = XBEE_ENOTEXISTS;
-		goto die;
+	if (retPkt != NULL) {
+		if (remain == 0) {
+			*retPkt = NULL;
+			ret = XBEE_ENOTEXISTS;
+			goto die;
+		}
+		_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
+		_xbee_pktUnlink(con, pkt, 0);
+		*retPkt = pkt;
 	}
-	_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
-	_xbee_pktUnlink(con, pkt, 0);
-	*retPkt = pkt;
 die:
 	xbee_ll_unlock(con->pktList);
 
@@ -704,11 +728,22 @@ EXPORT xbee_err xbee_conRxWait(struct xbee_con *con, struct xbee_pkt **retPkt, i
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conPurge(struct xbee_con *con) {
+	xbee_err ret;
+	unsigned int remain;
 	struct xbee_pkt *pkt;
-	while (xbee_conRx(con, &pkt, NULL) == XBEE_ENONE && pkt) {
+
+	xbee_ll_lock(con->pktList);
+	if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
+	while (remain > 0) {
+		_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
+		_xbee_pktUnlink(con, pkt, 0);
 		xbee_pktFree(pkt);
+		if ((ret = _xbee_ll_count_items(con->pktList, &remain, 0)) != XBEE_ENONE) goto die;
 	}
-	return XBEE_ENONE;
+
+die:
+	xbee_ll_unlock(con->pktList);
+	return ret;
 }
 
 /* ########################################################################## */

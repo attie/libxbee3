@@ -8,7 +8,7 @@ Section: Linux Programmer's Manual (3)<BR>Updated: 04-Mar-2012<BR><A HREF="#inde
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 
-xbee_conTx, xbee_convTx, xbee_connTx
+xbee_conTx, xbee_convTx, xbee_connTx, xbee_conxTx, xbee_convxTx, xbee_connxTx
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
@@ -22,6 +22,15 @@ xbee_conTx, xbee_convTx, xbee_connTx
 
 <P>
 <B>xbee_err xbee_connTx(struct xbee_con *</B><I>con</I><B>, unsigned char *</B><I>retVal</I><B>, const unsigned char *</B><I>buf</I><B>, int </B><I>len</I><B>);</B>
+
+<P>
+<B>xbee_err xbee_conxTx(struct xbee_con *</B><I>con</I><B>, unsigned char *</B><I>retVal</I><B>, unsigned char *</B><I>frameId</I><B>, const char *</B><I>format</I><B>, </B><I>...</I><B>);</B>
+
+<P>
+<B>xbee_err xbee_convxTx(struct xbee_con *</B><I>con</I><B>, unsigned char *</B><I>retVal</I><B>, unsigned char *</B><I>frameId</I><B>, const char *</B><I>format</I><B>, va_list </B><I>args</I><B>);</B>
+
+<P>
+<B>xbee_err xbee_connxTx(struct xbee_con *</B><I>con</I><B>, unsigned char *</B><I>retVal</I><B>, unsigned char *</B><I>frameId</I><B>, const unsigned char *</B><I>buf</I><B>, int </B><I>len</I><B>);</B>
 
 <A NAME="lbAD">&nbsp;</A>
 <H2>DESCRIPTION</H2>
@@ -55,6 +64,11 @@ as this will terminate the format string early
 
 accepts a buffer and a length instead, allowing you to build the message yourself.
 <P>
+The 'x' variants namely
+<B>xbee_conxTx</B>(), <B>xbee_convxTx</B>() and <B>xbee_connxTx</B>
+
+can be used if you want to know what frame ID was used for the transmission.
+<P>
 If the connection type supports ACKs, and they are not disabled for the connection, and if
 <I>retVal</I>
 
@@ -79,12 +93,21 @@ On success these functions will return XBEE_ENONE, otherwise an error number fro
 
 struct xbee *xbee;
 struct xbee_con *con;
+xbee_err ret;
+unsigned char retVal;
 
 /* initialize xbee, using xbee_setup() */
 
 /* initialize con, using xbee_conNew() */
 
-if (xbee_conTx(con, &quot;Hello World! it is %d!&quot;, 2012) != XBEE_ENONE) return;
+if ((ret = xbee_conTx(con, &amp;retVal, &quot;Hello World! it is %d!&quot;, 2012)) != XBEE_ENONE) {
+        if (ret == XBEE_ETX) {
+                fprintf(stderr, &quot;a transmission error occured... (0x%02X)\n&quot;, retVal);
+        } else {
+                fprintf(stderr, &quot;an error occured... %s\n&quot;, xbee_errorToStr(ret));
+        }
+        return ret;
+}
 </PRE>
 
 
@@ -120,6 +143,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 21:32:15 GMT, June 07, 2012
+Time: 12:28:12 GMT, June 13, 2013
 </BODY>
 </HTML>
