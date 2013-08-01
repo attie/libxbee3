@@ -98,7 +98,10 @@ xbee_err xbee_s2_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigne
 
 		mask = 0x010000;
 		for (channel = 0; channel <= 4; channel++, mask <<= 1) {
-			if (channel == 4) mask = 0x800000;
+			if (channel == 4) {
+				mask = 0x800000;
+				channel = 7;
+			}
 			if (ioMask & mask) {
 				
 				if (len < 2) return XBEE_ELENGTH;
