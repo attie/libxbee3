@@ -29,10 +29,11 @@ CXXLINKS+=             $(CLINKS)
 LIB_OUT=               $(DESTDIR)/$(LIBNAME).dylib                    \
                        $(DESTDIR)/$(LIBNAME).dylib.$(LIBFULLREV).dbg  \
                        $(DESTDIR)/$(LIBNAME).a                     \
-                       $(DESTDIR)/$(LIBNAME)p.dylib                   \
-                       $(DESTDIR)/$(LIBNAME)p.dylib.$(LIBFULLREV).dbg \
-                       $(DESTDIR)/$(LIBNAME)p.a                    \
                        $(addprefix $(HTMLDIR)/,$(SYS_HTMLPAGES))
+
+#                       $(DESTDIR)/$(LIBNAME)p.dylib                   \
+#                       $(DESTDIR)/$(LIBNAME)p.dylib.$(LIBFULLREV).dbg \
+#                       $(DESTDIR)/$(LIBNAME)p.a                    \
 
 INSTALL_FILES=         $(SYS_LIBDIR)/$(LIBNAME).dylib.$(LIBFULLREV)                    \
                        $(SYS_LIBDIR)/$(LIBNAME).dylib.$(LIBFULLREV).dbg                \
