@@ -640,7 +640,7 @@ xbee_err _xbee_connxTx(struct xbee_con *con, unsigned char *retVal, unsigned cha
 
 	if (waitForAck && !abandonFrame) {
 		struct timespec to;
-		clock_gettime(CLOCK_REALTIME, &to);
+		xsys_clock_gettime(CLOCK_REALTIME, &to);
 		if (con->conType->useTimeout) {
 			to.tv_sec  += con->conType->timeout.tv_sec;
 			to.tv_nsec += con->conType->timeout.tv_nsec;
@@ -842,7 +842,7 @@ xbee_err xbee_conCallbackHandler(struct xbee *xbee, int *restart, void *arg) {
 		if (!callback) break;
 		if ((ret = xbee_ll_ext_head(con->pktList, (void**)&pkt)) == XBEE_ERANGE) {
 			struct timespec to;
-			clock_gettime(CLOCK_REALTIME, &to);
+			xsys_clock_gettime(CLOCK_REALTIME, &to);
 			to.tv_sec += 5; /* 5 second timeout */
 			if (xsys_sem_timedwait(&con->callbackSem, &to)) {
 				if (errno == ETIMEDOUT) break;

@@ -168,7 +168,7 @@ xbee_err xbee_xbeeRxIo(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 			}
 		} while (c != 0x7E);
 		
-		if (clock_gettime(CLOCK_REALTIME, &iBuf->ts) != 0) {
+		if (xsys_clock_gettime(CLOCK_REALTIME, &iBuf->ts) != 0) {
 			memset(&iBuf->ts, 0, sizeof(iBuf->ts));
 		}
 		ESCAPER_PRINTF("======= packet start @ %ld.%09d =======\n", iBuf->ts.tv_sec, iBuf->ts.tv_nsec);

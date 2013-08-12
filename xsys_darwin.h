@@ -1,8 +1,8 @@
 #ifndef __XBEE_XSYS_LOAD_H
 #error This header should be included by xsys.h only
 #endif /* __XBEE_XSYS_LOAD_H */
-#ifndef __XBEE_XSYS_LINUX_H
-#define __XBEE_XSYS_LINUX_H
+#ifndef __XBEE_XSYS_DARWIN_H
+#define __XBEE_XSYS_DARWIN_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -26,9 +26,9 @@
 
 #include <unistd.h>
 #include <sys/time.h>
-
 #include <time.h>
 #include <fcntl.h>
+#include <semaphore.h>
 
 #ifdef __USE_GNU
 #include <pthread.h>
@@ -38,7 +38,12 @@
 #undef __USE_GNU
 #endif
 
-#include <semaphore.h>
+/* OSX work arounds  */
+#define MSG_NOSIGNAL SO_NOSIGPIPE
+#define CLOCK_REALTIME 1
+typedef int clockid_t;
+int xsys_clock_gettime(clockid_t id, struct timespec *tp);
+/* -x-x-x-x-x-x-x-x- */
 
 
 /* ######################################################################### */
@@ -48,7 +53,13 @@ typedef pthread_key_t     xsys_thread_key;
 
 typedef pthread_mutex_t   xsys_mutex;
 
-typedef sem_t             xsys_sem;
+struct xsys_sem_t {
+	sem_t *sem;
+	int opened; /* if true, then sem_close() should be called
+	               else sem_destroy(), and free(seM) */
+};
+typedef struct xsys_sem_t xsys_sem;
+
 typedef size_t            xsys_size_t;
 typedef ssize_t           xsys_ssize_t;
 
@@ -113,19 +124,17 @@ typedef struct serialDev  xsys_serialDev;
 /* ######################################################################### */
 /* semaphores */
 
-#define xsys_sem_init(sem)                    sem_init((sem_t*)(sem), 0, 0)
-#define xsys_sem_destroy(sem)                 sem_destroy((sem_t*)(sem))
-#define xsys_sem_wait(sem)                    sem_wait((sem_t*)(sem))
-#define xsys_sem_trywait(sem)                 sem_trywait((sem_t*)(sem))
-#define xsys_sem_timedwait(sem, timeout)      sem_timedwait((sem_t*)(sem), (timeout))
-#define xsys_sem_post(sem)                    sem_post((sem_t*)(sem))
-#define xsys_sem_getvalue(sem, value)         sem_getvalue((sem), (value))
+int _xsys_sem_init(xsys_sem *info);
+int _xsys_sem_destroy(xsys_sem *info);
+int _xsys_sem_timedwait(sem_t *sem, const struct timespec *abs_timeout);
+
+#define xsys_sem_init(info)                   _xsys_sem_init(info)
+#define xsys_sem_destroy(info)                _xsys_sem_destroy(info)
+#define xsys_sem_wait(info)                   sem_wait((info)->sem)
+#define xsys_sem_trywait(info)                sem_trywait((info)->sem)
+#define xsys_sem_timedwait(info, to)          sem_timedwait((info)->sem, (to))
+#define xsys_sem_post(info)                   sem_post((info)->sem)
+#define xsys_sem_getvalue(info, value)        sem_getvalue((info)->sem, (value))
 
 
-/* ######################################################################### */
-/* misc */
-
-#define xsys_clock_gettime(id, time)          clock_gettime((id), (struct timespec *)(time))
-
-
-#endif /* __XBEE_XSYS_LINUX_H */
+#endif /* __XBEE_XSYS_DARWIN_H */
