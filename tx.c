@@ -152,6 +152,8 @@ xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len,
 	if (waitForAck) {
 		int ret;
 
+		/* wait here until the message has actually been transmitted
+		   see xbee_tx() - this helps to keep the timeout value correct */
 		ret = xsys_sem_wait(&oBuf->sem);
 
 		/* perform this atomically */
