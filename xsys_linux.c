@@ -89,7 +89,7 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 #endif
 	}
 	
-	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) {
+	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC)) == -1) {
 		perror("open()");
 		return XBEE_EIO;
 	}
@@ -118,10 +118,10 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	/* output flags */
 	tc.c_oflag &= ~ OPOST;            /* disable output processing */
 	tc.c_oflag &= ~(ONLCR | OCRNL);   /* disable translating NL <-> CR */
-	#ifdef linux
+#ifdef linux
 	/* not for FreeBSD */
 	tc.c_oflag &= ~ OFILL;            /* disable fill characters */
-	#endif /* linux */
+#endif /* linux */
 	/* control flags */
 	tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
 	tc.c_cflag |=   CREAD;            /* enable reciever */
@@ -134,11 +134,11 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	tc.c_cflag &= ~ CSIZE;            /* remove size flag... */
 	tc.c_cflag |=   CS8;              /* ...enable 8 bit characters */
 	tc.c_cflag |=   HUPCL;            /* enable lower control lines on close - hang up */
-	#ifdef XBEE_NO_RTSCTS
+#ifdef XBEE_NO_RTSCTS
 	tc.c_cflag &= ~ CRTSCTS;          /* disable hardware CTS/RTS flow control */
-	#else
+#else
 	tc.c_cflag |=   CRTSCTS;          /* enable hardware CTS/RTS flow control */
-	#endif
+#endif
 	/* local flags */
 	tc.c_lflag &= ~ ISIG;             /* disable generating signals */
 	tc.c_lflag &= ~ ICANON;           /* disable canonical mode - line by line */
@@ -175,14 +175,25 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	
 	/* purge buffer */
 	{
+		int flags;
 		char buf[1024];
 		int n;
+		flags = fcntl(info->dev.fd, F_GETFL, 0) & ~O_NONBLOCK;
+		fcntl(info->dev.fd, F_SETFL, flags | O_NONBLOCK); /* disable blocking */
+		if ((fcntl(info->dev.fd, F_GETFL, 0) & O_NONBLOCK) == 0) {
+			fprintf(stderr, "unable to disable blocking...\n");
+			return XBEE_ESETUP;
+		}
 		do {
 			usleep(5000); /* 5ms */
 			n = read(info->dev.fd, buf, sizeof(buf));
 		} while (n > 0);
+		fcntl(info->dev.fd, F_SETFL, flags); /* enable blocking */
+		if (fcntl(info->dev.fd, F_GETFL, 0) & O_NONBLOCK) {
+			fprintf(stderr, "unable to enable blocking...\n");
+			return XBEE_ESETUP;
+		}
 	}
-	fcntl(info->dev.fd, F_SETFL, 0); /* disable blocking */
 	
 #ifndef linux
 /* for FreeBSD */

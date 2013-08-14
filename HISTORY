@@ -12,6 +12,7 @@ v3.0.10 - in progress
 	* Added support for XBee Series 3 modules
 	* Fixed network client bug
 	* Fixed a memory leak
+	* Added OSX support!
 
 v3.0.9 - 29 Apr 2013
 	* Fixed high baudrate corruption issues
