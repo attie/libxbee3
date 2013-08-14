@@ -57,18 +57,10 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 			return XBEE_EINVAL;
 	}
 	
-	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) {
+	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC)) == -1) {
 		perror("open()");
 		return XBEE_EIO;
 	}
-	
-	if ((info->dev.f = fdopen(info->dev.fd, "r+")) == NULL) {
-		perror("fdopen()");
-		return XBEE_EIO;
-	}
-	
-	setvbuf(info->dev.f, NULL, _IONBF, BUFSIZ);
-	fflush(info->dev.f);
 	
 	if (tcgetattr(info->dev.fd, &tc)) {
 		perror("tcgetattr()");
@@ -143,27 +135,33 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	
 	/* purge buffer */
 	{
+		int flags;
 		char buf[1024];
 		int n;
+		flags = fcntl(info->dev.fd, F_GETFL, 0) & ~O_NONBLOCK;
+		fcntl(info->dev.fd, F_SETFL, flags | O_NONBLOCK); /* disable blocking */
+		if ((fcntl(info->dev.fd, F_GETFL, 0) & O_NONBLOCK) == 0) {
+			fprintf(stderr, "unable to disable blocking...\n");
+			return XBEE_ESETUP;
+		}
 		do {
 			usleep(5000); /* 5ms */
 			n = read(info->dev.fd, buf, sizeof(buf));
 		} while (n > 0);
+		fcntl(info->dev.fd, F_SETFL, flags); /* enable blocking */
+		if (fcntl(info->dev.fd, F_GETFL, 0) & O_NONBLOCK) {
+			fprintf(stderr, "unable to enable blocking...\n");
+			return XBEE_ESETUP;
+		}
 	}
-	fcntl(info->dev.fd, F_SETFL, 0); /* disable blocking */
 	
-#ifndef linux
-/* for FreeBSD */
 	usleep(250000); /* it seems that the serial port takes a while to get going... */
-#endif
 	
 	return XBEE_ENONE;
 }
 
 int xsys_serialShutdown(struct xbee_serialInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
-	if (info->dev.f) fclose(info->dev.f);
-	info->dev.f = NULL;
 	if (info->dev.fd) close(info->dev.fd);
 	info->dev.fd = -1;
 	return XBEE_ENONE;
@@ -176,7 +174,7 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 	int pos;
 	
 	if (!info || !dest) return XBEE_EMISSINGPARAM;
-	if (info->dev.fd == -1 || !info->dev.f || len == 0) return XBEE_EINVAL;
+	if (info->dev.fd == -1 || len == 0) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
 		FD_ZERO(&fds);
@@ -192,23 +190,10 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 			return XBEE_ETIMEOUT;
 		}
 		ret = 0;
-		while ((retv = fread(&(dest[pos + ret]), 1, len - ret - pos, info->dev.f)) > 0) {
+		while ((retv = read(info->dev.fd, &(dest[pos + ret]), len - ret - pos)) > 0) {
 			ret += retv;
 		}
 		if (retv >= 0 && ret > 0) continue;
-		if (feof(info->dev.f)) {
-#ifndef linux
-/* for FreeBSD */
-			usleep(10000);
-			continue;
-#else
-			return XBEE_EEOF;
-#endif /* !linux */
-		}
-		if (ferror(info->dev.f)) {
-			perror("fread()");
-			return XBEE_EIO;
-		}
 	}
 	
 	return XBEE_ENONE;
@@ -221,14 +206,10 @@ int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) 
 	int ret;
 	
 	if (!info || !src) return XBEE_EMISSINGPARAM;
-	if (info->dev.fd == -1 || !info->dev.f || len == 0) return XBEE_EINVAL;
+	if (info->dev.fd == -1 || len == 0) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
-		if ((ret = fwrite(&(src[pos]), 1, len - pos, info->dev.f)) > 0) continue;
-		if (ferror(info->dev.f)) {
-			perror("fwrite()");
-			return XBEE_EIO;
-		}
+		if ((ret = write(info->dev.fd, &(src[pos]), len - pos)) > 0) continue;
 	}
 	
 	return XBEE_ENONE;
