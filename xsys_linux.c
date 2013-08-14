@@ -118,10 +118,10 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	/* output flags */
 	tc.c_oflag &= ~ OPOST;            /* disable output processing */
 	tc.c_oflag &= ~(ONLCR | OCRNL);   /* disable translating NL <-> CR */
-	#ifdef linux
+#ifdef linux
 	/* not for FreeBSD */
 	tc.c_oflag &= ~ OFILL;            /* disable fill characters */
-	#endif /* linux */
+#endif /* linux */
 	/* control flags */
 	tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
 	tc.c_cflag |=   CREAD;            /* enable reciever */
@@ -134,11 +134,11 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	tc.c_cflag &= ~ CSIZE;            /* remove size flag... */
 	tc.c_cflag |=   CS8;              /* ...enable 8 bit characters */
 	tc.c_cflag |=   HUPCL;            /* enable lower control lines on close - hang up */
-	#ifdef XBEE_NO_RTSCTS
+#ifdef XBEE_NO_RTSCTS
 	tc.c_cflag &= ~ CRTSCTS;          /* disable hardware CTS/RTS flow control */
-	#else
+#else
 	tc.c_cflag |=   CRTSCTS;          /* enable hardware CTS/RTS flow control */
-	#endif
+#endif
 	/* local flags */
 	tc.c_lflag &= ~ ISIG;             /* disable generating signals */
 	tc.c_lflag &= ~ ICANON;           /* disable canonical mode - line by line */
