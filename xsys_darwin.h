@@ -42,7 +42,7 @@
 #define MSG_NOSIGNAL SO_NOSIGPIPE
 #define CLOCK_REALTIME 1
 typedef int clockid_t;
-int xsys_clock_gettime(clockid_t id, struct timespec *tp);
+int clock_gettime(clockid_t id, struct timespec *tp);
 /* -x-x-x-x-x-x-x-x- */
 
 

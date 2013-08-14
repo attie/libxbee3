@@ -27,7 +27,6 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#include <time.h>
 #include <fcntl.h>
 
 #ifdef __USE_GNU
@@ -120,12 +119,6 @@ typedef struct serialDev  xsys_serialDev;
 #define xsys_sem_timedwait(sem, timeout)      sem_timedwait((sem_t*)(sem), (timeout))
 #define xsys_sem_post(sem)                    sem_post((sem_t*)(sem))
 #define xsys_sem_getvalue(sem, value)         sem_getvalue((sem), (value))
-
-
-/* ######################################################################### */
-/* misc */
-
-#define xsys_clock_gettime(id, time)          clock_gettime((id), (struct timespec *)(time))
 
 
 #endif /* __XBEE_XSYS_LINUX_H */

@@ -278,7 +278,7 @@ int _xsys_sem_destroy(xsys_sem *info) {
 	return 0;
 }
 
-int xsys_clock_gettime(clockid_t clk_id, struct timespec *tp) {
+int clock_gettime(clockid_t clk_id, struct timespec *tp) {
     struct timeval now;
     int rv = gettimeofday(&now, NULL);
     if (rv) return rv;
