@@ -89,7 +89,7 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 #endif
 	}
 	
-	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK)) == -1) {
+	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC)) == -1) {
 		perror("open()");
 		return XBEE_EIO;
 	}
@@ -175,14 +175,25 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	
 	/* purge buffer */
 	{
+		int flags;
 		char buf[1024];
 		int n;
+		flags = fcntl(info->dev.fd, F_GETFL, 0) & ~O_NONBLOCK;
+		fcntl(info->dev.fd, F_SETFL, flags | O_NONBLOCK); /* disable blocking */
+		if ((fcntl(info->dev.fd, F_GETFL, 0) & O_NONBLOCK) == 0) {
+			fprintf(stderr, "unable to disable blocking...\n");
+			return XBEE_ESETUP;
+		}
 		do {
 			usleep(5000); /* 5ms */
 			n = read(info->dev.fd, buf, sizeof(buf));
 		} while (n > 0);
+		fcntl(info->dev.fd, F_SETFL, flags); /* enable blocking */
+		if (fcntl(info->dev.fd, F_GETFL, 0) & O_NONBLOCK) {
+			fprintf(stderr, "unable to enable blocking...\n");
+			return XBEE_ESETUP;
+		}
 	}
-	fcntl(info->dev.fd, F_SETFL, 0); /* disable blocking */
 	
 #ifndef linux
 /* for FreeBSD */
