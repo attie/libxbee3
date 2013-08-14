@@ -90,7 +90,9 @@ int xsys_sem_getvalue(xsys_sem *sem, int *value);
 */
 
 #define __XBEE_XSYS_LOAD_H
-#if defined(__GNUC__) /* ------- */
+#if defined(__MACH__) /* ------- */
+#include "xsys_darwin.h"
+#elif defined(__GNUC__) /* ----- */
 #include "xsys_linux.h"
 #elif defined(_WIN32) /* ------- */
 #include "xsys_win32.h"
