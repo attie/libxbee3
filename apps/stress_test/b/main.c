@@ -88,6 +88,7 @@ int main(int argc, char *argv[]) {
 			return 5;
 		}
 		if (p == NULL) break;
+		usleep(25000);
 	}
 
 	xbee_conEnd(con);
