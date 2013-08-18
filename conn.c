@@ -540,7 +540,7 @@ EXPORT xbee_err xbee_convxTx(struct xbee_con *con, unsigned char *retVal, unsign
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
 	return _xbee_convxTx(con, retVal, frameId, format, args);
 }
-EXPORT xbee_err _xbee_convxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, va_list args) {
+xbee_err _xbee_convxTx(struct xbee_con *con, unsigned char *retVal, unsigned char *frameId, const char *format, va_list args) {
 	xbee_err ret;
 	int bufLen, outLen;
 	char *buf;
