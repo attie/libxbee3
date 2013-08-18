@@ -315,5 +315,14 @@ xbee_err xbee_xbeeTxIo(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	}
 	iBuf->data[3 + pos] = 0xFF - chksum;
 	
+#ifdef DEBUG_TX_FULL
+{
+	int i;
+	xbee_log(99, "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+	xbee_logData(99, "Raw Tx packet", iBuf->data, iBuf->len);
+	xbee_log(99, "x=x=x=x=x=x=x=x=x=x=x=x=x=x=x");
+}
+#endif
+
 	return escaped_write(data, iBuf->len, iBuf->data, 1);
 }
