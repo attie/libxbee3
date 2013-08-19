@@ -74,7 +74,6 @@ int main(void) {
 			}
 		}
 	}
-
 	
 	/* shutdown the connection */
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
