@@ -57,14 +57,14 @@ xbee_err xbee_s6_dataIP_rx_func(struct xbee *xbee, void *arg, unsigned char iden
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 11)) != XBEE_ENONE) return ret;
 	
 	address->addr64_enabled = 1;
-	address->addr64[0] = 0;
-	address->addr64[1] = 0;
-	address->addr64[2] = 0;
-	address->addr64[3] = 0;
-	address->addr64[4] = buf->data[1];
-	address->addr64[5] = buf->data[2];
-	address->addr64[6] = buf->data[3];
-	address->addr64[7] = buf->data[4];
+	address->addr64[0] = buf->data[1];
+	address->addr64[1] = buf->data[2];
+	address->addr64[2] = buf->data[3];
+	address->addr64[3] = buf->data[4];
+	address->addr64[4] = 0;
+	address->addr64[5] = 0;
+	address->addr64[6] = 0;
+	address->addr64[7] = 0;
 	/* the source / destination crossover is done here so that UART XBee moduless can be used too */
 	/* profile is used for source port */
 	address->profile_enabled = 1;
@@ -114,10 +114,10 @@ xbee_err xbee_s6_dataIP_tx_func(struct xbee *xbee, struct xbee_con *con, void *a
 		iBuf->data[pos] = 0xFF;                             pos++;
 		iBuf->data[pos] = 0xFF;                             pos++;
 	} else {
-		iBuf->data[pos] = address->addr64[4];               pos++;
-		iBuf->data[pos] = address->addr64[5];               pos++;
-		iBuf->data[pos] = address->addr64[6];               pos++;
-		iBuf->data[pos] = address->addr64[7];               pos++;
+		iBuf->data[pos] = address->addr64[0];               pos++;
+		iBuf->data[pos] = address->addr64[1];               pos++;
+		iBuf->data[pos] = address->addr64[2];               pos++;
+		iBuf->data[pos] = address->addr64[3];               pos++;
 	}
 	/* the CLUSTER id is used for the DESTINATION TCP/UDP port number */
 	if (address->cluster_enabled) {
