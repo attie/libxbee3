@@ -29,7 +29,7 @@
 #include "../common.h"
 #include "identify.h"
 
-xbee_err xbee_sZB_identify_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+xbee_err xbee_s3_identify_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;
 	struct xbee_conAddress *addr;
@@ -49,16 +49,11 @@ xbee_err xbee_sZB_identify_rx_func(struct xbee *xbee, void *arg, unsigned char i
 
 		memcpy(iPkt->data, &(buf->data[12]), iPkt->dataLen);
 		
-		if (iPkt->dataLen < 2) goto done;
-		xbee_pktDataAdd(iPkt, "Address (16-bit)", 0, &(iPkt->data[0]), NULL);
-		
 		if (iPkt->dataLen < 10) goto done;
 		xbee_pktDataAdd(iPkt, "Address (64-bit)", 0, &(iPkt->data[2]), NULL);
-
+			
 		if ((addr = malloc(sizeof(*addr))) != NULL) {
 			memset(addr, 0, sizeof(*addr));
-			addr->addr16_enabled = 1;
-			memcpy(addr->addr16, &(iPkt->data[0]), 2);
 			addr->addr64_enabled = 1;
 			memcpy(addr->addr64, &(iPkt->data[2]), 8);
 			
@@ -73,9 +68,6 @@ xbee_err xbee_sZB_identify_rx_func(struct xbee *xbee, void *arg, unsigned char i
 		for (NIend = NIstart; iPkt->data[NIend] != '\0' && NIend < iPkt->dataLen; NIend++);
 		NIend++; /* step over the nul */
 
-		if (iPkt->dataLen < NIend + 2) goto done;
-		xbee_pktDataAdd(iPkt, "Parent Address", 0, &(iPkt->data[NIend + 1]), NULL);
-
 		if (iPkt->dataLen < NIend + 3) goto done;
 		xbee_pktDataAdd(iPkt, "Device Type", 0, &(iPkt->data[NIend + 3]), NULL);
 
@@ -87,6 +79,16 @@ xbee_err xbee_sZB_identify_rx_func(struct xbee *xbee, void *arg, unsigned char i
 
 		if (iPkt->dataLen < NIend + 8) goto done;
 		xbee_pktDataAdd(iPkt, "Manufacturer ID", 0, &(iPkt->data[NIend + 7]), NULL);
+
+		if (iPkt->dataLen < NIend + 12) {
+			if (iPkt->dataLen < NIend + 9) goto done;
+			xbee_pktDataAdd(iPkt, "RSSI", 0, &(iPkt->data[NIend + 9]), NULL);
+			goto done;
+		}
+		xbee_pktDataAdd(iPkt, "DD", 0, &(iPkt->data[NIend + 9]), NULL);
+
+		if (iPkt->dataLen < NIend + 13) goto done;
+		xbee_pktDataAdd(iPkt, "RSSI", 0, &(iPkt->data[NIend + 13]), NULL);
 	}
 
 done:
@@ -99,15 +101,15 @@ done:
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_sZB_identify_rx  = {
+struct xbee_modeDataHandlerRx xbee_s3_identify_rx  = {
 	.identifier = 0x95,
-	.func = xbee_sZB_identify_rx_func,
+	.func = xbee_s3_identify_rx_func,
 };
-struct xbee_modeConType xbee_sZB_identify = {
+struct xbee_modeConType xbee_s3_identify = {
 	.name = "Identify",
 	.allowFrameId = 0,
 	.useTimeout = 0,
 	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_sZB_identify_rx,
+	.rxHandler = &xbee_s3_identify_rx,
 	.txHandler = NULL,
 };

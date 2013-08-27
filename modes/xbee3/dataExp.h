@@ -1,5 +1,8 @@
+#ifndef __XBEE_MODE_DATAEXP_H
+#define __XBEE_MODE_DATAEXP_H
+
 /*
-	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
+	libxbee - a C library to aid the use of Digi's XBee wireless modules
 	          running in API mode.
 
 	Copyright (C) 2009 onwards  Attie Grande (attie@attie.co.uk)
@@ -11,21 +14,13 @@
 
 	libxbee is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Lesser General Public License for more details.
 
 	You should have received a copy of the GNU Lesser General Public License
-	along with libxbee. If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "xbeeqt.h"
+extern struct xbee_modeConType xbee_s3_dataExp;
 
-libxbee::ConQt::ConQt(libxbee::XBee &parent, std::string type, struct xbee_conAddress *address): QObject(0), ConCallback(parent, type, address) {
-	/* nothing */
-}
-void libxbee::ConQt::xbee_conCallback(libxbee::Pkt **pkt) {
-	libxbee::Pkt *kept_pkt = *pkt;
-	*pkt = NULL;
-
-	emit Rx(kept_pkt);
-}
+#endif /* __XBEE_MODE_DATAEXP_H */

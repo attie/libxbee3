@@ -66,14 +66,14 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	size_t memSize;
 	
 	/* this will need updating if struct xbee_pkt changes */
-	/* 17 = dataLen[2] + timestamp(8) + status + options + rssi + frameId + address flags + atCommand[2] */
-	/* dataLen can be inferred */
-	memSize = 17 + (*pkt)->dataLen;
+	/* 13 = address flags + timestamp(8) + status + options + rssi + frameId */
+	memSize = 13 + (*pkt)->dataLen;
 	if ((*pkt)->address.addr16_enabled)    memSize += 2;
 	if ((*pkt)->address.addr64_enabled)    memSize += 8;
 	if ((*pkt)->address.endpoints_enabled) memSize += 2;
 	if ((*pkt)->address.profile_enabled)   memSize += 2;
 	if ((*pkt)->address.cluster_enabled)   memSize += 2;
+	/* and the AT command */               memSize += 2;
 	
 	if ((buf = malloc(memSize)) == NULL) {
 		xbee_log(1, "MALLOC FAILED... dataloss has occured");
@@ -84,8 +84,13 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	    modes/net/handlers.c - xbee_net_frontchannel_rx_func() */
 	
 	pos = 0;
-	buf[pos] = ((*pkt)->dataLen >> 8) & 0xFF;            pos++;
-	buf[pos] = (*pkt)->dataLen & 0xFF;                   pos++;
+	buf[pos] = 0;
+	if ((*pkt)->address.addr16_enabled)     buf[pos] |= 0x01;
+	if ((*pkt)->address.addr64_enabled)     buf[pos] |= 0x02;
+	if ((*pkt)->address.endpoints_enabled)  buf[pos] |= 0x04;
+	if ((*pkt)->address.profile_enabled)    buf[pos] |= 0x08;
+	if ((*pkt)->address.cluster_enabled)    buf[pos] |= 0x10;
+	                                                     pos++;
 	buf[pos] = ((*pkt)->timestamp.tv_sec  >> 24) & 0xFF; pos++;
 	buf[pos] = ((*pkt)->timestamp.tv_sec  >> 16) & 0xFF; pos++;
 	buf[pos] = ((*pkt)->timestamp.tv_sec  >>  8) & 0xFF; pos++;
@@ -98,14 +103,7 @@ void xbee_net_toClient(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt 
 	buf[pos] = (*pkt)->options;                          pos++;
 	buf[pos] = (*pkt)->rssi;                             pos++;
 	buf[pos] = (*pkt)->frameId;                          pos++;
-	buf[pos] = 0;
-	if ((*pkt)->address.addr16_enabled)     buf[pos] |= 0x01;
-	if ((*pkt)->address.addr64_enabled)     buf[pos] |= 0x02;
-	if ((*pkt)->address.endpoints_enabled)  buf[pos] |= 0x04;
-	if ((*pkt)->address.profile_enabled)    buf[pos] |= 0x08;
-	if ((*pkt)->address.cluster_enabled)    buf[pos] |= 0x10;
 	/* -- */
-	                                                     pos++;
 	if ((*pkt)->address.addr16_enabled) {
 		buf[pos] = (*pkt)->address.addr16[0];              pos++;
 		buf[pos] = (*pkt)->address.addr16[1];              pos++;

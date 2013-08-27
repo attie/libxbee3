@@ -12,6 +12,10 @@ include make/os.freebsd.mk
 else ifeq ($(OS),Windows_NT)
 include make/os.windows.mk
 
+# detect os x (darwin)
+else ifeq ($(shell uname),Darwin)
+include make/os.darwin.mk
+
 # detect error
 else
 $(error Unknown OS ($(shell uname)), please see make/os_detect.mk)

@@ -37,7 +37,7 @@ struct xbee_frame {
 	struct xbee_con *con;
 	unsigned char id;
 	unsigned char retVal;
-	unsigned char status;
+	unsigned char status; /* this used the XBEE_FRAME_STATUS_* bitfield - zero means unused */
 };
 
 struct xbee_frameBlock {

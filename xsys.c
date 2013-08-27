@@ -24,7 +24,9 @@
 #include "internal.h"
 
 #define __XBEE_XSYS_LOAD_C
-#if defined(__GNUC__) /* ------- */
+#if defined(__MACH__) /* ------- */
+#include "xsys_darwin.c"
+#elif defined(__GNUC__) /* ----- */
 #include "xsys_linux.c"
 #elif defined(_WIN32) /* ------- */
 #include "xsys_win32.c"
