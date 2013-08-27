@@ -9,7 +9,7 @@ SYS_GROUP:=     root
 SYS_USER:=      root
 
 ### using this can create a smaller binary, by removing modes you won't use
-#MODELIST:=      xbee1 xbee2 xbee5 xbeeZB net debug
+#MODELIST:=      xbee1 xbee2 xbee5 xbee6b xbeeZB net debug
 
 ### to use the 'install_html' rule, you must specify where to install the files to
 #SYS_HTMLDIR:=   /var/www/libxbee.doc
