@@ -1,5 +1,5 @@
 /*
-	libxbee - a C library to aid the use of Digi's XBee wireless modules
+	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
 	          running in API mode.
 
 	Copyright (C) 2009 onwards  Attie Grande (attie@attie.co.uk)
@@ -33,7 +33,6 @@
 #include "mode.h"
 #include "at.h"
 #include "data.h"
-#include "dataIP.h"
 #include "io.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
@@ -179,7 +178,6 @@ static const struct xbee_modeConType *conTypes[] = {
 	&xbee_s6_localAt,
 	&xbee_s6_remoteAt,
 	&xbee_s6_data,
-	&xbee_s6_dataIP,
 	&xbee_s6_io,
 	NULL
 };
