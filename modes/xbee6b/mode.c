@@ -31,6 +31,7 @@
 #include "../../pkt.h"
 #include "../common.h"
 #include "mode.h"
+#include "data.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
 static xbee_err mode_shutdown(struct xbee *xbee);
@@ -182,6 +183,7 @@ static const struct xbee_modeConType *conTypes[] = {
 	/* Frame Error */
 	&xbee_s6b_transmitStatus,
 	&xbee_s6b_modemStatus,
+	&xbee_s6b_data,
 	NULL
 };
 
