@@ -449,13 +449,13 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *iface, int allow
 		memset(&con->address, 0, sizeof(*address));
 	}
 	
-	xbee_log(6, "Created new '%s' type connection", conType->name);
-	xbee_conLogAddress(xbee, 8, address);
-	
 	if ((ret = xbee_conLink(xbee, conType, &con->address, con)) != XBEE_ENONE) {
 		xbee_conFree(con);
 		return ret;
 	}
+	
+	xbee_log(6, "Created new '%s' type connection", conType->name);
+	xbee_conLogAddress(xbee, 8, address);
 	
 	*retCon = con;
 	
