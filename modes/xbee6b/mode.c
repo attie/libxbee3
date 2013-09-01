@@ -31,6 +31,7 @@
 #include "../../pkt.h"
 #include "../common.h"
 #include "mode.h"
+#include "at.h"
 #include "data.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
@@ -171,10 +172,6 @@ struct xbee_modeConType xbee_s6b_modemStatus = {
 /* ######################################################################### */
 
 static const struct xbee_modeConType *conTypes[] = {
-	/* Tx Status */
-	/* Modem Status */
-	/* Local AT */
-	/* Remote AT */
 	/* Data (IPv4) */
 	/* File Put */
 	/* Device Request */
@@ -183,6 +180,8 @@ static const struct xbee_modeConType *conTypes[] = {
 	/* Frame Error */
 	&xbee_s6b_transmitStatus,
 	&xbee_s6b_modemStatus,
+	&xbee_s6b_localAt,
+	&xbee_s6b_remoteAt,
 	&xbee_s6b_data,
 	NULL
 };
