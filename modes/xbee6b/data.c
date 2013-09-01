@@ -139,6 +139,39 @@ xbee_err xbee_s6b_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *ar
 	return XBEE_ENONE;
 }
 
+/* matchRating values:
+		128 - IPs match
+		192 - IPs and the source ports match (source = MY port)
+		256 - IPs match and BOTH ports match */
+xbee_err xbee_s6b_data_addressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2, unsigned char *matchRating) {
+	unsigned char x;
+	/* make it point _somewhere_ to make this code a little cleaner */
+	if (matchRating == NULL) matchRating = &x;
+	*matchRating = 0;
+
+	if (!addr1->addr64_enabled || !addr2->addr64_enabled) return XBEE_EFAILED;
+
+	/* check the IP addresses - this is the minimum requirement for a compare match */
+	if (memcmp(addr1->addr64, addr2->addr64, 8)) return XBEE_EFAILED;
+	*matchRating = 128;
+
+	/* check the source ports (that is the port at MY end) */
+	if (!addr1->profile_enabled || !addr2->profile_enabled ||
+			addr1->profile_id != addr2->profile_id) {
+		return XBEE_ENONE;
+	}
+	*matchRating = 192;
+
+	/* check the destination ports (that is the port at the OTHER end */
+	if (!addr1->cluster_enabled || !addr2->cluster_enabled ||
+	    addr1->cluster_id != addr2->cluster_id) {
+		return XBEE_ENONE;
+	}
+	*matchRating = 255;
+
+	return XBEE_ENONE;
+}
+
 /* ######################################################################### */
 
 struct xbee_modeDataHandlerRx xbee_s6b_data_rx  = {
@@ -156,4 +189,5 @@ struct xbee_modeConType xbee_s6b_data = {
 	.addressRules = ADDR_64_ONLY,
 	.rxHandler = &xbee_s6b_data_rx,
 	.txHandler = &xbee_s6b_data_tx,
+	.addressCmp = xbee_s6b_data_addressCmp,
 };
