@@ -60,7 +60,8 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 xbee_err xbee_conUnlink(struct xbee_con *con);
 
 xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address);
-xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2);
+xbee_err xbee_conAddressCmpDefault(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2, unsigned char *matchRating);
+
 xbee_err xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel);
 xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock);
 

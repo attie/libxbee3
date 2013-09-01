@@ -73,6 +73,8 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 		/* keep the pointers (they are const after all) */
 		memcpy(&conTypes[i], mode->conTypes[i], sizeof(*conTypes));
 		
+		/* setup the addressCmp function */
+		if (conTypes[i].addressCmp == NULL) conTypes[i].addressCmp = xbee_conAddressCmpDefault;
 		/* initialization added for microsoft compiler support */
 		if (conTypes[i].init) conTypes[i].init(&(conTypes[i]));
 		
