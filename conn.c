@@ -116,6 +116,8 @@ static xbee_err _xbee_conFree(struct xbee_con *con) {
 
 xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_conAddress *address, struct xbee_con *con) {
 	xbee_err ret;
+	unsigned char matchRating;
+
 	if (!xbee || !conType || !con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
@@ -133,13 +135,13 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 			break;
 		}
 		
-		if ((ret = _xbee_conLocate(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS && 
+		if ((ret = _xbee_conLocate(conType->conList, address, &matchRating, NULL, -1, 0)) != XBEE_ENOTEXISTS && 
 		     ret != XBEE_ESLEEPING &&
 		     ret != XBEE_ECATCHALL) {
-			if (ret == XBEE_ENONE) {
+			if (ret == XBEE_ENONE && matchRating == 255) {
 				ret = XBEE_EEXISTS;
+				break;
 			}
-			break;
 		}
 	
 		if ((ret = _xbee_ll_add_tail(conType->conList, con, 0)) != XBEE_ENONE) {
@@ -278,7 +280,7 @@ got4:
 	return XBEE_ENONE;   /* --- everything matched --- */
 }
 
-xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
+xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, unsigned char *retRating, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	/* higher is better!
 	   a value of 255 indicates that there will DEFINATELY not be a better match
 	   a value of 0 means 'no match' */
@@ -353,11 +355,12 @@ xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *a
 	if (!con) return XBEE_ENOTEXISTS;
 	
 	if (retCon) *retCon = con;
+	if (retRating) *retRating = matchRating;
 	
 	return ret;
 }
 xbee_err xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel) {
-	return _xbee_conLocate(conList, address, retCon, alertLevel, 1);
+	return _xbee_conLocate(conList, address, NULL, retCon, alertLevel, 1);
 }
 
 /* ########################################################################## */
