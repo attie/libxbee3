@@ -32,6 +32,11 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <stdbool.h>
+#include <signal.h>
+
+/* import Keith Shortridge's semaphore implementation */
+#include "xsys_darwin/sem_timedwait.c"
 
 int xsys_serialSetup(struct xbee_serialInfo *info) {
 	struct termios tc;
@@ -40,25 +45,7 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
 	
 	switch (info->baudrate) {
-#ifdef B134
-		case 134:    chosenbaud = B134;    break;
-#endif
-#ifdef B150
-		case 150:    chosenbaud = B150;    break;
-#endif
-#ifdef B200
-		case 200:    chosenbaud = B200;    break;
-#endif
-#ifdef B300
-		case 300:    chosenbaud = B300;    break;
-#endif
-#ifdef B600
-		case 600:    chosenbaud = B600;    break;
-#endif
 		case 1200:   chosenbaud = B1200;   break;
-#ifdef B1800
-		case 1800:   chosenbaud = B1800;   break;
-#endif
 		case 2400:   chosenbaud = B2400;   break;
 		case 4800:   chosenbaud = B4800;   break;
 		case 9600:   chosenbaud = B9600;   break;
@@ -66,41 +53,14 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 		case 38400:  chosenbaud = B38400;  break;
 		case 57600:  chosenbaud = B57600;  break;
 		case 115200: chosenbaud = B115200; break;
-#ifdef B230400
-		case 230400: chosenbaud = B230400; break;
-#endif
-#ifdef B460800
-		case 460800: chosenbaud = B460800; break;
-#endif
-#ifdef B500000
-		case 500000: chosenbaud = B500000; break;
-#endif
-#ifdef B576000
-		case 576000: chosenbaud = B576000; break;
-#endif
-#ifdef B921600
-		case 921600: chosenbaud = B921600; break;
-#endif
 		default:
-#ifdef XBEE_ALLOW_ARB_BAUD
-			chosenbaud = info->baudrate;
-#else
 			return XBEE_EINVAL;
-#endif
 	}
 	
 	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC)) == -1) {
 		perror("open()");
 		return XBEE_EIO;
 	}
-	
-	if ((info->dev.f = fdopen(info->dev.fd, "r+")) == NULL) {
-		perror("fdopen()");
-		return XBEE_EIO;
-	}
-	
-	setvbuf(info->dev.f, NULL, _IONBF, BUFSIZ);
-	fflush(info->dev.f);
 	
 	if (tcgetattr(info->dev.fd, &tc)) {
 		perror("tcgetattr()");
@@ -195,18 +155,13 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 		}
 	}
 	
-#ifndef linux
-/* for FreeBSD */
 	usleep(250000); /* it seems that the serial port takes a while to get going... */
-#endif
 	
 	return XBEE_ENONE;
 }
 
 int xsys_serialShutdown(struct xbee_serialInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
-	if (info->dev.f) fclose(info->dev.f);
-	info->dev.f = NULL;
 	if (info->dev.fd) close(info->dev.fd);
 	info->dev.fd = -1;
 	return XBEE_ENONE;
@@ -219,7 +174,7 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 	int pos;
 	
 	if (!info || !dest) return XBEE_EMISSINGPARAM;
-	if (info->dev.fd == -1 || !info->dev.f || len == 0) return XBEE_EINVAL;
+	if (info->dev.fd == -1 || len == 0) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
 		FD_ZERO(&fds);
@@ -235,23 +190,10 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 			return XBEE_ETIMEOUT;
 		}
 		ret = 0;
-		while ((retv = fread(&(dest[pos + ret]), 1, len - ret - pos, info->dev.f)) > 0) {
+		while ((retv = read(info->dev.fd, &(dest[pos + ret]), len - ret - pos)) > 0) {
 			ret += retv;
 		}
 		if (retv >= 0 && ret > 0) continue;
-		if (feof(info->dev.f)) {
-#ifndef linux
-/* for FreeBSD */
-			usleep(10000);
-			continue;
-#else
-			return XBEE_EEOF;
-#endif /* !linux */
-		}
-		if (ferror(info->dev.f)) {
-			perror("fread()");
-			return XBEE_EIO;
-		}
 	}
 	
 	return XBEE_ENONE;
@@ -264,15 +206,84 @@ int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) 
 	int ret;
 	
 	if (!info || !src) return XBEE_EMISSINGPARAM;
-	if (info->dev.fd == -1 || !info->dev.f || len == 0) return XBEE_EINVAL;
+	if (info->dev.fd == -1 || len == 0) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
-		if ((ret = fwrite(&(src[pos]), 1, len - pos, info->dev.f)) > 0) continue;
-		if (ferror(info->dev.f)) {
-			perror("fwrite()");
-			return XBEE_EIO;
-		}
+		if ((ret = write(info->dev.fd, &(src[pos]), len - pos)) > 0) continue;
 	}
 	
 	return XBEE_ENONE;
 }
+ 
+/* ######################################################################### */
+
+int _xsys_sem_init(xsys_sem *info) {
+	int ret, retries;
+
+	if (info == NULL/* || info->sem != NULL*/) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	/* try to setup an unnamed semaphore... */
+
+	info->opened = 0;
+	if (((info->sem) = malloc(sizeof(sem_t))) == NULL) {
+		errno = ENOMEM;
+		return -1;
+	}
+	if ((ret = sem_init(info->sem, 0, 0)) == 0) return 0;
+	free(info->sem);
+
+	info->opened = 1;
+	for (retries = 10; retries; retries--) {
+		/* try to setup a named semaphore... */
+		if (((info->sem) = sem_open("/libxbee", O_CREAT | O_EXCL, 0666, 0)) != (sem_t*)-1) {
+			/* ... and on success, unlink it! */
+			sem_unlink("/libxbee");
+			return 0;
+		}
+
+		if (errno != EEXIST) break;
+
+		/* if it already exists, then wait a bit, it should be unlinked */
+		usleep(100);
+		continue;
+	}
+
+	info->sem = NULL;
+	info->opened = 0;
+
+	return -1;
+}
+
+int _xsys_sem_destroy(xsys_sem *info) {
+	int ret;
+
+	if (info == NULL/* || info->sem == NULL*/) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (info->opened) {
+		if ((ret = sem_close(info->sem)) != 0) return ret;
+	} else {
+		if ((ret = sem_destroy(info->sem)) != 0) return ret;
+		free(info->sem);
+	}
+
+	info->sem = NULL;
+	info->opened = 0;
+
+	return 0;
+}
+
+int clock_gettime(clockid_t clk_id, struct timespec *tp) {
+    struct timeval now;
+    int rv = gettimeofday(&now, NULL);
+    if (rv) return rv;
+    tp->tv_sec  = now.tv_sec;
+    tp->tv_nsec = now.tv_usec * 1000;
+    return 0;
+}
+

@@ -1,5 +1,8 @@
+#ifndef __XBEE_MODE_IO_H
+#define __XBEE_MODE_IO_H
+
 /*
-	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
+	libxbee - a C library to aid the use of Digi's XBee wireless modules
 	          running in API mode.
 
 	Copyright (C) 2009 onwards  Attie Grande (attie@attie.co.uk)
@@ -18,19 +21,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+xbee_err xbee_s3_io_parseInputs(struct xbee *xbee, struct xbee_pkt *pkt, unsigned char *data, int len);
 
-#include "internal.h"
-
-#define __XBEE_XSYS_LOAD_C
-#if defined(__MACH__) /* ------- */
-#include "xsys_darwin.c"
-#elif defined(__GNUC__) /* ----- */
-#include "xsys_linux.c"
-#elif defined(_WIN32) /* ------- */
-#include "xsys_win32.c"
-#else /* ----------------------- */
-#error Unsupported OS
-#endif /* ---------------------- */
-#undef __XBEE_XSYS_LOAD_C
+#endif /* __XBEE_MODE_IO_H */

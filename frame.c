@@ -111,14 +111,14 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 	frame = NULL;
 	for (i = 0, o = fBlock->lastFrame; i < fBlock->numFrames; i++, o--) {
 		if (o < 0) o = fBlock->numFrames - 1;
-		if (!fBlock->frame[o].status) continue;
-		if (fBlock->frame[o].con != con) continue;
-		if (fBlock->frame[o].id != con->frameId) {
+		if (fBlock->frame[o].id != con->frameId) continue;
+
+		if (fBlock->frame[o].status == 0 || fBlock->frame[o].con != con) {
 			ret = XBEE_ESTALE;
-			break;
+		} else {
+			frame = &fBlock->frame[o];
+			frame->status |= XBEE_FRAME_STATUS_WAITING;
 		}
-		frame = &fBlock->frame[o];
-		frame->status |= XBEE_FRAME_STATUS_WAITING;
 		break;
 	}
 	xbee_mutex_unlock(&fBlock->mutex);
@@ -143,8 +143,8 @@ xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, un
 	con->frameId = 0;
 	frame->con = NULL;
 	if (frame->status & XBEE_FRAME_STATUS_COMPLETE && ret == XBEE_ENONE) {
-		frame->status = 0;
 		if (retVal) *retVal = frame->retVal;
+		frame->status = 0;
 	} else {
 		frame->status &= ~XBEE_FRAME_STATUS_WAITING;
 	}
@@ -165,24 +165,30 @@ xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, u
 
 	frame = NULL;
 	for (i = 0; i < fBlock->numFrames; i++) {
-		if (!fBlock->frame[i].status) continue;
 		if (fBlock->frame[i].id != frameId) continue;
+
+		if (fBlock->frame[i].status != 0) {
+			frame = &fBlock->frame[i];
+		}
 		
-		frame = &fBlock->frame[i];
 		break;
 	}
 
 	if (!frame) {
 		ret = XBEE_EINVAL;
-	} else if (frame->status & XBEE_FRAME_STATUS_ABANDONED) {
-		frame->status = 0;
 	} else if (frame->con && (frame->status & XBEE_FRAME_STATUS_WAITING)) {
 		ret = XBEE_ENONE;
 		frame->status |= XBEE_FRAME_STATUS_COMPLETE;
 		frame->retVal = retVal;
 		xsys_sem_post(&frame->sem);
 	} else {
-		ret = XBEE_ETIMEOUT;
+		if (!(frame->status & XBEE_FRAME_STATUS_ABANDONED)) {
+			ret = XBEE_ETIMEOUT;
+		}
+		if (frame->con) {
+			frame->con->frameId = 0;
+			frame->con = NULL;
+		}
 		frame->status = 0;
 	}
 

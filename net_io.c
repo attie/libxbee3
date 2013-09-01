@@ -74,7 +74,7 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 			return XBEE_EIO;
 		}
 		
-		len = ((length[0] << 8) & 0xFF00) | (length[1] & 0xFF);
+		len = (((length[0] << 8) & 0xFF00) | (length[1] & 0xFF)) + 1;
 		if ((iBuf = malloc(sizeof(*iBuf) + len)) == NULL) return XBEE_ENOMEM;
 		xbee_ll_add_tail(needsFree, iBuf);
 		
@@ -196,8 +196,8 @@ xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	
 	iBuf->len = txSize;
 	iBuf->data[0] = 0x7E;
-	iBuf->data[1] = ((buf->len) >> 8) & 0xFF;
-	iBuf->data[2] = ((buf->len)     ) & 0xFF;
+	iBuf->data[1] = ((buf->len - 1) >> 8) & 0xFF;
+	iBuf->data[2] = ((buf->len - 1)     ) & 0xFF;
 	memcpy(&(iBuf->data[3]), buf->data, buf->len);
 	
 	for (pos = 0; pos < iBuf->len; pos += ret) {
