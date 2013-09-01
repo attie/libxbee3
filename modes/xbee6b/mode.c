@@ -33,6 +33,7 @@
 #include "mode.h"
 #include "at.h"
 #include "data.h"
+#include "io.h"
 
 static xbee_err init(struct xbee *xbee, va_list ap);
 static xbee_err mode_shutdown(struct xbee *xbee);
@@ -176,13 +177,13 @@ static const struct xbee_modeConType *conTypes[] = {
 	/* File Put */
 	/* Device Request */
 	/* Device Response Status */
-	/* I/O Data */
 	/* Frame Error */
 	&xbee_s6b_transmitStatus,
 	&xbee_s6b_modemStatus,
 	&xbee_s6b_localAt,
 	&xbee_s6b_remoteAt,
 	&xbee_s6b_data,
+	&xbee_s6b_io,
 	NULL
 };
 
