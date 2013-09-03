@@ -116,6 +116,8 @@ static xbee_err _xbee_conFree(struct xbee_con *con) {
 
 xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struct xbee_conAddress *address, struct xbee_con *con) {
 	xbee_err ret;
+	unsigned char matchRating;
+
 	if (!xbee || !conType || !con) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
@@ -133,13 +135,13 @@ xbee_err xbee_conLink(struct xbee *xbee, struct xbee_modeConType *conType, struc
 			break;
 		}
 		
-		if ((ret = _xbee_conLocate(conType->conList, address, NULL, -1, 0)) != XBEE_ENOTEXISTS && 
+		if ((ret = _xbee_conLocate(conType->conList, address, &matchRating, NULL, -1, 0)) != XBEE_ENOTEXISTS && 
 		     ret != XBEE_ESLEEPING &&
 		     ret != XBEE_ECATCHALL) {
-			if (ret == XBEE_ENONE) {
+			if (ret == XBEE_ENONE && matchRating == 255) {
 				ret = XBEE_EEXISTS;
+				break;
 			}
-			break;
 		}
 	
 		if ((ret = _xbee_ll_add_tail(conType->conList, con, 0)) != XBEE_ENONE) {
@@ -207,7 +209,11 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 	return XBEE_ENONE;
 }
 
-xbee_err xbee_conAddressCmp(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2) {
+/* this function is ONLY to be assigned to the conType struct's 'addressCmp' function pointer...
+   this function contains logic that works for the basic XBee series modules, but not the more advanced ones (e.g: WiFi) */
+xbee_err xbee_conAddressCmpDefault(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2, unsigned char *matchRating) {
+	if (matchRating != NULL) *matchRating = 0;
+
 	/** first try to match the address **/
 	/* no 16/64 bit addresses */
 	if (!addr1->addr16_enabled && !addr2->addr16_enabled &&
@@ -272,43 +278,66 @@ got3:
 	return XBEE_EFAILED; /* --- cluster id didn't match / isn't the default (0x0011) */
 	
 got4:
+	if (matchRating != NULL) *matchRating = 255;
 	return XBEE_ENONE;   /* --- everything matched --- */
 }
 
-xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
+xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, unsigned char *retRating, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
+	/* higher is better!
+	   a value of 255 indicates that there will DEFINATELY not be a better match
+	   a value of 0 means 'no match' */
+	unsigned char matchRating;
 	struct xbee_con *con;
 	struct xbee_con *sCon; /* <-- Sleeping connection */
 	struct xbee_con *cCon; /* <-- 'catchAll' */
+
+	/* tempoary stuff */
+	unsigned char tRating;
+	struct xbee_con *tCon;
+
 	xbee_err ret;
 	
 	if (!conList || !address) return XBEE_EMISSINGPARAM;
 	
+	tRating = 0;
+	matchRating = 0;
+	con = NULL;
 	sCon = NULL;
 	cCon = NULL;
 	
 	if (needsLLLock) xbee_ll_lock(conList);
-	for (con = NULL; (ret = _xbee_ll_get_next(conList, con, (void**)&con, 0)) == XBEE_ENONE && con; ) {
+	for (tCon = NULL; (ret = _xbee_ll_get_next(conList, tCon, (void**)&tCon, 0)) == XBEE_ENONE && tCon; ) {
+
 		/* skip ending connections */
-		if (con->ending) continue;
+		if (tCon->ending) continue;
 		
 		/* next see if the connection and can be woken */
-		if (con->sleepState > alertLevel) continue; /* this connection is outside the 'acceptable wake limit' */
+		if (tCon->sleepState > alertLevel) continue; /* this connection is outside the 'acceptable wake limit' */
 		
 		/* keep track of the latest catch-all */
-		if (con->settings.catchAll) cCon = con;
+		if (tCon->settings.catchAll) cCon = tCon;
 		
 		/* try to match the address */
-		if (xbee_conAddressCmp(&con->address, address) != XBEE_ENONE) continue;
+		if (tCon->conType->addressCmp(&tCon->address, address, &tRating) != XBEE_ENONE) continue;
+		if (tRating == 0) continue;
 		
 		/* is the connection dozing? */
-		if (con->sleepState != CON_AWAKE) {
+		if (tCon->sleepState != CON_AWAKE) {
 			/* this is designed to get the most recently created sleeping connection, NOT THE FIRST FOUND */
-			sCon = con;
+			sCon = tCon;
 			continue;
 		}
 
-		/* found a willing participant! */
-		break;
+		/* keep the best rated connection */
+		if (tRating > matchRating) {
+			matchRating = tRating;
+			con = tCon;
+		}
+		
+		if (matchRating == 255) {
+			/* found a willing participant, and it was indicated that it would be the best match! */
+			break;
+		}
 	}
 	if (needsLLLock) xbee_ll_unlock(conList);
 	
@@ -321,16 +350,19 @@ xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *a
 			con = cCon;
 			ret = XBEE_ECATCHALL;
 		}
+	} else {
+		ret = XBEE_ENONE;
 	}
 
 	if (!con) return XBEE_ENOTEXISTS;
 	
 	if (retCon) *retCon = con;
+	if (retRating) *retRating = matchRating;
 	
 	return ret;
 }
 xbee_err xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel) {
-	return _xbee_conLocate(conList, address, retCon, alertLevel, 1);
+	return _xbee_conLocate(conList, address, NULL, retCon, alertLevel, 1);
 }
 
 /* ########################################################################## */
@@ -422,13 +454,13 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *iface, int allow
 		memset(&con->address, 0, sizeof(*address));
 	}
 	
-	xbee_log(6, "Created new '%s' type connection", conType->name);
-	xbee_conLogAddress(xbee, 8, address);
-	
 	if ((ret = xbee_conLink(xbee, conType, &con->address, con)) != XBEE_ENONE) {
 		xbee_conFree(con);
 		return ret;
 	}
+	
+	xbee_log(6, "Created new '%s' type connection", conType->name);
+	xbee_conLogAddress(xbee, 8, address);
 	
 	*retCon = con;
 	
@@ -465,6 +497,7 @@ EXPORT xbee_err xbee_conGetXBee(struct xbee_con *con, struct xbee **xbee) {
 
 xbee_err xbee_conWake(struct xbee_con *con) {
 	xbee_err ret;
+	unsigned char iRating;
 	struct xbee_con *iCon;
 
 	if (!con) return XBEE_EMISSINGPARAM;
@@ -478,7 +511,8 @@ xbee_err xbee_conWake(struct xbee_con *con) {
 		if (iCon == con) continue;
 		
 		/* try to match the addresses */
-		if (xbee_conAddressCmp(&con->address, &iCon->address) != XBEE_ENONE) continue;
+		if (con->conType->addressCmp(&con->address, &iCon->address, &iRating) != XBEE_ENONE) continue;
+		if (iRating != 255) continue;
 		
 		/* check if it's awake */
 		if (iCon->sleepState != CON_AWAKE) continue;
