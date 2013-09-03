@@ -173,10 +173,6 @@ struct xbee_modeConType xbee_s6b_modemStatus = {
 /* ######################################################################### */
 
 static const struct xbee_modeConType *conTypes[] = {
-	/* Data (IPv4) */
-	/* File Put */
-	/* Device Request */
-	/* Device Response Status */
 	/* Frame Error */
 	&xbee_s6b_transmitStatus,
 	&xbee_s6b_modemStatus,
@@ -184,6 +180,11 @@ static const struct xbee_modeConType *conTypes[] = {
 	&xbee_s6b_remoteAt,
 	&xbee_s6b_data,
 	&xbee_s6b_io,
+	/* these items aren't currently supported by the firmware:
+	  File Put
+	  Device Request
+	  Device Response Status
+	*/
 	NULL
 };
 
