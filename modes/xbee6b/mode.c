@@ -172,10 +172,47 @@ struct xbee_modeConType xbee_s6b_modemStatus = {
 
 /* ######################################################################### */
 
+xbee_err xbee_s6b_frameError_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
+	struct xbee_pkt *iPkt;
+	xbee_err ret;
+
+	if (!xbee || !frameInfo || !buf || !address || !pkt) return XBEE_EMISSINGPARAM;
+	
+	if (buf->len != 2) return XBEE_ELENGTH;
+	
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, 1)) != XBEE_ENONE) return ret;
+	
+	iPkt->dataLen = 1;
+#warning TODO - figure out how to use this feedback...
+	iPkt->data[0] = buf->data[1];
+	iPkt->data[iPkt->dataLen] = '\0';
+	
+	*pkt = iPkt;
+	
+	return 0;
+}
+
+/* ######################################################################### */
+
+struct xbee_modeDataHandlerRx xbee_s6b_frameError_rx  = {
+	.identifier = 0xFE,
+	.func = xbee_s6b_frameError_rx_func,
+};
+struct xbee_modeConType xbee_s6b_frameError = {
+	.name = "Frame Error",
+	.allowFrameId = 0,
+	.useTimeout = 0,
+	.addressRules = ADDR_NONE,
+	.rxHandler = &xbee_s6b_frameError_rx,
+	.txHandler = NULL,
+};
+
+/* ######################################################################### */
+
 static const struct xbee_modeConType *conTypes[] = {
-	/* Frame Error */
 	&xbee_s6b_transmitStatus,
 	&xbee_s6b_modemStatus,
+	&xbee_s6b_frameError,
 	&xbee_s6b_localAt,
 	&xbee_s6b_remoteAt,
 	&xbee_s6b_data,
