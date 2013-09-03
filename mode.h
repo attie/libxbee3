@@ -56,6 +56,11 @@ struct xbee_modeConType {
 	struct xbee_modeDataHandlerRx *rxHandler;
 	struct xbee_modeDataHandlerTx *txHandler;
 	void (*init)(struct xbee_modeConType *conType);
+
+	/* this function should compare the given addresses
+	   if the addresses are a perfect match, matchRating should be set to 255
+	   if the addresses have nothing in common, matchRating should be set to 0 */
+	xbee_err (*addressCmp)(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2, unsigned char *matchRating);
 	
 	int nameNeedsFree;
 	
@@ -144,6 +149,7 @@ extern const struct xbee_mode mode_xbee1;
 extern const struct xbee_mode mode_xbee2;
 extern const struct xbee_mode mode_xbee3;
 extern const struct xbee_mode mode_xbee5;
+extern const struct xbee_mode mode_xbee6b;
 extern const struct xbee_mode mode_xbeeZB;
 extern const struct xbee_mode mode_net;
 extern const struct xbee_mode mode_debug;
