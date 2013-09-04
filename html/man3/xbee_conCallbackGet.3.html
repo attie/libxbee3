@@ -1,4 +1,5 @@
-<HTML><HEAD><TITLE>Manpage of XBEE_CONCALLBACKGET</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XBEE_CONCALLBACKGET</TITLE>
 </HEAD><BODY>
 <H1>XBEE_CONCALLBACKGET</H1>
 Section: Linux Programmer's Manual (3)<BR>Updated: 04-Mar-2012<BR><A HREF="#index">Index</A>
@@ -11,7 +12,7 @@ xbee_conCallbackGet, xbee_conCallbackSet
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
-<B>#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</B>
+<B>#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</B>
 
 <P>
 <B>typedef void(*xbee_t_conCallback)(struct xbee *</B><I>xbee</I><B>, struct xbee_con *</B><I>con</I><B>, struct xbee_pkt **</B><I>pkt</I><B>, void **</B><I>data</I><B>);</B>
@@ -56,7 +57,7 @@ allows you to retrieve the callback function that is currently assigned to the g
 <H3>Return Value</H3>
 
 On success these functions will return XBEE_ENONE, otherwise an error number from
-<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;</I>)
+<I>enum xbee_errors</I> (as specified in <I>&lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;</I>)
 
 <A NAME="lbAF">&nbsp;</A>
 <H3>Note</H3>
@@ -141,7 +142,7 @@ Again, you must dereference this argument once before use, and you may re-assign
 
 
 <PRE>
-#include &lt;<A HREF="file:/usr/include/xbee.h">xbee.h</A>&gt;
+#include &lt;<A HREF="file:///usr/include/xbee.h">xbee.h</A>&gt;
 
 void myCallback(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
         printf(&quot;received data for connection @ %p\n&quot;, con);
@@ -250,8 +251,8 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 </DL>
 <HR>
 This document was created by
-<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 20:32:54 GMT, April 23, 2012
+Time: 18:19:27 GMT, September 04, 2013
 </BODY>
 </HTML>
