@@ -119,6 +119,8 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct
 	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
 	memcpy(&conTypes[n], newConType, sizeof(*newConType));
 	conTypes[n].conList = xbee_ll_alloc();
+	/* setup the addressCmp function */
+	if (conTypes[n].addressCmp == NULL) conTypes[n].addressCmp = xbee_conAddressCmpDefault;
 	
 	return XBEE_ENONE;
 }
