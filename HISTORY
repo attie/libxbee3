@@ -1,4 +1,4 @@
-v3.0.10 - in progress
+v3.0.10 - 4 Sept 2013
 	* Fixed xbee_frameWait()
 	* Fixed libxbee::Con::Tx() - now throws a libxbee::xbee_etx
 	* xbee_conRx() can now be called to just get the number of packets in the buffer
