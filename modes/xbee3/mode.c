@@ -124,17 +124,17 @@ done:
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s3_transmitStatus_rx  = {
-	.identifier = 0x8B,
-	.func = xbee_s3_transmitStatus_rx_func,
-};
+void xbee_s3_transmitStatus_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x8B;
+	conType->rxHandler->func = xbee_s3_transmitStatus_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s3_transmitStatus_rx;
 struct xbee_modeConType xbee_s3_transmitStatus = {
-	.name = "Transmit Status",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s3_transmitStatus_rx,
-	.txHandler = NULL,
+	"Transmit Status", &xbee_s3_transmitStatus_rx, NULL, xbee_s3_transmitStatus_init
 };
 
 /* ######################################################################### */
@@ -160,17 +160,17 @@ xbee_err xbee_s3_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned char
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s3_modemStatus_rx  = {
-	.identifier = 0x8A,
-	.func = xbee_s3_modemStatus_rx_func,
-};
+void xbee_s3_modemStatus_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x8A;
+	conType->rxHandler->func = xbee_s3_modemStatus_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s3_modemStatus_rx;
 struct xbee_modeConType xbee_s3_modemStatus = {
-	.name = "Modem Status",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s3_modemStatus_rx,
-	.txHandler = NULL,
+	"Modem Status", &xbee_s3_modemStatus_rx, NULL, xbee_s3_modemStatus_init
 };
 
 /* ######################################################################### */
@@ -187,16 +187,16 @@ static const struct xbee_modeConType *conTypes[] = {
 };
 
 const struct xbee_mode mode_xbee3 = {
-	.name = "xbee3",
+	/* .name = */ "xbee3",
 	
-	.conTypes = conTypes,
+	/* .conTypes = */ conTypes,
 	
-	.init = init,
-	.prepare = NULL,
-	.shutdown = mode_shutdown,
+	/* .init = */ init,
+	/* .prepare = */ NULL,
+	/* .shutdown = */ mode_shutdown,
 	
-	.rx_io = xbee_xbeeRxIo,
-	.tx_io = xbee_xbeeTxIo,
+	/* .rx_io = */ xbee_xbeeRxIo,
+	/* .tx_io = */ xbee_xbeeTxIo,
 	
-	.thread = NULL,
+	/* .thread = */ NULL,
 };

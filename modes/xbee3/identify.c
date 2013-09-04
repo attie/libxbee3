@@ -101,15 +101,15 @@ done:
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s3_identify_rx  = {
-	.identifier = 0x95,
-	.func = xbee_s3_identify_rx_func,
-};
+void xbee_s3_identity_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x95;
+	conType->rxHandler->func = xbee_s3_identify_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s3_identify_rx;
 struct xbee_modeConType xbee_s3_identify = {
-	.name = "Identify",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s3_identify_rx,
-	.txHandler = NULL,
+	"Identify", &xbee_s3_identify_rx, NULL, xbee_s3_identity_init
 };

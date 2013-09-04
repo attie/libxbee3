@@ -22,4 +22,4 @@ CLEAN_FILES=           $(BUILDDIR)\*.o
 
 POST_BUILD:=           windows.mk
 
-MODELIST:=             xbee1 xbee2 xbeeZB xbee5
+MODELIST:=             xbee1 xbee2 xbee3 xbee5 xbee6b xbeeZB

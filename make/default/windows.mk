@@ -6,7 +6,7 @@ SDKPATH:=C:\Program Files\Microsoft SDKs\Windows\v6.0A
 #GITPATH:=C:\Program Files\Git\bin\git.exe
 
 ### using this can create a smaller binary, by removing modes you won't use
-#MODELIST:=             xbee1 xbee2 xbee5
+#MODELIST:=             xbee1 xbee2 xbee3 xbee5 xbee6b xbeeZB
 
 ### debug options
 #DEBUG:=/Zi /MTd

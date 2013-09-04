@@ -174,20 +174,19 @@ xbee_err xbee_s6b_data_addressCmp(struct xbee_conAddress *addr1, struct xbee_con
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s6b_data_rx  = {
-	.identifier = 0xB0,
-	.func = xbee_s6b_data_rx_func,
-};
-struct xbee_modeDataHandlerTx xbee_s6b_data_tx  = {
-	.identifier = 0x20,
-	.func = xbee_s6b_data_tx_func,
-};
+void xbee_s6b_data_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_64_ONLY;
+	conType->addressCmp = xbee_s6b_data_addressCmp;
+	conType->rxHandler->identifier = 0xB0;
+	conType->rxHandler->func = xbee_s6b_data_rx_func;
+	conType->txHandler->identifier = 0x20;
+	conType->txHandler->func = xbee_s6b_data_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s6b_data_rx;
+struct xbee_modeDataHandlerTx xbee_s6b_data_tx;
 struct xbee_modeConType xbee_s6b_data = {
-	.name = "Data",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_64_ONLY,
-	.rxHandler = &xbee_s6b_data_rx,
-	.txHandler = &xbee_s6b_data_tx,
-	.addressCmp = xbee_s6b_data_addressCmp,
+	"Data", &xbee_s6b_data_rx, &xbee_s6b_data_tx, xbee_s6b_data_init
 };

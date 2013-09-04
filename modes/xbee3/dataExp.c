@@ -126,7 +126,9 @@ xbee_err xbee_s3_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 	iBuf->data[pos] = 0;
 	if (settings->disableAck)       iBuf->data[pos] |= 0x01;
 	if (settings->noRoute)          iBuf->data[pos] |= 0x02;
+#ifndef _WIN32
 #warning TODO - currently missing support for NAK and Trace Route messages
+#endif
 	                                                      pos++;
 
 	memcpy(&(iBuf->data[pos]), buf, len);                 pos += len;
@@ -139,19 +141,18 @@ xbee_err xbee_s3_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void *
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s3_dataExp_rx  = {
-	.identifier = 0x91,
-	.func = xbee_s3_dataExp_rx_func,
-};
-struct xbee_modeDataHandlerTx xbee_s3_dataExp_tx  = {
-	.identifier = 0x11,
-	.func = xbee_s3_dataExp_tx_func,
-};
+void xbee_s3_dataExp_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_16_NOTALLOW | ADDR_64_REQUIRED; /* (EP_OPT) */
+	conType->rxHandler->identifier = 0x91;
+	conType->rxHandler->func = xbee_s3_dataExp_rx_func;
+	conType->txHandler->identifier = 0x11;
+	conType->txHandler->func = xbee_s3_dataExp_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s3_dataExp_rx;
+struct xbee_modeDataHandlerTx xbee_s3_dataExp_tx;
 struct xbee_modeConType xbee_s3_dataExp = {
-	.name = "Data (explicit)",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_16_NOTALLOW | ADDR_64_REQUIRED, /* (EP_OPT) */
-	.rxHandler = &xbee_s3_dataExp_rx,
-	.txHandler = &xbee_s3_dataExp_tx,
+	"Data (explicit)", &xbee_s3_dataExp_rx, &xbee_s3_dataExp_tx, xbee_s3_dataExp_init
 };

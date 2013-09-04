@@ -121,17 +121,17 @@ done:
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s6b_transmitStatus_rx  = {
-	.identifier = 0x89,
-	.func = xbee_s6b_transmitStatus_rx_func,
-};
+void xbee_s6b_transmitStatus_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x89;
+	conType->rxHandler->func = xbee_s6b_transmitStatus_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s6b_transmitStatus_rx;
 struct xbee_modeConType xbee_s6b_transmitStatus = {
-	.name = "Transmit Status",
-	.allowFrameId = 1,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s6b_transmitStatus_rx,
-	.txHandler = NULL,
+	"Transmit Status", &xbee_s6b_transmitStatus_rx, NULL, xbee_s6b_transmitStatus_init
 };
 
 /* ######################################################################### */
@@ -157,17 +157,17 @@ xbee_err xbee_s6b_modemStatus_rx_func(struct xbee *xbee, void *arg, unsigned cha
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s6b_modemStatus_rx  = {
-	.identifier = 0x8A,
-	.func = xbee_s6b_modemStatus_rx_func,
-};
+void xbee_s6b_modemStatus_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x8A;
+	conType->rxHandler->func = xbee_s6b_modemStatus_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s6b_modemStatus_rx;
 struct xbee_modeConType xbee_s6b_modemStatus = {
-	.name = "Modem Status",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s6b_modemStatus_rx,
-	.txHandler = NULL,
+	"Modem Status", &xbee_s6b_modemStatus_rx, NULL, xbee_s6b_modemStatus_init
 };
 
 /* ######################################################################### */
@@ -183,7 +183,9 @@ xbee_err xbee_s6b_frameError_rx_func(struct xbee *xbee, void *arg, unsigned char
 	if ((ret = xbee_pktAlloc(&iPkt, NULL, 1)) != XBEE_ENONE) return ret;
 	
 	iPkt->dataLen = 1;
+#ifndef _WIN32
 #warning TODO - figure out how to use this feedback...
+#endif
 	iPkt->data[0] = buf->data[1];
 	iPkt->data[iPkt->dataLen] = '\0';
 	
@@ -194,17 +196,17 @@ xbee_err xbee_s6b_frameError_rx_func(struct xbee *xbee, void *arg, unsigned char
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s6b_frameError_rx  = {
-	.identifier = 0xFE,
-	.func = xbee_s6b_frameError_rx_func,
-};
+void xbee_s6b_frameError_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0xFE;
+	conType->rxHandler->func = xbee_s6b_frameError_rx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s6b_frameError_rx;
 struct xbee_modeConType xbee_s6b_frameError = {
-	.name = "Frame Error",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s6b_frameError_rx,
-	.txHandler = NULL,
+	"Frame Error", &xbee_s6b_frameError_rx, NULL, xbee_s6b_frameError_init
 };
 
 /* ######################################################################### */
@@ -226,16 +228,16 @@ static const struct xbee_modeConType *conTypes[] = {
 };
 
 const struct xbee_mode mode_xbee6b = {
-	.name = "xbee6b",
+	/* .name = */ "xbee6b",
 	
-	.conTypes = conTypes,
+	/* .conTypes = */ conTypes,
 	
-	.init = init,
-	.prepare = NULL,
-	.shutdown = mode_shutdown,
+	/* .init = */ init,
+	/* .prepare = */ NULL,
+	/* .shutdown = */ mode_shutdown,
 	
-	.rx_io = xbee_xbeeRxIo,
-	.tx_io = xbee_xbeeTxIo,
+	/* .rx_io = */ xbee_xbeeRxIo,
+	/* .tx_io = */ xbee_xbeeTxIo,
 	
-	.thread = NULL,
+	/* .thread = */ NULL,
 };

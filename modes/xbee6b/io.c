@@ -150,16 +150,16 @@ xbee_err xbee_s6b_io_rx_funcPost(struct xbee *xbee, struct xbee_con *con, struct
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s6b_io_rx  = {
-	.identifier = 0x8F,
-	.func = xbee_s6b_io_rx_func,
-	.funcPost = xbee_s6b_io_rx_funcPost,
-};
+void xbee_s6b_io_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 0;
+	conType->useTimeout = 0;
+	conType->addressRules = ADDR_64_ONLY;
+	conType->rxHandler->identifier = 0x8F;
+	conType->rxHandler->func = xbee_s6b_io_rx_func;
+	conType->rxHandler->funcPost = xbee_s6b_io_rx_funcPost;
+}
+struct xbee_modeDataHandlerRx xbee_s6b_io_rx;
 struct xbee_modeConType xbee_s6b_io = {
-	.name = "I/O",
-	.allowFrameId = 0,
-	.useTimeout = 0,
-	.addressRules = ADDR_64_ONLY,
-	.rxHandler = &xbee_s6b_io_rx,
-	.txHandler = NULL,
+	"I/O", &xbee_s6b_io_rx, NULL, xbee_s6b_io_init
 };

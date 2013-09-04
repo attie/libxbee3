@@ -142,48 +142,42 @@ xbee_err xbee_s3_at_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, 
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s3_localAt_rx  = {
-	.identifier = 0x88,
-	.func = xbee_s3_at_rx_func,
-	.funcPost = xbee_s3_at_rx_funcPost,
-};
-struct xbee_modeDataHandlerTx xbee_s3_localAt_tx  = {
-	.identifier = 0x08,
-	.func = xbee_s3_at_tx_func,
-};
+void xbee_s3_localAt_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 1;
+	conType->timeout.tv_nsec = 0;
+	conType->addressRules = ADDR_NONE;
+	conType->rxHandler->identifier = 0x88;
+	conType->rxHandler->func = xbee_s3_at_rx_func;
+	conType->rxHandler->funcPost = xbee_s3_at_rx_funcPost;
+	conType->txHandler->identifier = 0x08;
+	conType->txHandler->func = xbee_s3_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s3_localAt_rx;
+struct xbee_modeDataHandlerTx xbee_s3_localAt_tx;
 struct xbee_modeConType xbee_s3_localAt = {
-	.name = "Local AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 1,
-		.tv_nsec = 0,
-	},
-	.addressRules = ADDR_NONE,
-	.rxHandler = &xbee_s3_localAt_rx,
-	.txHandler = &xbee_s3_localAt_tx,
+	"Local AT", &xbee_s3_localAt_rx, &xbee_s3_localAt_tx, xbee_s3_localAt_init
 };
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_s3_remoteAt_rx  = {
-	.identifier = 0x97,
-	.func = xbee_s3_at_rx_func,
-	.funcPost = xbee_s3_at_rx_funcPost,
-};
-struct xbee_modeDataHandlerTx xbee_s3_remoteAt_tx  = {
-	.identifier = 0x17,
-	.func = xbee_s3_at_tx_func,
-};
+void xbee_s3_remoteAt_init(struct xbee_modeConType *conType) {
+	/* we REALLY have to babysit Windows... */
+	conType->allowFrameId = 1;
+	conType->useTimeout = 1;
+	conType->timeout.tv_sec = 5;
+	conType->timeout.tv_nsec = 0;
+	conType->addressRules = ADDR_64_ONLY;
+	conType->rxHandler->identifier = 0x97;
+	conType->rxHandler->func = xbee_s3_at_rx_func;
+	conType->rxHandler->funcPost = xbee_s3_at_rx_funcPost;
+	conType->txHandler->identifier = 0x17;
+	conType->txHandler->func = xbee_s3_at_tx_func;
+}
+struct xbee_modeDataHandlerRx xbee_s3_remoteAt_rx;
+struct xbee_modeDataHandlerTx xbee_s3_remoteAt_tx;
 struct xbee_modeConType xbee_s3_remoteAt = {
-	.name = "Remote AT",
-	.allowFrameId = 1,
-	.useTimeout = 1,
-	.timeout = {
-		.tv_sec = 5,
-		.tv_nsec = 0,
-	},
-	.addressRules = ADDR_64_ONLY, 
-	.rxHandler = &xbee_s3_remoteAt_rx,
-	.txHandler = &xbee_s3_remoteAt_tx,
+	"Remote AT", &xbee_s3_remoteAt_rx, &xbee_s3_remoteAt_tx, xbee_s3_remoteAt_init
 };
