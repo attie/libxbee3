@@ -20,11 +20,6 @@ LIB_OUT:=              $(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll
 
 CLEAN_FILES=           $(BUILDDIR)\*.o
 
-VER_DEFINES:=          /DLIB_REVISION="\"$(LIBFULLREV)\""                      \
-                       /DLIB_COMMIT="\"-- unknown --\""                        \
-                       /DLIB_COMMITTER="\"-- unknown --\""                     \
-                       /DLIB_BUILDTIME="\"$(shell date /T) $(shell time /T)\""
-
 POST_BUILD:=           windows.mk
 
 MODELIST:=             xbee1 xbee2 xbeeZB xbee5

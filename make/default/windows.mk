@@ -3,6 +3,7 @@
 ### compiler locations
 VCPATH:=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC
 SDKPATH:=C:\Program Files\Microsoft SDKs\Windows\v6.0A
+#GITPATH:=C:\Program Files\Git\bin\git.exe
 
 ### using this can create a smaller binary, by removing modes you won't use
 #MODELIST:=             xbee1 xbee2 xbee5
