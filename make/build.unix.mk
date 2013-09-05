@@ -12,9 +12,9 @@ $(addsuffix .$(LIBFULLREV).dbg, $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(
 	touch $@
 
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
-$(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so)):
+$(addsuffix .so.$(LIBFULLREV), $(DESTDIR)/$(LIBNAME)):
 	$(GCC) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CLINKS) -o $@
-$(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),p.so)):
+$(addsuffix p.so.$(LIBFULLREV), $(DESTDIR)/$(LIBNAME)):
 	$(GXX) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CXXLINKS) -o $@
 
 # generate the static library

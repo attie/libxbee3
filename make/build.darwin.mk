@@ -12,9 +12,9 @@ $(addsuffix .$(LIBFULLREV).dbg, $(addprefix $(DESTDIR)/$(LIBNAME),.dylib p.dylib
 	touch $@
 
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.dylib p.dylib)): $(DESTDIR)/$(LIBNAME)%.dylib.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
-$(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.dylib)):
+$(addsuffix .dylib.$(LIBFULLREV), $(DESTDIR)/$(LIBNAME)):
 	$(GCC) -shared -Wl,-install_name,$(LIBNAME)$*.dylib.$(LIBFULLREV) $(filter %.o,$^) $(CLINKS) -o $@
-$(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),p.dylib)):
+$(addsuffix p.dylib.$(LIBFULLREV), $(DESTDIR)/$(LIBNAME)):
 	$(GXX) -shared -Wl,-install_name,$(LIBNAME)$*.dylib.$(LIBFULLREV) $(filter %.o,$^) $(CXXLINKS) -o $@
 
 # generate the static library

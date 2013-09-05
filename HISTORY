@@ -1,3 +1,6 @@
+v3.0.11 - in progress
+	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)
+
 v3.0.10 - 4 Sept 2013
 	* Fixed xbee_frameWait()
 	* Fixed libxbee::Con::Tx() - now throws a libxbee::xbee_etx
