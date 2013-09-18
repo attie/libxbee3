@@ -25,7 +25,7 @@ CFLAGS+=               -Wno-variadic-macros
 CXXFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
-CXXLINKS+=             $(CLINKS)
+CXXLINKS+=             $(CLINKS) -Llib -lxbee
 
 LIB_OUT=               $(DESTDIR)/$(LIBNAME).so                    \
                        $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg  \

@@ -13,9 +13,9 @@ $(addsuffix .$(LIBFULLREV).dbg, $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(
 
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.so p.so)): $(DESTDIR)/$(LIBNAME)%.so.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
 $(addsuffix .so.$(LIBFULLREV), $(DESTDIR)/$(LIBNAME)):
-	$(GCC) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CLINKS) -o $@
+	$(GCC) -shared -Wl,--no-undefined -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CLINKS) -o $@
 $(addsuffix p.so.$(LIBFULLREV), $(DESTDIR)/$(LIBNAME)):
-	$(GXX) -shared -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CXXLINKS) -o $@
+	$(GXX) -shared -Wl,--no-undefined -Wl,-soname,$(LIBNAME)$*.so.$(LIBFULLREV) $(filter %.o,$^) $(CXXLINKS) -o $@
 
 # generate the static library
 $(addsuffix .$(LIBFULLREV),$(addprefix $(DESTDIR)/$(LIBNAME),.a p.a)): $(DESTDIR)/$(LIBNAME)%.a.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
