@@ -73,6 +73,8 @@ xbee_err xbee_modeImport(struct xbee_modeConType **retConTypes, const struct xbe
 		/* keep the pointers (they are const after all) */
 		memcpy(&conTypes[i], mode->conTypes[i], sizeof(*conTypes));
 		
+		/* setup the addressCmp function */
+		if (conTypes[i].addressCmp == NULL) conTypes[i].addressCmp = xbee_conAddressCmpDefault;
 		/* initialization added for microsoft compiler support */
 		if (conTypes[i].init) conTypes[i].init(&(conTypes[i]));
 		
@@ -117,6 +119,8 @@ xbee_err xbee_modeAddConType(struct xbee_modeConType **extConTypes, const struct
 	memset(&conTypes[n + 1], 0, sizeof(*conTypes));
 	memcpy(&conTypes[n], newConType, sizeof(*newConType));
 	conTypes[n].conList = xbee_ll_alloc();
+	/* setup the addressCmp function */
+	if (conTypes[n].addressCmp == NULL) conTypes[n].addressCmp = xbee_conAddressCmpDefault;
 	
 	return XBEE_ENONE;
 }

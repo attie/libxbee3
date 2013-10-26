@@ -1,11 +1,15 @@
-v3.0.10 - in progress
+v3.0.11 - in progress
+	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)
+	* Added an RPM build script, and fixed the release_src / release_source build targets
+
+v3.0.10 - 4 Sept 2013
 	* Fixed xbee_frameWait()
 	* Fixed libxbee::Con::Tx() - now throws a libxbee::xbee_etx
 	* xbee_conRx() can now be called to just get the number of packets in the buffer
 	* Added C++ compatibility with byte vectors
 	* Added noWaitForAck flag so that xbee_conTx() will return straight away - useful for AT connections
 	* Added xbee_conxTx() and friends to allow tracking of frame IDs
-	* Added simples for libxbee <-> libxbee and I/O data
+	* Added samples for libxbee <-> libxbee and I/O data
 	* Transmit Status connections can now have callbacks
 	* Added manuals to the repo
 	* Added a Qt sample
@@ -13,6 +17,7 @@ v3.0.10 - in progress
 	* Fixed network client bug
 	* Fixed a memory leak
 	* Added OSX support!
+	* Added support for XBee Series 6B modules
 
 v3.0.9 - 29 Apr 2013
 	* Fixed high baudrate corruption issues

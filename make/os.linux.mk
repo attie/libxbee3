@@ -17,6 +17,7 @@ INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER) -DT
 MAN2HTML:=             man2html
 
 DEBUG:=                -g
+LIBS:=                 pthread rt
 CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS)) -DLIBXBEE_BUILD
 #CFLAGS+=              -pedantic
 CFLAGS+=               -fvisibility=hidden
@@ -24,7 +25,7 @@ CFLAGS+=               -Wno-variadic-macros
 CXXFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
-CXXLINKS+=             $(CLINKS)
+CXXLINKS+=             $(CLINKS) -Llib -lxbee
 
 LIB_OUT=               $(DESTDIR)/$(LIBNAME).so                    \
                        $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV).dbg  \

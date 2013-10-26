@@ -25,14 +25,15 @@ fi
 
 ### release follows... ###
 
-.PHONY: release release_source
+.PHONY: release release_src release_source
 
 release: $(RELEASE_FILES)
 	tar -acf $(LIBNAME)_v$(LIBFULLREV)_`date +%Y-%m-%d`_`git rev-parse --verify --short HEAD`_`uname -m`_`uname -s`.tar.bz2 --transform='s#^#$(LIBNAME)_$(LIBFULLREV)/#SH' $^
 
-release_src:
+release_src: release_source
+release_source:
 	rm -f $(LIBNAME)-v$(LIBFULLREV).tgz
-	tar -avcf $(LIBNAME)-v$(LIBFULLREV).tgz --exclude=config.mk --exclude=.gitignore --exclude=cscope.out --exclude=tags --exclude=.*.dir --exclude=lib --exclude=.build --exclude=html --transform='s#^#$(LIBNAME)-$(LIBFULLREV)/#SH' *
+	tar -avcf $(LIBNAME)-v$(LIBFULLREV).tgz --exclude=config.mk --exclude=.gitignore --exclude=cscope.out --exclude=tags --exclude=.*.dir --exclude=lib --exclude=.build --exclude=html --exclude=manuals --transform='s#^#$(LIBNAME)-$(LIBFULLREV)/#SH' *
 
 
 ### html pages follow... ###
