@@ -117,7 +117,7 @@ struct xbee_modeDataHandlerTx xbee_s5_data_tx  = {
 	.identifier = 0x10,
 	.func = xbee_s5_data_tx_func,
 };
-struct xbee_modeConType xbee_s5_data = {
+XBEE_DECLARE_CONTYPE(xbee5, data) = {
 	.name = "Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,

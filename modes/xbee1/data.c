@@ -132,7 +132,7 @@ struct xbee_modeDataHandlerTx xbee_s1_16bitData_tx  = {
 	.identifier = 0x01,
 	.func = xbee_s1_data_tx_func,
 };
-struct xbee_modeConType xbee_s1_16bitData = {
+XBEE_DECLARE_CONTYPE(xbee1, 16bitData) = {
 	.name = "16-bit Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,
@@ -151,7 +151,7 @@ struct xbee_modeDataHandlerTx xbee_s1_64bitData_tx  = {
 	.identifier = 0x00,
 	.func = xbee_s1_data_tx_func,
 };
-struct xbee_modeConType xbee_s1_64bitData = {
+XBEE_DECLARE_CONTYPE(xbee1, 64bitData) = {
 	.name = "64-bit Data",
 	.allowFrameId = 1,
 	.useTimeout = 0,

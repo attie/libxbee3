@@ -132,7 +132,7 @@ struct xbee_modeDataHandlerRx xbee_sZB_transmitStatus_rx  = {
 	.identifier = 0x8B,
 	.func = xbee_sZB_transmitStatus_rx_func,
 };
-struct xbee_modeConType xbee_sZB_transmitStatus = {
+XBEE_DECLARE_CONTYPE(xbeeZB, transmitStatus) = {
 	.name = "Transmit Status",
 	.allowFrameId = 1,
 	.useTimeout = 0,
@@ -168,7 +168,7 @@ struct xbee_modeDataHandlerRx xbee_sZB_modemStatus_rx  = {
 	.identifier = 0x8A,
 	.func = xbee_sZB_modemStatus_rx_func,
 };
-struct xbee_modeConType xbee_sZB_modemStatus = {
+XBEE_DECLARE_CONTYPE(xbeeZB, modemStatus) = {
 	.name = "Modem Status",
 	.allowFrameId = 0,
 	.useTimeout = 0,
@@ -179,24 +179,11 @@ struct xbee_modeConType xbee_sZB_modemStatus = {
 
 /* ######################################################################### */
 
-static const struct xbee_modeConType *conTypes[] = {
-	&xbee_sZB_transmitStatus,
-	&xbee_sZB_modemStatus,
-	&xbee_sZB_localAt,
-	&xbee_sZB_remoteAt,
-	&xbee_sZB_data,
-	&xbee_sZB_dataExp,
-	&xbee_sZB_io,
-	&xbee_sZB_sensor,
-	&xbee_sZB_identify,
-	&xbee_sZB_ota,
-	NULL
-};
-
+XBEE_DECLARE_CONTYPE_ARRAY(xbeeZB);
 XBEE_DECLARE_MODE(xbeeZB) = {
 	.name = "xbeeZB",
 	
-	.conTypes = conTypes,
+	.conTypes = (const struct xbee_modeConType**)&__lga_conTypes,
 	
 	.init = init,
 	.prepare = NULL,

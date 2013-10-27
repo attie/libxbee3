@@ -164,7 +164,7 @@ struct xbee_modeDataHandlerTx xbee_s1_localAt_tx  = {
 	.identifier = 0x08,
 	.func = xbee_s1_at_tx_func,
 };
-struct xbee_modeConType xbee_s1_localAt = {
+XBEE_DECLARE_CONTYPE(xbee1, localAt) = {
 	.name = "Local AT",
 	.allowFrameId = 1,
 	.useTimeout = 1,
@@ -188,7 +188,7 @@ struct xbee_modeDataHandlerTx xbee_s1_remoteAt_tx  = {
 	.identifier = 0x17,
 	.func = xbee_s1_at_tx_func,
 };
-struct xbee_modeConType xbee_s1_remoteAt = {
+XBEE_DECLARE_CONTYPE(xbee1, remoteAt) = {
 	.name = "Remote AT",
 	.allowFrameId = 1,
 	.useTimeout = 1,

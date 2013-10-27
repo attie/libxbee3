@@ -62,7 +62,7 @@ struct xbee_modeDataHandlerRx xbee_s2_sensor_rx  = {
 	.identifier = 0x94,
 	.func = xbee_s2_sensor_rx_func,
 };
-struct xbee_modeConType xbee_s2_sensor = {
+XBEE_DECLARE_CONTYPE(xbee2, sensor) = {
 	.name = "Sensor",
 	.allowFrameId = 0,
 	.useTimeout = 0,

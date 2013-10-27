@@ -75,4 +75,13 @@ struct xbee_serialInfo {
 	const struct xbee_mode * const _xbee_##mode_name _lga_el(xbee_mode_list) = &mode_##mode_name; \
 	const struct xbee_mode mode_##mode_name
 
+#define XBEE_DECLARE_CONTYPE_ARRAY(mode_name) \
+	_lga_get_array_static(const struct xbee_modeConType *, xbee_##mode_name##_list, conTypes); \
+	static struct xbee_modeConType *listEnd _lga_terminator(xbee_##mode_name##_list) = NULL;
+
+#define XBEE_DECLARE_CONTYPE(mode_name, type_name) \
+	extern const struct xbee_modeConType xbee_##mode_name##_##type_name; \
+	const struct xbee_modeConType * const _xbee_##mode_name##_##type_name _lga_el(xbee_##mode_name##_list) = &xbee_##mode_name##_##type_name; \
+	const struct xbee_modeConType xbee_##mode_name##_##type_name
+
 #endif /* __XBEE_INTERNAL_H */

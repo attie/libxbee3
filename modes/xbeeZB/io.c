@@ -160,7 +160,7 @@ struct xbee_modeDataHandlerRx xbee_sZB_io_rx  = {
 	.func = xbee_sZB_io_rx_func,
 	.funcPost = xbee_sZB_io_rx_funcPost,
 };
-struct xbee_modeConType xbee_sZB_io = {
+XBEE_DECLARE_CONTYPE(xbeeZB, io) = {
 	.name = "I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,

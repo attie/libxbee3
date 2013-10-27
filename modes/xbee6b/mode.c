@@ -125,7 +125,7 @@ struct xbee_modeDataHandlerRx xbee_s6b_transmitStatus_rx  = {
 	.identifier = 0x89,
 	.func = xbee_s6b_transmitStatus_rx_func,
 };
-struct xbee_modeConType xbee_s6b_transmitStatus = {
+XBEE_DECLARE_CONTYPE(xbee6b, transmitStatus) = {
 	.name = "Transmit Status",
 	.allowFrameId = 1,
 	.useTimeout = 0,
@@ -161,7 +161,7 @@ struct xbee_modeDataHandlerRx xbee_s6b_modemStatus_rx  = {
 	.identifier = 0x8A,
 	.func = xbee_s6b_modemStatus_rx_func,
 };
-struct xbee_modeConType xbee_s6b_modemStatus = {
+XBEE_DECLARE_CONTYPE(xbee6b, modemStatus) = {
 	.name = "Modem Status",
 	.allowFrameId = 0,
 	.useTimeout = 0,
@@ -198,7 +198,7 @@ struct xbee_modeDataHandlerRx xbee_s6b_frameError_rx  = {
 	.identifier = 0xFE,
 	.func = xbee_s6b_frameError_rx_func,
 };
-struct xbee_modeConType xbee_s6b_frameError = {
+XBEE_DECLARE_CONTYPE(xbee6b, frameError) = {
 	.name = "Frame Error",
 	.allowFrameId = 0,
 	.useTimeout = 0,
@@ -209,26 +209,17 @@ struct xbee_modeConType xbee_s6b_frameError = {
 
 /* ######################################################################### */
 
-static const struct xbee_modeConType *conTypes[] = {
-	&xbee_s6b_transmitStatus,
-	&xbee_s6b_modemStatus,
-	&xbee_s6b_frameError,
-	&xbee_s6b_localAt,
-	&xbee_s6b_remoteAt,
-	&xbee_s6b_data,
-	&xbee_s6b_io,
-	/* these items aren't currently supported by the firmware:
-	  File Put
-	  Device Request
-	  Device Response Status
-	*/
-	NULL
-};
+/* these conTypes aren't currently supported by the firmware:
+	File Put
+	Device Request
+	Device Response Status
+*/
 
+XBEE_DECLARE_CONTYPE_ARRAY(xbee6b);
 XBEE_DECLARE_MODE(xbee6b) = {
 	.name = "xbee6b",
 	
-	.conTypes = conTypes,
+	.conTypes = (const struct xbee_modeConType**)&__lga_conTypes,
 	
 	.init = init,
 	.prepare = NULL,

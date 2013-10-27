@@ -64,7 +64,7 @@ struct xbee_modeDataHandlerRx xbee_sZB_ota_rx  = {
 	.identifier = 0xA0,
 	.func = xbee_sZB_ota_rx_func,
 };
-struct xbee_modeConType xbee_sZB_ota = {
+XBEE_DECLARE_CONTYPE(xbeeZB, ota) = {
 	.name = "OTA Update Status",
 	.allowFrameId = 0,
 	.useTimeout = 0,

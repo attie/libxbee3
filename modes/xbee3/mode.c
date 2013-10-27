@@ -128,7 +128,7 @@ struct xbee_modeDataHandlerRx xbee_s3_transmitStatus_rx  = {
 	.identifier = 0x8B,
 	.func = xbee_s3_transmitStatus_rx_func,
 };
-struct xbee_modeConType xbee_s3_transmitStatus = {
+XBEE_DECLARE_CONTYPE(xbee3, transmitStatus) = {
 	.name = "Transmit Status",
 	.allowFrameId = 1,
 	.useTimeout = 0,
@@ -164,7 +164,7 @@ struct xbee_modeDataHandlerRx xbee_s3_modemStatus_rx  = {
 	.identifier = 0x8A,
 	.func = xbee_s3_modemStatus_rx_func,
 };
-struct xbee_modeConType xbee_s3_modemStatus = {
+XBEE_DECLARE_CONTYPE(xbee3, modemStatus) = {
 	.name = "Modem Status",
 	.allowFrameId = 0,
 	.useTimeout = 0,
@@ -175,21 +175,11 @@ struct xbee_modeConType xbee_s3_modemStatus = {
 
 /* ######################################################################### */
 
-static const struct xbee_modeConType *conTypes[] = {
-	&xbee_s3_transmitStatus, /* done */
-	&xbee_s3_modemStatus, /* done */
-	&xbee_s3_localAt, /* done */
-	&xbee_s3_remoteAt, /* done */
-	&xbee_s3_data, /* done */
-	&xbee_s3_dataExp, /* done */
-	&xbee_s3_identify, /* done */
-	NULL
-};
-
+XBEE_DECLARE_CONTYPE_ARRAY(xbee3);
 XBEE_DECLARE_MODE(xbee3) = {
 	.name = "xbee3",
 	
-	.conTypes = conTypes,
+	.conTypes = (const struct xbee_modeConType**)&__lga_conTypes,
 	
 	.init = init,
 	.prepare = NULL,

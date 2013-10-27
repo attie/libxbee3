@@ -105,7 +105,7 @@ struct xbee_modeDataHandlerRx xbee_s3_identify_rx  = {
 	.identifier = 0x95,
 	.func = xbee_s3_identify_rx_func,
 };
-struct xbee_modeConType xbee_s3_identify = {
+XBEE_DECLARE_CONTYPE(xbee3, identify) = {
 	.name = "Identify",
 	.allowFrameId = 0,
 	.useTimeout = 0,

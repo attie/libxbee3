@@ -103,7 +103,7 @@ struct xbee_modeDataHandlerRx xbee_sZB_identify_rx  = {
 	.identifier = 0x95,
 	.func = xbee_sZB_identify_rx_func,
 };
-struct xbee_modeConType xbee_sZB_identify = {
+XBEE_DECLARE_CONTYPE(xbeeZB, identify) = {
 	.name = "Identify",
 	.allowFrameId = 0,
 	.useTimeout = 0,

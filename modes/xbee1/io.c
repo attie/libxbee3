@@ -137,7 +137,7 @@ struct xbee_modeDataHandlerRx xbee_s1_16bitIo_rx  = {
 	.func = xbee_s1_io_rx_func,
 	.funcPost = xbee_s1_io_rx_funcPost,
 };
-struct xbee_modeConType xbee_s1_16bitIo = {
+XBEE_DECLARE_CONTYPE(xbee1, 16bitIo) = {
 	.name = "16-bit I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,
@@ -153,7 +153,7 @@ struct xbee_modeDataHandlerRx xbee_s1_64bitIo_rx  = {
 	.func = xbee_s1_io_rx_func,
 	.funcPost = xbee_s1_io_rx_funcPost,
 };
-struct xbee_modeConType xbee_s1_64bitIo = {
+XBEE_DECLARE_CONTYPE(xbee1, 64bitIo) = {
 	.name = "64-bit I/O",
 	.allowFrameId = 0,
 	.useTimeout = 0,
