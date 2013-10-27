@@ -68,4 +68,11 @@ struct xbee_serialInfo {
 
 /* ######################################################################### */
 
+#include <lga.h>
+
+#define XBEE_DECLARE_MODE(mode_name) \
+	extern const struct xbee_mode mode_##mode_name; \
+	const struct xbee_mode * const _xbee_##mode_name _lga_el(xbee_mode_list) = &mode_##mode_name; \
+	const struct xbee_mode mode_##mode_name
+
 #endif /* __XBEE_INTERNAL_H */

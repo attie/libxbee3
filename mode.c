@@ -28,7 +28,8 @@
 #include "conn.h"
 #include "ll.h"
 
-const struct xbee_mode * const modeList[] = { MODELIST };
+_lga_get_array(struct xbee_mode *, xbee_mode_list, modeList);
+static struct xbee_mode *listEnd _lga_terminator(xbee_mode_list) = NULL;
 
 /* ######################################################################### */
 

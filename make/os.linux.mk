@@ -25,6 +25,7 @@ CFLAGS+=               -Wno-variadic-macros
 CXXFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
+CLINKS+=               -Wl,-T/usr/share/lga/lga.lds
 CXXLINKS+=             $(CLINKS) -Llib -lxbee
 
 LIB_OUT=               $(DESTDIR)/$(LIBNAME).so                    \

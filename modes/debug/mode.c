@@ -108,7 +108,7 @@ xbee_err xbee_debugTxIo(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 
 /* ######################################################################### */
 
-const struct xbee_mode mode_debug = {
+XBEE_DECLARE_MODE(debug) = {
 	.name = "debug",
 	
 	.conTypes = NULL,
@@ -122,4 +122,3 @@ const struct xbee_mode mode_debug = {
 	
 	.thread = NULL,
 };
-
