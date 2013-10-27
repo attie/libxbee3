@@ -59,8 +59,6 @@ $(BUILDDIR)/modes_%.o: .$(BUILDDIR).dir
 # these objects require special treatment
 $(BUILDDIR)/ver.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir make/libconfig.mk
 	$(GCC) $(CFLAGS) -MMD $(VER_DEFINES) $*.c -c -o $@
-$(BUILDDIR)/mode.o: $(BUILDDIR)/%.o: .$(BUILDDIR).dir
-	$(GCC) $(CFLAGS) -MMD -DMODELIST='$(addsuffix $(COMMA),$(addprefix &mode_,$(MODELIST))) NULL' $*.c -c -o $@
 #####
 
 # build C++ object & dep files
