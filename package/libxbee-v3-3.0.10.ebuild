@@ -16,7 +16,7 @@ EGIT_COMMIT="v${PV}"
 LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="xbee_log_tx xbee_log_rx"
+IUSE=""
 
 DEPEND=""
 RDEPEND="${DEPEND}"
