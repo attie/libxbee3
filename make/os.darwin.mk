@@ -17,6 +17,7 @@ INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER) -DT
 MAN2HTML:=             man2html
 
 DEBUG:=                -g
+LIBS:=                 pthread
 CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
 #CFLAGS+=              -pedantic
 #CFLAGS+=               -fvisibility=hidden
