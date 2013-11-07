@@ -71,7 +71,7 @@ int main(void) {
 	}
 
 	for (;;) {
-		sleep(1);
+		usleep(1000000);
 	}
 
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {

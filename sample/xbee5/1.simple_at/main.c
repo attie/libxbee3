@@ -79,7 +79,7 @@ int main(void) {
 		printf("txRet: %d\n", txRet);
 	} else {
 		/* give the callback a chance to run */
-		sleep(1);
+		usleep(1000000);
 	}
 	
 	/* shutdown the connection */

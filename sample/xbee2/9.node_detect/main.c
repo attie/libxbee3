@@ -104,7 +104,7 @@ int main(void) {
 			printf("Timeout while waiting for ND command to complete...\n");
 		} else {
 			printf("Error calling sem_timedwait()... sleeping for 10 seconds instead\n");
-			sleep(10);
+			usleep(10000000);
 		}
 	}
 
