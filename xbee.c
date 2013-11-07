@@ -99,6 +99,8 @@ die1:
 }
 
 xbee_err xbee_free(struct xbee *xbee) {
+	int i;
+
 	xbee_ll_ext_item(xbeeList, xbee);
 	xbee->die = 1;
 	
@@ -113,7 +115,7 @@ xbee_err xbee_free(struct xbee *xbee) {
 	     the rx thread should timeout every 2-ish econds
 	     the rxHandler thread will need to run round one more time to clean up
 	     the tx thread will need to run round one more time to clean up */
-	sleep(4);
+	for (i = 0; i < 4; i++) usleep(1000000);
 	
 	xbee_threadDestroyMine(xbee);
 	
