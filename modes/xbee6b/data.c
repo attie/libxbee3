@@ -78,8 +78,6 @@ xbee_err xbee_s6b_data_rx_func(struct xbee *xbee, void *arg, unsigned char ident
 xbee_err xbee_s6b_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_sbuf **oBuf) {
 	struct xbee_sbuf *iBuf;
 	size_t bufLen;
-	unsigned char *addr;
-	int addrLen;
 	int pos;
 	size_t memSize;
 	

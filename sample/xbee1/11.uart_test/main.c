@@ -71,7 +71,7 @@ int main(void) {
 		printf("tx: %d\n", ret);
 		if (ret) {
 			printf("txRet: %d\n", txRet);
-			sleep(1);
+			usleep(1000000);
 		} else {
 			struct timespec to;
 			clock_gettime(CLOCK_REALTIME, &to);
