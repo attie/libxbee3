@@ -108,7 +108,7 @@ int main(void) {
 
 	printf("Ready!... waiting for 30 secs\n");
 	
-	sleep(30);
+	usleep(30000000);
 
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conEnd() returned: %d", ret);

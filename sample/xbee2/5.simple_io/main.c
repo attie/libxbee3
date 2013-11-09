@@ -73,7 +73,7 @@ int main(void) {
 		return ret;
 	}
 	
-	sleep(3000);
+	usleep(300000000);
 	
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conEnd() returned: %d", ret);

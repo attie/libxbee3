@@ -77,7 +77,7 @@ int main(void) {
 		xbee_conTx(con, NULL, "Hello...\r\n");
 
 		/* you probrably don't want to transmit much quicker than once per 2 seconds... read the datashee for more info */
-		sleep(2);
+		usleep(2000000);
 	}
 
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
