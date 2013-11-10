@@ -70,11 +70,11 @@ int main(void) {
 	for (;;) {
 		if ((ret = xbee_conTx(con, NULL, "Hello?")) != XBEE_ENONE) {
 			xbee_log(xbee, -1, "xbee_conTx() returned: %d", ret);
-			sleep(2);
+			usleep(2000000);
 			continue;
 		}
 
-		sleep(1);
+		usleep(1000000);
 	}
 
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {

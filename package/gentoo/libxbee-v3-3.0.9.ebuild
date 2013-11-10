@@ -30,8 +30,7 @@ src_configure() {
 }
 
 src_compile() {
-    emake SYS_ROOT="${D}" $(use xbee_log_tx && echo "OPTIONS+=XBEE_LOG_TX")\
-                          $(use xbee_log_rx && echo "OPTIONS+=XBEE_LOG_RX") all
+    emake SYS_ROOT="${D}" all
 }
 
 src_install() {

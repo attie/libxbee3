@@ -99,6 +99,8 @@ die1:
 }
 
 xbee_err xbee_free(struct xbee *xbee) {
+	int i;
+
 	xbee_ll_ext_item(xbeeList, xbee);
 	xbee->die = 1;
 	
@@ -113,7 +115,7 @@ xbee_err xbee_free(struct xbee *xbee) {
 	     the rx thread should timeout every 2-ish econds
 	     the rxHandler thread will need to run round one more time to clean up
 	     the tx thread will need to run round one more time to clean up */
-	sleep(4);
+	for (i = 0; i < 4; i++) usleep(1000000);
 	
 	xbee_threadDestroyMine(xbee);
 	
@@ -221,7 +223,7 @@ EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, xbee_t_eofCallback eof
       if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
       if (xbee->iface.rx->eofCallback) return XBEE_EINUSE;
-      xbee->iface.rx->eofCallback = (void(*)(struct xbee *xbee, struct xbee_rxInfo *rxInfo))eofCallback;
+      xbee->iface.rx->eofCallback = eofCallback;
       return XBEE_ENONE;
 }
 

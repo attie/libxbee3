@@ -9,4 +9,4 @@ clean:
 	-rm $(PROG)
 
 $(PROG): $(PROG).cpp ../../../lib/libxbee.so ../../../lib/libxbeep.so
-	g++ $(filter %.cpp,$^) -g -o $@ -I ../../.. -L ../../../lib -lxbeep -lxbee -lpthread -lrt
+	g++ $(filter %.cpp,$^) -g -o $@ -I ../../.. -L ../../../lib -lxbeep
