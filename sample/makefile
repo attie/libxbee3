@@ -1,12 +1,12 @@
 PROG?=main
 
 all: $(PROG)
-	LD_LIBRARY_PATH=../../../lib ./$(PROG)
+	./$(PROG)
 
 new: clean all
 
 clean:
 	-rm $(PROG)
 
-$(PROG): $(PROG).c ../../../lib/libxbee.so
-	gcc $(filter %.c,$^) -g -o $@ -I ../../.. -L ../../../lib -lxbee
+$(PROG): $(PROG).c ../../../lib/libxbee3.dll
+	gcc $(filter %.c,$^) -g -o $@ -I ../../.. -L ../../../lib -lxbee3 -lpthreadGC2

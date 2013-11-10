@@ -10,7 +10,7 @@ include make/os.freebsd.mk
 
 # detect windows
 else ifeq ($(OS),Windows_NT)
-include make/os.windows.mk
+include make/os.mingw.mk
 
 # detect os x (darwin)
 else ifeq ($(shell uname),Darwin)

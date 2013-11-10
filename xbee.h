@@ -33,7 +33,15 @@ extern "C" {
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(WIN_PTHREADS) && !defined(XBEE_NODEF_TIMESPEC)
+/* i still hate windows */
+struct timespec {
+  time_t  tv_sec;    /* seconds */
+  long    tv_nsec;   /* nanoseconds */
+};
+#endif /* !WIN_PTHREADS && !XBEE_NODEF_TIMESPEC */
+
+#if defined(_WIN32) && !defined(__MINGW32__)
 #ifndef ETIMEDOUT
 /* only define this if it hasn't been given already...
    xsys_win32_winpthreads.h will provide it, as do some more
@@ -42,14 +50,6 @@ extern "C" {
 #endif
 
 #define CLOCK_REALTIME      0
-
-#if !defined(WIN_PTHREADS) && !defined(XBEE_NODEF_TIMESPEC)
-/* i still hate windows */
-struct timespec {
-  time_t  tv_sec;    /* seconds */
-  long    tv_nsec;   /* nanoseconds */
-};
-#endif /* !WIN_PTHREADS && !XBEE_NODEF_TIMESPEC */
 
 #else /* !_WIN32 */
 

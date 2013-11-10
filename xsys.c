@@ -25,12 +25,16 @@
 
 #define __XBEE_XSYS_LOAD_C
 #if defined(__MACH__) /* ------- */
-#include "xsys_darwin.c"
+# include "xsys_darwin.c"
 #elif defined(__GNUC__) /* ----- */
-#include "xsys_linux.c"
+# if !defined(__MINGW32__)
+#  include "xsys_linux.c"
+# else
+#  include "xsys_mingw.c"
+# endif
 #elif defined(_WIN32) /* ------- */
-#include "xsys_win32.c"
+# include "xsys_win32.c"
 #else /* ----------------------- */
-#error Unsupported OS
+# error Unsupported OS
 #endif /* ---------------------- */
 #undef __XBEE_XSYS_LOAD_C

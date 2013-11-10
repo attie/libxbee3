@@ -186,23 +186,31 @@ EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...) {
 }
 
 xbee_err xbee_shutdownThread(struct xbee *xbee, int *restart, void *arg) {
+	pthread_t tid;
+	memcpy(&tid, arg, sizeof(tid));
+	free(arg);
 	/* detach the thread that called shutdown(), dont care on failure (it may well be the initial thread) */
-	xsys_thread_detach((xsys_thread)arg);
+	xsys_thread_detach(tid);
 	xbee_free(xbee);
 	*restart = -1;
 	return XBEE_ENONE;
 }
 
 EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
+	pthread_t tid;
+	pthread_t *ptid;
 	if (!xbee) return XBEE_EMISSINGPARAM;
 #ifndef XBEE_DISABLE_STRICT_OBJECTS
 	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if ((ptid = malloc(sizeof(*ptid))) == NULL) return XBEE_ENOMEM;
+	tid = xsys_thread_self();
+	memcpy(ptid, &tid, sizeof(*ptid));
 
 	/* pluck out the instance - from now on it is invalid */
 	xbee_ll_ext_item(xbeeList, xbee);
 	/* start a detached thread */
-	xbee_threadStart(xbee, NULL, -1, 1, xbee_shutdownThread, (void*)(xsys_thread_self()));
+	xbee_threadStart(xbee, NULL, -1, 1, xbee_shutdownThread, ptid);
 	
 	return XBEE_ENONE;
 }

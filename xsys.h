@@ -91,13 +91,17 @@ int xsys_sem_getvalue(xsys_sem *sem, int *value);
 
 #define __XBEE_XSYS_LOAD_H
 #if defined(__MACH__) /* ------- */
-#include "xsys_darwin.h"
+# include "xsys_darwin.h"
 #elif defined(__GNUC__) /* ----- */
-#include "xsys_linux.h"
+# if !defined(__MINGW32__)
+#  include "xsys_linux.h"
+# else
+#  include "xsys_mingw.h"
+# endif
 #elif defined(_WIN32) /* ------- */
-#include "xsys_win32.h"
+# include "xsys_win32.h"
 #else /* ----------------------- */
-#error Unsupported OS
+# error Unsupported OS
 #endif /* ---------------------- */
 #undef __XBEE_XSYS_LOAD_H
 
