@@ -1,0 +1,18 @@
+To build and use libxbee for Windows using MinGW32, you will require the following software installed:
+	* Windows Vista, or Windows 7
+	* CygWin
+		- Core Utils
+		- Make
+		- Which
+	* TortoiseGit
+	* msysgit
+	* MingW32 (gcc, g++, ar, make, etc...)
+	* Pthreads-Win32 (https://sourceware.org/pthreads-win32/) - pthreadGC2.dll
+
+You may also require the following:
+	* Microsoft Visual C++ 2008 (or up)
+	* Microsoft Windows SDK
+
+When running libxbee, you may need to address your COM port as shown below.
+I believe this to be the case for any port above number 8 (ish).
+	xbee_setup(&xbee, "xbee1", "\\\\.\\COM25", 57600);
