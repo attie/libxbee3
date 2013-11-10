@@ -1,4 +1,5 @@
 PROG?=main
+.SUFFIXES:
 
 all: $(PROG)
 	./$(PROG)

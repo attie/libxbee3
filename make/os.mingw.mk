@@ -1,3 +1,5 @@
+SHELL:=cmd
+
 DEFCONFIG:=            mingw.mk
 BUILD_RULES:=          mingw.mk
 POST_BUILD:=           mingw.mk
