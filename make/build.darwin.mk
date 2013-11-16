@@ -4,13 +4,6 @@
 $(addprefix $(DESTDIR)/$(LIBNAME),.a .dylib p.a p.dylib): $(DESTDIR)/$(LIBNAME)%: $(DESTDIR)/$(LIBNAME)%.$(LIBFULLREV)
 	$(SYMLINK) -fs `basename $^` $@
 
-# generate the shared object & debug file
-$(addsuffix .$(LIBFULLREV).dbg, $(addprefix $(DESTDIR)/$(LIBNAME),.dylib p.dylib)): $(DESTDIR)/$(LIBNAME)%.dylib.$(LIBFULLREV).dbg: $(DESTDIR)/$(LIBNAME)%.dylib.$(LIBFULLREV)
-#	$(OBJCOPY) --only-keep-debug $^ $@
-#	$(strip) --add-gnu-debuglink=$@ $^
-# 	$(OBJCOPY) --strip-debug $^
-	touch $@
-
 $(addsuffix .$(LIBFULLREV), $(addprefix $(DESTDIR)/$(LIBNAME),.dylib p.dylib)): $(DESTDIR)/$(LIBNAME)%.dylib.$(LIBFULLREV): .$(DESTDIR).dir $(DESTDIR)/$(LIBNAME)%.o
 $(addsuffix .dylib.$(LIBFULLREV), $(DESTDIR)/$(LIBNAME)):
 	$(GCC) -shared -Wl,-install_name,$(LIBNAME)$*.dylib.$(LIBFULLREV) $(filter %.o,$^) $(CLINKS) -o $@
@@ -25,7 +18,7 @@ $(addsuffix .$(LIBFULLREV),$(addprefix $(DESTDIR)/$(LIBNAME),.a p.a)): $(DESTDIR
 $(DESTDIR)/$(LIBNAME).o: .$(DESTDIR).dir $(addprefix $(BUILDDIR)/,__core.o __mode.o $(foreach mode,$(MODELIST),__mode_$(mode).o))
 	$(LD) -r -o $@ $(filter %.o,$^)
 
-$(DESTDIR)/$(LIBNAME)p.o: .$(DESTDIR).dir $(BUILDDIR)/__corep.o $(BUILDDIR)/conn.o $(BUILDDIR)/ll.o $(BUILDDIR)/log.o $(BUILDDIR)/thread.o $(BUILDDIR)/frame.o $(BUILDDIR)/mode.o  $(BUILDDIR)/mutex.o $(BUILDDIR)/pkt.o $(BUILDDIR)/tx.o $(BUILDDIR)/rx.o $(BUILDDIR)/xbee.o $(BUILDDIR)/error.o $(BUILDDIR)/__mode.o $(BUILDDIR)/__mode_debug.o $(BUILDDIR)/__mode_net.o $(BUILDDIR)/__mode_xbee1.o $(BUILDDIR)/__mode_xbee2.o $(BUILDDIR)/__mode_xbee5.o $(BUILDDIR)/__mode_xbeeZB.o $(BUILDDIR)/ver.o $(BUILDDIR)/net_io.o $(BUILDDIR)/net_handlers.o $(BUILDDIR)/net_callbacks.o $(BUILDDIR)/net.o $(BUILDDIR)/xsys.o
+$(DESTDIR)/$(LIBNAME)p.o: .$(DESTDIR).dir $(BUILDDIR)/__corep.o
 	$(LD) -r -o $@ $(filter %.o,$^)
 
 $(BUILDDIR)/__core.o: $(CORE_OBJS)
