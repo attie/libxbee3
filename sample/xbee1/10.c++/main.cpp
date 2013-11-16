@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
 		/* send data */
 		//con.Tx("NI"); /* like this */
 		con << "NI";    /* or like this */
-		sleep(1);
+		usleep(1000000);
 
 
 #ifndef USE_CALLBACKS
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 
-		sleep(1);
+		usleep(1000000);
 #endif /* !USE_CALLBACKS */
 	} catch (xbee_err err) {
 		std::cout << "Error " << err << "\n";
