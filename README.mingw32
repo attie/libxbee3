@@ -1,18 +1,29 @@
-To build and use libxbee for Windows using MinGW32, you will require the following software installed:
-	* Windows Vista, or Windows 7
-	* CygWin
-		- Core Utils
-		- Make
-		- Which
-	* TortoiseGit
-	* msysgit
-	* MingW32 (gcc, g++, ar, make, etc...)
-	* Pthreads-Win32 (https://sourceware.org/pthreads-win32/) - pthreadGC2.dll
+Compiling libxbee on Windows 7 (64-bit) using MinGW32
 
-You may also require the following:
-	* Microsoft Visual C++ 2008 (or up)
-	* Microsoft Windows SDK
+1) Install Windows
+2) Install Chrome
+3) Download and install "GnuWin32 Make v3.81" from:
+	http://sourceforge.net/projects/gnuwin32/files/make/3.81/make-3.81.exe/download?use_mirror=dfn&download=
+3) Download and run "mingw-get-setup.exe" from:
+	http://sourceforge.net/projects/mingw/files/Installer/
+4) After installation "MinGW Installation Manager" will be presented. Check the following items:
+	a) mingw-developer-toolkit
+	b) mingw32-base
+	c) mingw32-gcc-g++
+	d) mingw32-pthreads-w32
+5) Click "Installation" -> "Apply Changes", and then click "Apply"
+6) Close "MinGW Installation Manager"
+7) Add the following to your system's PATH environment variable (the order is important - see NOTES):
+	C:\Program Files (x86)\GnuWin32\bin;C:\MinGW\bin;C:\MinGW\mingw32\bin;C:\MinGW\msys\1.0\bin
+8) Run 'cmd' and type 'make'. You should see the following:
+	make: *** No targets specified and no makefile found.  Stop.
+9) Download the libxbee source (ideally use Git, or from the following URL):
+	https://github.com/attie/libxbee3/archive/mingw32.zip
+10) Extract the source (I extracted it to C:\Users\attie\libxbee3-mingw32)
+11) Run 'cmd' and 'cd' to the directory:
+	cd libxbee3-mingw32
+12) Run 'make configure' and 'make'
 
-When running libxbee, you may need to address your COM port as shown below.
-I believe this to be the case for any port above number 8 (ish).
-	xbee_setup(&xbee, "xbee1", "\\\\.\\COM25", 57600);
+== NOTES ==
+Unfortunately there seems to be a bug with mingw32's make - it doesn't handle 'SHELL=cmd' in a makefile well.
+To resolve this, use GnuWin32's build of make.
