@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h>
+#include <unistd.h>
 
 #include <xbeep.h>
 
