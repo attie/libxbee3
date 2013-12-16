@@ -116,8 +116,7 @@ int main(int argc, char *argv[]) {
 	sleep(1);
 
 	printf("Total bytes transferred in one direction in %d seconds: %d\n", TEST_DURATION, tot_rx_bytes);
-	printf("~%.2f bytes/sec\n", (float)tot_rx_bytes / (float)TEST_DURATION);
-	printf("~%.2f kB/sec\n", ((float)tot_rx_bytes / (float)TEST_DURATION) / 1024.0);
+	printf("~%.2f kb/sec\n", ((float)(tot_rx_bytes * 8) / (float)TEST_DURATION) / 1024.0);
 
 	return 0;
 }
