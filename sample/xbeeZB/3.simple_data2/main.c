@@ -42,7 +42,7 @@ int main(void) {
 	struct xbee_conAddress address;
 	xbee_err ret;
 
-	if ((ret = xbee_setup(&xbee, "xbeeZB", "/dev/ttyUSB1", 57600)) != XBEE_ENONE) {
+	if ((ret = xbee_setup(&xbee, "xbeeZB", "/dev/ttyUSB2", 57600)) != XBEE_ENONE) {
 		printf("ret: %d (%s)\n", ret, xbee_errorToStr(ret));
 		return ret;
 	}
@@ -54,9 +54,9 @@ int main(void) {
 	address.addr64[2] = 0xA2;
 	address.addr64[3] = 0x00;
 	address.addr64[4] = 0x40;
-	address.addr64[5] = 0x89;
-	address.addr64[6] = 0x16;
-	address.addr64[7] = 0x5F;
+	address.addr64[5] = 0x8B;
+	address.addr64[6] = 0x4C;
+	address.addr64[7] = 0x07;
 	if ((ret = xbee_conNew(xbee, &con, "Data", &address)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conNew() returned: %d (%s)", ret, xbee_errorToStr(ret));
 		return ret;
@@ -71,9 +71,6 @@ int main(void) {
 		xbee_log(xbee, -1, "xbee_conCallbackSet() returned: %d", ret);
 		return ret;
 	}
-
-	/* kick off the chain reaction! */
-	xbee_conTx(con, NULL, "Hello\r\n");
 
 	for (;;) {
 		void *p;
