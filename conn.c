@@ -210,6 +210,28 @@ xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conA
 	return XBEE_ENONE;
 }
 
+/* ######################################################################### */
+
+/* this function is ONLY to be assigned to the conType struct's 'addressPrep' function pointer...
+   this function contains logic that works for the basic XBee series modules, but not the more advanced ones (e.g: WiFi) */
+xbee_err xbee_conAddressPrepDefault(struct xbee_conAddress *addr) {
+	if (!addr) return XBEE_EMISSINGPARAM;
+	/* figure out if this is a broadcast address */
+	addr->broadcast = 0;
+	if (addr->addr16_enabled) {
+		if (addr->addr16[0] == 0x00 &&
+		    addr->addr16[1] == 0xFF) {
+			addr->broadcast = 1;
+		}
+	} else if (addr->addr64_enabled) {
+		unsigned char a[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF };
+		if (!memcmp(a, addr->addr64, sizeof(a))) {
+			addr->broadcast = 1;
+		}
+	}
+	return XBEE_ENONE;
+}
+
 /* this function is ONLY to be assigned to the conType struct's 'addressCmp' function pointer...
    this function contains logic that works for the basic XBee series modules, but not the more advanced ones (e.g: WiFi) */
 xbee_err xbee_conAddressCmpDefault(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2, unsigned char *matchRating) {
@@ -288,6 +310,8 @@ got4:
 	if (matchRating != NULL && *matchRating == 0) *matchRating = 255;
 	return XBEE_ENONE;   /* --- everything matched --- */
 }
+
+/* ######################################################################### */
 
 xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, unsigned char *retRating, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	/* higher is better!

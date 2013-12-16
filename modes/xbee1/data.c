@@ -26,6 +26,7 @@
 #include "../../xbee_int.h"
 #include "../../mode.h"
 #include "../../pkt.h"
+#include "../../conn.h"
 #include "../common.h"
 #include "data.h"
 
@@ -125,26 +126,6 @@ xbee_err xbee_s1_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 
 /* ######################################################################### */
 
-xbee_err xbee_s1_data_addrPrep(struct xbee_conAddress *addr) {
-	if (!addr) return XBEE_EMISSINGPARAM;
-	/* figure out if this is a broadcast address */
-	addr->broadcast = 0;
-	if (addr->addr16_enabled) {
-		if (addr->addr16[0] == 0x00 &&
-		    addr->addr16[1] == 0xFF) {
-			addr->broadcast = 1;
-		}
-	} else if (addr->addr64_enabled) {
-		unsigned char a[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF };
-		if (!memcmp(a, addr->addr64, sizeof(a))) {
-			addr->broadcast = 1;
-		}
-	}
-	return XBEE_ENONE;
-}
-
-/* ######################################################################### */
-
 struct xbee_modeDataHandlerRx xbee_s1_16bitData_rx  = {
 	.identifier = 0x81,
 	.func = xbee_s1_data_rx_func,
@@ -158,7 +139,7 @@ struct xbee_modeConType xbee_s1_16bitData = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.addressRules = ADDR_16_ONLY,
-	.addressPrep = xbee_s1_data_addrPrep,
+	.addressPrep = xbee_conAddressPrepDefault,
 	.rxHandler = &xbee_s1_16bitData_rx,
 	.txHandler = &xbee_s1_16bitData_tx,
 };
@@ -178,7 +159,7 @@ struct xbee_modeConType xbee_s1_64bitData = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.addressRules = ADDR_64_ONLY,
-	.addressPrep = xbee_s1_data_addrPrep,
+	.addressPrep = xbee_conAddressPrepDefault,
 	.rxHandler = &xbee_s1_64bitData_rx,
 	.txHandler = &xbee_s1_64bitData_tx,
 };

@@ -26,6 +26,7 @@
 #include "../../xbee_int.h"
 #include "../../mode.h"
 #include "../../pkt.h"
+#include "../../conn.h"
 #include "../common.h"
 #include "dataExp.h"
 
@@ -52,6 +53,7 @@ xbee_err xbee_sZB_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char id
 	address->profile_id = ((buf->data[15] << 8) & 0xFF00) | (buf->data[16] & 0xFF);
 	
 	iPkt->options = buf->data[17];
+	if (iPkt->options & 0x02) address->broadcast = 1;
 	
 	iPkt->dataLen = buf->len - 18;
 	if (iPkt->dataLen > 0) {
@@ -87,7 +89,7 @@ xbee_err xbee_sZB_dataExp_tx_func(struct xbee *xbee, struct xbee_con *con, void 
 	iBuf->len = bufLen;
 	iBuf->data[pos] = identifier;                         pos++;
 	iBuf->data[pos] = frameId;                            pos++;
-	if (settings->broadcast) {
+	if (address->broadcast) {
 		/* 64-bit broadcast address */
 		iBuf->data[pos] = 0x00;                             pos++;
 		iBuf->data[pos] = 0x00;                             pos++;
@@ -161,6 +163,7 @@ struct xbee_modeConType xbee_sZB_dataExp = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.addressRules = ADDR_64_16OPT_EPOPT,
+	.addressPrep = xbee_conAddressPrepDefault,
 	.save_addr16 = 1,
 	.rxHandler = &xbee_sZB_dataExp_rx,
 	.txHandler = &xbee_sZB_dataExp_tx,
