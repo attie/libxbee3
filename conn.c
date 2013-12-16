@@ -179,6 +179,7 @@ xbee_err xbee_conUnlink(struct xbee_con *con) {
 xbee_err xbee_conLogAddress(struct xbee *xbee, int minLogLevel, struct xbee_conAddress *address) {
 	if (!address) return XBEE_EINVAL;
 	xbee_log(minLogLevel, "address @ %p...", address);
+	xbee_log(minLogLevel, "   broadcast:      %s", (address->broadcast)?"Yes":"No");
 	if (address->addr16_enabled) {
 		xbee_log(minLogLevel, "   16-bit address:  0x%02X%02X", address->addr16[0], address->addr16[1]);
 	} else {
@@ -223,10 +224,18 @@ xbee_err xbee_conAddressCmpDefault(struct xbee_conAddress *addr1, struct xbee_co
 	/* both have 64 bit addresses (over rules 16bit addressed) */
 	if (addr1->addr64_enabled && addr2->addr64_enabled) {
 		if (!memcmp(addr1->addr64, addr2->addr64, 8)) goto got1;
+		if (addr1->broadcast && addr2->broadcast) {
+			if (matchRating != NULL) *matchRating = 1;
+			goto got1;
+		}
 	}
 	/* both have 16 bit addresses */
 	if (addr1->addr16_enabled && addr2->addr16_enabled) {
 		if (!memcmp(addr1->addr16, addr2->addr16, 2)) goto got1;
+		if (addr1->broadcast && addr2->broadcast) {
+			if (matchRating != NULL) *matchRating = 1;
+			goto got1;
+		}
 	}
 	
 	return XBEE_EFAILED; /* --- no address match --- */
@@ -276,7 +285,7 @@ got3:
 	return XBEE_EFAILED; /* --- cluster id didn't match / isn't the default (0x0011) */
 	
 got4:
-	if (matchRating != NULL) *matchRating = 255;
+	if (matchRating != NULL && *matchRating == 0) *matchRating = 255;
 	return XBEE_ENONE;   /* --- everything matched --- */
 }
 
@@ -427,6 +436,7 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *iface, int allow
 	if ((ret = xbee_modeLocateConType(iface->conTypes, allowInternal, type, NULL, NULL, &conType)) != XBEE_ENONE) return ret;
 	if (!conType) return XBEE_EUNKNOWN;
 	
+	if (conType->addressPrep && (ret = conType->addressPrep(address)) != XBEE_ENONE)                                    return ret;
 	if (conType->addressRules & ADDR_EP_NOTALLOW && ( address &&  address->endpoints_enabled))                          return XBEE_EINVAL;
 	if (conType->addressRules & ADDR_EP_REQUIRED && (!address || !address->endpoints_enabled))                          return XBEE_EINVAL;
 	if (conType->addressRules & ADDR_64_NOTALLOW && ( address &&  address->addr64_enabled))                             return XBEE_EINVAL;
