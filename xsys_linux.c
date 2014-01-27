@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>

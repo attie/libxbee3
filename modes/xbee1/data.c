@@ -26,6 +26,7 @@
 #include "../../xbee_int.h"
 #include "../../mode.h"
 #include "../../pkt.h"
+#include "../../conn.h"
 #include "../common.h"
 #include "data.h"
 
@@ -58,6 +59,7 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	
 	iPkt->rssi = buf->data[addrLen + 1];
 	iPkt->options = buf->data[addrLen + 2];
+	if (iPkt->options & 0x02) address->broadcast = 1;
 	
 	iPkt->dataLen = buf->len - (addrLen + 3);
 	if (iPkt->dataLen > 0) {
@@ -129,6 +131,7 @@ void xbee_s1_16bitData_init(struct xbee_modeConType *conType) {
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_16_ONLY;
+	conType->addressPrep = xbee_conAddressPrepDefault;
 	conType->rxHandler->identifier = 0x81;
 	conType->rxHandler->func = xbee_s1_data_rx_func;
 	conType->txHandler->identifier = 0x01;
@@ -145,6 +148,8 @@ void xbee_s1_64bitData_init(struct xbee_modeConType *conType) {
 	conType->allowFrameId = 1;
 	conType->useTimeout = 0;
 	conType->addressRules = ADDR_64_ONLY;
+	conType->addressPrep = xbee_conAddressPrepDefault;
+	conType->rxHandler->identifier = 0x81;
 	conType->rxHandler->identifier = 0x80;
 	conType->rxHandler->func = xbee_s1_data_rx_func;
 	conType->txHandler->identifier = 0x00;
