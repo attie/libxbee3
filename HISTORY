@@ -3,6 +3,7 @@ v3.0.11 - in progress
 	* Added an RPM build script, and fixed the release_src / release_source build targets
 	* Added an ebuild script for Gentoo
 	* Added file locking on Linux
+	* Fixed silent error in xbee_frameGetFreeID() when all Frame IDs are in use
 
 v3.0.10 - 4 Sept 2013
 	* Fixed xbee_frameWait()
