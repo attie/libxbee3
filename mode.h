@@ -57,6 +57,8 @@ struct xbee_modeConType {
 	struct xbee_modeDataHandlerTx *txHandler;
 	void (*init)(struct xbee_modeConType *conType);
 
+	/* this function will be called to prepare the address structure (after libxbee has had a go...) */
+	xbee_err (*addressPrep)(struct xbee_conAddress *addr);
 	/* this function should compare the given addresses
 	   if the addresses are a perfect match, matchRating should be set to 255
 	   if the addresses have nothing in common, matchRating should be set to 0 */

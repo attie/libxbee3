@@ -215,7 +215,7 @@ EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, xbee_t_eofCallback eof
       if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
 #endif /* XBEE_DISABLE_STRICT_OBJECTS */
       if (xbee->iface.rx->eofCallback) return XBEE_EINUSE;
-      xbee->iface.rx->eofCallback = (void(*)(struct xbee *xbee, void *rxInfo))eofCallback;
+      xbee->iface.rx->eofCallback = eofCallback;
       return XBEE_ENONE;
 }
 

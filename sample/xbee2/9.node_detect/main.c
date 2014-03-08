@@ -75,7 +75,7 @@ int main(void) {
 		return -1;
 	}
 	
-	if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
+	if ((ret = xbee_setup(&xbee, "xbee2", "/dev/ttyUSB1", 57600)) != XBEE_ENONE) {
 		printf("ret: %d (%s)\n", ret, xbee_errorToStr(ret));
 		return ret;
 	}
@@ -90,7 +90,7 @@ int main(void) {
 		return ret;
 	}
 
-	if ((ret = xbee_conTx(con, &txRet, "ND")) != XBEE_ENONE && (ret != XBEE_ETX && txRet != XBEE_ETIMEOUT)) {
+	if ((ret = xbee_conTx(con, &txRet, "ND")) != XBEE_ENONE && ret != XBEE_ETIMEOUT) {
 		xbee_log(xbee, -1, "xbee_conTx() returned: %d-%d", ret, txRet);
 		return ret;
 	}
@@ -98,13 +98,13 @@ int main(void) {
 	printf("ND Sent!... waiting for completion\n");
 
 	clock_gettime(CLOCK_REALTIME, &to);
-	to.tv_sec  += 10;
+	to.tv_sec  += 30;
 	if (sem_timedwait(&ndComplete, &to) != 0) {
 		if (errno == ETIMEDOUT) {
 			printf("Timeout while waiting for ND command to complete...\n");
 		} else {
-			printf("Error calling sem_timedwait()... sleeping for 10 seconds instead\n");
-			usleep(10000000);
+			printf("Error calling sem_timedwait()... sleeping for 30 seconds instead\n");
+			usleep(30000000);
 		}
 	}
 

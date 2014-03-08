@@ -72,6 +72,9 @@ int main(void) {
 		return ret;
 	}
 
+	/* kick off the chain reaction! */
+	xbee_conTx(con, NULL, "Hello\r\n");
+
 	for (;;) {
 		void *p;
 

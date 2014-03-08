@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -93,7 +94,12 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 		perror("open()");
 		return XBEE_EIO;
 	}
-	
+
+	if (flock(info->dev.fd, LOCK_EX | LOCK_NB) == -1) {
+		perror("flock()");
+		return XBEE_EINUSE;
+	}
+
 	if ((info->dev.f = fdopen(info->dev.fd, "r+")) == NULL) {
 		perror("fdopen()");
 		return XBEE_EIO;

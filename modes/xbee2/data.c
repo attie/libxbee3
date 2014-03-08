@@ -26,6 +26,7 @@
 #include "../../xbee_int.h"
 #include "../../mode.h"
 #include "../../pkt.h"
+#include "../../conn.h"
 #include "../common.h"
 #include "data.h"
 
@@ -45,6 +46,7 @@ xbee_err xbee_s2_data_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	memcpy(address->addr16, &(buf->data[9]), 2);
 	
 	iPkt->options = buf->data[11];
+	if (iPkt->options & 0x02) address->broadcast = 1;
 	
 	iPkt->dataLen = buf->len - 12;
 	if (iPkt->dataLen > 0) {
@@ -80,7 +82,7 @@ xbee_err xbee_s2_data_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg
 	iBuf->len = bufLen;
 	iBuf->data[pos] = identifier;                         pos++;
 	iBuf->data[pos] = frameId;                            pos++;
-	if (settings->broadcast) {
+	if (address->broadcast) {
 		/* 64-bit broadcast address */
 		iBuf->data[pos] = 0x00;                             pos++;
 		iBuf->data[pos] = 0x00;                             pos++;
@@ -131,6 +133,7 @@ struct xbee_modeConType xbee_s2_data = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.addressRules = ADDR_64_16OPT_NOEP,
+	.addressPrep = xbee_conAddressPrepDefault,
 	.save_addr16 = 1,
 	.rxHandler = &xbee_s2_data_rx,
 	.txHandler = &xbee_s2_data_tx,
