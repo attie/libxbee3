@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# github.io doesn't play well with symbolic links... so run this after importing the HTML pages :-)
+#
+
+for i in $(find . -type l); do
+	echo ${i}
+	LINK=$(readlink -f ${i})
+	rm ${i}
+	cp ${LINK} ${i}
+done
