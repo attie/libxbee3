@@ -194,7 +194,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 			memcpy(&pkt->timestamp, &buf->ts, sizeof(buf->ts));
 		}
 		
-		xbee_log(12, "received '%s' type packet...", conType->name);
+		xbee_log(12, "received '%s' type packet with %d bytes of data...", conType->name, pkt->dataLen);
 		
 		/* match the address to a connection */
 		if (((ret = xbee_conLocate(conType->conList, &address, &con, CON_SNOOZE)) != XBEE_ENONE &&
