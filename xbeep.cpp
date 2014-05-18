@@ -311,6 +311,13 @@ EXPORT void libxbee::Con::setSettings(struct xbee_conSettings *settings) {
 
 /* ========================================================================== */
 
+EXPORT libxbee::ConCallback::ConCallback(XBee &parent, std::string type, struct xbee_conAddress *address) : Con(parent, type, address), parent(parent) {
+	xbee_err ret;
+
+	if (con == NULL) throw(XBEE_ESHUTDOWN);
+	if ((ret = xbee_conCallbackSet(con, ConCallback::libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
+}
+
 void libxbee::ConCallback::libxbee_callbackFunction(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
 	std::list<XBee*>::iterator i;
 	for (i = xbeeList.begin(); i != xbeeList.end(); i++) {
@@ -333,13 +340,6 @@ void libxbee::ConCallback::libxbee_callbackFunction(struct xbee *xbee, struct xb
 		return;
 	}
 	std::cerr << "  1#[" << __FILE__ << ":" << __LINE__ << "] " << __FUNCTION__ << "(): A connection called back to the C++ interface, but it wasnt found...\n";
-}
-
-EXPORT libxbee::ConCallback::ConCallback(XBee &parent, std::string type, struct xbee_conAddress *address) : Con(parent, type, address), parent(parent) {
-	xbee_err ret;
-	
-	if (con == NULL) throw(XBEE_ESHUTDOWN);
-	if ((ret = xbee_conCallbackSet(con, ConCallback::libxbee_callbackFunction, NULL)) != XBEE_ENONE) throw(ret);
 }
 
 /* ========================================================================== */
