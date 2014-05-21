@@ -4,6 +4,10 @@ v3.0.11 - in progress
 	* Added an ebuild script for Gentoo
 	* Added file locking on Linux
 	* Fixed silent error in xbee_frameGetFreeID() when all Frame IDs are in use
+	* Fixed bug when using save_addr16 and save_addr64, along with catchall connections
+	* Debug output now indicates how much data was recieved in each packet
+	* Fixed major bug in network server - conValidate() now works correctly
+	* xbee_logTargetSet() and xbee_logLevelSet() now announce their changes
 
 v3.0.10 - 4 Sept 2013
 	* Fixed xbee_frameWait()
