@@ -78,6 +78,7 @@ typedef struct serialDev  xsys_serialDev;
 #define xsys_fflush(stream)                   fflush((stream))
 #define xsys_ferror(stream)                   ferror((stream))
 #define xsys_feof(stream)                     feof((stream))
+#define xsys_fileno(stream)                   fileno((stream))
 
 
 /* ######################################################################### */

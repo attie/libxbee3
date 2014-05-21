@@ -91,7 +91,7 @@ EXPORT xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f) {
 	xbee_mutex_lock(&xbee->log->mutex);
 	xbee->log->f = f;
 	xbee_mutex_unlock(&xbee->log->mutex);
-	xbee_log(xbee->log->logLevel, "Set log target to: %p (fd:%d)", f, fileno(f));
+	xbee_log(xbee->log->logLevel, "Set log target to: %p (fd:%d)", f, xsys_fileno(f));
 	
 	return XBEE_ENONE;
 }
