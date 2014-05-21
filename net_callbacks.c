@@ -332,7 +332,7 @@ void xbee_net_conValidate(struct xbee *xbee, struct xbee_con *con, struct xbee_p
 	conIdentifier |= (((*pkt)->data[0]) << 8) & 0xFF;
 	conIdentifier |= ((*pkt)->data[1]) & 0xFF;
 	
-	for (iCon = NULL; xbee_ll_get_next(con->conType->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
+	for (iCon = NULL; xbee_ll_get_next(client->conList, iCon, (void**)&iCon) == XBEE_ENONE && iCon; ) {
 		if (iCon->conIdentifier == conIdentifier) {
 			retVal = 0x00;
 			break;

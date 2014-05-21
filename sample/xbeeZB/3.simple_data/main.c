@@ -72,6 +72,9 @@ int main(void) {
 		return ret;
 	}
 
+	/* kick off the chain reaction! */
+	xbee_conTx(con, NULL, "Hello\r\n");
+
 	for (;;) {
 		void *p;
 
@@ -82,7 +85,7 @@ int main(void) {
 
 		if (p == NULL) break;
 
-		sleep(1);
+		usleep(1000000);
 	}
 
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {

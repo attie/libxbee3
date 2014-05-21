@@ -55,7 +55,7 @@ int main(void) {
 	}
 	
 	for (i = 0; i < 60 * 4; i++) {
-		unsigned char value;
+		unsigned int value;
 		if ((ret = xbee_conTx(con, NULL, "IS")) != XBEE_ENONE) break;
 		if ((ret = xbee_conRx(con, &pkt, NULL)) != XBEE_ENONE) break;
 		

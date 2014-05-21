@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 #include <xbee.h>
@@ -83,7 +84,7 @@ int main(void) {
 		return ret;
 	}
 
-	sleep(1);
+	usleep(1000000);
 	
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conEnd() returned: %d", ret);

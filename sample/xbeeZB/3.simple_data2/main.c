@@ -1,5 +1,5 @@
 /*
-	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
+	libxbee - a C library to aid the use of Digi's XBee wireless modules
 	          running in API mode.
 
 	Copyright (C) 2009 onwards  Attie Grande (attie@attie.co.uk)
@@ -21,32 +21,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include <xbee.h>
 
 void myCB(struct xbee *xbee, struct xbee_con *con, struct xbee_pkt **pkt, void **data) {
-	if ((*pkt)->dataLen == 0) {
-		printf("too short...\n");
-		return;
+	if ((*pkt)->dataLen > 0) {
+		if ((*pkt)->data[0] == '@') {
+			xbee_conCallbackSet(con, NULL, NULL);
+			printf("*** DISABLED CALLBACK... ***\n");
+		}
+		printf("rx: [%s]\n", (*pkt)->data);
 	}
-	printf("rx: [%s] @ %ld.%09ld - %s\n", (*pkt)->data, (*pkt)->timestamp.tv_sec, (*pkt)->timestamp.tv_nsec, ctime(&((*pkt)->timestamp.tv_sec)));
+	printf("tx: %d\n", xbee_conTx(con, NULL, "Hello\r\n"));
 }
 
 int main(void) {
 	void *d;
 	struct xbee *xbee;
 	struct xbee_con *con;
-	unsigned char txRet;
+	struct xbee_conAddress address;
 	xbee_err ret;
 
-	if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
+	if ((ret = xbee_setup(&xbee, "xbeeZB", "/dev/ttyUSB2", 57600)) != XBEE_ENONE) {
 		printf("ret: %d (%s)\n", ret, xbee_errorToStr(ret));
 		return ret;
 	}
 
-	if ((ret = xbee_conNew(xbee, &con, "Local AT", NULL)) != XBEE_ENONE) {
+	memset(&address, 0, sizeof(address));
+	address.addr64_enabled = 1;
+	address.addr64[0] = 0x00;
+	address.addr64[1] = 0x13;
+	address.addr64[2] = 0xA2;
+	address.addr64[3] = 0x00;
+	address.addr64[4] = 0x40;
+	address.addr64[5] = 0x8B;
+	address.addr64[6] = 0x4C;
+	address.addr64[7] = 0x07;
+	if ((ret = xbee_conNew(xbee, &con, "Data", &address)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conNew() returned: %d (%s)", ret, xbee_errorToStr(ret));
+		return ret;
+	}
+
+	if ((ret = xbee_conDataSet(con, xbee, NULL)) != XBEE_ENONE) {
+		xbee_log(xbee, -1, "xbee_conDataSet() returned: %d", ret);
 		return ret;
 	}
 
@@ -54,15 +71,20 @@ int main(void) {
 		xbee_log(xbee, -1, "xbee_conCallbackSet() returned: %d", ret);
 		return ret;
 	}
-	
-	ret = xbee_conTx(con, &txRet, "NI");
-	printf("tx: %d\n", ret);
-	if (ret) {
-		printf("txRet: %d\n", txRet);
-	} else {
+
+	for (;;) {
+		void *p;
+
+		if ((ret = xbee_conCallbackGet(con, (xbee_t_conCallback*)&p)) != XBEE_ENONE) {
+			xbee_log(xbee, -1, "xbee_conCallbackGet() returned: %d", ret);
+			return ret;
+		}
+
+		if (p == NULL) break;
+
 		usleep(1000000);
 	}
-	
+
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
 		xbee_log(xbee, -1, "xbee_conEnd() returned: %d", ret);
 		return ret;

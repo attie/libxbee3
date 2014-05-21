@@ -26,6 +26,7 @@
 #include "../../xbee_int.h"
 #include "../../mode.h"
 #include "../../pkt.h"
+#include "../../conn.h"
 #include "../common.h"
 #include "data.h"
 
@@ -58,6 +59,7 @@ xbee_err xbee_s1_data_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	
 	iPkt->rssi = buf->data[addrLen + 1];
 	iPkt->options = buf->data[addrLen + 2];
+	if (iPkt->options & 0x02) address->broadcast = 1;
 	
 	iPkt->dataLen = buf->len - (addrLen + 3);
 	if (iPkt->dataLen > 0) {
@@ -137,6 +139,7 @@ XBEE_DECLARE_CONTYPE(xbee1, 16bitData) = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.addressRules = ADDR_16_ONLY,
+	.addressPrep = xbee_conAddressPrepDefault,
 	.rxHandler = &xbee_s1_16bitData_rx,
 	.txHandler = &xbee_s1_16bitData_tx,
 };
@@ -156,6 +159,7 @@ XBEE_DECLARE_CONTYPE(xbee1, 64bitData) = {
 	.allowFrameId = 1,
 	.useTimeout = 0,
 	.addressRules = ADDR_64_ONLY,
+	.addressPrep = xbee_conAddressPrepDefault,
 	.rxHandler = &xbee_s1_64bitData_rx,
 	.txHandler = &xbee_s1_64bitData_tx,
 };

@@ -1,8 +1,5 @@
 ### install rules follow... ###
 
-$(SYS_LIBDIR)/%.so.$(LIBFULLREV).dbg: $(DESTDIR)/%.so.$(LIBFULLREV).dbg
-	$(INSTALL) -m 755 $^ $@
-
 $(SYS_LIBDIR)/$(LIBNAME)%.$(LIBFULLREV): $(DESTDIR)/$(LIBNAME)%.$(LIBFULLREV)
 	$(INSTALL) -m 755 $^ $@
 

@@ -80,7 +80,7 @@ int main(void) {
 	if (ret) {
 		printf("txRet: %d\n", txRet);
 	} else {
-		sleep(1);
+		usleep(1000000);
 	}
 	
 	if ((ret = xbee_conEnd(con)) != XBEE_ENONE) {
