@@ -74,6 +74,7 @@ typedef HANDLE            xsys_serialDev;
 #define xsys_fflush(stream)                   fflush((stream))
 #define xsys_ferror(stream)                   ferror((stream))
 #define xsys_feof(stream)                     feof((stream))
+#define xsys_fileno(stream)                   _fileno((stream))
 
 int xsys_select(FILE *stream, struct timeval *timeout);
 

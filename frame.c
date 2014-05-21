@@ -76,7 +76,7 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 	int i, o;
 	
 	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
-	ret = XBEE_ENONE;
+	ret = XBEE_EFAILED;
 	
 	xbee_mutex_lock(&fBlock->mutex);
 	for (i = 0, o = fBlock->lastFrame + 1; i < fBlock->numFrames; i++, o++) {
@@ -92,6 +92,7 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 			fBlock->frame[o].con = con;
 		}
 		con->frameId = fBlock->frame[o].id;
+		ret = XBEE_ENONE;
 		break;
 	}
 	xbee_mutex_unlock(&fBlock->mutex);

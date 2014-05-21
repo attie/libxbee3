@@ -72,6 +72,7 @@ void usleep(__int64 usec);
 #define xsys_fflush(stream)                   fflush((stream))
 #define xsys_ferror(stream)                   ferror((stream))
 #define xsys_feof(stream)                     feof((stream))
+#define xsys_fileno(stream)                   _fileno((stream))
 
 
 /* ######################################################################### */

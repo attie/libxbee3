@@ -2,7 +2,9 @@ PROG?=main
 .SUFFIXES:
 
 all: $(PROG)
-	./$(PROG)
+
+run: all
+	LD_LIBRARY_PATH=../../../lib ./$(PROG)
 
 new: clean all
 

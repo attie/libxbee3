@@ -12,11 +12,11 @@ OBJCOPY=               $(CROSS_COMPILE)objcopy
 AR=                    $(CROSS_COMPILE)ar
 DEFLATE:=              gzip
 SYMLINK:=              ln
-MKDIR=                 @if [ ! -d $* ]; then echo "mkdir -p $*"; mkdir -p $*; else echo "!mkdir $*"; fi
+MKDIR=                 mkdir $*
 RM:=                   rm -f
 RMDIR:=                rm -rf
 INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER) -DT
-MAN2HTML:=             man2html
+MAN2HTML:=             
 
 DEBUG:=                -g
 LIBS:=                 pthreadGC2

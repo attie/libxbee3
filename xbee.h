@@ -75,6 +75,8 @@ enum xbee_conSleepStates {
 };
 
 struct xbee_conAddress {
+	unsigned char broadcast; /* if set, this address just sent us a broadcast message */
+
 	unsigned char addr16_enabled;
 	unsigned char addr16[2];
 	
@@ -108,7 +110,7 @@ struct xbee_conSettings {
 	/* generic options: */
 	unsigned char queueChanges     : 1; /* for AT connections */
 	unsigned char disableAck       : 1; /* specific options for XBee 1 / causes use of FrameID 0x00 for others */
-	unsigned char broadcast        : 1;
+	unsigned char broadcast        : 1; /* used to tranmit on the broadcast PAN, for address broadcast, use the appropriate address */
 	
 	/* XBee 2 / ZNet options: */
 	unsigned char multicast        : 1;
