@@ -31,6 +31,8 @@ int main(void) {
 		return 1;
 	}
 
+	xbee_logTargetSet(xbee, stderr);
+	xbee_logLevelSet(xbee, 100);
 	xbee_log(xbee, -1, "Hello World!");
 
 	return 0;
