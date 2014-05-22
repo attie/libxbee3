@@ -3,6 +3,13 @@
 ### compiler locations
 PATH+=C:\MinGW\bin
 #GITPATH:=C:\Program Files\Git\bin\git.exe
+#CROSS_COMPILE:=
+
+### compiling a 32-bit binary on a 64-bit host
+#CFLAGS+=-m32
+#CLINKS+=-mi386pe
+#CXXFLAGS+=-m32
+#CXXLINKS+=-mi386pe
 
 ### using this can create a smaller binary, by removing modes you won't use
 #MODELIST:=             xbee1 xbee2 xbeeZB xbee5

@@ -28,3 +28,11 @@ Compiling libxbee on Windows 7 (64-bit) using MinGW32
 == NOTES ==
 Unfortunately there seems to be a bug with mingw32's make - it doesn't handle 'SHELL=cmd' in a makefile well.
 To resolve this, use GnuWin32's build of make.
+
+You may need to set CROSS_COMPILE in config.mk to suit your toolchain
+
+If you are compiling a 32-bit binary on a 64-bit host, you should uncomment the appropriate lines in config.mk
+	CFLAGS+=-m32
+	CLINKS+=-mi386pe
+	CXXFLAGS+=-m32
+	CXXLINKS+=-mi386pe
