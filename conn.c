@@ -766,14 +766,15 @@ EXPORT xbee_err xbee_conRx(struct xbee_con *con, struct xbee_pkt **retPkt, int *
 			ret = XBEE_ENOTEXISTS;
 			goto die;
 		}
-		_xbee_ll_ext_head(con->pktList, (void**)&pkt, 0);
+		_xbee_ll_get_head(con->pktList, (void**)&pkt, 0);
 		_xbee_pktUnlink(con, pkt, 0);
 		*retPkt = pkt;
+		remain--;
 	}
 die:
 	xbee_ll_unlock(con->pktList);
 
-	if (remainingPackets) *remainingPackets = (remain > 0 ? remain - 1 : 0);
+	if (remainingPackets) *remainingPackets = remain;
 	
 	return ret;
 }
