@@ -173,6 +173,7 @@ int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) 
 
 int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
 	DWORD dwMiliseconds;
+	int ret;
 	if (timeout) {
 		struct timespec now;
 		
@@ -189,7 +190,16 @@ int xsys_sem_timedwait(xsys_sem *sem, struct timespec *timeout) {
 	} else {
 		dwMiliseconds = 0;
 	}
-	return WaitForSingleObject(*sem, dwMiliseconds);
+
+	if ((ret = WaitForSingleObject(*sem, dwMiliseconds)) != 0) {
+		if (ret == WAIT_TIMEOUT) {
+			errno = ETIMEDOUT;
+		} else {
+			errno = EINVAL;
+		}
+		ret = -1;
+	}
+	return ret;
 }
 
 #define SEMAQUERYINFOCLASS	0
