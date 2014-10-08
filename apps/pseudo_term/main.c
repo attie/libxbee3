@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #include <signal.h>
 #include <errno.h>
+#include <linux/limits.h>
 
 #include <xbee.h>
 
@@ -49,6 +50,7 @@
 struct remoteInfo {
 	struct xbee_con *conAT, *conData;
 	int ptfd;
+	char ptn[PATH_MAX];
 };
 
 /* ########################################################################## */
@@ -139,32 +141,34 @@ int parseAddress(int argc, char *argv[], struct xbee *xbee, struct remoteInfo *i
 
 /* ########################################################################## */
 
-int openPt(void) {
-	int ptfd;
+void openPt(struct remoteInfo *remote) {
 	int ptfd2;
-	
+
 	/* create/open a Pseudo Terminal */
-	if ((ptfd = posix_openpt(O_RDWR | O_NOCTTY)) == -1) {
+	if ((remote->ptfd = posix_openpt(O_RDWR | O_NOCTTY)) == -1) {
 		perror("posix_openpt()");
 		exit(1);
 	}
-	if (grantpt(ptfd)) {
+	if (grantpt(remote->ptfd)) {
 		perror("grantpt()");
 		exit(1);
 	}
-	if (unlockpt(ptfd)) {
+	if (unlockpt(remote->ptfd)) {
 		perror("unlockpt()");
+		exit(1);
+	}
+
+	if (ptsname_r(remote->ptfd, remote->ptn, sizeof(remote->ptn)) != 0) {
+		perror("ptsname_r()");
 		exit(1);
 	}
 	
 	/* unblock it... by opening and closing it */
-	if ((ptfd2 = open((char*)ptsname(ptfd), O_RDWR)) == -1) {
+	if ((ptfd2 = open(remote->ptn, O_RDWR)) == -1) {
 		perror("open(ptfd)");
 		exit(1);
 	}
 	close(ptfd2);
-	
-	return ptfd;
 }
 
 /* ########################################################################## */
@@ -254,7 +258,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	/* get a Pseudo Terminal */
-	remote.ptfd = openPt();
+	openPt(&remote);
 	
 	/* setup libxbee */
 	if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
@@ -293,7 +297,7 @@ int main(int argc, char *argv[]) {
 			int bufLen;
 			int bufGot;
 			
-			printf("- PT closed! - please use '%s'\n", (char*)ptsname(remote.ptfd));
+			printf("- PT closed! - please use '%s'\n", remote.ptn);
 			
 			/* disable blocking */
 			if ((fl = fcntl(remote.ptfd, F_GETFL)) == -1) {

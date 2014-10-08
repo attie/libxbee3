@@ -68,8 +68,7 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)      \
 CLEAN_FILES=           $(BUILDDIR)/*.o \
                        $(BUILDDIR)/*.d
 
-DISTCLEAN_FILES=       $(HTMLDIR)/*.html \
-                       $(HTMLDIR)/*/*.html
+DISTCLEAN_FILES=       $(HTMLDIR)/*/*.html
 
 VER_DEFINES=           -DLIB_REVISION="\"$(LIBFULLREV)\""                             \
                        -DLIB_COMMIT="\"$(shell git log -1 --format="%H")\""           \
