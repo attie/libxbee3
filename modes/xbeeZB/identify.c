@@ -74,19 +74,19 @@ xbee_err xbee_sZB_identify_rx_func(struct xbee *xbee, void *arg, unsigned char i
 		NIend++; /* step over the nul */
 
 		if (iPkt->dataLen < NIend + 2) goto done;
-		xbee_pktDataAdd(iPkt, "Parent Address", 0, &(iPkt->data[NIend + 1]), NULL);
+		xbee_pktDataAdd(iPkt, "Parent Address", 0, &(iPkt->data[NIend]), NULL);
 
 		if (iPkt->dataLen < NIend + 3) goto done;
-		xbee_pktDataAdd(iPkt, "Device Type", 0, &(iPkt->data[NIend + 3]), NULL);
+		xbee_pktDataAdd(iPkt, "Device Type", 0, &(iPkt->data[NIend + 2]), NULL);
 
 		if (iPkt->dataLen < NIend + 4) goto done;
-		xbee_pktDataAdd(iPkt, "Source Event", 0, &(iPkt->data[NIend + 4]), NULL);
+		xbee_pktDataAdd(iPkt, "Source Event", 0, &(iPkt->data[NIend + 3]), NULL);
 
 		if (iPkt->dataLen < NIend + 6) goto done;
-		xbee_pktDataAdd(iPkt, "Profile ID", 0, &(iPkt->data[NIend + 5]), NULL);
+		xbee_pktDataAdd(iPkt, "Profile ID", 0, &(iPkt->data[NIend + 4]), NULL);
 
 		if (iPkt->dataLen < NIend + 8) goto done;
-		xbee_pktDataAdd(iPkt, "Manufacturer ID", 0, &(iPkt->data[NIend + 7]), NULL);
+		xbee_pktDataAdd(iPkt, "Manufacturer ID", 0, &(iPkt->data[NIend + 6]), NULL);
 	}
 
 done:
