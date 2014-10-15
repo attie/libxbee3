@@ -56,7 +56,7 @@ endef
 $(foreach dir,$(MAN_DIRS),$(eval $(call man_srcs,$(dir))))
 SYS_MANPAGES:=$(patsubst $(MANDIR)/%,%,$(SYS_MANPAGES))
 ifneq ($(MAN2HTML),)
-SYS_HTMLPAGES:=$(addsuffix .html,$(SYS_MANPAGES)) index.html
+SYS_HTMLPAGES:=$(addsuffix .html,$(SYS_MANPAGES))
 endif
 
 ### post
