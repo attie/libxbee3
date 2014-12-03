@@ -1,6 +1,6 @@
 LIBMAJ:=               3
 LIBMIN:=               0
-LIBREV:=               10
+LIBREV:=               11
 
 LIBFULLREV:=           $(LIBMAJ).$(LIBMIN).$(LIBREV)
 

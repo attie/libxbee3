@@ -1,6 +1,6 @@
 Name: libxbee
 Summary: A C/C++ library to aid the use of Digi XBee radios in API mode
-%define version 3.0.10
+%define version 3.0.11
 Release: 1
 Source: libxbee-v%{version}.tgz
 
