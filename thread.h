@@ -29,6 +29,7 @@ struct xbee_threadInfo {
 	int detached;/* TRUE will cause the thread to free the info block before it returns */
 	int running; /* TRUE means that the function is actually running */
 	int active;  /* TRUE means that the thread is alive */
+	int started; /* TRUE means that the thread has started and is ready to run its function */
 
 	time_t restartDelay;
 	xsys_thread tid;

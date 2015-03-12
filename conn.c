@@ -959,8 +959,8 @@ xbee_err xbee_conCallbackProd(struct xbee_con *con) {
 		xbee_err ret2;
 		
 #warning TODO - there is a gap here, needs a mutex
-		if (con->callbackThread->active) return XBEE_ENONE;
-		
+		if (con->callbackThread->active || !con->callbackThread->started) return XBEE_ENONE;
+
 		if ((ret = xbee_threadJoin(con->xbee, con->callbackThread, &ret2)) != XBEE_ENONE) return ret;
 		con->callbackThread = NULL;
 		if (ret2 != XBEE_ENONE) {
