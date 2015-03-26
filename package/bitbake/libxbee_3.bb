@@ -1,7 +1,7 @@
 MAINTAINER = "Ole Wolf <ole@naturloven.dk>"
 HOMEPAGE = "https://code.google.com/p/libxbee/"
 SUMMARY = "Library for Digi XBee radios running in API mode"
-DESCRIPTION = "libxbee is a C/C++ library is to aid the use of Digi XBee radios running in API mode."
+DESCRIPTION = "libxbee is a C/C++ library intended to aid the use of Digi XBee radios running in API mode."
 PROVIDES = "libxbee"
 PR = "r0"
 
@@ -9,10 +9,9 @@ LICENSE = "LGPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
 SRC_URI = " \
-	git://code.google.com/p/libxbee.libxbee-v3/;protocol=https \
+	git://github.com/attie/libxbee3.git;protocol=https \
 "
 SRCREV="${AUTOREV}"
-
 S = "${WORKDIR}/git/"
 
 FILES_${PN} += " \
