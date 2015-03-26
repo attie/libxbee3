@@ -1,5 +1,5 @@
 MAINTAINER = "Ole Wolf <ole@naturloven.dk>"
-HOMEPAGE = "https://code.google.com/p/libxbee/"
+HOMEPAGE = "https://github.com/attie/libxbee3"
 SUMMARY = "Library for Digi XBee radios running in API mode"
 DESCRIPTION = "libxbee is a C/C++ library intended to aid the use of Digi XBee radios running in API mode."
 PROVIDES = "libxbee"
