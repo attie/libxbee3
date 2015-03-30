@@ -948,15 +948,22 @@ xbee_err xbee_conCallbackProd(struct xbee_con *con) {
 	if (!con) return XBEE_EMISSINGPARAM;
 	if (!con->callback) return XBEE_ENONE;
 
-	if (xbee_ll_count_items(con->pktList, &count) != XBEE_ENONE) return XBEE_ELINKEDLIST;
-	if (count == 0) return XBEE_ENONE;
+	if (xbee_ll_lock(con->pktList) != XBEE_ENONE) return XBEE_ELINKEDLIST;
+
+	if (_xbee_ll_count_items(con->pktList, &count, 0) != XBEE_ENONE) {
+		ret = XBEE_ELINKEDLIST;
+		goto die;
+	}
+	if (count == 0) {
+		ret = XBEE_ENONE;
+		goto die;
+	}
 
 	xbee = con->xbee;
 
 	if (con->callbackThread) {
 		xbee_err ret2;
 		
-#warning TODO - there is a gap here, needs a mutex
 		if (con->callbackThread->active) {
 			ret = XBEE_ENONE;
 			goto done;
@@ -976,6 +983,8 @@ done:
 	
 	ret = XBEE_ENONE;
 die:
+
+	xbee_ll_unlock(con->pktList);
 	return ret;
 }
 
