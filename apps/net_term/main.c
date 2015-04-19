@@ -45,6 +45,15 @@
 /* ########################################################################## */
 
 #define MAX_RETRIES 10
+//#define INVERT_RESET
+
+#ifndef INVERT_RESET
+#  define RESET_STEP1 0x04
+#  define RESET_STEP2 0x05
+#else
+#  define RESET_STEP1 0x05
+#  define RESET_STEP2 0x04
+#endif
 
 /* ########################################################################## */
 
@@ -321,11 +330,11 @@ int main(int argc, char *argv[]) {
 			printf("# socket opened!\n");
 			
 			/* flick the reset line */
-			if (xbee_conTx(remote.conAT, NULL, "D3%c", 0x04) != XBEE_ENONE) {
+			if (xbee_conTx(remote.conAT, NULL, "D3%c", RESET_STEP1) != XBEE_ENONE) {
 				printf("failed to send reset...\n");
 			} else {
 				usleep(5000);
-				if (xbee_conTx(remote.conAT, NULL, "D3%c", 0x05) != XBEE_ENONE) {
+				if (xbee_conTx(remote.conAT, NULL, "D3%c", RESET_STEP2) != XBEE_ENONE) {
 					printf("failed to complete reset...\n");
 				}
 			}

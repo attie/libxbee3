@@ -1,3 +1,6 @@
+v3.0.12 - in progress
+	* Fixed single-core systems no longer suffer from delayed callback execution
+
 v3.0.11 - 3 Dec 2014
 	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)
 	* Added an RPM build script, and fixed the release_src / release_source build targets

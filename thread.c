@@ -41,13 +41,16 @@ EXPORT xbee_err xbee_threadValidate(struct xbee *xbee, struct xbee_threadInfo *t
 
 /* ########################################################################## */
 
+void threadFunc_cleanup(struct xbee_threadInfo *thread) {
+	thread->active = 0;
+}
 void *threadFunc(struct xbee_threadInfo *thread) {
 	int restart; /* FALSE allows the thread to request that it is not restarted */
 	struct xbee *xbee;
 	xbee_err ret;
 	
 	xbee = thread->xbee;
-	thread->active = 1;
+	pthread_cleanup_push(threadFunc_cleanup, thread);
 	
 	/* setup the thread info */
 	xsys_thread_key_set(threadInfoKey, thread);
@@ -88,7 +91,7 @@ void *threadFunc(struct xbee_threadInfo *thread) {
 		}
 	} while (thread->run && !xbee->die);
 	
-	thread->active = 0;
+	pthread_cleanup_pop(1);
 	
 	if (restart != -1) xbee_log(15, "thread %p, function %s() has now ended...", thread, thread->funcName);
 	
@@ -116,6 +119,7 @@ xbee_err _xbee_threadStart(struct xbee *xbee, struct xbee_threadInfo **retThread
 	thread->restartDelay = restartDelay;
 	xsys_sem_init(&thread->mutexSem);
 
+	thread->active = 1;
 	if ((xsys_thread_create(&thread->tid, (void*(*)(void *))threadFunc, thread)) != 0) {
 		xsys_sem_destroy(&thread->mutexSem);
 		free(thread);
