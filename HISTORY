@@ -1,5 +1,6 @@
 v3.0.12 - in progress
 	* Fixed single-core systems no longer suffer from delayed callback execution
+	* Fixed the un-escape code for use with API mode 2 - it had issues when the escape sequence crossed a read boundary
 
 v3.0.11 - 3 Dec 2014
 	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)
