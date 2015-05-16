@@ -18,15 +18,14 @@
 	along with libxbee. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QApplication>
-#include "window.h"
+#include "xbeeqt.h"
 
-int main(int argc, char *argv[]) {
-	QApplication a(argc, argv);
-	window w;
-	w.show();
-	w.adjustSize();
-	w.triggerGet(false);
-	
-	return a.exec();
+libxbee::ConQt::ConQt(libxbee::XBee &parent, std::string type, struct xbee_conAddress *address): QObject(0), ConCallback(parent, type, address) {
+	/* nothing */
+}
+void libxbee::ConQt::xbee_conCallback(libxbee::Pkt **pkt) {
+	libxbee::Pkt *kept_pkt = *pkt;
+	*pkt = NULL;
+
+	emit Rx(kept_pkt);
 }
