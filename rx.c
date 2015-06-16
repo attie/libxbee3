@@ -93,19 +93,22 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 			continue;
 		}
 		
-#ifdef XBEE_LOG_RX
-		{
+#ifndef XBEE_LOG_NO_RX
+		if (xbee->log->enable_rx) {
 			/* format: tx[0x0000000000000000] */
-#ifdef XBEE_LOG_NO_COLOR
-			char label[23]; /* enough space for a 64-bit pointer */
-			snprintf(label, sizeof(label), "Rx[%p]", info);
-#else
 			char label[42]; /* enough space for a 64-bit pointer and ANSI color codes */
-			snprintf(label, sizeof(label), "Rx[%c[%dm%p%c[0m]", 27, 30 + info->logColor, info,  27);
-#endif
+#ifndef XBEE_LOG_NO_COLOR
+			if (xbee->log->use_color) {
+				snprintf(label, sizeof(label), "Rx[%c[%dm%p%c[0m]", 27, 30 + info->logColor, info,  27);
+			} else {
+#endif /* !XBEE_LOG_NO_COLOR */
+				snprintf(label, sizeof(label), "Rx[%p]", info);
+#ifndef XBEE_LOG_NO_COLOR
+			}
+#endif /* !XBEE_LOG_NO_COLOR */
 			xbee_logData(25, label, buf->data, buf->len);
 		}
-#endif /* XBEE_LOG_RX */
+#endif /* !XBEE_LOG_NO_RX */
 		
 		if (xbee_ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		buf = NULL;
