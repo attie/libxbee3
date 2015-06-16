@@ -39,9 +39,22 @@ struct xbee_log;
 #define XBEE_LOG_TRUNC_STR "].."
 
 struct xbee_log {
-	FILE *f;
-	int logLevel;
 	xsys_mutex mutex;
+	FILE *f;
+
+	unsigned int logLevel;
+
+#ifndef XBEE_LOG_NO_RX
+	unsigned int enable_rx    : 1;
+#endif
+#ifndef XBEE_LOG_NO_TX
+	unsigned int enable_tx    : 1;
+#endif
+#ifndef XBEE_LOG_NO_COLOR
+	unsigned int enable_color : 1;
+	unsigned int f_isatty     : 1;
+	unsigned int use_color    : 1;
+#endif
 };
 
 xbee_err xbee_logAlloc(struct xbee_log **nLog, int defLevel, FILE *defFile);

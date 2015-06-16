@@ -1,6 +1,9 @@
 v3.0.12 - in progress
 	* Fixed single-core systems no longer suffer from delayed callback execution
 	* Added support for XBee Series 1 modules running the DigiMesh firmware (mode: xbee1dm)
+	* Fixed the un-escape code for use with API mode 2 - it had issues when the escape sequence crossed a read boundary
+	* Fixed logging - no longer records ANSI color escape sequences to non-TTY files
+	* Added more flexibility for logging - colorization, Rx data, and Tx data can be enabled / disabled at startup (via the environment) or at runtime (via function calls)
 
 v3.0.11 - 3 Dec 2014
 	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)

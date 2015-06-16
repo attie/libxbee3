@@ -52,6 +52,7 @@ EXPORT xbee_err xbee_logLevelGet(struct xbee *xbee, int *level) {
 xbee_err xbee_logAlloc(struct xbee_log **nLog, int defLevel, FILE *defFile) {
 	size_t memSize;
 	struct xbee_log *log;
+	const char *e;
 	
 	if (!nLog) return XBEE_EMISSINGPARAM;
 	
@@ -60,10 +61,63 @@ xbee_err xbee_logAlloc(struct xbee_log **nLog, int defLevel, FILE *defFile) {
 	if (!(log = malloc(memSize))) return XBEE_ENOMEM;
 	
 	memset(log, 0, memSize);
-	
+
 	xsys_mutex_init(&log->mutex);
-	log->logLevel = defLevel;
 	log->f = defFile;
+
+	log->logLevel = defLevel;
+
+#ifndef XBEE_LOG_NO_RX
+	if ((e = getenv("XBEE_LOG_RX")) != NULL) {
+		int l;
+		if (sscanf(e, "%d", &l) != 1) {
+			fprintf(stderr, "libxbee: Failed to initialize Rx logging from environment (not a number)\n");
+			log->enable_rx = 0;
+		} else {
+			log->enable_rx = !!l;
+		}
+	} else {
+#ifdef XBEE_LOG_RX_DEFAULT_OFF
+		log->enable_rx = 0;
+#else
+		log->enable_rx = 1;
+#endif
+	}
+#endif
+
+#ifndef XBEE_LOG_NO_TX
+	if ((e = getenv("XBEE_LOG_TX")) != NULL) {
+		int l;
+		if (sscanf(e, "%d", &l) != 1) {
+			fprintf(stderr, "libxbee: Failed to initialize Tx logging from environment (not a number)\n");
+			log->enable_tx = 0;
+		} else {
+			log->enable_tx = !!l;
+		}
+	} else {
+#ifdef XBEE_LOG_TX_DEFAULT_OFF
+		log->enable_tx = 0;
+#else
+		log->enable_tx = 1;
+#endif
+	}
+#endif
+
+#ifndef XBEE_LOG_NO_COLOR
+	if ((e = getenv("XBEE_LOG_COLOR")) != NULL) {
+		int l;
+		if (sscanf(e, "%d", &l) != 1) {
+			fprintf(stderr, "libxbee: Failed to initialize logging colorization from environment (not a number)\n");
+			log->enable_color = 1;
+		} else {
+			log->enable_color = !!l;
+		}
+	} else {
+		log->enable_color = 1;
+	}
+	log->f_isatty = !!isatty(fileno(log->f));
+	log->use_color = !!(log->enable_color && log->f_isatty);
+#endif
 	
 	*nLog = log;
 	
@@ -90,6 +144,10 @@ EXPORT xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f) {
 	
 	xbee_mutex_lock(&xbee->log->mutex);
 	xbee->log->f = f;
+#ifndef XBEE_LOG_NO_COLOR
+	xbee->log->f_isatty = !!isatty(fileno(xbee->log->f));
+	xbee->log->use_color = !!(xbee->log->enable_color && xbee->log->f_isatty);
+#endif
 	xbee_mutex_unlock(&xbee->log->mutex);
 	xbee_log(xbee->log->logLevel, "Set log target to: %p (fd:%d)", f, xsys_fileno(f));
 	
@@ -135,6 +193,127 @@ EXPORT xbee_err xbee_logLevelGet(struct xbee *xbee, int *level) {
 	return XBEE_ENONE;
 }
 
+EXPORT xbee_err xbee_logRxSet(struct xbee *xbee, int enable) {
+#ifdef XBEE_LOG_NO_RX
+	return XBEE_ENOTIMPLEMENTED;
+#else
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
+
+	xbee_mutex_lock(&xbee->log->mutex);
+	xbee->log->enable_rx = !!enable;
+	xbee_mutex_unlock(&xbee->log->mutex);
+	xbee_log(xbee->log->logLevel, "Set logging of Rx data to: %s", (enable?"Enabled":"Disabled"));
+
+	return XBEE_ENONE;
+#endif /* XBEE_LOG_NO_RX */
+}
+
+EXPORT xbee_err xbee_logRxGet(struct xbee *xbee, int *enabled) {
+#ifdef XBEE_LOG_NO_RX
+	return XBEE_ENOTIMPLEMENTED;
+#else
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
+
+	xbee_mutex_lock(&xbee->log->mutex);
+	*enabled = !!xbee->log->enable_rx;
+	xbee_mutex_unlock(&xbee->log->mutex);
+
+	return XBEE_ENONE;
+#endif /* XBEE_LOG_NO_RX */
+}
+
+EXPORT xbee_err xbee_logTxSet(struct xbee *xbee, int enable) {
+#ifdef XBEE_LOG_NO_TX
+	return XBEE_ENOTIMPLEMENTED;
+#else
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
+
+	xbee_mutex_lock(&xbee->log->mutex);
+	xbee->log->enable_tx = !!enable;
+	xbee_mutex_unlock(&xbee->log->mutex);
+	xbee_log(xbee->log->logLevel, "Set logging of Tx data to: %s", (enable?"Enabled":"Disabled"));
+
+	return XBEE_ENONE;
+#endif /* XBEE_LOG_NO_TX */
+}
+
+EXPORT xbee_err xbee_logTxGet(struct xbee *xbee, int *enabled) {
+#ifdef XBEE_LOG_NO_TX
+	return XBEE_ENOTIMPLEMENTED;
+#else
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
+
+	xbee_mutex_lock(&xbee->log->mutex);
+	*enabled = !!xbee->log->enable_tx;
+	xbee_mutex_unlock(&xbee->log->mutex);
+
+	return XBEE_ENONE;
+#endif /* XBEE_LOG_NO_TX */
+}
+
+EXPORT xbee_err xbee_logColorSet(struct xbee *xbee, int enable) {
+#ifdef XBEE_LOG_NO_COLOR
+	return XBEE_ENOTIMPLEMENTED;
+#else
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
+
+	xbee_mutex_lock(&xbee->log->mutex);
+	xbee->log->enable_color = !!enable;
+	xbee->log->use_color = xbee->log->enable_color & xbee->log->f_isatty;
+	xbee_mutex_unlock(&xbee->log->mutex);
+	xbee_log(xbee->log->logLevel, "Set colorized logging to: %s", (enable?"Enabled":"Disabled"));
+	if (xbee->log->enable_color && !xbee->log->use_color) {
+		xbee_log(xbee->log->logLevel, "Not using colorized logging... (is the target a TTY?)");
+	}
+
+	return XBEE_ENONE;
+#endif /* XBEE_LOG_NO_COLOR */
+}
+
+EXPORT xbee_err xbee_logColorGet(struct xbee *xbee, int *enabled) {
+#ifdef XBEE_LOG_NO_COLOR
+	return XBEE_ENOTIMPLEMENTED;
+#else
+
+	if (!xbee) return XBEE_EMISSINGPARAM;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+	if (!xbee->log) return XBEE_ENOTIMPLEMENTED;
+
+	xbee_mutex_lock(&xbee->log->mutex);
+	*enabled = !!xbee->log->enable_color;
+	xbee_mutex_unlock(&xbee->log->mutex);
+
+	return XBEE_ENONE;
+#endif /* XBEE_LOG_NO_COLOR */
+}
+
 /* ######################################################################### */
 
 xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const char *function, struct xbee *xbee, int minLevel, char *preStr, char *format, va_list ap) {
@@ -158,25 +337,29 @@ xbee_err _xbee_logWrite(struct xbee_log *log, const char *file, int line, const 
 	xbee_mutex_lock(&log->mutex);
 	
 #ifndef XBEE_LOG_NO_COLOR
-	if (!xbee) {
-		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[90m:%c[0m %s\n",
-			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27,                   tBuf);
-	} else if (xbee_validate(xbee) == XBEE_ENONE) {
-		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[0m %c[35m%p%c[90m:%c[0m %s\n",
-			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27,     tBuf);
+	if (log->use_color) {
+		if (!xbee) {
+			fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[90m:%c[0m %s\n",
+				preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27,                   tBuf);
+		} else if (xbee_validate(xbee) == XBEE_ENONE) {
+			fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[0m %c[35m%p%c[90m:%c[0m %s\n",
+				preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27,     tBuf);
+		} else {
+			fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[31m !%c[35m%p%c[31m!%c[90m:%c[0m %s\n",
+				preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27, 27, tBuf);
+		}
 	} else {
-		fprintf(log->f, "%s%c[36m%3d%c[90m#[%c[32m%s:%d%c[90m]%c[33m %s()%c[31m !%c[35m%p%c[31m!%c[90m:%c[0m %s\n",
-			preStr, 27, minLevel, 27, 27, file, line, 27, 27, function, 27, 27, xbee, 27, 27, 27, tBuf);
+#endif /* !XBEE_LOG_NO_COLOR */
+		if (!xbee) {
+			fprintf(log->f, "%s%3d#[%s:%d] %s(): %s\n",      preStr, minLevel, file, line, function,       tBuf);
+		} else if (xbee_validate(xbee) == XBEE_ENONE) {
+			fprintf(log->f, "%s%3d#[%s:%d] %s() %p: %s\n",   preStr, minLevel, file, line, function, xbee, tBuf);
+		} else {
+			fprintf(log->f, "%s%3d#[%s:%d] %s() !%p!: %s\n", preStr, minLevel, file, line, function, xbee, tBuf);
+		}
+#ifndef XBEE_LOG_NO_COLOR
 	}
-#else
-	if (!xbee) {
-		fprintf(log->f, "%s%3d#[%s:%d] %s(): %s\n",      preStr, minLevel, file, line, function,       tBuf);
-	} else if (xbee_validate(xbee) == XBEE_ENONE) {
-		fprintf(log->f, "%s%3d#[%s:%d] %s() %p: %s\n",   preStr, minLevel, file, line, function, xbee, tBuf);
-	} else {
-		fprintf(log->f, "%s%3d#[%s:%d] %s() !%p!: %s\n", preStr, minLevel, file, line, function, xbee, tBuf);
-	}
-#endif
+#endif /* !XBEE_LOG_NO_COLOR */
 	fflush(log->f);
 	
 	xbee_mutex_unlock(&log->mutex);
