@@ -91,40 +91,42 @@ static xbee_err escaped_read(struct xbee_serialInfo *info, int len, unsigned cha
 					dest[i] = dest[i + d];
 				}
 				ESCAPER_PRINTF(" %2d / %2d: 0x%02X", i + 1, len, dest[i]);
-				if (nextIsEscaped || dest[i] == 0x7D) {
-					if (!nextIsEscaped && i == l - 1) {
-						nextIsEscaped = 1;
-						ESCAPER_PRINTF(" ---NE---> 0x%02X", dest[i], dest[i] ^ 0x20);
-						d++;
-					} else {
-						if (!nextIsEscaped) {
-							d++;
-							dest[i] = dest[i + d];
-						}
-						nextIsEscaped = 0;
-						ESCAPER_PRINTF(" -{0x%02X}-> 0x%02X", dest[i], dest[i] ^ 0x20);
-						dest[i] ^= 0x20;
-					}
-					if (dest[i] != 0x7E &&
-					    dest[i] != 0x7D &&
-					    dest[i] != 0x11 &&
-					    dest[i] != 0x13) {
+
+				if (nextIsEscaped) {
+					unsigned char ue = dest[i] ^ 0x20;
+
+					ESCAPER_PRINTF(" -{0x%02X}-> 0x%02X", dest[i], dest[i] ^ 0x20);
+
+					if (ue != 0x7E &&
+					    ue != 0x7D &&
+					    ue != 0x11 &&
+					    ue != 0x13) {
 						ESCAPER_PRINTF(" nonsense");
-#ifdef XBEE_API2_SAFE_ESCAPE
-						dest[i] ^= 0x20;
+#ifdef XBEE_API2_GULLIBLE_ESCAPE
+						dest[i] ^= 0x20; /* unescape the byte */
 #endif
-					}
-				} else {
-					if (dest[i] == 0x11 ||
-					    dest[i] == 0x13) {
-						ESCAPER_PRINTF(" --x-x-x-> 0x%02X", dest[i]);
-						i--;
-						d++;
 					} else {
-						ESCAPER_PRINTF(" --------> 0x%02X", dest[i]);
+						dest[i] ^= 0x20; /* unescape the byte */
 					}
+					if (isprint(dest[i])) ESCAPER_PRINTF(" '%c'", dest[i]);
+					nextIsEscaped = 0;
+
+				} else if (dest[i] == 0x7D) {
+					nextIsEscaped = 1;
+					ESCAPER_PRINTF(" --!--!--> * ESCAPE *");
+					d++; /* increase the 'delta' */
+					i--; /* re-read a byte... */
+
+				} else if (dest[i] == 0x11 ||
+				           dest[i] == 0x13) {
+					ESCAPER_PRINTF(" --x--x--> XON/XOFF");
+					d++; /* increase the 'delta' */
+					i--; /* re-read a byte... */
+
+				} else {
+					ESCAPER_PRINTF(" --------> 0x%02X", dest[i]);
+					if (isprint(dest[i])) ESCAPER_PRINTF(" '%c'", dest[i]);
 				}
-				if (isprint(dest[i])) ESCAPER_PRINTF(" '%c'", dest[i]);
 				ESCAPER_PRINTF("\n");
 			}
 			
