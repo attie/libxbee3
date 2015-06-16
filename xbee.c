@@ -56,7 +56,7 @@ EXPORT xbee_err xbee_validate(struct xbee *xbee) {
 xbee_err xbee_alloc(struct xbee **nXbee) {
 	size_t memSize;
 	struct xbee *xbee;
-	char *e;
+	const char *e;
 	int logLevel;
 	xbee_err ret;
 	

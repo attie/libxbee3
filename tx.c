@@ -82,19 +82,22 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 		if ((ret = xbee_ll_ext_head(info->bufList, (void**)&buf)) != XBEE_ENONE && ret != XBEE_ERANGE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
-#ifdef XBEE_LOG_TX
-		{
+#ifndef XBEE_LOG_NO_TX
+		if (xbee->log->enable_tx) {
 			/* format: tx[0x0000000000000000] */
-#ifdef XBEE_LOG_NO_COLOR
-			char label[23]; /* enough space for a 64-bit pointer */
-			snprintf(label, sizeof(label), "Tx[%p]", info);
-#else
 			char label[42]; /* enough space for a 64-bit pointer and ANSI color codes */
-			snprintf(label, sizeof(label), "Tx[%c[%dm%p%c[0m]", 27, 30 + info->logColor, info,  27);
-#endif
+#ifndef XBEE_LOG_NO_COLOR
+			if (xbee->log->use_color) {
+				snprintf(label, sizeof(label), "Tx[%c[%dm%p%c[0m]", 27, 30 + info->logColor, info,  27);
+			} else {
+#endif /* !XBEE_LOG_NO_COLOR */
+				snprintf(label, sizeof(label), "Tx[%p]", info);
+#ifndef XBEE_LOG_NO_COLOR
+			}
+#endif /* !XBEE_LOG_NO_COLOR */
 			xbee_logData(25, label, buf->data, buf->len);
 		}
-#endif /* XBEE_LOG_TX */
+#endif /* !XBEE_LOG_NO_TX */
 
 		if ((ret = info->ioFunc(xbee, info->ioArg, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);

@@ -289,6 +289,12 @@ EXPORT xbee_err xbee_logTargetSet(struct xbee *xbee, FILE *f);
 EXPORT xbee_err xbee_logTargetGet(struct xbee *xbee, FILE **f);
 EXPORT xbee_err xbee_logLevelSet(struct xbee *xbee, int level);
 EXPORT xbee_err xbee_logLevelGet(struct xbee *xbee, int *level);
+EXPORT xbee_err xbee_logRxSet(struct xbee *xbee, int enable);
+EXPORT xbee_err xbee_logRxGet(struct xbee *xbee, int *enabled);
+EXPORT xbee_err xbee_logTxSet(struct xbee *xbee, int enable);
+EXPORT xbee_err xbee_logTxGet(struct xbee *xbee, int *enabled);
+EXPORT xbee_err xbee_logColorSet(struct xbee *xbee, int enable);
+EXPORT xbee_err xbee_logColorGet(struct xbee *xbee, int *enabled);
 
 #ifndef __XBEE_INTERNAL_H
 EXPORT xbee_err _xbee_logDev(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, const char *format, ...);
