@@ -82,6 +82,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 		if ((ret = xbee_ll_ext_head(info->bufList, (void**)&buf)) != XBEE_ENONE && ret != XBEE_ERANGE) return XBEE_ELINKEDLIST;
 		if (!buf) continue;
 		
+#ifndef XBEE_DISABLE_LOGGING
 #ifndef XBEE_LOG_NO_TX
 		if (xbee->log->enable_tx) {
 			/* format: tx[0x0000000000000000] */
@@ -98,6 +99,7 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 			xbee_logData(25, label, buf->data, buf->len);
 		}
 #endif /* !XBEE_LOG_NO_TX */
+#endif /* !XBEE_DISABLE_LOGGING */
 
 		if ((ret = info->ioFunc(xbee, info->ioArg, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);

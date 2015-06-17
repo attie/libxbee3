@@ -81,6 +81,16 @@ On success these functions will return XBEE_ENONE, otherwise an error number fro
 Some of these functions may return
 .B XBEE_ENOTIMPLEMENTED
 if libxbee has bee compiled with them disabled.
+.sp
+These settings may be configured at runtime using the following environment variables:
+.in +4n
+.nf
+XBEE_LOG_LEVEL
+XBEE_LOG_RX
+XBEE_LOG_TX
+XBEE_LOG_COLOR
+.fi
+.in
 .SH EXAMPLE
 .in +4n
 .nf
