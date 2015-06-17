@@ -64,30 +64,15 @@ xbee_err xbee_alloc(struct xbee **nXbee) {
 
 	memSize = sizeof(*xbee);
 
-#ifdef XBEE_LOG_LEVEL
-	logLevel = XBEE_LOG_LEVEL;
-#else
-	logLevel = 0;
-#endif
-
-	if ((e = getenv("XBEE_LOG_LEVEL")) != NULL) {
-		int l;
-		if (sscanf(e, "%d", &l) != 1) {
-			fprintf(stderr, "libxbee: Failed to initialize log level from environment (not a number)\n");
-		} else {
-			logLevel = l;
-		}
-	}
-	
 	if (!(xbee = malloc(memSize))) return XBEE_ENOMEM;
 	
 	memset(xbee, 0, memSize);
 	if ((ret = xbee_frameBlockAlloc(&xbee->fBlock)) != XBEE_ENONE)         goto die1;
-	if ((ret = xbee_logAlloc(&xbee->log, logLevel, stderr)) != XBEE_ENONE) goto die1;
-	if ((ret = xbee_txAlloc(&xbee->iface.tx)) != XBEE_ENONE)                     goto die1;
-	if ((ret = xbee_rxAlloc(&xbee->iface.rx)) != XBEE_ENONE)                     goto die1;
+	if ((ret = xbee_logAlloc(&xbee->log)) != XBEE_ENONE)                   goto die1;
+	if ((ret = xbee_txAlloc(&xbee->iface.tx)) != XBEE_ENONE)               goto die1;
+	if ((ret = xbee_rxAlloc(&xbee->iface.rx)) != XBEE_ENONE)               goto die1;
 	
-	if ((ret = xbee_ll_add_tail(xbeeList, xbee)) != XBEE_ENONE)                 goto die1;
+	if ((ret = xbee_ll_add_tail(xbeeList, xbee)) != XBEE_ENONE)            goto die1;
 	
 	*nXbee = xbee;
 	

@@ -49,7 +49,7 @@ EXPORT xbee_err xbee_logLevelGet(struct xbee *xbee, int *level) {
 #else /* XBEE_DISABLE_LOGGING */
 /* ######################################################################### */
 
-xbee_err xbee_logAlloc(struct xbee_log **nLog, int defLevel, FILE *defFile) {
+xbee_err xbee_logAlloc(struct xbee_log **nLog) {
 	size_t memSize;
 	struct xbee_log *log;
 	const char *e;
@@ -63,9 +63,23 @@ xbee_err xbee_logAlloc(struct xbee_log **nLog, int defLevel, FILE *defFile) {
 	memset(log, 0, memSize);
 
 	xsys_mutex_init(&log->mutex);
-	log->f = defFile;
+	log->f = stderr;
 
-	log->logLevel = defLevel;
+	if ((e = getenv("XBEE_LOG_LEVEL")) != NULL) {
+		int l;
+		if (sscanf(e, "%d", &l) != 1) {
+			fprintf(stderr, "libxbee: Failed to initialize log level from environment (not a number)\n");
+			log->logLevel = 0;
+		} else {
+			log->logLevel = l;
+		}
+	} else {
+#ifdef XBEE_LOG_LEVEL
+		log->logLevel = XBEE_LOG_LEVEL;
+#else
+		log->logLevel = 0;
+#endif
+	}
 
 #ifndef XBEE_LOG_NO_RX
 	if ((e = getenv("XBEE_LOG_RX")) != NULL) {

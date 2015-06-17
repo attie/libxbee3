@@ -57,7 +57,7 @@ struct xbee_log {
 #endif
 };
 
-xbee_err xbee_logAlloc(struct xbee_log **nLog, int defLevel, FILE *defFile);
+xbee_err xbee_logAlloc(struct xbee_log **nLog);
 xbee_err xbee_logFree(struct xbee_log *log);
 
 #define xbee_logTest(curLevel, minLevel)  ((curLevel >= minLevel) ? 0 : 1)
