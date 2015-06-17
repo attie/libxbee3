@@ -44,6 +44,24 @@ EXPORT xbee_err xbee_logLevelSet(struct xbee *xbee, int level) {
 EXPORT xbee_err xbee_logLevelGet(struct xbee *xbee, int *level) {
 	return XBEE_ENOTIMPLEMENTED;
 }
+EXPORT xbee_err xbee_logRxSet(struct xbee *xbee, int enable) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+EXPORT xbee_err xbee_logRxGet(struct xbee *xbee, int *enabled) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+EXPORT xbee_err xbee_logTxSet(struct xbee *xbee, int enable) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+EXPORT xbee_err xbee_logTxGet(struct xbee *xbee, int *enabled) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+EXPORT xbee_err xbee_logColorSet(struct xbee *xbee, int enable) {
+	return XBEE_ENOTIMPLEMENTED;
+}
+EXPORT xbee_err xbee_logColorGet(struct xbee *xbee, int *enabled) {
+	return XBEE_ENOTIMPLEMENTED;
+}
 
 /* ######################################################################### */
 #else /* XBEE_DISABLE_LOGGING */

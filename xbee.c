@@ -68,7 +68,9 @@ xbee_err xbee_alloc(struct xbee **nXbee) {
 	
 	memset(xbee, 0, memSize);
 	if ((ret = xbee_frameBlockAlloc(&xbee->fBlock)) != XBEE_ENONE)         goto die1;
+#ifndef XBEE_DISABLE_LOGGING
 	if ((ret = xbee_logAlloc(&xbee->log)) != XBEE_ENONE)                   goto die1;
+#endif /* !XBEE_DISABLE_LOGGING */
 	if ((ret = xbee_txAlloc(&xbee->iface.tx)) != XBEE_ENONE)               goto die1;
 	if ((ret = xbee_rxAlloc(&xbee->iface.rx)) != XBEE_ENONE)               goto die1;
 	
@@ -111,7 +113,9 @@ xbee_err xbee_free(struct xbee *xbee) {
 	xbee_modeCleanup(xbee->iface.conTypes);
 	xbee_rxFree(xbee->iface.rx);
 	xbee_txFree(xbee->iface.tx);
+#ifndef XBEE_DISABLE_LOGGING
 	xbee_logFree(xbee->log);
+#endif /* !XBEE_DISABLE_LOGGING */
 	xbee_frameBlockFree(xbee->fBlock);
 	
 	free(xbee);

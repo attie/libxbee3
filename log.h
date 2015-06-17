@@ -23,12 +23,6 @@
 
 #ifdef XBEE_DISABLE_LOGGING
 
-struct xbee_log;
-
-#define xbee_logAlloc(...) XBEE_ENONE
-#define xbee_logFree(...)  
-
-#define xbee_logTest(...)
 #define xbee_log(...)
 
 /* ######################################################################### */
