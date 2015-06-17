@@ -1,7 +1,7 @@
 ### libxbee configuration options:
 
 ### compiler locations
-VCPATH:=C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC
+VCPATH:=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC
 SDKPATH:=C:\Program Files\Microsoft SDKs\Windows\v7.1
 #GITPATH:=C:\Program Files\Git\bin\git.exe
 
