@@ -92,7 +92,8 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 			usleep(10000); /* 10 ms */
 			continue;
 		}
-		
+
+#ifndef XBEE_DISABLE_LOGGING
 #ifndef XBEE_LOG_NO_RX
 		if (xbee->log->enable_rx) {
 			/* format: tx[0x0000000000000000] */
@@ -109,6 +110,7 @@ xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg) {
 			xbee_logData(25, label, buf->data, buf->len);
 		}
 #endif /* !XBEE_LOG_NO_RX */
+#endif /* !XBEE_DISABLE_LOGGING */
 		
 		if (xbee_ll_add_tail(info->bufList, buf) != XBEE_ENONE) return XBEE_ELINKEDLIST;
 		buf = NULL;

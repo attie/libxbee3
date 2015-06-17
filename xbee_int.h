@@ -34,7 +34,9 @@ struct xbee {
 	int die;
 	
 	struct xbee_frameBlock *fBlock;
+#ifndef XBEE_DISABLE_LOGGING
 	struct xbee_log *log;
+#endif /* !XBEE_DISABLE_LOGGING */
 	
 	const struct xbee_mode *mode;
 	void *modeData; /* for use by the mode */
