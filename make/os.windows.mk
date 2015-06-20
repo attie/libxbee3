@@ -3,9 +3,14 @@ SHELL:=cmd
 DEFCONFIG:=            windows.mk
 BUILD_RULES:=          windows.mk
 
-CC=                    "$(VCPATH)\bin\cl.exe"
-LD=                    "$(VCPATH)\bin\link.exe"
-RC=                    "$(SDKPATH)\bin\rc.exe"
+VCBINDIR?=bin
+VCLIBDIR?=lib
+SDKBINDIR?=bin
+SDKLIBDIR?=lib
+
+CC=                    "$(VCPATH)\$(VCBINDIR)\cl.exe"
+LD=                    "$(VCPATH)\$(VCBINDIR)\link.exe"
+RC=                    "$(SDKPATH)\$(SDKBINDIR)\rc.exe"
 
 MKDIR=                 mkdir $* || true
 RM:=                   del /F
@@ -13,7 +18,7 @@ RMDIR:=                del /F /Q
 
 DEBUG?=                /MT
 CFLAGS+=               /nologo "/I$(SDKPATH)\Include" "/I$(VCPATH)\include" /RTCs /Gd $(DEBUG) $(addprefix /D,$(OPTIONS)) /DLIBXBEE_BUILD
-CLINKS+=               /nologo "/LIBPATH:$(SDKPATH)\Lib" "/LIBPATH:$(VCPATH)\lib" /VERSION:$(LIBMAJ).$(LIBMIN) $(LDBUG)
+CLINKS+=               /nologo "/LIBPATH:$(SDKPATH)\$(SDKLIBDIR)" "/LIBPATH:$(VCPATH)\$(VCLIBDIR)" /VERSION:$(LIBMAJ).$(LIBMIN) $(LDBUG)
 FINLNK:=               /DLL
 
 LIB_OUT:=              $(DESTDIR)/$(LIBNAME)$(LIBMAJ).dll

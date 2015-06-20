@@ -5,12 +5,21 @@ VCPATH:=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC
 SDKPATH:=C:\Program Files\Microsoft SDKs\Windows\v7.1
 #GITPATH:=C:\Program Files\Git\bin\git.exe
 
+### if you're building for a 64-bit platform, you'll want to use these
+#VCBINDIR:=bin\amd64
+#VCLIBDIR:=lib\amd64
+#SDKBINDIR:=bin\x64
+#SDKLIBDIR:=lib\x64
+
 ### using this can create a smaller binary, by removing modes you won't use
 #MODELIST:=             xbee1 xbee2 xbee3 xbee5 xbee6b xbeeZB
 
 ### debug options
 #DEBUG:=/Zi /MTd
 #LDBUG:=/DEBUG
+
+### un-comment this if your system already has 'struct timespec' defined
+#OPTIONS+=       SYS_HAS_TIMESPEC
 
 ### un-comment to remove ALL logging (smaller & faster binary)
 #OPTIONS+=       XBEE_DISABLE_LOGGING

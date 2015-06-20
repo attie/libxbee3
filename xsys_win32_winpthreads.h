@@ -101,6 +101,7 @@
 
 #define PTHREAD_BARRIER_SERIAL_THREAD 1
 
+#ifndef SYS_HAS_TIMESPEC
 /* Windows doesn't have this, so declare it ourselves. */
 struct timespec
 {
@@ -108,6 +109,7 @@ struct timespec
 	long long tv_sec;
 	long long tv_nsec;
 };
+#endif /* SYS_HAS_TIMESPEC */
 
 typedef struct _pthread_cleanup _pthread_cleanup;
 struct _pthread_cleanup
