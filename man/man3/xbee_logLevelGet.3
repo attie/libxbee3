@@ -33,17 +33,17 @@ xbee_logColorGet, xbee_logColorSet
 .sp 0
 .BI "xbee_err xbee_logTargetSet(struct xbee *" xbee ", FILE *" f ");"
 .sp
-.BI "xbee_err xbee_logRxGet(struct xbee *" xbee ", int " enable ");"
+.BI "xbee_err xbee_logRxGet(struct xbee *" xbee ", int *" enable ");"
 .sp 0
-.BI "xbee_err xbee_logRxSet(struct xbee *" xbee ", int *" enabled ");"
+.BI "xbee_err xbee_logRxSet(struct xbee *" xbee ", int " enabled ");"
 .sp
-.BI "xbee_err xbee_logTxGet(struct xbee *" xbee ", int " enable ");"
+.BI "xbee_err xbee_logTxGet(struct xbee *" xbee ", int *" enable ");"
 .sp 0
-.BI "xbee_err xbee_logTxSet(struct xbee *" xbee ", int *" enabled ");"
+.BI "xbee_err xbee_logTxSet(struct xbee *" xbee ", int " enabled ");"
 .sp
-.BI "xbee_err xbee_logColorGet(struct xbee *" xbee ", int " enable ");"
+.BI "xbee_err xbee_logColorGet(struct xbee *" xbee ", int *" enable ");"
 .sp 0
-.BI "xbee_err xbee_logColorSet(struct xbee *" xbee ", int *" enabled ");"
+.BI "xbee_err xbee_logColorSet(struct xbee *" xbee ", int " enabled ");"
 .sp
 .SH DESCRIPTION
 These functions allow you to configure and retrieve the logging options for an instance of libxbee.
