@@ -29,6 +29,7 @@
 #include "../../log.h"
 #include "../common.h"
 #include "data.h"
+#include "mode.h"
 
 xbee_err xbee_s6b_data_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
@@ -188,4 +189,5 @@ struct xbee_modeConType xbee_s6b_data = {
 	.rxHandler = &xbee_s6b_data_rx,
 	.txHandler = &xbee_s6b_data_tx,
 	.addressCmp = xbee_s6b_data_addressCmp,
+	.addressTest = xbee_s6b_ip_addressTest,
 };
