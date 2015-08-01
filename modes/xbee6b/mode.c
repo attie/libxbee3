@@ -87,6 +87,13 @@ static xbee_err mode_shutdown(struct xbee *xbee) {
 
 /* ######################################################################### */
 
+xbee_err xbee_s6b_ip_addressTest(const unsigned char *addr, size_t len) {
+	/* never store an updated address... */
+	return XBEE_EINVAL;
+}
+
+/* ######################################################################### */
+
 xbee_err xbee_s6b_transmitStatus_rx_func(struct xbee *xbee, void *arg, unsigned char identifier, struct xbee_tbuf *buf, struct xbee_frameInfo *frameInfo, struct xbee_conAddress *address, struct xbee_pkt **pkt) {
 	struct xbee_pkt *iPkt;
 	xbee_err ret;

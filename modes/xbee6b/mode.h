@@ -25,5 +25,7 @@ struct xbee_modeData {
 	struct xbee_serialInfo serialInfo; /* keep serialInfo first, otherwise xbee_xbeeRxIo() and xbee_xbeeTxIo() will break */
 };
 
+xbee_err xbee_s6b_ip_addressTest(const unsigned char *addr, size_t len);
+
 #endif /* __XBEE_MODE_MODE_H */
 
