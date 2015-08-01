@@ -21,6 +21,8 @@
 	along with libxbee. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define ARRAY_SIZE(a)  (sizeof(a) / sizeof(*(a)))
+
 /* ######################################################################### */
 /* just to keep the compiler happy before structs are declared */
 struct xbee;
