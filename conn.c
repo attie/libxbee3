@@ -313,6 +313,42 @@ got4:
 
 /* ######################################################################### */
 
+static const unsigned char mode_test_addr_16_list[][2] = {
+	{ 0xFF, 0xFE },
+	{ 0xFF, 0xFF },
+};
+
+static const unsigned char mode_test_addr_64_list[][8] = {
+	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF },
+};
+
+xbee_err xbee_conAddressTestDefault(const unsigned char *addr, size_t len) {
+	int i;
+
+	switch (len) {
+		case 2:
+			if (sizeof(*mode_test_addr_16_list) != len) return XBEE_EINVAL;
+			for (i = 0; i < ARRAY_SIZE(mode_test_addr_16_list); i++) {
+				if (!memcmp(addr, mode_test_addr_16_list[i], len)) return XBEE_EINVAL;
+			}
+			break;
+
+		case 8:
+			if (sizeof(*mode_test_addr_64_list) != len) return XBEE_EINVAL;
+			for (i = 0; i < ARRAY_SIZE(mode_test_addr_64_list); i++) {
+				if (!memcmp(addr, mode_test_addr_64_list[i], len)) return XBEE_EINVAL;
+			}
+			break;
+
+		default:
+			return XBEE_ENOTIMPLEMENTED;
+	}
+
+	return XBEE_ENONE;
+}
+
+/* ######################################################################### */
+
 xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *address, unsigned char *retRating, struct xbee_con **retCon, enum xbee_conSleepStates alertLevel, int needsLLLock) {
 	/* higher is better!
 	   a value of 255 indicates that there will DEFINATELY not be a better match

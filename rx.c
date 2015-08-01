@@ -237,12 +237,16 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		if (!con->settings.catchAll) {
 			if (address.addr16_enabled && !con->address.addr16_enabled && conType->save_addr16) {
-				con->address.addr16_enabled = 1;
-				memcpy(con->address.addr16, address.addr16, 2);
+				if (conType->addressTest(address.addr16, sizeof(address.addr16)) == XBEE_ENONE) {
+					con->address.addr16_enabled = 1;
+					memcpy(con->address.addr16, address.addr16, 2);
+				}
 			}
 			if (address.addr64_enabled && !con->address.addr64_enabled && conType->save_addr64) {
-				con->address.addr64_enabled = 1;
-				memcpy(con->address.addr64, address.addr64, 8);
+				if (conType->addressTest(address.addr64, sizeof(address.addr64)) == XBEE_ENONE) {
+					con->address.addr64_enabled = 1;
+					memcpy(con->address.addr64, address.addr64, 8);
+				}
 			}
 		}
 		
