@@ -63,6 +63,9 @@ struct xbee_modeConType {
 	   if the addresses are a perfect match, matchRating should be set to 255
 	   if the addresses have nothing in common, matchRating should be set to 0 */
 	xbee_err (*addressCmp)(struct xbee_conAddress *addr1, struct xbee_conAddress *addr2, unsigned char *matchRating);
+	/* this function indicates whether the address is valid, and should be stored with the matched connection
+	   ... that is to say, it is used to stop broadcast and 'unknown' addresses being stored */
+	xbee_err (*addressTest)(const unsigned char *addr, size_t len);
 	
 	int nameNeedsFree;
 	
