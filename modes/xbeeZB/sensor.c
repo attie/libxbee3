@@ -58,7 +58,7 @@ xbee_err xbee_sZB_sensor_rx_func(struct xbee *xbee, void *arg, unsigned char ide
 
 /* ######################################################################### */
 
-struct xbee_modeDataHandlerRx xbee_sZB_sensor_rx  = {
+struct xbee_modeDataHandlerRx xbee_sZB_sensor_rx = {
 	.identifier = 0x94,
 	.func = xbee_sZB_sensor_rx_func,
 };
