@@ -57,7 +57,7 @@ xbee_err xbee_s5_at_rx_func(struct xbee *xbee, void *arg, unsigned char identifi
 		return XBEE_ENONE;
 	}
 	
-	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - 5)) != XBEE_ENONE) return ret;
+	if ((ret = xbee_pktAlloc(&iPkt, NULL, buf->len - addrLen - 5)) != XBEE_ENONE) return ret;
 	iPkt->frameId = frameInfo->id;
 	
 	if (addrLen == 10) {
