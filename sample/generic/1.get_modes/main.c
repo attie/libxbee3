@@ -65,6 +65,8 @@ int main(void) {
 
 		free(types);
 
+		xbee_shutdown(xbee);
+
 	}
 
 	free(modes);
