@@ -527,7 +527,7 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *iface, int allow
 		return ret;
 	}
 	
-	xbee_log(6, "Created new '%s' type connection", conType->name);
+	xbee_log(6, "Created new '%s' type connection @ %p", conType->name, con);
 	xbee_conLogAddress(xbee, 8, address);
 	
 	*retCon = con;
@@ -1072,6 +1072,8 @@ EXPORT xbee_err xbee_conEnd(struct xbee_con *con) {
 	}
 	
 	if ((ret2 = xbee_conFree(con)) != XBEE_ENONE) return ret2;
+
+	xbee_log(6, "Closed connection @ %p", con);
 	
 	return ret;
 }
