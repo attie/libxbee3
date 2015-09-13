@@ -60,7 +60,13 @@ int main(int argc, char *argv[]) {
 			/* send data */
 			local_con << "NI";
 			remote_con << "NI";
-
+			
+			/* to send AT parameters:
+			if for example you want to set DIO4 pin to high (parameter=5)
+			xbee_conTx(remote_con.getHnd(), NULL, "D4%c", 0x05);
+			*/
+			
+			
 			/* wait a bit... */
 			usleep(1000000);
 
