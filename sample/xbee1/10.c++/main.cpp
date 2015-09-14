@@ -132,6 +132,16 @@ int main(int argc, char *argv[]) {
 		/* send data */
 		//con.Tx("NI"); /* like this */
 		con << "NI";    /* or like this */
+
+		/* NOTE: if you're trying to set a configuration option, then you'll need to provide
+		         the RAW value, not the ASCII character. To do this, see the following example:
+		             con << "D4" + std::string(1, 0x05);
+		         where "D4" will query or set the configuration of pin 4, and 0x05 will set it
+		         to be an output, with a logic 'high' value
+
+		         this is the C++ equivelant to calling the following from C:
+		             xbee_conTx(con, NULL, "D4%c", 0x05);                                      */
+
 		usleep(1000000);
 
 
