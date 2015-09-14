@@ -1,1 +1,1 @@
-../../makefile.pthread
+../../makefile

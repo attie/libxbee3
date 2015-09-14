@@ -73,7 +73,7 @@ static xbee_err init(struct xbee *xbee, va_list ap) {
 	
 	/* import that mode's connection types! */
 	for (i = 0; data->mode->conTypes[i]; i++) {
-		fprintf(stderr, "Importing conType '%s'\n", data->mode->conTypes[i]->name);
+		xbee_log(100, "Importing conType '%s'", data->mode->conTypes[i]->name);
 		if ((ret = xbee_modeAddConType(&xbee->iface.conTypes, data->mode->conTypes[i])) != XBEE_ENONE) goto die;
 	}
 	
@@ -94,15 +94,15 @@ xbee_err xbee_debugRxIo(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 
 xbee_err xbee_debugTxIo(struct xbee *xbee, void *arg, struct xbee_sbuf *buf) {
 	int i;
-	fprintf(stderr,   "------ Packet Tx: ------\n");
+	xbee_log(100,   "------ Packet Tx: ------\n");
 	for (i = 0; i < buf->len; i++) {
-		fprintf(stderr, " data[%3d]: 0x%02X", i, buf->data[i]);
+		xbee_log(100, " data[%3d]: 0x%02X", i, buf->data[i]);
 		if (isprint(buf->data[i])) {
-		  fprintf(stderr, " -> '%c'", buf->data[i]);
+		  xbee_log(100, " -> '%c'", buf->data[i]);
 		}
-		fprintf(stderr, "\n");
+		xbee_log(100, "\n");
 	}
-	fprintf(stderr,   "========================\n");
+	xbee_log(100,   "========================\n");
 	return XBEE_ENONE;
 }
 

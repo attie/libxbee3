@@ -78,7 +78,7 @@ xbee_err _xbee_ll_ext_item(void *list, void *item, int needMutex);
 xbee_err _xbee_ll_ext_index(void *list, unsigned int index, void **retItem, int needMutex);
 
 
-#define xbee_ll_modify_items(list, oldItem, newItem) \
+#define xbee_ll_modify_item(list, oldItem, newItem) \
                                         _xbee_ll_modify_item((list), (oldItem), (newItem), 1)
 #define xbee_ll_count_items(list, retCount)  _xbee_ll_count_items((list), (retCount), 1)
 
