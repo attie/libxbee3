@@ -117,6 +117,8 @@ xbee_err xbee_free(struct xbee *xbee) {
 	xbee_frameBlockFree(xbee->fBlock);
 	
 	free(xbee);
+
+	xbee_log(20, "Completed shutdown procedure for libxbee instance @ %p", xbee);
 	
 	return XBEE_ENONE;
 }
@@ -155,6 +157,8 @@ EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap)
 	
 	xbee_ll_add_tail(xbeeList, xbee);
 	
+	xbee_log(20, "Created new libxbee instance @ %p", xbee);
+
 	*retXbee = xbee;
 	
 	return XBEE_ENONE;
@@ -200,6 +204,8 @@ EXPORT xbee_err xbee_shutdown(struct xbee *xbee) {
 	xbee_ll_ext_item(xbeeList, xbee);
 	/* start a detached thread */
 	xbee_threadStart(xbee, NULL, -1, 1, xbee_shutdownThread, ptid);
+
+	xbee_log(20, "Started shutdown procedure for libxbee instance @ %p", xbee);
 	
 	return XBEE_ENONE;
 }
