@@ -20,8 +20,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include <xbee.h>
+
+void redirect_stderr(void) {
+	int fd = open("/dev/null", O_RDWR);
+	dup2(fileno(stderr), fd);
+}
 
 int main(void) {
 	char **modes;
@@ -33,7 +40,33 @@ int main(void) {
 	}
 
 	for (i = 0; modes[i]; i++) {
+		struct xbee *xbee;
+		char **types;
+		int o;
+
 		printf("mode %d - %s\n", i, modes[i]);
+
+		if (!strcmp(modes[i], "net")) continue;
+		if (!strcmp(modes[i], "debug")) continue;
+
+		if (xbee_setup(&xbee, "debug", modes[i]) != XBEE_ENONE) {
+			printf("   couldn't startup libxbee...\n");
+			continue;
+		}
+
+		if (xbee_conGetTypes(xbee, &types) != XBEE_ENONE) {
+			printf("   couldn't get a list of con types...\n");
+			continue;
+		}
+
+		for (o = 0; types[o]; o++) {
+			printf("  type %d - %s\n", o, types[o]);
+		}
+
+		free(types);
+
+		xbee_shutdown(xbee);
+
 	}
 
 	free(modes);

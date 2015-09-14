@@ -529,7 +529,7 @@ xbee_err _xbee_conNew(struct xbee *xbee, struct xbee_interface *iface, int allow
 		return ret;
 	}
 	
-	xbee_log(6, "Created new '%s' type connection", conType->name);
+	xbee_log(6, "Created new '%s' type connection @ %p", conType->name, con);
 	xbee_conLogAddress(xbee, 8, address);
 	
 	*retCon = con;
@@ -1060,17 +1060,26 @@ EXPORT xbee_err xbee_conSettings(struct xbee_con *con, struct xbee_conSettings *
 /* ########################################################################## */
 
 EXPORT xbee_err xbee_conEnd(struct xbee_con *con) {
+	struct xbee *xbee;
 	xbee_err ret;
 	xbee_err ret2;
 
+	if (!con) return XBEE_EMISSINGPARAM;
+	xbee = con->xbee;
+#ifndef XBEE_DISABLE_STRICT_OBJECTS
+	if (xbee_validate(xbee) != XBEE_ENONE) return XBEE_EINVAL;
+#endif /* XBEE_DISABLE_STRICT_OBJECTS */
+
 	ret = XBEE_ENONE;
-	if (con->xbee->mode->support.conEnd) {
+	if (xbee->mode->support.conEnd) {
 		/* check with support system */
-		ret = con->xbee->mode->support.conEnd(con);
+		ret = xbee->mode->support.conEnd(con);
 		if (ret != XBEE_ENONE && ret != XBEE_ESTALE) return ret;
 	}
 	
 	if ((ret2 = xbee_conFree(con)) != XBEE_ENONE) return ret2;
+
+	xbee_log(6, "Closed connection @ %p", con);
 	
 	return ret;
 }
