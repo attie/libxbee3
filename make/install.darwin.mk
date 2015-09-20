@@ -10,6 +10,7 @@ $(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)): $(SYS_INCDIR)/%: %
 	$(INSTALL) -m 644 $^ $@
 
 $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))): $(SYS_MANDIR)/%.gz: $(MANDIR)/%
+	mkdir -p $(dir $@)
 	if [ ! -h $^ ]; then                         \
 	  $(DEFLATE) < $^ > $@;                      \
 	  chmod 644 $@;                              \
