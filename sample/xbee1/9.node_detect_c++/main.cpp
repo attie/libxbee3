@@ -35,11 +35,11 @@ class remotenode {
 			addr64(addr64) { };
 		explicit remotenode(std::vector<unsigned char> nd_payload);
 
-		std::string getName(void)     { return name;                        }
-		uint16_t    getAddr16(void)   { return addr16;                      }
-		uint64_t    getAddr64(void)   { return addr64;                      }
-		uint32_t    getAddr64Hi(void) { return (addr64 >> 32) & 0xFFFFFFFF; }
-		uint32_t    getAddr64Lo(void) { return addr64 & 0xFFFFFFFF;         }
+		std::string getName(void)     const { return name;                        }
+		uint16_t    getAddr16(void)   const { return addr16;                      }
+		uint64_t    getAddr64(void)   const { return addr64;                      }
+		uint32_t    getAddr64Hi(void) const { return (addr64 >> 32) & 0xFFFFFFFF; }
+		uint32_t    getAddr64Lo(void) const { return addr64 & 0xFFFFFFFF;         }
 
 	private:
 		std::string name;
