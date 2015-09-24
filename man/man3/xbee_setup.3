@@ -113,6 +113,9 @@ if ((ret = xbee_setup(&xbee, "xbee1", "/dev/ttyUSB0", 57600)) != XBEE_ENONE) {
 if (xbee_shutdown(xbee) != XBEE_ENONE) return;
 .fi
 .in
+.SH NOTES
+When running on OSX with a USB to UART adapter, you should choose
+.BR /dev/cu.usbserial-* ", not " /dev/tty.usbserial-* .
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"
