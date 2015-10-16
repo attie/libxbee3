@@ -71,9 +71,24 @@ xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock) {
 
 /* ########################################################################## */
 
-xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon) {
+static void xbee_framePrepare(struct xbee_frameBlock *fBlock, struct xbee_con *con, struct xbee_frame *frame, char abandon) {
+	fBlock->lastFrame = frame->id;
+	frame->status = XBEE_FRAME_STATUS_SCHEDULED;
+	if (abandon) {
+		frame->status |= XBEE_FRAME_STATUS_ABANDONED;
+	} else {
+		frame->con = con;
+	}
+	clock_gettime(CLOCK_MONOTONIC, &(frame->ts));
+
+	con->frameId = frame->id;
+}
+
+xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon, char allow_recycle_oldest) {
 	xbee_err ret;
 	int i, o;
+	struct xbee_frame *touse = NULL;
+	struct xbee_frame *oldest = NULL;
 	
 	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
 	ret = XBEE_EFAILED;
@@ -82,19 +97,28 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 	for (i = 0, o = fBlock->lastFrame + 1; i < fBlock->numFrames; i++, o++) {
 		o %= fBlock->numFrames;
 		if (o == 0) continue; /* skip '0x00', this indicates that no ACK is requested */
-		if (fBlock->frame[o].status) continue;
-		
-		fBlock->lastFrame = o;
-		fBlock->frame[o].status = XBEE_FRAME_STATUS_SCHEDULED;
-		if (abandon) {
-			fBlock->frame[o].status |= XBEE_FRAME_STATUS_ABANDONED;
-		} else {
-			fBlock->frame[o].con = con;
+
+		if ((oldest == NULL) ||
+		    (fBlock->frame[o].ts.tv_sec < oldest->ts.tv_sec) ||
+		    ((fBlock->frame[o].ts.tv_sec == oldest->ts.tv_sec) && (fBlock->frame[o].ts.tv_nsec < oldest->ts.tv_nsec))) {
+			oldest = &(fBlock->frame[o]);
 		}
-		con->frameId = fBlock->frame[o].id;
-		ret = XBEE_ENONE;
+
+		if (fBlock->frame[o].status) continue;
+
+		touse = &(fBlock->frame[o]);
 		break;
 	}
+
+	if (touse == NULL && allow_recycle_oldest && oldest != NULL) {
+		touse = oldest;
+	}
+
+	if (touse != NULL) {
+		xbee_framePrepare(fBlock, con, touse, abandon);
+		ret = XBEE_ENONE;
+	}
+
 	xbee_mutex_unlock(&fBlock->mutex);
 	
 	return ret;

@@ -21,6 +21,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <time.h>
+
 struct xbee_frameInfo {
 	char active;
 	unsigned char id;
@@ -38,6 +40,7 @@ struct xbee_frame {
 	unsigned char id;
 	unsigned char retVal;
 	unsigned char status; /* this used the XBEE_FRAME_STATUS_* bitfield - zero means unused */
+	struct timespec ts;
 };
 
 struct xbee_frameBlock {
@@ -50,7 +53,7 @@ struct xbee_frameBlock {
 xbee_err xbee_frameBlockAlloc(struct xbee_frameBlock **nfBlock);
 xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock);
 
-xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon);
+xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon, char allow_recycle_oldest);
 xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, unsigned char *retVal, struct timespec *timeout);
 xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, unsigned char retVal);
 
