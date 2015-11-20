@@ -230,12 +230,13 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 		} else if (retv == 0) {
 			return XBEE_ETIMEOUT;
 		}
+
 		ret = 0;
 		while ((retv = read(info->dev.fd, &(dest[pos + ret]), len - ret - pos)) > 0) {
 			ret += retv;
 		}
 
-		if (retv == 0) {
+		if (ret == 0) {
 			return XBEE_EEOF;
 		}
 
