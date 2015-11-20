@@ -263,7 +263,7 @@ int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) 
 	for (pos = 0; pos < len; pos += ret) {
 		if ((ret = write(info->dev.fd, &(src[pos]), len - pos)) > 0) continue;
 
-		if (retv == 0) {
+		if (ret == 0) {
 			return XBEE_EEOF;
 		}
 
