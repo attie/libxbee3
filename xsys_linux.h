@@ -53,7 +53,6 @@ typedef ssize_t           xsys_ssize_t;
 
 struct serialDev {
 	int fd;
-	FILE *f;
 };
 typedef struct serialDev  xsys_serialDev;
 

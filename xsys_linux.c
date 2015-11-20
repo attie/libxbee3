@@ -100,14 +100,6 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 		return XBEE_EINUSE;
 	}
 
-	if ((info->dev.f = fdopen(info->dev.fd, "r+")) == NULL) {
-		perror("fdopen()");
-		return XBEE_EIO;
-	}
-	
-	setvbuf(info->dev.f, NULL, _IONBF, BUFSIZ);
-	fflush(info->dev.f);
-	
 	if (tcgetattr(info->dev.fd, &tc)) {
 		perror("tcgetattr()");
 		return XBEE_ESETUP;
@@ -211,8 +203,6 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 
 int xsys_serialShutdown(struct xbee_serialInfo *info) {
 	if (!info) return XBEE_EMISSINGPARAM;
-	if (info->dev.f) fclose(info->dev.f);
-	info->dev.f = NULL;
 	if (info->dev.fd) close(info->dev.fd);
 	info->dev.fd = -1;
 	return XBEE_ENONE;
@@ -225,7 +215,7 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 	int pos;
 	
 	if (!info || !dest) return XBEE_EMISSINGPARAM;
-	if (info->dev.fd == -1 || !info->dev.f || len == 0) return XBEE_EINVAL;
+	if (info->dev.fd == -1 || len == 0) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
 		FD_ZERO(&fds);
@@ -241,22 +231,20 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 			return XBEE_ETIMEOUT;
 		}
 		ret = 0;
-		while ((retv = fread(&(dest[pos + ret]), 1, len - ret - pos, info->dev.f)) > 0) {
+		while ((retv = read(info->dev.fd, &(dest[pos + ret]), len - ret - pos)) > 0) {
 			ret += retv;
 		}
-		if (retv >= 0 && ret > 0) continue;
-		if (feof(info->dev.f)) {
-#ifndef linux
-/* for FreeBSD */
-			usleep(10000);
-			continue;
-#else
+
+		if (retv == 0) {
 			return XBEE_EEOF;
-#endif /* !linux */
 		}
-		if (ferror(info->dev.f)) {
-			perror("fread()");
-			return XBEE_EIO;
+
+		if (retv == -1) {
+			if ((errno != EINTR) &&
+			    (errno != EAGAIN) &&
+			    (errno != EWOULDBLOCK)) {
+				return XBEE_EIO;
+			}
 		}
 	}
 	
@@ -270,13 +258,21 @@ int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) 
 	int ret;
 	
 	if (!info || !src) return XBEE_EMISSINGPARAM;
-	if (info->dev.fd == -1 || !info->dev.f || len == 0) return XBEE_EINVAL;
+	if (info->dev.fd == -1 || len == 0) return XBEE_EINVAL;
 	
 	for (pos = 0; pos < len; pos += ret) {
-		if ((ret = fwrite(&(src[pos]), 1, len - pos, info->dev.f)) > 0) continue;
-		if (ferror(info->dev.f)) {
-			perror("fwrite()");
-			return XBEE_EIO;
+		if ((ret = write(info->dev.fd, &(src[pos]), len - pos)) > 0) continue;
+
+		if (retv == 0) {
+			return XBEE_EEOF;
+		}
+
+		if (ret == -1) {
+			if ((errno != EINTR) &&
+			    (errno != EAGAIN) &&
+			    (errno != EWOULDBLOCK)) {
+				return XBEE_EIO;
+			}
 		}
 	}
 	

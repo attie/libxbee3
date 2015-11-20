@@ -193,7 +193,18 @@ int xsys_serialRead(struct xbee_serialInfo *info, int len, unsigned char *dest) 
 		while ((retv = read(info->dev.fd, &(dest[pos + ret]), len - ret - pos)) > 0) {
 			ret += retv;
 		}
-		if (retv >= 0 && ret > 0) continue;
+
+		if (retv == 0) {
+			return XBEE_EEOF;
+		}
+
+		if (retv == -1) {
+			if ((errno != EINTR) &&
+			    (errno != EAGAIN) &&
+			    (errno != EWOULDBLOCK)) {
+				return XBEE_EIO;
+			}
+		}
 	}
 	
 	return XBEE_ENONE;
@@ -210,6 +221,18 @@ int xsys_serialWrite(struct xbee_serialInfo *info, int len, unsigned char *src) 
 	
 	for (pos = 0; pos < len; pos += ret) {
 		if ((ret = write(info->dev.fd, &(src[pos]), len - pos)) > 0) continue;
+
+		if (retv == 0) {
+			return XBEE_EEOF;
+		}
+
+		if (ret == -1) {
+			if ((errno != EINTR) &&
+			    (errno != EAGAIN) &&
+			    (errno != EWOULDBLOCK)) {
+				return XBEE_EIO;
+			}
+		}
 	}
 	
 	return XBEE_ENONE;
