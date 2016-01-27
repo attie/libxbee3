@@ -23,6 +23,7 @@ struct xbee_pkt {
         unsigned char status;
         unsigned char options;
         unsigned char rssi; /* print as &quot;RSSI: -%d - only valid for XBee 1 */
+        unsigned char apiIdentifier;
         unsigned char frameId;
 
         struct timespec timestamp;
@@ -83,6 +84,14 @@ printf(&quot;RSSI: -%d dBm\n&quot;, pkt-&gt;rssi);
 </PRE>
 
 
+<DT><I>apiIdentifier</I>
+
+<DD>
+contains the API Identifier for the XBee message type that was handled
+<DT><I>frameId</I>
+
+<DD>
+contains the Frame ID provided by the received message
 <DT><I>atCommand</I>
 
 <DD>
@@ -147,6 +156,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 18:19:28 GMT, September 04, 2013
+Time: 14:12:52 GMT, January 27, 2016
 </BODY>
 </HTML>

@@ -30,6 +30,7 @@ struct xbee_pkt {
 	unsigned char status;
 	unsigned char options;
 	unsigned char rssi; /* print as "RSSI: -%d\n" - only valid for XBee 1 */
+	unsigned char apiIdentifier;
 	unsigned char frameId;
 
 	struct timespec timestamp;
@@ -76,6 +77,12 @@ If populated, this can be printed like so:
 printf("RSSI: -%d dBm\\n", pkt->rssi);
 .fi
 .in
+.TP
+.I apiIdentifier
+contains the API Identifier for the XBee message type that was handled
+.TP
+.I frameId
+contains the Frame ID provided by the received message
 .TP
 .I atCommand
 this is only populated for AT connection types, and contains the 2 character AT command.
