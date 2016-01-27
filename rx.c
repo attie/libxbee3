@@ -189,6 +189,7 @@ xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg) {
 		
 		memcpy(&pkt->address, &address, sizeof(address));
 		pkt->conType = conType->name;
+		pkt->apiIdentifier = buf->data[0];
 		
 		if (info->fBlock && frameInfo.active != 0 && conType && conType->allowFrameId != 0) {
 			pkt->frameId = frameInfo.id;

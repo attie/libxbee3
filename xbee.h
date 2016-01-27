@@ -137,6 +137,7 @@ struct xbee_pkt {
 	unsigned char status;
 	unsigned char options;
 	unsigned char rssi; /* print as "RSSI: -%d\n" - only valid for XBee 1 */
+	unsigned char apiIdentifier;
 	unsigned char frameId;
 
 	struct timespec timestamp;

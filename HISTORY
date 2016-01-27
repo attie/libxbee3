@@ -7,6 +7,7 @@ v3.0.12 - in progress
 	* Added 'Create Source Route' and 'Route Record Indicator' support for xbeeZB
 	* Added logging of connection termination
 	* Added logging libxbee instance creation end termination
+	* Added apiIdentifier to xbee_pkt struct
 
 v3.0.11 - 3 Dec 2014
 	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)
