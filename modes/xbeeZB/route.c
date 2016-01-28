@@ -40,7 +40,8 @@ xbee_err xbee_sZB_createSourceRoute_tx_func(struct xbee *xbee, struct xbee_con *
 	if ((iBuf = malloc(sizeof(*iBuf) + 1 + len)) == NULL) return XBEE_ENOMEM;
 
 	iBuf->data[0] = identifier;
-	memcpy(&(iBuf->data[1]), buf, len);
+	iBuf->data[1] = 0; /* the datasheet specifies that the frameID is always zero */
+	memcpy(&(iBuf->data[2]), buf, len);
 	iBuf->data[11] = 0; /* the datasheet specifies that this is zero */
 	iBuf->data[1 + len] = '\0';
 
