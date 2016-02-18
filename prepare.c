@@ -30,7 +30,10 @@
 #include "thread.h"
 #include "net.h"
 
-EXPORT INIT void xbee_init(void) {
+#ifndef XBEE_MANUAL_INIT
+INIT
+#endif
+EXPORT void xbee_init(void) {
 	xsys_thread_key_init(&threadInfoKey, NULL);
 	if (!xbeeList && (xbeeList = xbee_ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize xbeeList...\n");
@@ -54,7 +57,10 @@ EXPORT INIT void xbee_init(void) {
 	}
 }
 
-EXPORT FINI void xbee_fini(void) {
+#ifndef XBEE_MANUAL_FINI
+FINI
+#endif
+EXPORT void xbee_fini(void) {
 #ifndef XBEE_NO_FINI
 	/* clean up threads, so that they can't depend on anything we are about to free! */
 	if (threadList) {

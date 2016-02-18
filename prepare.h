@@ -21,7 +21,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-EXPORT INIT void xbee_init(void);
-EXPORT FINI void xbee_fini(void);
+EXPORT void xbee_init(void);
+EXPORT void xbee_fini(void);
 
 #endif /* __XBEE_PREPARE_H */

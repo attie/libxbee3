@@ -209,6 +209,12 @@ EXPORT extern const char libxbee_buildtime[];
 
 
 /* ######################################################################### */
+/* --- prepare.c --- */
+EXPORT void xbee_init(void);
+EXPORT void xbee_fini(void);
+
+
+/* ######################################################################### */
 /* --- xbee.c --- */
 typedef void (*xbee_t_eofCallback)(struct xbee *xbee, void *rxInfo);
 
@@ -221,6 +227,7 @@ EXPORT xbee_err xbee_shutdown(struct xbee *xbee);
 
 EXPORT xbee_err xbee_dataSet(struct xbee *xbee, void *newData, void **oldData);
 EXPORT xbee_err xbee_dataGet(struct xbee *xbee, void **curData);
+
 
 /* ######################################################################### */
 /* --- mode.c --- */

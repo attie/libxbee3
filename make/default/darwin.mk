@@ -52,3 +52,7 @@ OPTIONS+=       XBEE_LOG_TX_DEFAULT_OFF
 
 ### useful for debugging the core of libxbee
 #OPTIONS+=       XBEE_NO_FINI
+
+### manually start and end the library's global state (be careful!)
+OPTIONS+=       XBEE_MANUAL_INIT
+OPTIONS+=       XBEE_MANUAL_FINI
