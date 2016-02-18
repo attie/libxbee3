@@ -10,6 +10,7 @@ v3.0.12 - in progress
 	* Added apiIdentifier to xbee_pkt struct
 	* Fixed XBEE_NO_NET_SERVER config option - no longer performs unnecessary actions without server functionality
 	* Added XBEE_MANUAL_INIT and XBEE_MANUAL_FINI compile options
+	* Added simple man page for xbee_init() and xbee_fini()
 
 v3.0.11 - 3 Dec 2014
 	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)

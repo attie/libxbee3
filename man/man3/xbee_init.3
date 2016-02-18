@@ -1,0 +1,40 @@
+.\" libxbee - a C library to aid the use of Digi's XBee wireless modules
+.\"           running in API mode.
+.\" 
+.\" Copyright (C) 2009 onwards  Attie Grande (attie@attie.co.uk)
+.\" 
+.\" libxbee is free software: you can redistribute it and/or modify it
+.\" under the terms of the GNU Lesser General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\" 
+.\" libxbee is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+.\" GNU Lesser General Public License for more details.
+.\" 
+.\" You should have received a copy of the GNU Lesser General Public License
+.\" along with this program. If not, see <http://www.gnu.org/licenses/>.
+.TH XBEE_INIT 3  18-Feb-2016 "GNU" "Linux Programmer's Manual"
+.SH NAME
+xbee_init, xbee_fini
+.SH SYNOPSIS
+.B #include <xbee.h>
+.sp
+.BI "void xbee_init(void);"
+.sp 0
+.BI "void xbee_fini(void);"
+.ad b
+.SH DESCRIPTION
+.sp
+The functions
+.BR xbee_init "() and " xbee_fini "()"
+are used to manually setup and teardown libxbee.
+These functions should be used with care, and in conjunction with the
+.BR XBEE_MANUAL_INIT " and " XBEE_MANUAL_FINI
+compile options.
+.SH AUTHOR
+Attie Grande <attie@attie.co.uk> 
+.SH "SEE ALSO"
+.BR libxbee (3),
+.BR xbee_setup (3),
