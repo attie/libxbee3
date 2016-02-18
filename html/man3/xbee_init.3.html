@@ -33,6 +33,21 @@ These functions should be used with care, and in conjunction with the
 <B>XBEE_MANUAL_INIT</B> and <B>XBEE_MANUAL_FINI</B>
 
 compile options.
+<P>
+You must call
+<B>xbee_init</B>()
+
+once before calling on any other libxbee functionality.
+<P>
+Similarly, you must only call
+<B>xbee_fini</B>()
+
+after all instances of libxbee have been terminated.
+<P>
+Calling
+<B>xbee_init</B>()
+
+multiple times will result in undefine behavior.
 <A NAME="lbAE">&nbsp;</A>
 <H2>AUTHOR</H2>
 
@@ -59,6 +74,6 @@ Attie Grande &lt;<A HREF="mailto:attie@attie.co.uk">attie@attie.co.uk</A>&gt;
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 10:32:23 GMT, February 18, 2016
+Time: 10:46:38 GMT, February 18, 2016
 </BODY>
 </HTML>
