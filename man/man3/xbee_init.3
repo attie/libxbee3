@@ -33,6 +33,18 @@ are used to manually setup and teardown libxbee.
 These functions should be used with care, and in conjunction with the
 .BR XBEE_MANUAL_INIT " and " XBEE_MANUAL_FINI
 compile options.
+.sp
+You must call
+.BR xbee_init ()
+once before calling on any other libxbee functionality.
+.sp
+Similarly, you must only call
+.BR xbee_fini ()
+after all instances of libxbee have been terminated.
+.sp
+Calling
+.BR xbee_init ()
+multiple times will result in undefine behavior.
 .SH AUTHOR
 Attie Grande <attie@attie.co.uk> 
 .SH "SEE ALSO"
