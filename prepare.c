@@ -41,9 +41,11 @@ EXPORT INIT void xbee_init(void) {
 	if (!pktList && (pktList = xbee_ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize pktList...\n");
 	}
+#ifndef XBEE_NO_NET_SERVER
 	if (!netDeadClientList && (netDeadClientList = xbee_ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize netDeadClientList...\n");
 	}
+#endif
 	if (!threadList && (threadList = xbee_ll_alloc()) == NULL) {
 		fprintf(stderr, "libxbee: failed to initialize threadList...\n");
 	}
@@ -71,10 +73,12 @@ EXPORT FINI void xbee_fini(void) {
 		xbee_ll_free(pktList, (void(*)(void*))xbee_pktFree);
 		pktList = NULL;
 	}
+#ifndef XBEE_NO_NET_SERVER
 	if (netDeadClientList) {
 		xbee_ll_free(netDeadClientList, (void(*)(void*))xbee_netClientShutdown);
 		netDeadClientList = NULL;
 	}
+#endif
 	if (needsFree) {
 		xbee_ll_free(needsFree, (void(*)(void*))free);
 		needsFree = NULL;

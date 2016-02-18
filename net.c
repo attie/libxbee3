@@ -25,8 +25,6 @@
 #include "xbee_int.h"
 #include "net.h"
 
-struct xbee_ll_head *netDeadClientList = NULL;
-
 #ifdef XBEE_NO_NET_SERVER
 
 EXPORT xbee_err xbee_netStart(struct xbee *xbee, int port, int(*clientFilter)(struct xbee *xbee, const char *remoteHost)) {
@@ -70,6 +68,8 @@ xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client) {
 #include "log.h"
 #include "ll.h"
 #include "thread.h"
+
+struct xbee_ll_head *netDeadClientList = NULL;
 
 /* ######################################################################### */
 

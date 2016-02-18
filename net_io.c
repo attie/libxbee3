@@ -100,10 +100,13 @@ xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_tbuf **buf) {
 eof:
 	if (arg) {
 		struct xbee_netClientInfo *info;
+#ifndef XBEE_NO_NET_SERVER
 		struct xbee_netClientInfo *deadClient;
+#endif
 		struct xbee_con *con;
 		info = arg;
 		
+#ifndef XBEE_NO_NET_SERVER
 		/* tidy up any dead clients - not including us */
 		while (xbee_ll_ext_head(netDeadClientList, (void**)&deadClient) == XBEE_ENONE && deadClient != NULL) {
 			xbee_netClientShutdown(deadClient);
@@ -114,6 +117,7 @@ eof:
 		   the server thread will then cleanup any clients on the next accept() */
 		xbee_ll_add_tail(netDeadClientList, arg);
 		xbee_ll_ext_item(xbee->netInfo->clientList, arg);
+#endif /* XBEE_NO_NET_SERVER */
 		
 		/* kill the other threads */
 		/* excluding the rx thread... thats us! */

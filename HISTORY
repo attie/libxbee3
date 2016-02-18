@@ -8,6 +8,7 @@ v3.0.12 - in progress
 	* Added logging of connection termination
 	* Added logging libxbee instance creation end termination
 	* Added apiIdentifier to xbee_pkt struct
+	* Fixed XBEE_NO_NET_SERVER config option - no longer performs unnecessary actions without server functionality
 
 v3.0.11 - 3 Dec 2014
 	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)

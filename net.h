@@ -21,7 +21,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef XBEE_NO_NET_SERVER
 extern struct xbee_ll_head *netDeadClientList;
+#endif
 
 #ifndef INET_ADDRSTRLEN
 #define INET_ADDRSTRLEN 16
