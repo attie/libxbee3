@@ -28,8 +28,8 @@
 #define EXPORT
 #endif
 
-#include "xbee.h"
-#include "xbeep.h"
+#include <xbee.h>
+#include <xbeep.h>
 
 /* ========================================================================== */
 
