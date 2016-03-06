@@ -330,9 +330,7 @@ void libxbee::ConCallback::libxbee_callbackFunction(struct xbee *xbee, struct xb
 
 	c->xbee_conCallback(&p);
 
-	if (p != NULL) {
-		delete p;
-	}
+	delete p;
 }
 
 /* ========================================================================== */
