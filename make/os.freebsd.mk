@@ -16,9 +16,10 @@ RMDIR:=                rm -rf
 INSTALL=               install -g $(SYS_GROUP) -o $(SYS_USER)
 
 DEBUG:=                -g
-CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
+CFLAGS+=               -Wall -c -fPIC $(DEBUG)
+CFLAGS+=               $(addprefix -D,$(OPTIONS)) -DLIBXBEE_BUILD
 CFLAGS+=               -I $(HDRDIR)
-#CFLAGS+=              -pedantic
+#CFLAGS+=               -pedantic
 CFLAGS+=               -fvisibility=hidden
 CFLAGS+=               -Wno-variadic-macros
 CXXFLAGS:=             $(CFLAGS)

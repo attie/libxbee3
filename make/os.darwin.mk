@@ -18,15 +18,16 @@ MAN2HTML:=             man2html
 
 DEBUG:=                -g
 LIBS:=                 pthread
-CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
+CFLAGS+=               -Wall -c -fPIC $(DEBUG)
+CFLAGS+=               $(addprefix -D,$(OPTIONS)) -DLIBXBEE_BUILD
 CFLAGS+=               -I $(HDRDIR)
-#CFLAGS+=              -pedantic
+#CFLAGS+=               -pedantic
 #CFLAGS+=               -fvisibility=hidden
 CFLAGS+=               -Wno-variadic-macros
-CXXFLAGS:=             $(CFLAGS) -fvisibility=hidden
+#CXXFLAGS:=             $(CFLAGS)
 CFLAGS+=               -Wstrict-prototypes
 CLINKS+=               -fPIC $(addprefix -l,$(LIBS)) $(DEBUG)
-CXXLINKS+=             $(CLINKS)
+#CXXLINKS+=             $(CLINKS)
 
 LIB_OUT=               $(DESTDIR)/$(LIBNAME).dylib                    \
                        $(DESTDIR)/$(LIBNAME).a                     \
