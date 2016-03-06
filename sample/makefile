@@ -11,4 +11,4 @@ clean:
 	-rm $(PROG)
 
 $(PROG): $(PROG).c ../../../lib/libxbee.so
-	gcc $(filter %.c,$^) -g -o $@ -I ../../.. -L ../../../lib -lxbee -lpthread -lrt
+	gcc $(filter %.c,$^) -g -o $@ -I ../../../include/ -L ../../../lib -lxbee -lpthread -lrt
