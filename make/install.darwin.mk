@@ -6,7 +6,7 @@ $(SYS_LIBDIR)/$(LIBNAME)%.$(LIBFULLREV): $(DESTDIR)/$(LIBNAME)%.$(LIBFULLREV)
 $(SYS_LIBDIR)/$(LIBNAME)%: $(SYS_LIBDIR)/$(LIBNAME)%.$(LIBFULLREV)
 	$(SYMLINK) -fs $(shell basename $^) $@
 
-$(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)): $(SYS_INCDIR)/%: %
+$(addprefix $(SYS_INCDIR)/,$(SYS_HEADERS)): $(SYS_INCDIR)/%: $(HDRDIR)/%
 	$(INSTALL) -m 644 $^ $@
 
 $(addprefix $(SYS_MANDIR)/,$(addsuffix .gz,$(SYS_MANPAGES))): $(SYS_MANDIR)/%.gz: $(MANDIR)/%

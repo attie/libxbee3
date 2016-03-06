@@ -37,7 +37,10 @@ struct xbee_rxInfo;
 struct xbee_interface;
 
 #include "xsys.h"
-#include "xbee.h"
+
+/* include xbee,h after xsys.h for in-project builds, as EXPORT is defined from xsys.h */
+#include <xbee.h>
+
 #include "mutex.h"
 
 struct xbee_buf {

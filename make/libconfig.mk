@@ -10,6 +10,7 @@ MANDIR:=               man
 HTMLDIR:=              html
 BUILDDIR:=             .build
 DESTDIR:=              lib
+HDRDIR:=               include
 
 CONSTRUCTIONDIRS:=     $(BUILDDIR) $(DESTDIR)
 

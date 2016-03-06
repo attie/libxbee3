@@ -19,6 +19,7 @@ MAN2HTML:=             man2html
 DEBUG:=                -g
 LIBS:=                 pthread rt
 CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS)) -DLIBXBEE_BUILD
+CFLAGS+=               -I $(HDRDIR)
 #CFLAGS+=              -pedantic
 CFLAGS+=               -fvisibility=hidden
 CFLAGS+=               -Wno-variadic-macros

@@ -19,6 +19,7 @@ MAN2HTML:=             man2html
 DEBUG:=                -g
 LIBS:=                 pthread
 CFLAGS+=               -Wall -c -fPIC $(DEBUG) $(addprefix -D,$(OPTIONS))
+CFLAGS+=               -I $(HDRDIR)
 #CFLAGS+=              -pedantic
 #CFLAGS+=               -fvisibility=hidden
 CFLAGS+=               -Wno-variadic-macros

@@ -30,9 +30,7 @@
 #include <vector>
 #include <stdarg.h>
 
-#ifndef __XBEE_H
 #include <xbee.h>
-#endif
 
 #ifndef EXPORT
 #define EXPORT
