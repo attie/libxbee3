@@ -55,13 +55,13 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).dylib.$(LIBFULLREV)      \
                        $(DESTDIR)/$(LIBNAME).a                     \
                        $(addprefix $(MANDIR)/,$(SYS_MANPAGES))     \
                        $(addprefix $(HTMLDIR)/,$(SYS_HTMLPAGES))   \
-                       xbee.h                                      \
+                       $(HDRDIR)/xbee.h                            \
                        README HISTORY COPYING COPYING.LESSER
 #                       $(DESTDIR)/$(LIBNAME)p.dylib.$(LIBFULLREV)     \
 #                       $(DESTDIR)/$(LIBNAME)p.dylib                   \
 #                       $(DESTDIR)/$(LIBNAME)p.a.$(LIBFULLREV)      \
 #                       $(DESTDIR)/$(LIBNAME)p.a                    \
-#                       xbeep.h                                     \
+#                       $(HDRDIR)/xbeep.h                           \
 
 CLEAN_FILES=           $(BUILDDIR)/*.o \
                        $(BUILDDIR)/*.d

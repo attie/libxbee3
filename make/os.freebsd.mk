@@ -57,8 +57,8 @@ RELEASE_FILES=         $(DESTDIR)/$(LIBNAME).so.$(LIBFULLREV)      \
                        $(DESTDIR)/$(LIBNAME)p.a.$(LIBFULLREV)      \
                        $(DESTDIR)/$(LIBNAME)p.a                    \
                        $(addprefix $(MANDIR)/,$(SYS_MANPAGES))     \
-                       xbee.h                                      \
-                       xbeep.h                                     \
+                       $(HDRDIR)/xbee.h                            \
+                       $(HDRDIR)/xbeep.h                           \
                        README HISTORY COPYING COPYING.LESSER
 
 CLEAN_FILES=           $(BUILDDIR)/*.o \
