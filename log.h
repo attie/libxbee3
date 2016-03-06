@@ -1,5 +1,5 @@
-#ifndef __XBEE_LOG_H
-#define __XBEE_LOG_H
+#ifndef XBEE_LOG_H
+#define XBEE_LOG_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -63,4 +63,4 @@ xbee_err _xbee_logData(const char *file, int line, const char *function, struct 
 #define xbee_logData(minLevel, label, data, length) _xbee_logData(__FILE__, __LINE__, __FUNCTION__, xbee, minLevel, label, data, length)
 
 #endif /* XBEE_DISABLE_LOGGING */
-#endif /* __XBEE_LOG_H */
+#endif /* XBEE_LOG_H */

@@ -1,5 +1,5 @@
-#ifndef __XBEE_PREPARE_H
-#define __XBEE_PREPARE_H
+#ifndef XBEE_PREPARE_H
+#define XBEE_PREPARE_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -24,4 +24,4 @@
 EXPORT void xbee_init(void);
 EXPORT void xbee_fini(void);
 
-#endif /* __XBEE_PREPARE_H */
+#endif /* XBEE_PREPARE_H */

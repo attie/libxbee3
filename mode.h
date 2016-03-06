@@ -1,5 +1,5 @@
-#ifndef __XBEE_MODE_H
-#define __XBEE_MODE_H
+#ifndef XBEE_MODE_H
+#define XBEE_MODE_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -159,4 +159,4 @@ extern const struct xbee_mode mode_xbeeZB;
 extern const struct xbee_mode mode_net;
 extern const struct xbee_mode mode_debug;
 
-#endif /* __XBEE_MODE_H */
+#endif /* XBEE_MODE_H */

@@ -1,5 +1,5 @@
-#ifndef __XBEE_H
-#define __XBEE_H
+#ifndef _XBEE_H
+#define _XBEE_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -304,7 +304,7 @@ EXPORT xbee_err xbee_logTxGet(struct xbee *xbee, int *enabled);
 EXPORT xbee_err xbee_logColorSet(struct xbee *xbee, int enable);
 EXPORT xbee_err xbee_logColorGet(struct xbee *xbee, int *enabled);
 
-#ifndef __XBEE_INTERNAL_H
+#ifndef XBEE_INTERNAL_H
 EXPORT xbee_err _xbee_logDev(const char *file, int line, const char *function, struct xbee *xbee, int minLevel, const char *format, ...);
 #define xbee_log(...) _xbee_logDev(__FILE__,__LINE__,__FUNCTION__,__VA_ARGS__)
 #endif
@@ -328,4 +328,4 @@ EXPORT const char *xbee_errorToStr(xbee_err error);
 #undef XBEE_EXPORT_DEFINED
 #endif
 
-#endif /* __XBEE_H */
+#endif /* _XBEE_H */

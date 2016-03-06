@@ -1,5 +1,5 @@
-#ifndef __XBEE_NET_IO_H
-#define __XBEE_NET_IO_H
+#ifndef XBEE_NET_IO_H
+#define XBEE_NET_IO_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -24,4 +24,4 @@
 xbee_err xbee_netRx(struct xbee *xbee, void *arg, struct xbee_tbuf **buf);
 xbee_err xbee_netTx(struct xbee *xbee, void *arg, struct xbee_sbuf *buf);
 
-#endif /* __XBEE_NET_IO_H */
+#endif /* XBEE_NET_IO_H */

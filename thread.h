@@ -1,5 +1,5 @@
-#ifndef __XBEE_THREAD_H
-#define __XBEE_THREAD_H
+#ifndef XBEE_THREAD_H
+#define XBEE_THREAD_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -56,4 +56,4 @@ xbee_err xbee_threadKillRelease(struct xbee *xbee, struct xbee_threadInfo *threa
 xbee_err xbee_threadDestroyMine(struct xbee *xbee);
 
 
-#endif /* __XBEE_THREAD_H */
+#endif /* XBEE_THREAD_H */

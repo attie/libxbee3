@@ -1,8 +1,8 @@
-#ifndef __XBEE_XSYS_LOAD_H
+#ifndef XBEE_XSYS_LOAD_H
 #error This header should be included by xsys.h only
-#endif /* __XBEE_XSYS_LOAD_H */
-#ifndef __XBEE_XSYS_LINUX_H
-#define __XBEE_XSYS_LINUX_H
+#endif /* XBEE_XSYS_LOAD_H */
+#ifndef XBEE_XSYS_LINUX_H
+#define XBEE_XSYS_LINUX_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -121,4 +121,4 @@ typedef struct serialDev  xsys_serialDev;
 #define xsys_sem_getvalue(sem, value)         sem_getvalue((sem), (value))
 
 
-#endif /* __XBEE_XSYS_LINUX_H */
+#endif /* XBEE_XSYS_LINUX_H */

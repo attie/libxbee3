@@ -1,5 +1,5 @@
-#ifndef __XBEE_NET_H
-#define __XBEE_NET_H
+#ifndef XBEE_NET_H
+#define XBEE_NET_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -79,4 +79,4 @@ struct xbee_netClientInfo;
 
 xbee_err xbee_netClientShutdown(struct xbee_netClientInfo *client);
 
-#endif /* __XBEE_NET_H */
+#endif /* XBEE_NET_H */

@@ -1,5 +1,5 @@
-#ifndef __XBEE_MUTEX_H
-#define __XBEE_MUTEX_H
+#ifndef XBEE_MUTEX_H
+#define XBEE_MUTEX_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -25,4 +25,4 @@ int xbee_mutex_lock(xsys_mutex *mutex);
 int xbee_mutex_trylock(xsys_mutex *mutex);
 int xbee_mutex_unlock(xsys_mutex *mutex);
 
-#endif /* __XBEE_MUTEX_H */
+#endif /* XBEE_MUTEX_H */

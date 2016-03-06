@@ -1,5 +1,5 @@
-#ifndef __XBEE_CONN_H
-#define __XBEE_CONN_H
+#ifndef XBEE_CONN_H
+#define XBEE_CONN_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -71,4 +71,4 @@ xbee_err _xbee_conLocate(struct xbee_ll_head *conList, struct xbee_conAddress *a
 xbee_err xbee_conLinkPacket(struct xbee_con *con, struct xbee_pkt *pkt);
 xbee_err xbee_conCallbackProd(struct xbee_con *con);
 
-#endif /* __XBEE_CONN_H */
+#endif /* XBEE_CONN_H */

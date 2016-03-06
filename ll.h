@@ -1,5 +1,5 @@
-#ifndef __XBEE_LL_H
-#define __XBEE_LL_H
+#ifndef XBEE_LL_H
+#define XBEE_LL_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -86,4 +86,4 @@ xbee_err _xbee_ll_modify_item(void *list, void *oldItem, void *newItem, int need
 xbee_err _xbee_ll_count_items(void *list, unsigned int *retCount, int needMutex);
 xbee_err xbee_ll_combine(void *head, void *tail);
 
-#endif /* __XBEE_LL_H */
+#endif /* XBEE_LL_H */

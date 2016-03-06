@@ -1,5 +1,5 @@
-#ifndef __XBEE_PKT_H
-#define __XBEE_PKT_H
+#ifndef XBEE_PKT_H
+#define XBEE_PKT_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -47,4 +47,4 @@ xbee_err xbee_pktDataAdd(struct xbee_pkt *pkt, const char *key, int id, void *da
 xbee_err xbee_pktAnalogAdd(struct xbee_pkt *pkt, int channel, long value);
 xbee_err xbee_pktDigitalAdd(struct xbee_pkt *pkt, int channel, long value);
 
-#endif /* __XBEE_PKT_H */
+#endif /* XBEE_PKT_H */

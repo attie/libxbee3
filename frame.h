@@ -1,5 +1,5 @@
-#ifndef __XBEE_FRAME_H
-#define __XBEE_FRAME_H
+#ifndef XBEE_FRAME_H
+#define XBEE_FRAME_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -54,4 +54,4 @@ xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *co
 xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, unsigned char *retVal, struct timespec *timeout);
 xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, unsigned char retVal);
 
-#endif /* __XBEE_FRAME_H */
+#endif /* XBEE_FRAME_H */

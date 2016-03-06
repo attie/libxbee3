@@ -1,5 +1,5 @@
-#ifndef __XBEE_RX_H
-#define __XBEE_RX_H
+#ifndef XBEE_RX_H
+#define XBEE_RX_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -39,4 +39,4 @@ xbee_err xbee_rxFree(struct xbee_rxInfo *info);
 xbee_err xbee_rx(struct xbee *xbee, int *restart, void *arg);
 xbee_err xbee_rxHandler(struct xbee *xbee, int *restart, void *arg);
 
-#endif /* __XBEE_RX_H */
+#endif /* XBEE_RX_H */

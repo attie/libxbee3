@@ -1,5 +1,5 @@
-#ifndef __XBEE_INT_H
-#define __XBEE_INT_H
+#ifndef XBEE_INT_H
+#define XBEE_INT_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -51,4 +51,4 @@ struct xbee {
 xbee_err xbee_alloc(struct xbee **nXbee);
 xbee_err xbee_free(struct xbee *xbee);
 
-#endif /* __XBEE_INT_H */
+#endif /* XBEE_INT_H */

@@ -1,5 +1,5 @@
-#ifndef __XBEE_INTERNAL_H
-#define __XBEE_INTERNAL_H
+#ifndef XBEE_INTERNAL_H
+#define XBEE_INTERNAL_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -70,4 +70,4 @@ struct xbee_serialInfo {
 
 /* ######################################################################### */
 
-#endif /* __XBEE_INTERNAL_H */
+#endif /* XBEE_INTERNAL_H */

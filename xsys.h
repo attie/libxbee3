@@ -1,5 +1,5 @@
-#ifndef __XBEE_XSYS_H
-#define __XBEE_XSYS_H
+#ifndef XBEE_XSYS_H
+#define XBEE_XSYS_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -89,7 +89,7 @@ int xsys_sem_post(xsys_sem *sem);
 int xsys_sem_getvalue(xsys_sem *sem, int *value);
 */
 
-#define __XBEE_XSYS_LOAD_H
+#define XBEE_XSYS_LOAD_H
 #if defined(__MACH__) /* ------- */
 #include "xsys_darwin.h"
 #elif defined(__GNUC__) /* ----- */
@@ -99,10 +99,10 @@ int xsys_sem_getvalue(xsys_sem *sem, int *value);
 #else /* ----------------------- */
 #error Unsupported OS
 #endif /* ---------------------- */
-#undef __XBEE_XSYS_LOAD_H
+#undef XBEE_XSYS_LOAD_H
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif /* __XBEE_XSYS_H */
+#endif /* XBEE_XSYS_H */

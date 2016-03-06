@@ -1,5 +1,5 @@
-#ifndef __XBEE_CPP_H
-#define __XBEE_CPP_H
+#ifndef _XBEEP_H
+#define _XBEEP_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -185,4 +185,4 @@ namespace libxbee {
 
 #endif /* __cplusplus */
 
-#endif /* __XBEE_CPP_H */
+#endif /* _XBEEP_H */

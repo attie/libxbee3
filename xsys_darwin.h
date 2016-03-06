@@ -1,8 +1,8 @@
-#ifndef __XBEE_XSYS_LOAD_H
+#ifndef XBEE_XSYS_LOAD_H
 #error This header should be included by xsys.h only
-#endif /* __XBEE_XSYS_LOAD_H */
-#ifndef __XBEE_XSYS_DARWIN_H
-#define __XBEE_XSYS_DARWIN_H
+#endif /* XBEE_XSYS_LOAD_H */
+#ifndef XBEE_XSYS_DARWIN_H
+#define XBEE_XSYS_DARWIN_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -137,4 +137,4 @@ int _xsys_sem_timedwait(sem_t *sem, const struct timespec *abs_timeout);
 #define xsys_sem_getvalue(info, value)        sem_getvalue((info)->sem, (value))
 
 
-#endif /* __XBEE_XSYS_DARWIN_H */
+#endif /* XBEE_XSYS_DARWIN_H */

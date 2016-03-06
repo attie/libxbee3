@@ -1,5 +1,5 @@
-#ifndef __XBEE_NET_HANDLERS_H
-#define __XBEE_NET_HANDLERS_H
+#ifndef XBEE_NET_HANDLERS_H
+#define XBEE_NET_HANDLERS_H
 
 /*
 	libxbee - a C/C++ library to aid the use of Digi's XBee wireless modules
@@ -33,4 +33,4 @@ extern const struct xbee_mode xbee_netServerMode;
 extern struct xbee_modeDataHandlerRx xbee_netServer_backchannel_rx;
 extern struct xbee_modeDataHandlerTx xbee_netServer_backchannel_tx;
 
-#endif /* __XBEE_NET_HANDLERS_H */
+#endif /* XBEE_NET_HANDLERS_H */
