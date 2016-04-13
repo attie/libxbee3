@@ -50,7 +50,7 @@ struct xbee_frameBlock {
 xbee_err xbee_frameBlockAlloc(struct xbee_frameBlock **nfBlock);
 xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock);
 
-xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon);
+xbee_err xbee_frameGetID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon);
 xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, unsigned char *retVal, struct timespec *timeout);
 xbee_err xbee_framePost(struct xbee_frameBlock *fBlock, unsigned char frameId, unsigned char retVal);
 

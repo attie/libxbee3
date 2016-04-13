@@ -71,7 +71,7 @@ xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock) {
 
 /* ########################################################################## */
 
-xbee_err xbee_frameGetFreeID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon) {
+xbee_err xbee_frameGetID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon) {
 	xbee_err ret;
 	int i, o;
 	

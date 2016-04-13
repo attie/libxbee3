@@ -730,7 +730,7 @@ xbee_err _xbee_connxTx(struct xbee_con *con, unsigned char *retVal, unsigned cha
 	} else {
 		waitForAck = !(con->settings.disableAck || con->settings.broadcast); /* cache it, incase it changes */
 		if (waitForAck) {
-			if ((ret = xbee_frameGetFreeID(con->xbee->fBlock, con, abandonFrame)) != XBEE_ENONE) {
+			if ((ret = xbee_frameGetID(con->xbee->fBlock, con, abandonFrame)) != XBEE_ENONE) {
 				ret = XBEE_ENOFREEFRAMEID;
 				goto done;
 			}
