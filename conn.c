@@ -740,7 +740,10 @@ xbee_err _xbee_connxTx(struct xbee_con *con, unsigned char *retVal, unsigned cha
 	}
 	if (frameId) *frameId = con->frameId;
 	
-	if ((ret = xbee_txHandler(con, buf, len, waitForAck)) != XBEE_ENONE) goto done;
+	if ((ret = xbee_txHandler(con, buf, len, waitForAck)) != XBEE_ENONE) {
+		xbee_frameReturnID(con->xbee->fBlock, con);
+		goto done;
+	}
 
 	if (waitForAck && !abandonFrame) {
 		struct timespec to;

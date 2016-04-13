@@ -103,6 +103,55 @@ xbee_err xbee_frameGetID(struct xbee_frameBlock *fBlock, struct xbee_con *con, c
 	return ret;
 }
 
+xbee_err xbee_frameReturnID(struct xbee_frameBlock *fBlock, struct xbee_con *con) {
+	xbee_err ret;
+	int i;
+	unsigned char frameId;
+	struct xbee_frame *frame;
+
+	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
+	ret = XBEE_EFAILED;
+
+	xbee_mutex_lock(&fBlock->mutex);
+
+	frameId = con->frameId;
+	if (frameId < fBlock->numFrames) {
+		frame = &(fBlock->frame[frameId]);
+	} else {
+		frame = NULL;
+	}
+
+	if ((frame == NULL) ||
+	    (frame->id != frameId)) {
+		frame = NULL;
+
+		for (i = 0; i < fBlock->numFrames; i++) {
+			if (fBlock->frame[i].id == frameId) {
+				frame = &(fBlock->frame[i]);
+				break;
+			}
+		}
+	}
+
+	if ((frame == NULL) ||
+	    (frame->con != con)) {
+		ret = XBEE_ESTALE;
+		goto done;
+	}
+
+	/* clean down the frame */
+
+	con->frameId = 0;
+
+	frame->con = NULL;
+	frame->status = 0;
+
+	xbee_mutex_unlock(&fBlock->mutex);
+
+done:
+	return ret;
+}
+
 xbee_err xbee_frameWait(struct xbee_frameBlock *fBlock, struct xbee_con *con, unsigned char *retVal, struct timespec *timeout) {
 	xbee_err ret;
 	struct xbee_frame *frame;
