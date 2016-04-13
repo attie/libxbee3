@@ -81,7 +81,10 @@ xbee_err xbee_frameGetID(struct xbee_frameBlock *fBlock, struct xbee_con *con, c
 	xbee_mutex_lock(&fBlock->mutex);
 	for (i = 0, o = fBlock->lastFrame + 1; i < fBlock->numFrames; i++, o++) {
 		o %= fBlock->numFrames;
-		if (o == 0) continue; /* skip '0x00', this indicates that no ACK is requested */
+
+		/* skip frame '0x00', this indicates that no ACK is requested */
+		if (fBlock->frame[o].id == 0) continue;
+		/* skip busy frames */
 		if (fBlock->frame[o].status) continue;
 		
 		fBlock->lastFrame = o;
