@@ -146,9 +146,9 @@ xbee_err xbee_frameReturnID(struct xbee_frameBlock *fBlock, struct xbee_con *con
 	frame->con = NULL;
 	frame->status = 0;
 
+done:
 	xbee_mutex_unlock(&fBlock->mutex);
 
-done:
 	return ret;
 }
 
