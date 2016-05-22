@@ -43,6 +43,7 @@ xbee_err xbee_s3_data_rx_func(struct xbee *xbee, void *arg, unsigned char identi
 	memcpy(address->addr64, &(buf->data[1]), 8);
 	
 	iPkt->options = buf->data[11];
+	if (iPkt->options & 0x02) address->broadcast = 1;
 	
 	iPkt->dataLen = buf->len - 12;
 	if (iPkt->dataLen > 0) {

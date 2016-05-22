@@ -50,6 +50,7 @@ xbee_err xbee_s3_dataExp_rx_func(struct xbee *xbee, void *arg, unsigned char ide
 	address->profile_id = ((buf->data[15] << 8) & 0xFF00) | (buf->data[16] & 0xFF);
 	
 	iPkt->options = buf->data[17];
+	if (iPkt->options & 0x02) address->broadcast = 1;
 	
 	iPkt->dataLen = buf->len - 18;
 	if (iPkt->dataLen > 0) {
