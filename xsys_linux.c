@@ -124,11 +124,11 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 	tc.c_cflag |=   CLOCAL;           /* prevent changing ownership */
 	tc.c_cflag |=   CREAD;            /* enable reciever */
 	tc.c_cflag &= ~ PARENB;           /* disable parity */
-	if (info->baudrate >= 115200) {
+#ifdef XBEE_2_STOP_BITS
 		tc.c_cflag |=   CSTOPB;         /* enable 2 stop bits for the high baudrate */
-	} else {
+#else
 		tc.c_cflag &= ~ CSTOPB;         /* disable 2 stop bits */
-	}
+#endif
 	tc.c_cflag &= ~ CSIZE;            /* remove size flag... */
 	tc.c_cflag |=   CS8;              /* ...enable 8 bit characters */
 	tc.c_cflag |=   HUPCL;            /* enable lower control lines on close - hang up */

@@ -23,6 +23,7 @@ SYS_USER:=      root
 #OPTIONS+=       XBEE_DISABLE_LOGGING
 
 ### use for more precise logging options
+#OPTIONS+=	XBEE_2_STOP_BITS
 #OPTIONS+=       XBEE_LOG_LEVEL=100
 #OPTIONS+=       XBEE_LOG_NO_COLOR
 #OPTIONS+=       XBEE_LOG_NO_RX

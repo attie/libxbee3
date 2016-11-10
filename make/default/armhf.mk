@@ -2,10 +2,10 @@
 
 ### system install directories
 SYS_ROOT?=      
-SYS_LIBDIR:=    $(SYS_ROOT)/usr/local/lib
-SYS_INCDIR:=    $(SYS_ROOT)/usr/local/include
+SYS_LIBDIR:=    $(SYS_ROOT)/usr/lib
+SYS_INCDIR:=    $(SYS_ROOT)/usr/include
 SYS_MANDIR:=    $(SYS_ROOT)/usr/share/man
-SYS_GROUP:=     wheel
+SYS_GROUP:=     root
 SYS_USER:=      root
 
 ### using this can create a smaller binary, by removing modes you won't use
@@ -15,9 +15,10 @@ SYS_USER:=      root
 #SYS_HTMLDIR:=   /var/www/libxbee.doc
 
 ### setup a cross-compile toolchain (either here, or in the environment)
-#CROSS_COMPILE?= 
-#CFLAGS+=        
-#CLINKS+=        
+# use the CodeSourcery 2011.03-41 toolchain (v4.5.2)
+CROSS_COMPILE?= arm-linux-gnueabihf-
+#CFLAGS+=
+#CLINKS+=
 
 ### un-comment to remove ALL logging (smaller & faster binary)
 #OPTIONS+=       XBEE_DISABLE_LOGGING
@@ -28,8 +29,8 @@ SYS_USER:=      root
 #OPTIONS+=       XBEE_LOG_NO_COLOR
 #OPTIONS+=       XBEE_LOG_NO_RX
 #OPTIONS+=       XBEE_LOG_NO_TX
-OPTIONS+=       XBEE_LOG_RX_DEFAULT_OFF
-OPTIONS+=       XBEE_LOG_TX_DEFAULT_OFF
+#OPTIONS+=       XBEE_LOG_RX_DEFAULT_OFF
+#OPTIONS+=       XBEE_LOG_TX_DEFAULT_OFF
 
 ### un-comment to disable strict objects (xbee/con/pkt pointers are usually checked inside functions)
 ### this may give increased execution speed, but will be more suseptible to incorrect parameters
