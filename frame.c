@@ -29,6 +29,25 @@
 #include "ll.h"
 #include "log.h"
 
+#ifdef XBEE_FRAME_TIMEOUT_ENABLED
+
+#ifndef XBEE_FRAME_TIMEOUT_SEC
+#define XBEE_FRAME_TIMEOUT_SEC  (30)
+#endif
+
+#ifndef XBEE_FRAME_TIMEOUT_NSEC
+#define XBEE_FRAME_TIMEOUT_NSEC  (0)
+#endif
+
+static const struct timespec FRAME_TIMEOUT = {
+	.tv_sec  = XBEE_FRAME_TIMEOUT_SEC,
+	.tv_nsec = XBEE_FRAME_TIMEOUT_NSEC
+};
+
+#define xbee_frameNotTimedOut(frame, currentTime) \
+	((frame).timeout.tv_sec > (currentTime).tv_sec || (((frame).timeout.tv_sec == (currentTime).tv_sec) && ((frame).timeout.tv_nsec >= (currentTime).tv_nsec)))
+#endif
+
 /* ########################################################################## */
 
 xbee_err xbee_frameBlockAlloc(struct xbee_frameBlock **nfBlock) {
@@ -74,8 +93,17 @@ xbee_err xbee_frameBlockFree(struct xbee_frameBlock *fBlock) {
 xbee_err xbee_frameGetID(struct xbee_frameBlock *fBlock, struct xbee_con *con, char abandon) {
 	xbee_err ret;
 	int i, o;
-	
+
+#ifdef XBEE_FRAME_TIMEOUT_ENABLED
+	struct timespec currentTime;
+#endif
+
 	if (!fBlock || !con) return XBEE_EMISSINGPARAM;
+
+#ifdef XBEE_FRAME_TIMEOUT_ENABLED
+	if (clock_gettime(CLOCK_MONOTONIC, &(currentTime))) return XBEE_EFAILED;
+#endif
+
 	ret = XBEE_EFAILED;
 	
 	xbee_mutex_lock(&fBlock->mutex);
@@ -85,9 +113,23 @@ xbee_err xbee_frameGetID(struct xbee_frameBlock *fBlock, struct xbee_con *con, c
 		/* skip frame '0x00', this indicates that no ACK is requested */
 		if (fBlock->frame[o].id == 0) continue;
 		/* skip busy frames */
+#ifdef XBEE_FRAME_TIMEOUT_ENABLED
+		if (fBlock->frame[o].status && xbee_frameNotTimedOut(fBlock->frame[o], currentTime)) continue;
+#else
 		if (fBlock->frame[o].status) continue;
+#endif
 		
 		fBlock->lastFrame = o;
+
+#ifdef XBEE_FRAME_TIMEOUT_ENABLED
+		/* Update timeout time on frame */
+		currentTime.tv_sec  += FRAME_TIMEOUT.tv_sec;
+		currentTime.tv_nsec += FRAME_TIMEOUT.tv_nsec;
+		currentTime.tv_sec  += currentTime.tv_nsec / 1000000000;
+		currentTime.tv_nsec %= 1000000000;
+		fBlock->frame[o].timeout = currentTime;
+#endif
+
 		fBlock->frame[o].status = XBEE_FRAME_STATUS_SCHEDULED;
 		if (abandon) {
 			fBlock->frame[o].status |= XBEE_FRAME_STATUS_ABANDONED;

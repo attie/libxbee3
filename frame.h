@@ -38,6 +38,9 @@ struct xbee_frame {
 	unsigned char id;
 	unsigned char retVal;
 	unsigned char status; /* this used the XBEE_FRAME_STATUS_* bitfield - zero means unused */
+#ifdef XBEE_FRAME_TIMEOUT_ENABLED
+	struct timespec timeout;
+#endif
 };
 
 struct xbee_frameBlock {
