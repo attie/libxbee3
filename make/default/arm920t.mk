@@ -45,6 +45,9 @@ OPTIONS+=       XBEE_LOG_TX_DEFAULT_OFF
 ### un-comment to allow arbitrary baud rates - drivers may still reject them
 #OPTIONS+=       XBEE_ALLOW_ARB_BAUD
 
+### comment to disable frame timeouts
+OPTIONS+=       XBEE_FRAME_TIMEOUT_ENABLED
+
 ### un-comment to use API mode 2
 #OPTIONS+=       XBEE_API2
 #OPTIONS+=       XBEE_API2_DEBUG
