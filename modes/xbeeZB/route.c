@@ -32,18 +32,27 @@
 
 xbee_err xbee_sZB_createSourceRoute_tx_func(struct xbee *xbee, struct xbee_con *con, void *arg, unsigned char identifier, unsigned char frameId, struct xbee_conAddress *address, struct xbee_conSettings *settings, const unsigned char *buf, int len, struct xbee_sbuf **oBuf) {
 	struct xbee_sbuf *iBuf;
+	size_t bufLen;
+	size_t memSize;
 
 	if (!xbee || !address || !buf || !oBuf) return XBEE_EMISSINGPARAM;
 
 	if (len < 12) return XBEE_ELENGTH;
 
-	if ((iBuf = malloc(sizeof(*iBuf) + 1 + len)) == NULL) return XBEE_ENOMEM;
+	/* API Identifier + Frame ID + 'Payload' */
+	memSize = 2 + len;
+	bufLen = memSize;
 
+	memSize += sizeof(*iBuf);
+
+	if ((iBuf = malloc(memSize)) == NULL) return XBEE_ENOMEM;
+
+	iBuf->len = bufLen;
 	iBuf->data[0] = identifier;
 	iBuf->data[1] = 0; /* the datasheet specifies that the frameID is always zero */
 	memcpy(&(iBuf->data[2]), buf, len);
 	iBuf->data[11] = 0; /* the datasheet specifies that this is zero */
-	iBuf->data[1 + len] = '\0';
+	iBuf->data[bufLen - 1] = '\0';
 
 	*oBuf = iBuf;
 
