@@ -67,6 +67,7 @@ void *threadFunc(struct xbee_threadInfo *thread) {
 		restart = 1;
 	}
 	
+	thread->started = 1;
 	do {
 		xbee_log(15, "starting thread %p, function %s()...", thread, thread->funcName);
 	
@@ -117,6 +118,7 @@ xbee_err _xbee_threadStart(struct xbee *xbee, struct xbee_threadInfo **retThread
 	thread->run = 1;
 	thread->detached = detach;
 	thread->restartDelay = restartDelay;
+	thread->started = 0;
 	xsys_sem_init(&thread->mutexSem);
 
 	thread->active = 1;
