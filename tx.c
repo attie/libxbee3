@@ -104,7 +104,6 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 
 		if ((ret = info->ioFunc(xbee, info->ioArg, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);
-			continue;
 		}
 
 		if (buf->waitForAck) {
