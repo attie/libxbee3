@@ -107,6 +107,8 @@ xbee_err xbee_free(struct xbee *xbee) {
 	if (xbee->netInfo) xbee_netStop(xbee);
 	
 	if (xbee->mode && xbee->mode->shutdown) xbee->mode->shutdown(xbee);
+
+	xbee_log(20, "Finalizing shutdown procedure for libxbee instance @ %p", xbee);
 	
 	xbee_modeCleanup(xbee->iface.conTypes);
 	xbee_rxFree(xbee->iface.rx);
@@ -117,8 +119,6 @@ xbee_err xbee_free(struct xbee *xbee) {
 	xbee_frameBlockFree(xbee->fBlock);
 	
 	free(xbee);
-
-	xbee_log(20, "Completed shutdown procedure for libxbee instance @ %p", xbee);
 	
 	return XBEE_ENONE;
 }
