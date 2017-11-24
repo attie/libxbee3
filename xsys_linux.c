@@ -90,7 +90,7 @@ int xsys_serialSetup(struct xbee_serialInfo *info) {
 #endif
 	}
 	
-	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC)) == -1) {
+	if ((info->dev.fd = open(info->device, O_RDWR | O_NOCTTY | O_SYNC | O_CLOEXEC)) == -1) {
 		perror("open()");
 		return XBEE_EIO;
 	}
