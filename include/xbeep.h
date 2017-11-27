@@ -173,6 +173,8 @@ namespace libxbee {
 			EXPORT int getAnalog(int channel, int index);
 			EXPORT bool getDigital(int channel);
 			EXPORT bool getDigital(int channel, int index);
+
+			EXPORT unsigned char getRssi(void);
 	};
 };
 

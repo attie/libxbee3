@@ -437,3 +437,7 @@ EXPORT bool libxbee::Pkt::getDigital(int channel, int index) {
 	if ((ret = xbee_pktDigitalGet(pkt, channel, index, &value)) != XBEE_ENONE) throw(ret);
 	return (bool)!!value;
 }
+
+EXPORT unsigned char libxbee::Pkt::getRssi(void) {
+	return pkt->rssi;
+}
