@@ -14,6 +14,7 @@ v3.0.12 - in progress
 	* Fixed leak of Frame IDs after a failed call to xbee_txHandler()
 	* Added broadcast Rx support for XBee Series 3 modules
 	* Added XBEE_FRAME_TIMEOUT_ENABLED
+	* Added access to RSSI from C++ interface
 
 v3.0.11 - 3 Dec 2014
 	* Fixed library dependancies (no further requirement for -lpthread -lrt on your application)
