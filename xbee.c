@@ -46,7 +46,7 @@ EXPORT void xbee_freeMemory(void *ptr) {
 
 /* ######################################################################### */
 
-EXPORT xbee_err xbee_validate(struct xbee *xbee) {
+EXPORT xbee_err xbee_validate(const struct xbee *xbee) {
 	if (xbee_ll_get_item(xbeeList, xbee) != XBEE_ENONE) return XBEE_EINVAL;
 	return XBEE_ENONE;
 }

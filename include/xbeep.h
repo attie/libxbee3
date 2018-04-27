@@ -56,9 +56,9 @@ namespace libxbee {
 	
 	class EXPORT XBee {
 		public:
-			EXPORT explicit XBee(std::string mode);
-			EXPORT explicit XBee(std::string mode, std::string device, int baudrate);
-			EXPORT explicit XBee(std::string mode, va_list ap);
+			EXPORT explicit XBee(const std::string &mode);
+			EXPORT explicit XBee(const std::string &mode, const std::string &device, int baudrate);
+			EXPORT explicit XBee(const std::string &mode, va_list ap);
 			EXPORT ~XBee(void);
 			
 		private:
@@ -67,16 +67,18 @@ namespace libxbee {
 			
 		public:
 			EXPORT struct xbee *getHnd(void);
+			EXPORT const struct xbee *getHnd(void) const;
 			EXPORT void conRegister(Con *con);
 			EXPORT void conUnregister(Con *con);
-			EXPORT Con *conLocate(struct xbee_con *con);
-			EXPORT std::list<std::string> getConTypes(void);
+			EXPORT const Con *conLocate(const struct xbee_con *con) const;
+			EXPORT Con *conLocate(const struct xbee_con *con);
+			EXPORT std::list<std::string> getConTypes(void) const;
 			
-			EXPORT std::string mode(void);
+			EXPORT std::string mode(void) const;
 			
-			EXPORT void setLogTarget(FILE *f);
-			EXPORT void setLogLevel(int level);
-			EXPORT int getLogLevel(void);
+			EXPORT void setLogTarget(FILE *f) const;
+			EXPORT void setLogLevel(int level) const;
+			EXPORT int getLogLevel(void) const;
 	};
 	
 	class EXPORT Con {

@@ -52,21 +52,21 @@ EXPORT std::list<std::string> libxbee::getModes(void) {
 
 /* ========================================================================== */
 
-EXPORT libxbee::XBee::XBee(std::string mode) {
+EXPORT libxbee::XBee::XBee(const std::string &mode) {
 	xbee_err ret;
 	
 	if ((ret = xbee_setup(&xbee, mode.c_str())) != XBEE_ENONE) throw(ret);
 	
 	xbeeList.push_back(this);
 }
-EXPORT libxbee::XBee::XBee(std::string mode, std::string device, int baudrate) {
+EXPORT libxbee::XBee::XBee(const std::string &mode, const std::string &device, int baudrate) {
 	xbee_err ret;
 	
 	if ((ret = xbee_setup(&xbee, mode.c_str(), device.c_str(), baudrate)) != XBEE_ENONE) throw(ret);
 	
 	xbeeList.push_back(this);
 }
-EXPORT libxbee::XBee::XBee(std::string mode, va_list ap) {
+EXPORT libxbee::XBee::XBee(const std::string &mode, va_list ap) {
 	xbee_err ret;
 	
 	if ((ret = xbee_vsetup(&xbee, mode.c_str(), ap)) != XBEE_ENONE) throw(ret);
@@ -90,6 +90,11 @@ EXPORT libxbee::XBee::~XBee(void) {
 EXPORT struct xbee *libxbee::XBee::getHnd(void) {
 	return xbee;
 }
+
+EXPORT const struct xbee *libxbee::XBee::getHnd(void) const {
+	return xbee;
+}
+
 EXPORT void libxbee::XBee::conRegister(Con *con) {
 	xbee_err ret;
 	if ((ret = xbee_conValidate(con->getHnd())) != XBEE_ENONE) throw(ret);
@@ -99,15 +104,22 @@ EXPORT void libxbee::XBee::conRegister(Con *con) {
 EXPORT void libxbee::XBee::conUnregister(Con *con) {
 	conList.remove(con);
 }
-EXPORT libxbee::Con *libxbee::XBee::conLocate(struct xbee_con *con) {
-	std::list<Con*>::iterator i;
+
+EXPORT const libxbee::Con *libxbee::XBee::conLocate(const struct xbee_con *con) const {
+	std::list<Con*>::const_iterator i;
 	for (i = conList.begin(); i != conList.end(); i++) {
 		if ((*i)->getHnd() == con) return (*i);
 	}
 	return NULL;
 }
-
-EXPORT std::list<std::string> libxbee::XBee::getConTypes(void) {
+EXPORT libxbee::Con *libxbee::XBee::conLocate(const struct xbee_con *con) {
+	std::list<Con*>::const_iterator i;
+	for (i = conList.begin(); i != conList.end(); i++) {
+		if ((*i)->getHnd() == con) return (*i);
+	}
+	return NULL;
+}
+EXPORT std::list<std::string> libxbee::XBee::getConTypes(void) const {
 	xbee_err ret;
 	char **types;
 	int i;
@@ -122,7 +134,7 @@ EXPORT std::list<std::string> libxbee::XBee::getConTypes(void) {
 	return typeList;
 }
 
-EXPORT std::string libxbee::XBee::mode(void) {
+EXPORT std::string libxbee::XBee::mode(void) const {
 	xbee_err ret;
 	const char *mode;
 	
@@ -131,17 +143,17 @@ EXPORT std::string libxbee::XBee::mode(void) {
 	return std::string(mode);
 }
 
-EXPORT void libxbee::XBee::setLogTarget(FILE *f) {
+EXPORT void libxbee::XBee::setLogTarget(FILE *f) const {
 	xbee_err ret;
 	
 	if ((ret = xbee_logTargetSet(xbee, f)) != XBEE_ENONE) throw(ret);
 }
-EXPORT void libxbee::XBee::setLogLevel(int level) {
+EXPORT void libxbee::XBee::setLogLevel(int level) const {
 	xbee_err ret;
 	
 	if ((ret = xbee_logLevelSet(xbee, level)) != XBEE_ENONE) throw(ret);
 }
-EXPORT int libxbee::XBee::getLogLevel(void) {
+EXPORT int libxbee::XBee::getLogLevel(void) const {
 	xbee_err ret;
 	int level;
 	
