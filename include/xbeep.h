@@ -56,9 +56,9 @@ namespace libxbee {
 	
 	class EXPORT XBee {
 		public:
-			EXPORT explicit XBee(std::string mode);
-			EXPORT explicit XBee(std::string mode, std::string device, int baudrate);
-			EXPORT explicit XBee(std::string mode, va_list ap);
+			EXPORT explicit XBee(const std::string &mode);
+			EXPORT explicit XBee(const std::string &mode, const std::string &device, int baudrate);
+			EXPORT explicit XBee(const std::string &mode, va_list ap);
 			EXPORT ~XBee(void);
 			
 		private:
@@ -67,30 +67,32 @@ namespace libxbee {
 			
 		public:
 			EXPORT struct xbee *getHnd(void);
+			EXPORT const struct xbee *getHnd(void) const;
 			EXPORT void conRegister(Con *con);
 			EXPORT void conUnregister(Con *con);
-			EXPORT Con *conLocate(struct xbee_con *con);
-			EXPORT std::list<std::string> getConTypes(void);
+			EXPORT const Con *conLocate(const struct xbee_con *con) const;
+			EXPORT Con *conLocate(const struct xbee_con *con);
+			EXPORT std::list<std::string> getConTypes(void) const;
 			
-			EXPORT std::string mode(void);
+			EXPORT std::string mode(void) const;
 			
-			EXPORT void setLogTarget(FILE *f);
-			EXPORT void setLogLevel(int level);
-			EXPORT int getLogLevel(void);
+			EXPORT void setLogTarget(FILE *f) const;
+			EXPORT void setLogLevel(int level) const;
+			EXPORT int getLogLevel(void) const;
 	};
 	
 	class EXPORT Con {
 		public:
-			EXPORT explicit Con(XBee &parent, std::string type, struct xbee_conAddress *address = NULL);
+			EXPORT explicit Con(XBee &parent, const std::string &type, struct xbee_conAddress *address = NULL);
 			EXPORT ~Con(void);
 			
-			EXPORT unsigned char operator<< (std::string data);
-			EXPORT unsigned char operator<< (std::vector<unsigned char> data);
-			EXPORT unsigned char operator<< (std::vector<char> data);
-			EXPORT void operator>> (Pkt &pkt);
-			EXPORT void operator>> (std::string &data);
-			EXPORT void operator>> (std::vector<unsigned char> &data);
-			EXPORT void operator>> (std::vector<char> &data);
+			EXPORT unsigned char operator<< (const std::string &data) const;
+			EXPORT unsigned char operator<< (const std::vector<unsigned char> &data) const;
+			EXPORT unsigned char operator<< (const std::vector<char> &data) const;
+			EXPORT void operator>> (Pkt &pkt) const;
+			EXPORT void operator>> (std::string &data) const;
+			EXPORT void operator>> (std::vector<unsigned char> &data) const;
+			EXPORT void operator>> (std::vector<char> &data) const;
 			
 		private:
 			friend class XBee;
@@ -102,17 +104,18 @@ namespace libxbee {
 			virtual void xbee_conCallback(Pkt **pkt);
 			
 		public:
+			EXPORT const struct xbee_con *getHnd(void) const;
 			EXPORT struct xbee_con *getHnd(void);
-			EXPORT unsigned char Tx(std::string data);
-			EXPORT unsigned char Tx(std::vector<unsigned char> data);
-			EXPORT unsigned char Tx(std::vector<char> data);
-			EXPORT unsigned char Tx(const unsigned char *buf, int len);
-			EXPORT unsigned char Tx(unsigned char *frameId, std::string data);
-			EXPORT unsigned char Tx(unsigned char *frameId, std::vector<unsigned char> data);
-			EXPORT unsigned char Tx(unsigned char *frameId, std::vector<char> data);
-			EXPORT unsigned char Tx(unsigned char *frameId, const unsigned char *buf, int len);
-			EXPORT void Rx(Pkt &pkt, int *remainingPackets = NULL);
-			EXPORT int RxAvailable(void);
+			EXPORT unsigned char Tx(const std::string &data) const;
+			EXPORT unsigned char Tx(const std::vector<unsigned char> &data) const;
+			EXPORT unsigned char Tx(const std::vector<char> &data) const;
+			EXPORT unsigned char Tx(const unsigned char *buf, int len) const;
+			EXPORT unsigned char Tx(unsigned char *frameId, const std::string &data) const;
+			EXPORT unsigned char Tx(unsigned char *frameId, const std::vector<unsigned char> &data) const;
+			EXPORT unsigned char Tx(unsigned char *frameId, const std::vector<char> &data) const;
+			EXPORT unsigned char Tx(unsigned char *frameId, const unsigned char *buf, int len) const;
+			EXPORT void Rx(Pkt &pkt, int *remainingPackets = NULL) const;
+			EXPORT int RxAvailable(void) const;
 			
 			EXPORT void purge(void);
 			
@@ -142,39 +145,41 @@ namespace libxbee {
 			EXPORT ~Pkt(void);
 			
 			EXPORT unsigned char operator[] (int index);
-			EXPORT void operator<< (Con &con);
-			EXPORT void operator>> (std::string &data);
-			EXPORT void operator>> (std::vector<unsigned char> &data);
-			EXPORT void operator>> (std::vector<char> &data);
+			EXPORT void operator<< (const Con &con);
+			EXPORT void operator>> (std::string &data) const;
+			EXPORT void operator>> (std::vector<unsigned char> &data) const;
+			EXPORT void operator>> (std::vector<char> &data) const;
 			
 		private:
 			struct xbee_pkt *pkt;
 			
 		public:
+			EXPORT const struct xbee_pkt *getHnd(void) const;
 			EXPORT struct xbee_pkt *getHnd(void);
 			EXPORT void setHnd(struct xbee_pkt *pkt);
 			
 			/* when calling this function, YOU become responsible for freeing the previously held packet */
 			EXPORT struct xbee_pkt *dropHnd(void);
 			
-			EXPORT int size(void);
+			EXPORT int size(void) const;
 			
-			EXPORT std::string getData(void);
-			EXPORT std::vector<unsigned char> getVector(void);
-			EXPORT std::vector<char> getVector2(void);
-			/* use these three with care... */
-			EXPORT void *getData(const char *key);
-			EXPORT void *getData(const char *key, int id);
-			EXPORT void *getData(const char *key, int id, int index);
-			
-			EXPORT std::string getATCommand(void);
-			
-			EXPORT int getAnalog(int channel);
-			EXPORT int getAnalog(int channel, int index);
-			EXPORT bool getDigital(int channel);
-			EXPORT bool getDigital(int channel, int index);
+			EXPORT std::string getData(void) const;
+			EXPORT std::vector<unsigned char> getVector(void) const;
+			EXPORT std::vector<char> getVector2(void) const;
 
-			EXPORT unsigned char getRssi(void);
+			/* use these three with care... */
+			EXPORT void *getData(const char *key) const ;
+			EXPORT void *getData(const char *key, int id) const;
+			EXPORT void *getData(const char *key, int id, int index) const;
+			
+			EXPORT std::string getATCommand(void) const;
+			
+			EXPORT int getAnalog(int channel) const;
+			EXPORT int getAnalog(int channel, int index) const;
+			EXPORT bool getDigital(int channel) const;
+			EXPORT bool getDigital(int channel, int index) const;
+
+			EXPORT unsigned char getRssi(void) const;
 	};
 };
 

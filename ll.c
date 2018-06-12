@@ -33,7 +33,7 @@ struct xbee_ll_info {
 	void *item;
 };
 
-xbee_err __xbee_ll_get_item(void *list, void *item, struct xbee_ll_info **retItem, int needMutex);
+xbee_err __xbee_ll_get_item(void *list, const void *item, struct xbee_ll_info **retItem, int needMutex);
 
 /* this file is scary, sorry it isn't commented... i nearly broke myself writing it
    maybe oneday soon i'll be brave and put some commends down */
@@ -284,7 +284,7 @@ xbee_err _xbee_ll_get_tail(void *list, void **retItem, int needMutex) {
 }
 
 /* returns struct xbee_ll_info* or NULL - don't touch the pointer if you don't know what you're doing ;) */
-xbee_err __xbee_ll_get_item(void *list, void *item, struct xbee_ll_info **retItem, int needMutex) {
+xbee_err __xbee_ll_get_item(void *list, const void *item, struct xbee_ll_info **retItem, int needMutex) {
 	struct xbee_ll_head *h;
 	struct xbee_ll_info *i;
 	if (!list) return XBEE_EMISSINGPARAM;
@@ -302,7 +302,7 @@ xbee_err __xbee_ll_get_item(void *list, void *item, struct xbee_ll_info **retIte
 	if (!i) return XBEE_ENOTEXISTS;
 	return XBEE_ENONE;
 }
-xbee_err _xbee_ll_get_item(void *list, void *item, int needMutex) {
+xbee_err _xbee_ll_get_item(void *list, const void *item, int needMutex) {
 	return __xbee_ll_get_item(list, item, NULL, needMutex);
 }
 
