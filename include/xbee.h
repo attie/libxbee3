@@ -219,7 +219,7 @@ EXPORT void xbee_fini(void);
 typedef void (*xbee_t_eofCallback)(struct xbee *xbee, void *rxInfo);
 
 EXPORT void xbee_freeMemory(void *ptr); /* <-- this is for STUPID windows */
-EXPORT xbee_err xbee_validate(struct xbee *xbee);
+EXPORT xbee_err xbee_validate(const struct xbee *xbee);
 EXPORT xbee_err xbee_setup(struct xbee **retXbee, const char *mode, ...);
 EXPORT xbee_err xbee_vsetup(struct xbee **retXbee, const char *mode, va_list ap);
 EXPORT xbee_err xbee_attachEOFCallback(struct xbee *xbee, xbee_t_eofCallback eofCallback);
@@ -232,7 +232,7 @@ EXPORT xbee_err xbee_dataGet(struct xbee *xbee, void **curData);
 /* ######################################################################### */
 /* --- mode.c --- */
 EXPORT xbee_err xbee_modeGetList(char ***retList);
-EXPORT xbee_err xbee_modeGet(struct xbee *xbee, const char **mode);
+EXPORT xbee_err xbee_modeGet(const struct xbee *xbee, const char **mode);
 
 
 /* ######################################################################### */

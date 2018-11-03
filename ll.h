@@ -67,7 +67,7 @@ xbee_err _xbee_ll_add_before(void *list, void *ref, void *item, int needMutex);
 
 xbee_err _xbee_ll_get_head(void *list, void **retItem, int needMutex);
 xbee_err _xbee_ll_get_tail(void *list, void **retItem, int needMutex);
-xbee_err _xbee_ll_get_item(void *list, void *item, int needMutex);
+xbee_err _xbee_ll_get_item(void *list, const void *item, int needMutex);
 xbee_err _xbee_ll_get_next(void *list, void *ref, void **retItem, int needMutex);
 xbee_err _xbee_ll_get_prev(void *list, void *ref, void **retItem, int needMutex);
 xbee_err _xbee_ll_get_index(void *list, unsigned int index, void **retItem, int needMutex);
