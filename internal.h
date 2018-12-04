@@ -51,6 +51,7 @@ struct xbee_buf {
 struct xbee_sbuf {
 	xsys_sem sem;
 	size_t len;
+	int waitForAck;
 	unsigned char data[1];
 };
 

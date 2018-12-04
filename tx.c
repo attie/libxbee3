@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "internal.h"
 #include "tx.h"
@@ -103,13 +104,12 @@ xbee_err xbee_tx(struct xbee *xbee, int *restart, void *arg) {
 
 		if ((ret = info->ioFunc(xbee, info->ioArg, buf)) != XBEE_ENONE) {
 			xbee_log(1, "tx() returned %d... buffer was lost", ret);
-			continue;
 		}
 
-		if (xbee_ll_ext_item(needsFree, buf) == XBEE_ENONE) {
-			free(buf);
+		if (buf->waitForAck) {
+            xsys_sem_post(&buf->sem);
 		} else {
-			xsys_sem_post(&buf->sem);
+            free(buf);
 		}
 	}
 	
@@ -144,6 +144,8 @@ xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len,
 	
 	if (!oBuf) return XBEE_EUNKNOWN;
 
+	oBuf->waitForAck = waitForAck;
+
 	if (waitForAck) xsys_sem_init(&oBuf->sem);
 	
 	con->info.countTx++;
@@ -161,18 +163,14 @@ xbee_err xbee_txHandler(struct xbee_con *con, const unsigned char *buf, int len,
 		   see xbee_tx() - this helps to keep the timeout value correct */
 		ret = xsys_sem_wait(&oBuf->sem);
 
-		/* perform this atomically */
-		xbee_ll_lock(needsFree);
-		xsys_sem_destroy(&oBuf->sem);
 		if (ret != 0) {
-			xbee_log(25, "[%p] Unable to wait for transfer to occur... The conType timeout may not be sufficient.", con);
-			_xbee_ll_add_tail(needsFree, oBuf, 0);
-		} else {
-			free(oBuf);
+            xbee_log(25, "[%p] Wait for transfer to occur returned with errno %d... The conType timeout may not be sufficient.", con, errno);
 		}
-		xbee_ll_unlock(needsFree);
-	} else {
-		xbee_ll_add_tail(needsFree, oBuf);
+
+		xsys_sem_destroy(&oBuf->sem);
+
+		free(oBuf);
+
 	}
 
 	return XBEE_ENONE;
