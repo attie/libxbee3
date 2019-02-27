@@ -15,9 +15,10 @@ SYS_USER:=      root
 #SYS_HTMLDIR:=   /var/www/libxbee.doc
 
 ### setup a cross-compile toolchain (either here, or in the environment)
-#CROSS_COMPILE?= 
-#CFLAGS+=        
-#CLINKS+=        
+# use the CodeSourcery 2011.03-41 toolchain (v4.5.2)
+CROSS_COMPILE?= arm-linux-gnueabihf-
+#CFLAGS+=
+#CLINKS+=
 
 ### un-comment to remove ALL logging (smaller & faster binary)
 #OPTIONS+=       XBEE_DISABLE_LOGGING
@@ -28,8 +29,8 @@ SYS_USER:=      root
 #OPTIONS+=       XBEE_LOG_NO_COLOR
 #OPTIONS+=       XBEE_LOG_NO_RX
 #OPTIONS+=       XBEE_LOG_NO_TX
-OPTIONS+=       XBEE_LOG_RX_DEFAULT_OFF
-OPTIONS+=       XBEE_LOG_TX_DEFAULT_OFF
+#OPTIONS+=       XBEE_LOG_RX_DEFAULT_OFF
+#OPTIONS+=       XBEE_LOG_TX_DEFAULT_OFF
 
 ### un-comment to disable strict objects (xbee/con/pkt pointers are usually checked inside functions)
 ### this may give increased execution speed, but will be more suseptible to incorrect parameters
@@ -44,9 +45,6 @@ OPTIONS+=       XBEE_LOG_TX_DEFAULT_OFF
 
 ### un-comment to allow arbitrary baud rates - drivers may still reject them
 #OPTIONS+=       XBEE_ALLOW_ARB_BAUD
-
-### comment to disable frame timeouts
-OPTIONS+=       XBEE_FRAME_TIMEOUT_ENABLED
 
 ### un-comment to use API mode 2
 #OPTIONS+=       XBEE_API2
